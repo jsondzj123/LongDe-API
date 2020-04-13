@@ -9,4 +9,7 @@ class UserController extends Controller
     public function loginAndRegister(){
         echo 'aaaa';
     }
+    public function test(){
+        echo "bbb";
+    }
 }
