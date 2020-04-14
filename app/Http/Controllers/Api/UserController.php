@@ -154,4 +154,7 @@ class UserController extends Controller {
 
         return response()->json($response);
     }
+    public function test(){
+        echo "bbb";
+    }
 }
