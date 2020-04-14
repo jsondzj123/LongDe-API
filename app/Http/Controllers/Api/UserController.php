@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 
 #use DB;
 #use Illuminate\Support\Facades\Redis;
+use App\Models\Testuser;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -112,7 +113,6 @@ class UserController extends Controller {
             $response['code'] = '5002';
             $response['msg']  = '无法响应请求，服务端异常';
         }
-
         return response()->json($response);
     }
 
@@ -156,5 +156,34 @@ class UserController extends Controller {
     }
     public function test(){
         echo "将文件提交到远程自己的分支";
+    }
+
+    //增
+    public function userAddfind(){
+        $username = $_POST['name'];
+        $password = $_POST['pass'];
+        $id = DB::table('ce_testuser')->insertGetId(
+            ['username' => $username, 'password' => $password]
+        );
+        return $this->responseJson(200,$id);
+
+    }
+    //查
+    public function userlist(){
+        $user = DB::table('ce_testuser')->get();
+        return $this->responseJson(200,$user);
+    }
+    //删
+    public function userDelForId(){
+        $id = $_POST['id'];
+        $status = DB::table('users')->where(array('id'=>$id))->delete();
+        return response()->json($status);
+    }
+    //改
+    public function userUpdate(){
+
+        DB::table('users')
+            ->where('id', 1)
+            ->update(['votes' => 1]);
     }
 }

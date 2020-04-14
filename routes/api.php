@@ -28,6 +28,12 @@ $router->group(['prefix' => 'api'], function () use ($router) {
         $router->post('logout','Api\UserController@logout');
         $router->post('refreshToken','Api\UserController@refreshToken');
     });
+
+    //自己测试
+    $router->post('userList','Api\UserController@userlist');
+    $router->post('userAddfind','Api\UserController@userAddfind');
+    $router->get('test','Api\UserController@test');
+
 });
 
 
