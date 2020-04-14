@@ -20,7 +20,15 @@ $router->get('/', function () use ($router) {
 
 //客户端路由接口
 $router->group(['prefix' => 'api'], function () use ($router) {
-    $router->group(['prefix' => 'user'], function () use ($router) {
+    $router->post('user/login','Api\UserController@login');
+    $router->group(['prefix' => 'user' , 'middleware'=>'auth:api'], function () use ($router) {
         $router->get('logReg', 'Api\UserController@loginAndRegister');
-    }); 
+        $router->get('getUserInfoById', 'Api\UserController@getUserInfoById');
+        $router->get('userLogin', 'Api\UserController@userLogin');
+        $router->post('logout','Api\UserController@logout');
+        $router->post('refreshToken','Api\UserController@refreshToken');
+    });
 });
+
+
+

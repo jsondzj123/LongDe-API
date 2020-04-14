@@ -23,9 +23,12 @@ $app = new Laravel\Lumen\Application(
     dirname(__DIR__)
 );
 
-// $app->withFacades();
+$app->withFacades(true , [
+   'Tymon\JWTAuth\Facades\JWTAuth'    => 'JWTAuth',
+   'Tymon\JWTAuth\Facades\JWTFactory' => 'JWTFactory'
+]);
 
-// $app->withEloquent();
+$app->withEloquent();
 
 /*
 |--------------------------------------------------------------------------
@@ -76,9 +79,9 @@ $app->configure('app');
 //     App\Http\Middleware\ExampleMiddleware::class
 // ]);
 
-// $app->routeMiddleware([
-//     'auth' => App\Http\Middleware\Authenticate::class,
-// ]);
+$app->routeMiddleware([
+     'auth' => App\Http\Middleware\Authenticate::class,
+]);
 
 /*
 |--------------------------------------------------------------------------
@@ -91,10 +94,14 @@ $app->configure('app');
 |
 */
 
-// $app->register(App\Providers\AppServiceProvider::class);
-// $app->register(App\Providers\AuthServiceProvider::class);
-// $app->register(App\Providers\EventServiceProvider::class);
+$app->register(App\Providers\AppServiceProvider::class);
+$app->register(App\Providers\AuthServiceProvider::class);
+$app->register(App\Providers\EventServiceProvider::class);
 
+// JWT
+$app->register(\Tymon\JWTAuth\Providers\LumenServiceProvider::class);
+//加载redis服务
+$app->register(\Illuminate\Redis\RedisServiceProvider::class);
 /*
 |--------------------------------------------------------------------------
 | Load The Application Routes
