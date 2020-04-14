@@ -160,6 +160,9 @@ class UserController extends Controller {
 
     //增
     public function userAddfind(){
+
+        $a = Testuser::getUserList();
+
         $username = $_POST['name'];
         $password = $_POST['pass'];
         $id = DB::table('ce_testuser')->insertGetId(
@@ -170,7 +173,9 @@ class UserController extends Controller {
     }
     //查
     public function userlist(){
-        $user = DB::table('ce_testuser')->get();
+//        $user = DB::table('ce_testuser')->get();
+
+        $user =Testuser::Find(1);
         return $this->responseJson(200,$user);
     }
     //删
