@@ -19,11 +19,11 @@ use Tymon\JWTAuth\JWTAuth;
 
 class UserController extends Controller {
     protected $jwt;
-    
+
     public function __construct(JWTAuth $jwt) {
         $this->jwt = $jwt;
     }
-    
+
     public function loginAndRegister(){
         //echo 'nnn';
        //Redis::set('name', 'guwenjie');
@@ -31,16 +31,16 @@ class UserController extends Controller {
         dd($values);
 
     }
-    
+
     /*
      * @param 根据用户ID获取用户信息
-     * @param $user_id  
+     * @param $user_id
      */
     public function getUserInfoById(Request $request){
         /*$userinfo = DB::table("longdeapi_user")->get()->toArray();
         echo "<pre>";
         print_r($userinfo);*/
-        
+
         //return User::getMember();
         /*$data = [
             'mobile'  =>  '15893641025' ,
@@ -59,22 +59,22 @@ class UserController extends Controller {
         } else {
             return response()->json(['code'=>500,'msg'=>'添加失败']);
         }
-        
+
         //return response()->json(['username'=>'aaaa']);
     }
-    
-    
+
+
     /*public function userLogin(Request $request) {
 
         $user = Auth::where('id',1)->first();
-        
+
         $token = $this->jwt->fromUser($user);
         return response()->json(compact('token'),200);
-        
- 
+
+
         $user = \App\Models\Auth::where('username', $request->input('username'))
                 ->where('password', $request->input('password'))->first();
-        
+
         $token = Auth::login($user);
         echo "<prew>";
         print_r($token);
@@ -84,8 +84,8 @@ class UserController extends Controller {
         }
         return response()->json(compact('token'));
     }*/
-    
-    
+
+
     /**
      * 登录
      *
@@ -115,7 +115,7 @@ class UserController extends Controller {
 
         return response()->json($response);
     }
-    
+
     /**
      * 用户登出
      *
@@ -155,6 +155,6 @@ class UserController extends Controller {
         return response()->json($response);
     }
     public function test(){
-        echo "bbb";
+        echo "将文件提交到远程自己的分支";
     }
 }
