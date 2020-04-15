@@ -30,5 +30,6 @@ class TestController extends Controller {
     //改
     public function userUpdate(){
         echo 'aaaa';
+        exit;
     }
 }
