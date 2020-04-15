@@ -21,6 +21,7 @@ $router->get('/', function () use ($router) {
 //客户端路由接口
 $router->group(['prefix' => 'api'], function () use ($router) {
     $router->post('user/login','Api\UserController@login');
+    $router->post('user/userinfo','Api\UserController@getUserinfo');
     $router->group(['prefix' => 'user' , 'middleware'=>'auth:api'], function () use ($router) {
         $router->get('logReg', 'Api\UserController@loginAndRegister');
         $router->get('getUserInfoById', 'Api\UserController@getUserInfoById');

@@ -4,7 +4,12 @@ namespace App\Http\Controllers;
 
 use Laravel\Lumen\Routing\Controller as BaseController;
 
-class Controller extends BaseController
-{
-    //
+class Controller extends BaseController {
+    /*
+     * 
+     */
+    public function __construct() {
+        echo app('rsa')->test();
+        exit;
+    }
 }
