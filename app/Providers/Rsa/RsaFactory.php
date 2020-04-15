@@ -4,29 +4,6 @@ namespace App\Providers\Rsa;
 use Illuminate\Http\Request;
  
 class RsaFactory {
-    private static $PRIVATE_KEY =
-        '-----BEGIN RSA PRIVATE KEY-----
-MIICXQIBAAKBgQChMx+AdLgn/mvU2uTMvV7L2b/VraaEab3ABvhf8qALEmPg+sPu
-LmYxjFt9N7jz0IbXzZq0d5WVTaGXhqnWrigGCxGi9losvIcQ33mms+9GgYbTasFo
-NbM3BhjDgqdXVTsU08sfIBNJ+PkfPuwcj+UEUA+MziLaGyxa1IQ456HhDQIDAQAB
-AoGBAJzB7Ulqt8bUqCHm94aORQgxaVautnafqZF6dcBAXhhGOvCGi1AsuN5IIpQD
-Qw1+ZBKp8165x7HYO2Lx5mlJFMs4W6iM/nXbR2j/WfihsDWxhAmvUevbZ6wz22+b
-g9/QMO9sUVM0+W0WymMlKzaj7HX4kiL8ynn5JlkTsoiTZZT1AkEA0eU5Hmdaybg9
-aGe/c7BCtrNsNpDPkzfbGzNF2mDYk91qWKMod4F90oynOkn5ZykaC71e6lr5K6cy
-xwS1w/TI5wJBAMSbqEqaNVCucNj6QpBqboi2hmO3FK3DXw14oaYXnu0hfpyW8qkU
-xY65ZHQh72zU9O+DGkeWH1n5a5OMDUe/Q+sCQHsOsAFCSTkQ2nfWs6lJAqQI533K
-QtimG8CDvAV/WBrA6nOTHMuL0M/bhMOo0R8JOur9GKO/uGw+d4e1HDgJ0KsCQEWG
-IbnX1DimpwMjZDx7VoEDwnwqdqaHquoxmUAJpEqIiKRJAKBn1wCEcJBcm7TpjX/Q
-5Y8g+A8yEyeG4/9WFGcCQQCJSc17ORFF/70FLrQ+u9k5Qx+boH/Go/1sl/ywDu9I
-ASEr/L8MpfsLiubluFvN8A2+TezECAfwc9A5MQx0OBPv
------END RSA PRIVATE KEY-----';
-    private static $PUBLIC_KEY = '-----BEGIN PUBLIC KEY-----
-MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQChMx+AdLgn/mvU2uTMvV7L2b/V
-raaEab3ABvhf8qALEmPg+sPuLmYxjFt9N7jz0IbXzZq0d5WVTaGXhqnWrigGCxGi
-9losvIcQ33mms+9GgYbTasFoNbM3BhjDgqdXVTsU08sfIBNJ+PkfPuwcj+UEUA+M
-ziLaGyxa1IQ456HhDQIDAQAB
------END PUBLIC KEY-----';
-    
     /**
      * 加密方法，对数据进行加密，返回加密后的数据
      *
@@ -55,9 +32,8 @@ ziLaGyxa1IQ456HhDQIDAQAB
      * 获取私钥
      * @return bool|resource
      */
-    private static function getPrivateKey()
-    {
-        $privateKey = self::$PRIVATE_KEY;
+    private static function getPrivateKey() {
+        $privateKey = file_get_contents(app()->basePath().'/rsa_private_key.pem');
         return openssl_pkey_get_private($privateKey);
     }
  
@@ -65,9 +41,8 @@ ziLaGyxa1IQ456HhDQIDAQAB
      * 获取公钥
      * @return bool|resource
      */
-    private static function getPublicKey()
-    {
-        $publicKey = self::$PUBLIC_KEY;
+    private static function getPublicKey() {
+        $publicKey = file_get_contents(app()->basePath().'/rsa_public_key.pem');
         return openssl_pkey_get_public($publicKey);
     }
  
@@ -136,7 +111,34 @@ ziLaGyxa1IQ456HhDQIDAQAB
         return (openssl_public_decrypt(base64_decode($encrypted), $decrypted, self::getPublicKey())) ? $decrypted : null;
     }
 
+    /**
+     * 生成数字签名
+     * 使用方法示例
+     * openssl_sign('您要签名的数据' , '签名后返回来的数据' , '签名的钥匙/可以是公钥签名也可以是私钥签名,一般是私钥加密,公钥解密')
+     * @param  $data  待签数据  
+     * @return String 返回签名 
+     */
+    public static function sign($data=''){
+        //获取私钥
+        $pkeyid = self::getPrivateKey();
+        if (empty($pkeyid)) {
+            return false;
+        }
+        
+        //生成签名方法
+        $verify = openssl_sign($data, $signature, $pkeyid , OPENSSL_ALGO_SHA256);
+        return base64_encode($signature);
+    }
     
+    /*
+     * 数字签名验证
+     */
+    public function verifySign($data , $sign) {
+        $pub_id = openssl_get_publickey(self::getPublicKey());
+        $res    = openssl_verify($data, base64_decode($sign), $pub_id , OPENSSL_ALGO_SHA256);
+        return $res;
+    }
+
     
     /*
      * @param description 客户端RSA加密方法示例
@@ -166,31 +168,47 @@ ziLaGyxa1IQ456HhDQIDAQAB
         
         //将数据进行AES加密处理
         $body = $this->aesencrypt($result , $key);
+        
+        //生成签名
+        $sign = self::sign($body);
     
         //将key进行RSA加密处理
         $token= self::privateEncrypt($key);
 
         //返回数据数组
-        return json_encode(array('token' => $token , 'body' => $body));
+        return json_encode(array('token' => $token , 'body' => $body , 'sign' => $sign));
     }
     
     /*
      * @param description 服务端RSA解密方法示例
      * @param $token  rsa加密的key
      *        $body   aes加密后的数据
+     *        $sign   签名
      * @param author duzhijian
      * @param ctime  2020-04-15
      * return array
      */
-    public function rsadecrypt($token = '' , $body = ''){
+    public function rsadecrypt($token = '' , $body = '' , $sign = ''){
         //判断key是否为空
         if(!$token || empty($token)){
-            return response()->json(['code'=>201,'msg'=>'token不合法或为空']);
+            echo response()->json(['code'=>201,'msg'=>'token不合法或为空']);
+            exit;
         }
         
         //判断data是否为空
         if(!$body || empty($body)){
-            return response()->json(['code'=>201,'msg'=>'body不合法或为空']);
+            echo response()->json(['code'=>201,'msg'=>'body不合法或为空']);
+            exit;
+        }
+        
+        //数据验签处理
+        if($sign && !empty($sign)){
+            $sign_st = self::verifySign($body , $sign);
+            //判断是否验签成功
+            if($sign_st <= 0){
+                echo response()->json(['code'=>202,'msg'=>'签名验证失败']);
+                exit;
+            }
         }
 
         //将key进行RSA解密处理(最后得到aes的明文key)
@@ -200,7 +218,7 @@ ziLaGyxa1IQ456HhDQIDAQAB
         $data= $this->aesdecrypt($body , $key);
 
         //返回数据数组
-        return json_encode(array('key' => $key , 'data' => $data));
+        return array('key' => $key , 'data' => $data);
     }
     
     /*
@@ -214,7 +232,7 @@ ziLaGyxa1IQ456HhDQIDAQAB
     public function RsaCryptDemo($key , $arr){
         //对数据进行加密处理(生成加密后的数据字符串)
         $encrypt_data =  $this->rsaencrypt($key , $arr);
-        
+
         //判断加密的数据信息是否为空
         if(empty($encrypt_data)){
             return response()->json(['code'=>201,'msg'=>'加密后的数据为空']);
@@ -232,12 +250,43 @@ ziLaGyxa1IQ456HhDQIDAQAB
         if(!isset($array_data['body']) || empty($array_data['body'])){
             return response()->json(['code'=>201,'msg'=>'body值不合法']);
         }
-        
+
         //对数据进行解密处理
-        $data_list = $this->rsadecrypt($array_data['token'] , $array_data['body']);
+        $data_list = $this->rsadecrypt($array_data['token'] , $array_data['body'] , $array_data['sign']);
         
         echo "<pre>";
         print_r($data_list);
+    }
+    
+    /*
+     * @param description 服务端数据解密
+     * @param $key   加密的key
+     *        $arr   加密的数据
+     * @param author duzhijian
+     * @param ctime  2020-04-15
+     * return array
+     */
+    public function Servicersadecrypt($data){
+        //判断token是否合法或为空
+        if(!isset($data['token']) || empty($data['token'])){
+            echo response()->json(['code'=>201,'msg'=>'token值不存在或为空']);
+            exit;
+        }
+
+        //判断body是否合法或为空
+        if(!isset($data['body']) || empty($data['body'])){
+            echo response()->json(['code'=>201,'msg'=>'body值不存在或为空']);
+            exit;
+        }
+        
+        //判断签名是否合法或为空
+        if(!isset($data['sign']) || empty($data['sign'])){
+            echo response()->json(['code'=>201,'msg'=>'sign值不存在或为空']);
+            exit;
+        }
+
+        //对数据进行解密处理
+        return $this->rsadecrypt($data['token'] , $data['body'] , $data['sign']);
     }
     
     
@@ -245,6 +294,24 @@ ziLaGyxa1IQ456HhDQIDAQAB
     public function Test(){
         $key = time().rand(1,10000);
         $arr = ['status' => '1', 'info' => 'success', 'data' => [['id' => 1, 'name' => '大房间', '2' => '小房间']]];
+        $arr = json_encode($arr);
+        $aaa = self::sign($arr);
+        
+        $ccc = $this->rsaencrypt($key , $arr);
+        $ccc = json_decode($ccc , true);
+        echo "<pre>";
+        print_r($ccc);
+        //$bbb = "SBxzwN05LdOY0vswkWieoNj6KnQCsVbHT5Fi4TLAQe5yfZrod3UbZz90od0DinpiEi1+vGMTlZ+Ck9LcaWjGS4yBa1XYO4BI9JtTvJN+JqxKlvZIyHX/ip9WfzPqPtOwUuRt/YSU7sLslpvAbG0hvVH2jVS1OvZdnDA6nbusocs=";
+        $token= "EGzWzR27RuS6bA8Haj3RZAdyEseTGgYd1pYubaMN2I2Z9vykrrohxf1Xf2A2BNQA4VsFPjyv4xnkxqKdQZ6fevgQ3pzKy2+RdsCrd8ap68RnXto5o7G8QCX8HNpTQiPmONJl1tjyWB/IVauq7MN/sLg1kViEOxMRSQuOivQAhLg=";
+        $body = "wz7Jk0s++OXxJBWt2l5V6hjr9oOHA0Vf86wzvJXhi6Zs3y/nrdGONqUyAH8wG15L4FmIvs4sLUBcQDNN27Gh8Gtrp2hcqij3cbKF0t/FC8eWCJa2GATJ+w6pZbi9+D89OFUnhSCZFFNo9P8dDFjpFg==";
+        $sign = "D9OmydE2zhpcS9Zd12JseO/ayiMRT4PnId4wCcRbvUaU7ehnuzK4hqno+VHVhiAzgVp2lTiRbHOWFTgQUdhCfFOSIo7op999wlT47mC8Xqjv+atKEnPZzC0MfvxZbmw62bpiRwGWmUUvMgVnQDCf9OaOEjN4ldcPW8izDsuLGrc=";
+        //$bbb = self::verifySign($body , $sign);
+        
+        $dddd = $this->rsadecrypt($token , $body , $sign);
+        
+        echo "<pre>";
+        print_r($dddd);
+        exit;
         $this->RsaCryptDemo($key , $arr);
         exit;
     }
