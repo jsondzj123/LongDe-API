@@ -1,12 +1,9 @@
 # 龙德在线
 
 
-
-[龙德文档]()
-
-说明
+项目说明
 -------------
-- 项目基于[Lumen5.0](https://lumen.laravel.com/)框架编写
+- 项目基于[Lumen7.0](https://lumen.laravel.com/)框架编写
 - 系统运行环境：
   -	PHP >= 7.2
   -	OpenSSL PHP Extension
