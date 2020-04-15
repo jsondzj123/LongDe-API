@@ -7,8 +7,16 @@ use Laravel\Lumen\Routing\Controller as BaseController;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Http\Request;
 
-class Controller extends BaseController
-{
+
+class Controller extends BaseController {
+    /*
+     * 
+     */
+    public function __construct() {
+        echo app('rsa')->test();
+        exit;
+    }
+
     /*返回json串
      * addtime 2020.4.14
      * auther liyinsheng

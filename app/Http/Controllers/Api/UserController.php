@@ -21,9 +21,12 @@ use Tymon\JWTAuth\JWTAuth;
 class UserController extends Controller {
     protected $jwt;
 
-    public function __construct(JWTAuth $jwt) {
-        $this->jwt = $jwt;
-    }
+//    public function __construct(JWTAuth $jwt) {
+//        echo 'aaaa';
+//        exit;
+       // $this->jwt = $jwt;
+//    }
+
 
     public function loginAndRegister(){
         //echo 'nnn';
@@ -115,6 +118,22 @@ class UserController extends Controller {
         }
         return response()->json($response);
     }
+
+
+    public function getUserinfo(Request $request){
+        /*$user = \App\Models\Auth::where('username', 'zzz')
+                ->where('password', '09421eca667afc4e13ba944a3b41cf2846004c20')->first();
+        $token = $this->jwt->fromUser($user);
+        $this->jwt->setToken($token);*/
+        //
+        //$token = $this->jwt->parseToken()->toUser();
+//echo $this->jwt->getToken().'<br>';
+        $token =  $request->input('token');
+echo $this->jwt->refresh($token);
+//echo $this->jwt->getPayload();
+        //return $token;
+    }
+
 
     /**
      * 用户登出

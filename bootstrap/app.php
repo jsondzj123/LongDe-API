@@ -98,6 +98,8 @@ $app->routeMiddleware([
 $app->register(App\Providers\AppServiceProvider::class);
 $app->register(App\Providers\AuthServiceProvider::class);
 $app->register(App\Providers\EventServiceProvider::class);
+//数据加密IOC容器
+$app->register(App\Providers\Rsa\RsaServiceProvider::class);
 
 // JWT
 $app->register(\Tymon\JWTAuth\Providers\LumenServiceProvider::class);
