@@ -33,5 +33,8 @@ class TestController extends Controller {
         echo 'aaaa';
         exit;
     }
+    public function ssss(){
+
+    }
 
 }
