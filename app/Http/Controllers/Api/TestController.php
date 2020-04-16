@@ -39,5 +39,8 @@ class TestController extends Controller {
     public function wwww(){
 
     }
+    public function qqq(){
+
+    }
 
 }
