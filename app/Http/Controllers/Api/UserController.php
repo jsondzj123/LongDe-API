@@ -119,9 +119,10 @@ class UserController extends Controller {
 
 
         return response()->json($response);*/
-        $aaa = self::$data;
+        $aaa = self::$accept_data['info'];
         echo "<pre>";
         print_r($aaa);
+        exit;
         echo 'aaaa';
         exit;
 
