@@ -9,12 +9,13 @@ use Illuminate\Http\Request;
 
 
 class Controller extends BaseController {
+    public static $data;
     /*
-     * 
+     *
      */
-    public function __construct() {
-        echo app('rsa')->test();
-        exit;
+    public function __construct(Request $request) {
+//        self::$data = app('rsa')->servicersadecrypt($request);
+        app('rsa')->test();
     }
 
     /*返回json串

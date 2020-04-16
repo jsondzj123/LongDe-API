@@ -32,7 +32,7 @@ $router->group(['prefix' => 'api'], function () use ($router) {
 
     //自己测试
     $router->post('userList','Api\UserController@userlist');
-    $router->post('userAddfind','Api\UserController@userAddfind');
+    $router->post('returnToken','Api\TestController@returnToken');
     $router->get('test','Api\UserController@test');
     $router->get('userUpdate','Api\TestController@userUpdate');
 });

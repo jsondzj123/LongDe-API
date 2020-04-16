@@ -99,7 +99,7 @@ class UserController extends Controller {
      * @return \Illuminate\Http\Response;
      */
     public function login(Request $request) {
-        $response = array('code' => '0');
+        /*$response = array('code' => '0');
         try {
             $user = \App\Models\Auth::where('username', $request->input('username'))
                 ->where('password', $request->input('password'))->first();
@@ -116,7 +116,15 @@ class UserController extends Controller {
             $response['code'] = '5002';
             $response['msg']  = '无法响应请求，服务端异常';
         }
-        return response()->json($response);
+
+
+        return response()->json($response);*/
+        $aaa = self::$data;
+        echo "<pre>";
+        print_r($aaa);
+        echo 'aaaa';
+        exit;
+
     }
 
 
