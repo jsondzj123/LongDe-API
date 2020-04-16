@@ -218,7 +218,7 @@ class RsaFactory {
         $data= $this->aesdecrypt($body , $key);
 
         //返回数据数组
-        return array('key' => $key , 'data' => $data);
+        return json_decode($data , true);
     }
     
     /*
