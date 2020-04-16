@@ -119,12 +119,7 @@ $app->register(\Illuminate\Redis\RedisServiceProvider::class);
 $app->router->group([
     'namespace' => 'App\Http\Controllers',
 ], function ($router) {
-    //客户端路由(Android,ios)
-    require __DIR__.'/../routes/api.php';
-    //前端路由(pc)
     require __DIR__.'/../routes/web.php';
-    //后端路由(pc后端)
-    require __DIR__.'/../routes/admin.php';
 });
 
 return $app;
