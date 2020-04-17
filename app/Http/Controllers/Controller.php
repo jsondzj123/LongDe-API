@@ -19,21 +19,7 @@ class Controller extends BaseController {
      * return  string
      */
     public function __construct(Request $request) {
-        self::$accept_data = app('rsa')->servicersadecrypt($request);
+//        self::$accept_data = app('rsa')->servicersadecrypt($request);
     }
 
-    /*返回json串
-     * addtime 2020.4.14
-     * auther liyinsheng
-     * $code  int   状态码
-     * $data  array  数据数组
-     * return  string
-     * */
-    public function responseJson($code,$data=[]){
-        $arr = config::get('code');
-        if(in_array($code,$arr)){
-            return response()->json(['code'=>404,'msg'=>'非法请求']);
-        }
-        return response()->json(['code' => $code, 'msg' => $arr[$code],'data'=>$data]);
-    }
 }

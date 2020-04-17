@@ -63,7 +63,7 @@ $app->singleton(
 */
 
 $app->configure('app');
-
+$app->configure('code');
 /*
 |--------------------------------------------------------------------------
 | Register Middleware
