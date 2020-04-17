@@ -22,6 +22,7 @@ $router->get('/', function () use ($router) {
 $router->group(['prefix' => 'api'], function () use ($router) {
     $router->post('user/login','Api\UserController@login');
     $router->post('user/userinfo','Api\UserController@getUserinfo');
+    $router->post('test','Api\TestController@userUpdate');
     $router->group(['prefix' => 'user' , 'middleware'=>'auth:api'], function () use ($router) {
         $router->get('logReg', 'Api\UserController@loginAndRegister');
         $router->get('getUserInfoById', 'Api\UserController@getUserInfoById');
