@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Config;
 //        echo 234;die;
         $arr = config::get('code');
 //        print_r($newarr);die;
-        if (in_array($code, $arr)) {
+        if (!in_array($code, $arr)) {
             return response()->json(['code' => 404, 'msg' => '非法请求']);
         }
         return response()->json(['code' => $code, 'msg' => $arr[$code], 'data' => $data]);
