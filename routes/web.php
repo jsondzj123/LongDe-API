@@ -20,7 +20,7 @@ $router->get('/', function () use ($router) {
 
 //客户端(ios,安卓)路由接口
 $router->group(['prefix' => 'api'], function () use ($router) {
-    /*$router->post('user/login','Api\UserController@login');
+    $router->post('user/login','Api\UserController@login');
     $router->post('user/userinfo','Api\UserController@getUserinfo');
     $router->group(['prefix' => 'user' , 'middleware'=>'auth:api'], function () use ($router) {
         $router->get('logReg', 'Api\UserController@loginAndRegister');
@@ -28,7 +28,7 @@ $router->group(['prefix' => 'api'], function () use ($router) {
         $router->get('userLogin', 'Api\UserController@userLogin');
         $router->post('logout','Api\UserController@logout');
         $router->post('refreshToken','Api\UserController@refreshToken');
-    });*/
+    });
 });
 
 //PC端路由接口
