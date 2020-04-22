@@ -173,7 +173,7 @@ class RsaFactory {
         $sign = self::sign($body);
     
         //将key进行RSA加密处理
-        $token= self::privateEncrypt($key);
+        $token= self::publicEncrypt($key);
 
         //返回数据数组
         return json_encode(array('token' => $token , 'body' => $body , 'sign' => $sign));
@@ -212,7 +212,7 @@ class RsaFactory {
         }
 
         //将key进行RSA解密处理(最后得到aes的明文key)
-        $key = self::publicDecrypt($token);
+        $key = self::privateDecrypt($token);
         
         //再将aes进行数据解密处理
         $data= $this->aesdecrypt($body , $key);
@@ -280,27 +280,28 @@ class RsaFactory {
         }
         
         //判断签名是否合法或为空
-        if(!isset($data['sign']) || empty($data['sign'])){
+        /*if(!isset($data['sign']) || empty($data['sign'])){
             echo response()->json(['code'=>201,'msg'=>'sign值不存在或为空']);
             exit;
-        }
+        }*/
 
         //对数据进行解密处理
-        return $this->rsadecrypt($data['token'] , $data['body'] , $data['sign']);
+        return $this->rsadecrypt($data['token'] , $data['body'] , '');
     }
     
     
     
     public function Test(){
         $key = time().rand(1,10000);
-        $arr = ['status' => '1', 'info' => 'success', 'data' => [['id' => 1, 'name' => '大房间', '2' => '小房间']]];
+        $arr = ['status' => '1', 'info' => 'success', 'data' => [['id' => 1, 'name' => 'big small', '2' => 'small room']]];
         $arr = json_encode($arr);
-        $aaa = self::sign($arr);
+        //$aaa = self::sign($arr);
         
         $ccc = $this->rsaencrypt($key , $arr);
         $ccc = json_decode($ccc , true);
         echo "<pre>";
         print_r($ccc);
+        exit;
         //$bbb = "SBxzwN05LdOY0vswkWieoNj6KnQCsVbHT5Fi4TLAQe5yfZrod3UbZz90od0DinpiEi1+vGMTlZ+Ck9LcaWjGS4yBa1XYO4BI9JtTvJN+JqxKlvZIyHX/ip9WfzPqPtOwUuRt/YSU7sLslpvAbG0hvVH2jVS1OvZdnDA6nbusocs=";
         $token= "EGzWzR27RuS6bA8Haj3RZAdyEseTGgYd1pYubaMN2I2Z9vykrrohxf1Xf2A2BNQA4VsFPjyv4xnkxqKdQZ6fevgQ3pzKy2+RdsCrd8ap68RnXto5o7G8QCX8HNpTQiPmONJl1tjyWB/IVauq7MN/sLg1kViEOxMRSQuOivQAhLg=";
         $body = "wz7Jk0s++OXxJBWt2l5V6hjr9oOHA0Vf86wzvJXhi6Zs3y/nrdGONqUyAH8wG15L4FmIvs4sLUBcQDNN27Gh8Gtrp2hcqij3cbKF0t/FC8eWCJa2GATJ+w6pZbi9+D89OFUnhSCZFFNo9P8dDFjpFg==";
