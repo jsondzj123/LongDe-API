@@ -39,10 +39,27 @@ class DemoController extends Controller {
      * @return \Illuminate\Http\JsonResponse
      */
    public  function insert(){
-       $arr= [];
-       echo getRandom(32);die;
-       return  responseJson(0);//        return $this->responseJson('0');
-   }
+        $arr=['188.88','168.88','16.88','48.88','1','2','3'];
+        $count = count($arr);
+        $i=0;
+        if( $count>0){
+        while ($i<=9) {
+            $i++;
+            $num = array_rand($arr);
+            echo $arr[$num].'<br/>';
+            unset($arr[$num]);
+            if(empty($arr)){
+                echo '活动结束<br/>';die;
+            }
+            $newarr = $arr;
+            $arr = $newarr;
+            print_r($newarr);
+        }
+       }
+}
+public function demos(){
+    $arr=['188.88','168.88','16.88','48.88','1','2','3'];
+}
 
 
 

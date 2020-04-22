@@ -38,6 +38,8 @@ $router->group(['prefix' => 'web'], function () use ($router) {
 
 //后台端路由接口
 $router->group(['prefix' => 'admin'], function () use ($router) {
-    $router->get('admin/insert','Api\DemoController@insert');
-    $router->post('Demo/demo','Api\DemoController@demo');
+    $router->group(['prefix' => 'user'], function () use ($router) {
+        $router->post('login', 'Api\Admin\LoginController@login');
+
+    });
 });

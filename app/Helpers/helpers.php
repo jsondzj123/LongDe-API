@@ -12,9 +12,7 @@ use Illuminate\Support\Facades\Config;
 //if (! function_exists('responseJson')) {
     function responseJson($code, $data = [])
     {
-//        echo 234;die;
         $arr = config::get('code');
-//        print_r($newarr);die;
         if (!in_array($code, $arr)) {
             return response()->json(['code' => 404, 'msg' => '非法请求']);
         }
