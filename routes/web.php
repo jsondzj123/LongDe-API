@@ -19,6 +19,12 @@ $router->get('/', function () use ($router) {
 
 $router->post('test','Api\TestController@TeacherList');
 
+//中间件
+$router->group(['prefix' => 'test' , 'middleware'=>'api'], function () use ($router) {
+    $router->post('index', 'Api\TestController@rsami');
+});
+
+
 //客户端(ios,安卓)路由接口
 $router->group(['prefix' => 'api'], function () use ($router) {
     $router->post('user/login','Api\UserController@login');

@@ -202,14 +202,14 @@ class RsaFactory {
         }
 
         //数据验签处理
-        if($sign && !empty($sign)){
-            $sign_st = self::verifySign($body , $sign);
-            //判断是否验签成功
-            if($sign_st <= 0){
-                echo response()->json(['code'=>202,'msg'=>'签名验证失败']);
-                exit;
-            }
-        }
+//        if($sign && !empty($sign)){
+//            $sign_st = self::verifySign($body , $sign);
+//            //判断是否验签成功
+//            if($sign_st <= 0){
+//                echo response()->json(['code'=>202,'msg'=>'签名验证失败']);
+//                exit;
+//            }
+//        }
 
         //将key进行RSA解密处理(最后得到aes的明文key)
 
@@ -220,6 +220,8 @@ class RsaFactory {
         $data= $this->aesdecrypt($body , $key);
 
         //返回数据数组
+//        echo response()->json(['code'=>$data]);
+//        exit;
         return json_decode($data , true);
     }
 
@@ -269,6 +271,7 @@ class RsaFactory {
      * return array
      */
     public function Servicersadecrypt($data){
+
         //判断token是否合法或为空
         if(!isset($data['token']) || empty($data['token'])){
             echo response()->json(['code'=>201,'msg'=>'token值不存在或为空']);
@@ -286,7 +289,6 @@ class RsaFactory {
             echo response()->json(['code'=>201,'msg'=>'sign值不存在或为空']);
             exit;
         }*/
-
         //对数据进行解密处理
         return $this->rsadecrypt($data['token'] , $data['body'] , '');
     }

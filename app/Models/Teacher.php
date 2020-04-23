@@ -11,6 +11,10 @@ class Teacher extends Model {
 
    /*
         * @param  descriptsion 讲师统计列表查询
+        * @param  $schoolid     分校id
+        * @param  $teachername  讲师姓名
+        * @param  $teacherphone  讲师手机号
+        * @param  $date  时间
         * @param  author  苏振文
         * @param  ctime   2020/4/22 10:21
         * return  array
@@ -26,8 +30,28 @@ class Teacher extends Model {
         if($teacherphone != ''){
             $where['teacher_phone'] = $teacherphone;
         }
+        //先查询缓存 再查表
+
         $return = self::where($where)->get()->toArray();
+        //循环查询课时 连表
+        foreach ($return as $k=>&$v){
+
+        }
+        //存入缓存中
         return $return;
+    }
+    /*
+         * @param  descriptsion 讲师统计添加
+         * @param  $user_id     参数
+         * @param  author  苏振文
+         * @param  ctime   2020/4/22 16:44
+         * return  array
+         */
+    public static function AddTeacher($schoolid,$teachername,$teacherphone,$date){
+          if($schoolid == '' ||$teachername == '' || $teacherphone == ''){
+
+          }
+          self::toArray();
     }
 
 
