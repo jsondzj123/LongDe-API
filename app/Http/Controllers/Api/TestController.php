@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Teacher;
+use App\Providers\Rsa\RsaFactory;
 
 class TestController extends Controller {
     //列表
@@ -21,9 +22,16 @@ class TestController extends Controller {
 
         }
     }
-    //加密解密
+    //解密
     public function rsami(){
         $a = "aaaaaaaaaaaaaa";
         echo $a;die;
+    }
+    //jia
+    public function rsaadd(){
+//        echo "9999";die;
+        $rsa =  new RsaFactory();
+        $a = $rsa->Test();
+        print_r($a);die;
     }
 }
