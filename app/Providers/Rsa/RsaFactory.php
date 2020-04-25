@@ -191,13 +191,13 @@ class RsaFactory {
     public function rsadecrypt($token = '' , $body = '' , $sign = ''){
         //判断key是否为空
         if(!$token || empty($token)){
-            echo response()->json(['code'=>201,'msg'=>'token不合法或为空']);
+            echo json_encode(['code'=>201,'msg'=>'token不合法或为空']);
             exit;
         }
         
         //判断data是否为空
         if(!$body || empty($body)){
-            echo response()->json(['code'=>201,'msg'=>'body不合法或为空']);
+            echo json_encode(['code'=>201,'msg'=>'body不合法或为空']);
             exit;
         }
         
@@ -206,7 +206,7 @@ class RsaFactory {
             $sign_st = self::verifySign($body , $sign);
             //判断是否验签成功
             if($sign_st <= 0){
-                echo response()->json(['code'=>202,'msg'=>'签名验证失败']);
+                echo json_encode(['code'=>202,'msg'=>'签名验证失败']);
                 exit;
             }
         }
@@ -217,7 +217,7 @@ class RsaFactory {
         //再将aes进行数据解密处理
         $data= $this->aesdecrypt($body , $key);
         if(!$data || empty($data)){
-            echo response()->json(['code'=>202,'msg'=>'解密失败']);
+            echo json_encode(['code'=>202,'msg'=>'解密失败']);
             exit;
         }
 
@@ -273,13 +273,13 @@ class RsaFactory {
     public function Servicersadecrypt($data){
         //判断token是否合法或为空
         if(!isset($data['token']) || empty($data['token'])){
-            echo response()->json(['code'=>201,'msg'=>'token值不存在或为空']);
+            echo json_encode(['code'=>201,'msg'=>'token值不存在或为空']);
             exit;
         }
 
         //判断body是否合法或为空
         if(!isset($data['body']) || empty($data['body'])){
-            echo response()->json(['code'=>201,'msg'=>'body值不存在或为空']);
+            echo json_encode(['code'=>201,'msg'=>'body值不存在或为空']);
             exit;
         }
         
