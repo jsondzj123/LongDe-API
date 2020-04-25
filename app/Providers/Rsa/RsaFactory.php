@@ -191,17 +191,18 @@ class RsaFactory {
     public function rsadecrypt($token = '' , $body = '' , $sign = ''){
         //判断key是否为空
         if(!$token || empty($token)){
-            echo response()->json(['code'=>201,'msg'=>'token不合法或为空']);
+            echo json_encode(['code'=>201,'msg'=>'token不合法或为空']);
             exit;
         }
 
         //判断data是否为空
         if(!$body || empty($body)){
-            echo response()->json(['code'=>201,'msg'=>'body不合法或为空']);
+            echo json_encode(['code'=>201,'msg'=>'body不合法或为空']);
             exit;
         }
 
         //数据验签处理
+<<<<<<< HEAD
 //        if($sign && !empty($sign)){
 //            $sign_st = self::verifySign($body , $sign);
 //            //判断是否验签成功
@@ -210,6 +211,16 @@ class RsaFactory {
 //                exit;
 //            }
 //        }
+=======
+        if($sign && !empty($sign)){
+            $sign_st = self::verifySign($body , $sign);
+            //判断是否验签成功
+            if($sign_st <= 0){
+                echo json_encode(['code'=>202,'msg'=>'签名验证失败']);
+                exit;
+            }
+        }
+>>>>>>> dev
 
         //将key进行RSA解密处理(最后得到aes的明文key)
 
@@ -218,6 +229,10 @@ class RsaFactory {
 
         //再将aes进行数据解密处理
         $data= $this->aesdecrypt($body , $key);
+        if(!$data || empty($data)){
+            echo json_encode(['code'=>202,'msg'=>'解密失败']);
+            exit;
+        }
 
         //返回数据数组
 //        echo response()->json(['code'=>$data]);
@@ -274,13 +289,13 @@ class RsaFactory {
 
         //判断token是否合法或为空
         if(!isset($data['token']) || empty($data['token'])){
-            echo response()->json(['code'=>201,'msg'=>'token值不存在或为空']);
+            echo json_encode(['code'=>201,'msg'=>'token值不存在或为空']);
             exit;
         }
 
         //判断body是否合法或为空
         if(!isset($data['body']) || empty($data['body'])){
-            echo response()->json(['code'=>201,'msg'=>'body值不存在或为空']);
+            echo json_encode(['code'=>201,'msg'=>'body值不存在或为空']);
             exit;
         }
 
@@ -297,12 +312,32 @@ class RsaFactory {
 
     public function Test(){
         $key = time().rand(1,10000);
+<<<<<<< HEAD
 
         $arr = ['id' => '1'];
         $arr = json_encode($arr);
         //$aaa = self::sign($arr);
 
 
+=======
+        //$arr = ['status' => '1', 'info' => 'success', 'data' => [['id' => 1, 'name' => 'big small', '2' => 'small room']]];
+        //$arr = json_encode($arr);
+        //$aaa = self::sign($arr);
+        
+        $arr = [
+            'head_icon' => 'https://dss1.baidu.com/70cFfyinKgQFm2e88IuM_a/forum/pic/item/47d1a7efce1b9d165ef50303fcdeb48f8c5464bd.jpg',
+            'phone'     => '15210176460' ,
+            'real_name' => '杜智建' ,
+            'sex'       => 1 ,
+            'qq'        => '602911568' ,
+            'wechat'    => '1126751539',
+            'parent_id' => 0 ,
+            'child_id'  => 0 ,
+            'describe'  => '老师是红烛,点燃自己照亮别人;老师是春蚕,吐尽自己最后一根丝线。' ,
+            'content'   => '' ,
+            'type'      => 1
+        ];
+>>>>>>> dev
         $ccc = $this->rsaencrypt($key , $arr);
         $ccc = json_decode($ccc , true);
         echo "<pre>";
