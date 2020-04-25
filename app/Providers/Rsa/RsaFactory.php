@@ -216,6 +216,10 @@ class RsaFactory {
         
         //再将aes进行数据解密处理
         $data= $this->aesdecrypt($body , $key);
+        if(!$data || empty($data)){
+            echo response()->json(['code'=>202,'msg'=>'解密失败']);
+            exit;
+        }
 
         //返回数据数组
         return json_decode($data , true);
@@ -293,10 +297,23 @@ class RsaFactory {
     
     public function Test(){
         $key = time().rand(1,10000);
-        $arr = ['status' => '1', 'info' => 'success', 'data' => [['id' => 1, 'name' => 'big small', '2' => 'small room']]];
-        $arr = json_encode($arr);
+        //$arr = ['status' => '1', 'info' => 'success', 'data' => [['id' => 1, 'name' => 'big small', '2' => 'small room']]];
+        //$arr = json_encode($arr);
         //$aaa = self::sign($arr);
         
+        $arr = [
+            'head_icon' => 'https://dss1.baidu.com/70cFfyinKgQFm2e88IuM_a/forum/pic/item/47d1a7efce1b9d165ef50303fcdeb48f8c5464bd.jpg',
+            'phone'     => '15210176460' ,
+            'real_name' => '杜智建' ,
+            'sex'       => 1 ,
+            'qq'        => '602911568' ,
+            'wechat'    => '1126751539',
+            'parent_id' => 0 ,
+            'child_id'  => 0 ,
+            'describe'  => '老师是红烛,点燃自己照亮别人;老师是春蚕,吐尽自己最后一根丝线。' ,
+            'content'   => '' ,
+            'type'      => 1
+        ];
         $ccc = $this->rsaencrypt($key , $arr);
         $ccc = json_decode($ccc , true);
         echo "<pre>";
