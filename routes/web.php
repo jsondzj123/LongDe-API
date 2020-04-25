@@ -37,9 +37,29 @@ $router->group(['prefix' => 'web'], function () use ($router) {
 });
 
 //后台端路由接口
+<<<<<<< HEAD
 $router->group(['prefix' => 'admin'], function () use ($router) {
     $router->group(['prefix' => 'user'], function () use ($router) {
         $router->post('login', 'Api\Admin\LoginController@login');
 
     });
 });
+=======
+$router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use ($router) {
+    //用户学员相关模块
+    $router->group(['prefix' => 'user'], function () use ($router) {
+        //获取学员列表
+        $router->get('getUserList', 'UserController@getUserList');
+    });
+    
+    //讲师教务相关模块
+    $router->group(['prefix' => 'teacher'], function () use ($router) {
+        $router->post('doInsertTeacher', 'TeacherController@doInsertTeacher');        //添加讲师教务的方法
+        $router->post('doUpdateTeacher', 'TeacherController@doUpdateTeacher');        //更改讲师教务的方法
+        $router->post('doDeleteTeacher', 'TeacherController@doDeleteTeacher');        //删除讲师教务的方法
+        $router->post('doRecommendTeacher', 'TeacherController@doRecommendTeacher');  //推荐讲师的方法
+        $router->post('getTeacherInfoById', 'TeacherController@getTeacherInfoById');  //获取老师信息
+        $router->post('getTeacherList', 'TeacherController@getTeacherList');          //获取老师列表
+    });
+});
+>>>>>>> dev
