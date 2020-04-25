@@ -43,4 +43,14 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use (
         //获取学员列表
         $router->get('getUserList', 'UserController@getUserList');
     });
+    
+    //讲师教务相关模块
+    $router->group(['prefix' => 'teacher'], function () use ($router) {
+        $router->post('doInsertTeacher', 'TeacherController@doInsertTeacher');        //添加讲师教务的方法
+        $router->post('doUpdateTeacher', 'TeacherController@doUpdateTeacher');        //更改讲师教务的方法
+        $router->post('doDeleteTeacher', 'TeacherController@doDeleteTeacher');        //删除讲师教务的方法
+        $router->post('doRecommendTeacher', 'TeacherController@doRecommendTeacher');  //推荐讲师的方法
+        $router->post('getTeacherInfoById', 'TeacherController@getTeacherInfoById');  //获取老师信息
+        $router->post('getTeacherList', 'TeacherController@getTeacherList');          //获取老师列表
+    });
 });
