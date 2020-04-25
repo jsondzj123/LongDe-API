@@ -298,7 +298,7 @@ class RsaFactory {
     public function Test(){
         $key = time().rand(1,10000);
 
-        $arr = ['status' => '1', 'info' => 'success', 'data' => [['id' => 1, 'name' => 'big small', '2' => 'small room']]];
+        $arr = ['id' => '1'];
         $arr = json_encode($arr);
         //$aaa = self::sign($arr);
 
