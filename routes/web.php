@@ -17,10 +17,6 @@ $router->get('/', function () use ($router) {
     return $router->app->version();
 });
 
-$router->group(['prefix' => 'test' , 'middleware'=>'api'], function () use ($router) {
-    $router->post('index', 'Api\UserController@loginAndRegister');
-});
-$router->post('test','Api\TestController@rsaadd');
 //客户端(ios,安卓)路由接口
 $router->group(['prefix' => 'api'], function () use ($router) {
     $router->post('user/login','Api\UserController@login');
@@ -46,7 +42,6 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use (
         //获取学员列表
         $router->get('getUserList', 'UserController@getUserList');
     });
-
     //讲师教务相关模块
     $router->group(['prefix' => 'teacher'], function () use ($router) {
         $router->post('doInsertTeacher', 'TeacherController@doInsertTeacher');        //添加讲师教务的方法
@@ -55,5 +50,9 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use (
         $router->post('doRecommendTeacher', 'TeacherController@doRecommendTeacher');  //推荐讲师的方法
         $router->post('getTeacherInfoById', 'TeacherController@getTeacherInfoById');  //获取老师信息
         $router->post('getTeacherList', 'TeacherController@getTeacherList');          //获取老师列表
+    });
+    //运营模块
+    $router->group(['prefix' => 'article'], function () use ($router) {
+        $router->post('getArticleList', 'ArticleController@getArticleList');//获取文章列表
     });
 });
