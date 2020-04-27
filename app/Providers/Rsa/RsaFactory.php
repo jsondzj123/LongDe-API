@@ -339,11 +339,25 @@ class RsaFactory {
                 'type'      => 2*/
                // 'is_recommend' => 1
             //] ,
-            'condition'    => [
+            /*'condition'    => [
                 'paginate' => 15 ,
                 'real_name'=> '诸',
                 'type'     => 2
-            ]
+            ]*/
+            /*'head_icon' => 'https://dss2.bdstatic.com/6Ot1bjeh1BF3odCf/it/u=292702532,4292822400&fm=74&app=80&f=JPEG&size=f121,90?sec=1880279984&t=d0ca9d3b11682cdb49eb0969964ac3c4',
+            'phone'     => '18910486610' ,
+            'real_name' => '马新东' ,
+            'sex'       =>  1 ,
+            'qq'        => '984578526' ,
+            'wechat'    => 'json_13345456',
+            'parent_id' => 8 ,
+            'child_id'  => 32 ,
+            'describe'  => '测试的内容文字' ,
+            'content'   => '内容是测试内容',
+            'type'      => 2,*/
+            'is_recommend'=>1,
+            'teacher_id'=> 5
+               // 'is_recommend' => 1
         ];
 >>>>>>> dev
         $ccc = $this->rsaencrypt($key , $arr);
