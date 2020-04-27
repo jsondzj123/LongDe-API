@@ -17,8 +17,15 @@ class Roleauth extends Model {
      * return  array
      */
     public static function getRoleOne($id){
+        if(empty($id) || !intval($id)){
+            return ['code'=>202,'msg'=>'参数为空或类型不正确'];
+        }
         $return = self::where(['id'=>$id])->select('auth_id')->first();
-        return $return;
+         if($return){
+            return ['code'=>200,'msg'=>'获取角色信息成功','data'=>$return];
+        }else{
+            return ['code'=>201,'msg'=>'角色信息不存在'];
+        }
     }
 
 

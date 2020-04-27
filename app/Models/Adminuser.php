@@ -16,7 +16,14 @@ class Adminuser extends Model {
          * return  array
          */
     public static function GetUserOne($id){
-        $return = self::where(['id'=>$id])->first();
-        return $return;
+        if(empty($id) || !intval($id)){
+            return ['code'=>202,'msg'=>'参数为空或类型不正确'];
+        }
+        $userInfo = self::where(['id'=>$id])->first();
+        if($userInfo){
+            return ['code'=>200,'msg'=>'获取后台用户信息成功','data'=>$userInfo];
+        }else{
+            return ['code'=>201,'msg'=>'后台用户信息不存在'];
+        }
     }
 }

@@ -37,21 +37,24 @@ $router->group(['prefix' => 'web'], function () use ($router) {
 });
 
 //后台端路由接口
-<<<<<<< HEAD
+
 $router->group(['prefix' => 'admin'], function () use ($router) {
     $router->group(['prefix' => 'user'], function () use ($router) {
         $router->post('login', 'Api\Admin\LoginController@login');
-
     });
 });
-=======
+
 $router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use ($router) {
+     //后台登录（lys）
+    $router->group(['prefix' => 'login'], function () use ($router) {
+        //获取用户权限
+        $router->get('getUserAuth', 'LoginController@getUserAuth');
+    });
     //用户学员相关模块
     $router->group(['prefix' => 'user'], function () use ($router) {
         //获取学员列表
         $router->get('getUserList', 'UserController@getUserList');
     });
-    
     //讲师教务相关模块
     $router->group(['prefix' => 'teacher'], function () use ($router) {
         $router->post('doInsertTeacher', 'TeacherController@doInsertTeacher');        //添加讲师教务的方法
@@ -62,4 +65,3 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use (
         $router->post('getTeacherList', 'TeacherController@getTeacherList');          //获取老师列表
     });
 });
->>>>>>> dev
