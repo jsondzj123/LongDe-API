@@ -54,5 +54,6 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use (
     //运营模块
     $router->group(['prefix' => 'article'], function () use ($router) {
         $router->post('getArticleList', 'ArticleController@getArticleList');//获取文章列表
+        $router->post('test', 'ArticleController@getArticleList');//ceshi
     });
 });
