@@ -64,6 +64,7 @@ $app->singleton(
 
 $app->configure('app');
 $app->configure('code');
+
 /*
 |--------------------------------------------------------------------------
 | Register Middleware
@@ -81,6 +82,7 @@ $app->configure('code');
 
 $app->routeMiddleware([
      'auth' => App\Http\Middleware\Authenticate::class,
+     'api' => App\Http\Middleware\ApidateToken::class,
 ]);
 
 /*

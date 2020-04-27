@@ -18,11 +18,11 @@ use Tymon\JWTAuth\JWTAuth;
 
 class UserController extends Controller {
     protected $jwt;
-    
+
     /*public function __construct(JWTAuth $jwt) {
         $this->jwt = $jwt;
     }*/
-    
+
     public function loginAndRegister(){
         //echo 'nnn';
        //Redis::set('name', 'guwenjie');
@@ -30,10 +30,10 @@ class UserController extends Controller {
         dd($values);
 
     }
-    
+
     /*
      * @param 根据用户ID获取用户信息
-     * @param $user_id  
+     * @param $user_id
      */
     public function getUserList(Request $request){
         echo "aaaaa";
