@@ -13,12 +13,6 @@ use Illuminate\Support\Facades\Config;
     function responseJson($code, $data = [])
     {
         $arr = config::get('code');
-<<<<<<< HEAD
-=======
-
-//        print_r($newarr);die;
-
->>>>>>> szw
         if (!in_array($code, $arr)) {
             return response()->json(['code' => 404, 'msg' => '非法请求']);
         }
@@ -26,4 +20,31 @@ use Illuminate\Support\Facades\Config;
     }
 
 //}
+
+/*
+ * @param  description   获取IP地址
+ * @param  author        dzj
+ * @param  ctime         2020-04-27
+ */
+function getip() {
+    static $realip;
+    if (isset($_SERVER)) {
+        if (isset($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+            $realip = $_SERVER['HTTP_X_FORWARDED_FOR'];
+        } else if (isset($_SERVER['HTTP_CLIENT_IP'])) {
+            $realip = $_SERVER['HTTP_CLIENT_IP'];
+        } else {
+            $realip = $_SERVER['REMOTE_ADDR'];
+        }
+    } else {
+        if (getenv('HTTP_X_FORWARDED_FOR')) {
+            $realip = getenv('HTTP_X_FORWARDED_FOR');
+        } else if (getenv('HTTP_CLIENT_IP')) {
+            $realip = getenv('HTTP_CLIENT_IP');
+        } else {
+            $realip = getenv('REMOTE_ADDR');
+        }
+    }
+    return $realip;
+}
 ?>

@@ -202,16 +202,6 @@ class RsaFactory {
         }
 
         //数据验签处理
-<<<<<<< HEAD
-//        if($sign && !empty($sign)){
-//            $sign_st = self::verifySign($body , $sign);
-//            //判断是否验签成功
-//            if($sign_st <= 0){
-//                echo response()->json(['code'=>202,'msg'=>'签名验证失败']);
-//                exit;
-//            }
-//        }
-=======
         if($sign && !empty($sign)){
             $sign_st = self::verifySign($body , $sign);
             //判断是否验签成功
@@ -220,10 +210,8 @@ class RsaFactory {
                 exit;
             }
         }
->>>>>>> dev
 
         //将key进行RSA解密处理(最后得到aes的明文key)
-
         $key = self::privateDecrypt($token);
 
 
@@ -312,14 +300,6 @@ class RsaFactory {
 
     public function Test(){
         $key = time().rand(1,10000);
-<<<<<<< HEAD
-
-        $arr = ['id' => '1'];
-        $arr = json_encode($arr);
-        //$aaa = self::sign($arr);
-
-
-=======
         //$arr = ['status' => '1', 'info' => 'success', 'data' => [['id' => 1, 'name' => 'big small', '2' => 'small room']]];
         //$arr = json_encode($arr);
         //$aaa = self::sign($arr);
@@ -359,7 +339,6 @@ class RsaFactory {
             'teacher_id'=> 5
                // 'is_recommend' => 1
         ];
->>>>>>> dev
         $ccc = $this->rsaencrypt($key , $arr);
         $ccc = json_decode($ccc , true);
         echo "<pre>";
