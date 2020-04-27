@@ -302,17 +302,25 @@ class RsaFactory {
         //$aaa = self::sign($arr);
         
         $arr = [
-            'head_icon' => 'https://dss1.baidu.com/70cFfyinKgQFm2e88IuM_a/forum/pic/item/47d1a7efce1b9d165ef50303fcdeb48f8c5464bd.jpg',
-            'phone'     => '15210176460' ,
-            'real_name' => '杜智建' ,
-            'sex'       => 1 ,
-            'qq'        => '602911568' ,
-            'wechat'    => '1126751539',
-            'parent_id' => 0 ,
-            'child_id'  => 0 ,
-            'describe'  => '老师是红烛,点燃自己照亮别人;老师是春蚕,吐尽自己最后一根丝线。' ,
-            'content'   => '' ,
-            'type'      => 1
+            //'data' => [
+                /*'head_icon' => 'https://dss2.bdstatic.com/6Ot1bjeh1BF3odCf/it/u=292702532,4292822400&fm=74&app=80&f=JPEG&size=f121,90?sec=1880279984&t=d0ca9d3b11682cdb49eb0969964ac3c4',
+                'phone'     => '15689213549' ,
+                'real_name' => '诸葛亮' ,
+                'sex'       =>  1 ,
+                'qq'        => '965235825' ,
+                'wechat'    => '',
+                'parent_id' => 9 ,
+                'child_id'  => 36 ,
+                'describe'  => '王者荣耀' ,
+                'content'   => '绝招很厉害',
+                'type'      => 2*/
+               // 'is_recommend' => 1
+            //] ,
+            'condition'    => [
+                'paginate' => 15 ,
+                'real_name'=> '诸',
+                'type'     => 2
+            ]
         ];
         $ccc = $this->rsaencrypt($key , $arr);
         $ccc = json_decode($ccc , true);

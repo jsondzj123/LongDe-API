@@ -37,14 +37,6 @@ $router->group(['prefix' => 'web'], function () use ($router) {
 });
 
 //后台端路由接口
-<<<<<<< HEAD
-$router->group(['prefix' => 'admin'], function () use ($router) {
-    $router->group(['prefix' => 'user'], function () use ($router) {
-        $router->post('login', 'Api\Admin\LoginController@login');
-
-    });
-});
-=======
 $router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use ($router) {
     //用户学员相关模块
     $router->group(['prefix' => 'user'], function () use ($router) {
@@ -62,4 +54,3 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use (
         $router->post('getTeacherList', 'TeacherController@getTeacherList');          //获取老师列表
     });
 });
->>>>>>> dev
