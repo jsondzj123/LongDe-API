@@ -24,4 +24,24 @@ class Controller extends BaseController {
         //app('rsa')->Test();
     }
 
+     /*返回json串
+     * addtime 2020.4.28
+     * auther 孙晓丽
+     * $code  int   状态码
+     * $data  array  数据数组
+     * return  string
+     * */
+    protected function response($data, $statusCode = 200)
+    {
+
+        if ($statusCode == 200 && is_string($data)) {
+            return response()->json(['message' => $data]);
+        } elseif (is_string($data)) {
+            return response()->json(['error' => $data], $statusCode);
+        } else {
+            return response()->json($data, $statusCode);
+        }
+        return response()->json($data);
+    }
+
 }

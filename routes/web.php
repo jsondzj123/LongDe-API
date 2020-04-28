@@ -19,9 +19,11 @@ $router->get('/', function () use ($router) {
 
 //客户端(ios,安卓)路由接口
 $router->group(['prefix' => 'api'], function () use ($router) {
-    $router->post('user/login','Api\UserController@login');
-    $router->post('user/userinfo','Api\UserController@getUserinfo');
+    $router->post('login','Api\AuthenticateController@postLogin');
+    $router->post('register','Api\AuthenticateController@register');
+
     $router->group(['prefix' => 'user' , 'middleware'=>'api'], function () use ($router) {
+        $router->post('user/userinfo','Api\UserController@getUserinfo');
         $router->post('logReg', 'Api\UserController@loginAndRegister');
         $router->get('getUserInfoById', 'Api\UserController@getUserInfoById');
         $router->get('userLogin', 'Api\UserController@userLogin');
