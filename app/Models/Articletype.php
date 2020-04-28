@@ -17,7 +17,7 @@ class Articletype extends Model {
          * @param  ctime   2020/4/27 9:48
          * return  array
          */
-    public static function getArticleList($school_id){
+    public static function getArticleList($school_id=''){
         $where['is_del'] = 1;
        if($school_id != ''){
            $where['school_id'] = $school_id;
