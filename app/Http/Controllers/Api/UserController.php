@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 
 #use DB;
 #use Illuminate\Support\Facades\Redis;
+use App\Models\Testuser;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -19,11 +20,14 @@ use Tymon\JWTAuth\JWTAuth;
 
 class UserController extends Controller {
     protected $jwt;
-    
-    public function __construct(JWTAuth $jwt) {
-        $this->jwt = $jwt;
-    }
-    
+
+//    public function __construct(JWTAuth $jwt) {
+//        echo 'aaaa';
+//        exit;
+       // $this->jwt = $jwt;
+//    }
+
+
     public function loginAndRegister(){
         //echo 'nnn';
        //Redis::set('name', 'guwenjie');
@@ -31,16 +35,16 @@ class UserController extends Controller {
         dd($values);
 
     }
-    
+
     /*
      * @param 根据用户ID获取用户信息
-     * @param $user_id  
+     * @param $user_id
      */
     public function getUserInfoById(Request $request){
         /*$userinfo = DB::table("longdeapi_user")->get()->toArray();
         echo "<pre>";
         print_r($userinfo);*/
-        
+
         //return User::getMember();
         /*$data = [
             'mobile'  =>  '15893641025' ,
@@ -59,22 +63,22 @@ class UserController extends Controller {
         } else {
             return response()->json(['code'=>500,'msg'=>'添加失败']);
         }
-        
+
         //return response()->json(['username'=>'aaaa']);
     }
-    
-    
+
+
     /*public function userLogin(Request $request) {
 
         $user = Auth::where('id',1)->first();
-        
+
         $token = $this->jwt->fromUser($user);
         return response()->json(compact('token'),200);
-        
- 
+
+
         $user = \App\Models\Auth::where('username', $request->input('username'))
                 ->where('password', $request->input('password'))->first();
-        
+
         $token = Auth::login($user);
         echo "<prew>";
         print_r($token);
@@ -84,8 +88,8 @@ class UserController extends Controller {
         }
         return response()->json(compact('token'));
     }*/
-    
-    
+
+
     /**
      * 登录
      *
@@ -95,7 +99,7 @@ class UserController extends Controller {
      * @return \Illuminate\Http\Response;
      */
     public function login(Request $request) {
-        $response = array('code' => '0');
+        /*$response = array('code' => '0');
         try {
             $user = \App\Models\Auth::where('username', $request->input('username'))
                 ->where('password', $request->input('password'))->first();
@@ -113,9 +117,33 @@ class UserController extends Controller {
             $response['msg']  = '无法响应请求，服务端异常';
         }
 
-        return response()->json($response);
+
+        return response()->json($response);*/
+        $aaa = self::$accept_data['info'];
+        echo "<pre>";
+        print_r($aaa);
+        exit;
+        echo 'aaaa';
+        exit;
+
     }
-    
+
+
+    public function getUserinfo(Request $request){
+        /*$user = \App\Models\Auth::where('username', 'zzz')
+                ->where('password', '09421eca667afc4e13ba944a3b41cf2846004c20')->first();
+        $token = $this->jwt->fromUser($user);
+        $this->jwt->setToken($token);*/
+        //
+        //$token = $this->jwt->parseToken()->toUser();
+//echo $this->jwt->getToken().'<br>';
+        $token =  $request->input('token');
+echo $this->jwt->refresh($token);
+//echo $this->jwt->getPayload();
+        //return $token;
+    }
+
+
     /**
      * 用户登出
      *
@@ -155,6 +183,40 @@ class UserController extends Controller {
         return response()->json($response);
     }
     public function test(){
-        echo "bbb";
+        echo "将文件提交到远程自己的分支";
+    }
+
+    //增
+    public function userAddfind(){
+
+        $a = Testuser::getUserList();
+
+        $username = $_POST['name'];
+        $password = $_POST['pass'];
+        $id = DB::table('ce_testuser')->insertGetId(
+            ['username' => $username, 'password' => $password]
+        );
+        return $this->responseJson(200,$id);
+
+    }
+    //查
+    public function userlist(){
+//        $user = DB::table('ce_testuser')->get();
+
+        $user =Testuser::Find(1);
+        return $this->responseJson(200,$user);
+    }
+    //删
+    public function userDelForId(){
+        $id = $_POST['id'];
+        $status = DB::table('users')->where(array('id'=>$id))->delete();
+        return response()->json($status);
+    }
+    //改
+    public function userUpdate(){
+
+        DB::table('users')
+            ->where('id', 1)
+            ->update(['votes' => 1]);
     }
 }

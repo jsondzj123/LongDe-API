@@ -63,6 +63,7 @@ $app->singleton(
 */
 
 $app->configure('app');
+$app->configure('code');
 
 /*
 |--------------------------------------------------------------------------
@@ -81,6 +82,7 @@ $app->configure('app');
 
 $app->routeMiddleware([
      'auth' => App\Http\Middleware\Authenticate::class,
+     'api' => App\Http\Middleware\ApidateToken::class,
 ]);
 
 /*
@@ -97,6 +99,8 @@ $app->routeMiddleware([
 $app->register(App\Providers\AppServiceProvider::class);
 $app->register(App\Providers\AuthServiceProvider::class);
 $app->register(App\Providers\EventServiceProvider::class);
+//数据加密IOC容器
+$app->register(App\Providers\Rsa\RsaServiceProvider::class);
 
 // JWT
 $app->register(\Tymon\JWTAuth\Providers\LumenServiceProvider::class);
@@ -117,12 +121,7 @@ $app->register(\Illuminate\Redis\RedisServiceProvider::class);
 $app->router->group([
     'namespace' => 'App\Http\Controllers',
 ], function ($router) {
-    //客户端路由(Android,ios)
-    require __DIR__.'/../routes/api.php';
-    //前端路由(pc)
     require __DIR__.'/../routes/web.php';
-    //后端路由(pc后端)
-    require __DIR__.'/../routes/admin.php';
 });
 
 return $app;
