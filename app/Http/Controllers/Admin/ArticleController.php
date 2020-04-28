@@ -20,7 +20,8 @@ class ArticleController extends Controller {
         $type_id = isset($_POST['type_id'])?$_POST['type_id']:'';
         $title = isset($_POST['title'])?$_POST['title']:'';
         $num = isset($_POST['num'])?$_POST['num']:2;
-        $list = Article::getArticleList($school_id,$type_id,$title,$num);
+        $page = isset($_POST['page'])?$_POST['page']:0;
+        $list = Article::getArticleList($school_id,$type_id,$title,$page,$num);
         rDate('1','成功',$list);
     }
 }
