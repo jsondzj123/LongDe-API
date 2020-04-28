@@ -75,7 +75,7 @@ class Teacher extends Model {
         }
 
         //根据id获取讲师或教务列表
-        $teacher_list = self::where($condtion)->select('id','real_name','phone','create_at','number','is_recommend')->paginate($body['paginate']);
+        $teacher_list = self::where($condtion)->select('id as teacher_id','real_name','phone','create_at','number','is_recommend')->paginate($body['paginate']);
         return ['code' => 200 , 'msg' => '获取老师列表成功' , 'data' => $teacher_list];
     }
 
@@ -276,10 +276,7 @@ class Teacher extends Model {
     /*
      * @param  descriptsion    删除老师的方法
      * @param  参数说明         body包含以下参数[
-     *     data      => [] ,
-     *     condition => [
-     *         teacher_id   讲师或教务id
-     *     ]
+     *      teacher_id   讲师或教务id
      * ]
      * @param  author          dzj
      * @param  ctime           2020-04-25
@@ -324,12 +321,8 @@ class Teacher extends Model {
     /*
      * @param  descriptsion    推荐老师的方法
      * @param  参数说明         body包含以下参数[
-     *     data      => [
-     *         is_recommend   是否推荐(1代表推荐,2代表不推荐)
-     *     ] ,
-     *     condition => [
-     *         teacher_id   讲师或教务id
-     *     ]
+     *     is_recommend   是否推荐(1代表推荐,2代表不推荐)
+     *     teacher_id     讲师或教务id
      * ]
      * @param  author          dzj
      * @param  ctime           2020-04-25
