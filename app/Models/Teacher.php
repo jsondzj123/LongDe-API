@@ -65,17 +65,20 @@ class Teacher extends Model {
         if(!isset($body['type']) || empty($body['type']) || $body['type'] <= 0 || !in_array($body['type'] , [1,2])){
             return ['code' => 202 , 'msg' => '老师类型不合法'];
         }
+        
+        //每页显示的条数
+        $paginate = isset($body['paginate']) && $body['paginate'] > 0 ? $body['paginate'] : 15;
 
-        //条件组合
-        $condtion[]    =  ['type' , '=' ,$body['type']];
-
-        //判断讲师或教务姓名是否为空
-        if(isset($body['real_name']) && !empty($body['real_name'])){
-            $condtion[]  =  ['real_name' , 'like' , '%'.$body['real_name'].'%'];
-        }
-
-        //根据id获取讲师或教务列表
-        $teacher_list = self::where($condtion)->select('id as teacher_id','real_name','phone','create_at','number','is_recommend')->paginate($body['paginate']);
+        //获取讲师或教务列表
+        $teacher_list = self::where(function($query) use ($body){
+            //获取老师类型(讲师还是教务)
+            $query->where('type' , '=' , $body['type']);
+            
+            //判断搜索内容是否为空
+            if(isset($body['search']) && !empty($body['search'])){
+                $query->where('id','=',$body['search'])->orWhere('real_name','like','%'.$body['search'].'%');
+            }
+        })->select('id as teacher_id','real_name','phone','create_at','number','is_recommend')->paginate($paginate);
         return ['code' => 200 , 'msg' => '获取老师列表成功' , 'data' => $teacher_list];
     }
 
