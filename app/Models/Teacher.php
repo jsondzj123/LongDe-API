@@ -71,6 +71,7 @@ class Teacher extends Model {
 
         //获取讲师或教务列表
         $teacher_list = self::where(function($query) use ($body){
+            $query->where('is_del' , '=' , 0);
             //获取老师类型(讲师还是教务)
             $query->where('type' , '=' , $body['type']);
             
@@ -94,6 +95,7 @@ class Teacher extends Model {
     public static function getTeacherSearchList($body=[]) {
         //获取讲师或教务列表
         $teacher_list = self::where(function($query) use ($body){
+            $query->where('is_del' , '=' , 0);
             //判断学科分类是否选择
             if(isset($body['parent_id']) && !empty($body['parent_id']) && $body['parent_id'] > 0){
                 $query->where('parent_id','=',$body['parent_id']);
@@ -354,7 +356,7 @@ class Teacher extends Model {
             AdminLog::insertAdminLog([
                 'admin_id'       =>   1  ,
                 'module_name'    =>  'Teacher' ,
-                'route_url'      =>  'admin/teacher/doInsertTeacher' , 
+                'route_url'      =>  'admin/teacher/doDeleteTeacher' , 
                 'operate_method' =>  'delete' ,
                 'content'        =>  json_encode($body) ,
                 'ip'             =>  $_SERVER["REMOTE_ADDR"] ,

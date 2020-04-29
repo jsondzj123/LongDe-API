@@ -56,6 +56,15 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use (
         $router->post('getTeacherList', 'TeacherController@getTeacherList');          //获取老师列表
         $router->post('getTeacherSearchList', 'CommonController@getTeacherSearchList'); //讲师或教务搜索列表
     });
+    //题库相关模块(dzj)
+    $router->group(['prefix' => 'question'], function () use ($router) {
+        /****************题库科目部分  start****************/
+        $router->post('doInsertSubject', 'QuestionController@doInsertSubject');        //添加题库科目的方法
+        $router->post('doUpdateSubject', 'QuestionController@doUpdateSubject');        //更改题库科目的方法
+        $router->post('doDeleteSubject', 'QuestionController@doDeleteSubject');        //删除题库科目的方法
+        $router->post('getSubjectList', 'QuestionController@getSubjectList');          //获取题库科目列表
+        /****************题库科目部分  end****************/
+    });
     //运营模块
     $router->group(['prefix' => 'article'], function () use ($router) {
         $router->post('getArticleList', 'ArticleController@getArticleList');//获取文章列表
