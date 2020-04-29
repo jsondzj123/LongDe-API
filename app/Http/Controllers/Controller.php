@@ -7,10 +7,9 @@ use Laravel\Lumen\Routing\Controller as BaseController;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Http\Request;
 
-
 class Controller extends BaseController {
     //接受数据参数
-    public static $accept_data;
+    public $accept_data;
     /*
 
      * @param  description   基础底层数据加密部分
@@ -20,8 +19,9 @@ class Controller extends BaseController {
      * return  string
      */
     public function __construct(Request $request) {
-        self::$accept_data = app('rsa')->servicersadecrypt($request);
-        //app('rsa')->Test();
+
+       $this->accept_data = app('rsa')->servicersadecrypt($request);
+       //  app('rsa')->Test();
     }
 
      /*返回json串
@@ -33,7 +33,6 @@ class Controller extends BaseController {
      * */
     protected function response($data, $statusCode = 200)
     {
-
         if ($statusCode == 200 && is_string($data)) {
             return response()->json(['message' => $data]);
         } elseif (is_string($data)) {

@@ -14,11 +14,13 @@ use Log;
 
 
 
+
 class AuthenticateController extends Controller {
 
 
 
     public function postLogin(Request $request) {
+        //$this->accept_data
         $validator = Validator::make($request->all(), [
             'username'=> 'required',
             'password'=> 'required'
