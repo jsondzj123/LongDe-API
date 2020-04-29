@@ -64,6 +64,13 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use (
         $router->post('doDeleteSubject', 'QuestionController@doDeleteSubject');        //删除题库科目的方法
         $router->post('getSubjectList', 'QuestionController@getSubjectList');          //获取题库科目列表
         /****************题库科目部分  end****************/
+        
+        /****************章节考点部分  start****************/
+        $router->post('doInsertChapters', 'QuestionController@doInsertChapters');        //添加题库科目的方法
+        $router->post('doUpdateChapters', 'QuestionController@doUpdateChapters');        //更改题库科目的方法
+        $router->post('doDeleteChapters', 'QuestionController@doDeleteChapters');        //删除题库科目的方法
+        $router->post('getChaptersList', 'QuestionController@getChaptersList');          //获取章节考点列表
+        /****************章节考点部分  end****************/
     });
     //运营模块
     $router->group(['prefix' => 'article'], function () use ($router) {
