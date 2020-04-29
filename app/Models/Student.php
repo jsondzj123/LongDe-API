@@ -89,7 +89,7 @@ class Student extends Model {
             if(isset($body['search']) && !empty($body['search'])){
                 $query->where('real_name','like','%'.$body['search'].'%')->orWhere('phone','like','%'.$body['search'].'%');
             }
-        })->select('id as student_id','real_name','phone','create_at','enroll_status','state_status','is_forbid')->paginate($paginate);
+        })->select('id as student_id','real_name','phone','create_at','enroll_status','state_status','is_forbid')->orderByDesc('create_at')->paginate($paginate);
         return ['code' => 200 , 'msg' => '获取学员列表成功' , 'data' => $student_list];
     }
 

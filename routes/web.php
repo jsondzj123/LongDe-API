@@ -54,6 +54,7 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use (
         $router->post('doRecommendTeacher', 'TeacherController@doRecommendTeacher');  //推荐讲师的方法
         $router->post('getTeacherInfoById', 'TeacherController@getTeacherInfoById');  //获取老师信息
         $router->post('getTeacherList', 'TeacherController@getTeacherList');          //获取老师列表
+        $router->post('getTeacherSearchList', 'CommonController@getTeacherSearchList'); //讲师或教务搜索列表
     });
     //运营模块
     $router->group(['prefix' => 'article'], function () use ($router) {
