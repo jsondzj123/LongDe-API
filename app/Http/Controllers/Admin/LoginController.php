@@ -19,8 +19,10 @@ class LoginController extends Controller {
      * @param ctime     2020-04-27
      */
     public function getUserAuth(){
+
         $admin_id = 6;
-        $result = Adminuser::getUserOne($admin_id);
+        //$result = Adminuser::getUserOne($admin_id);
+       
         if($result['code'] != 200){
            return ['code' => $result['code'],'msg' => $result['msg']];
         }
@@ -34,11 +36,11 @@ class LoginController extends Controller {
         }else{
             $roleArr = Roleauth::getRoleOne($result['data']['role_id']);
             if($roleArr['code'] != 200){
-               return ['code' => $roleArr['code'],'msg' => $roleArr['msg']];
+               return response()->json(['code' => $roleArr['code'],'msg' => $roleArr['msg']]);
             }
-            $userAuthArr = Authrules::getAuthAll($roleArr['data']['auth_id']);
+            $userAuthArr = Authrules::getAdminAuthAll($roleArr['data']['auth_id']);
             if($userAuthArr['code'] != 200){
-               return ['code' => $userAuthArr['code'],'msg' => $userAuthArr['msg']];
+               return response()->json(['code' => $userAuthArr['code'],'msg' => $userAuthArr['msg']]);
             }else{
                 $arr = [
                     'admin_user' => $result['data'],
@@ -48,8 +50,8 @@ class LoginController extends Controller {
                 return response()->json(['code' => 200,'msg' => 'Success','data' => $arr]);
             }
         }
-        
     }
+    
     
    
     

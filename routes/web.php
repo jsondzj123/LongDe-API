@@ -47,8 +47,18 @@ $router->group(['prefix' => 'admin'], function () use ($router) {
 $router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use ($router) {
      //后台登录（lys）
     $router->group(['prefix' => 'login'], function () use ($router) {
-        //获取用户权限
+        //获取用户权限(lys)
         $router->get('getUserAuth', 'LoginController@getUserAuth');
+    });
+    $router->group(['prefix' => 'adminuser'], function () use ($router) {
+        //获取后台用户列表(lys)
+        $router->post('getUserList', 'AdminUserController@getUserList');
+        $router->post('upUserStatus', 'AdminUserController@upUserStatus');
+    });
+    $router->group(['prefix' => 'role'], function () use ($router) {
+        //获取后台用户列表(lys)
+        $router->post('getAuthList', 'RoleController@getAuthList');
+        $router->post('upRoleStatus', 'RoleController@upRoleStatus');
     });
     //用户学员相关模块
     $router->group(['prefix' => 'user'], function () use ($router) {

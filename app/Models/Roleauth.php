@@ -20,12 +20,28 @@ class Roleauth extends Model {
         if(empty($id) || !intval($id)){
             return ['code'=>202,'msg'=>'参数为空或类型不正确'];
         }
-        $return = self::where(['id'=>$id])->select('auth_id')->first();
+        $return = self::where(['id'=>$id])->select('id','auth_id','is_del')->first()->toArray();
          if($return){
             return ['code'=>200,'msg'=>'获取角色信息成功','data'=>$return];
         }else{
             return ['code'=>201,'msg'=>'角色信息不存在'];
         }
+    }
+
+    public static function getRoleAuthAll($where=[],$page =1,$limit = 10){
+        $return = self::where(function($query) use ($where){
+                if($where['search'] != ''){
+                    $query->where('r_name','like','%'.$where['search'].'%');
+                    $query->where('school_id','=',$where['school_id']);
+                }
+            })->forPage($page,$limit)->get()->toArray();
+        return $return;
+    }
+
+
+    public static function upRoleStatus($where,$update){
+        $result = self::where($where)->update($update);
+        return $result;
     }
 
 

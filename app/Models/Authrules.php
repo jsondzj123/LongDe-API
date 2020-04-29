@@ -26,7 +26,7 @@ class Authrules extends Model {
      * @param  ctime   2020/4/27 15:00
      * return  array
      */
-    public static function getAuthAll($auth_id){
+    public static function getAdminAuthAll($auth_id){
         //判断权限id是否为空
         if(empty($auth_id)){
             return ['code'=>202,'msg'=>'参数类型有误'];
@@ -54,4 +54,6 @@ class Authrules extends Model {
             return ['code'=>201,'msg'=>'权限信息不存在'];
         }
     }
+
+   
 }

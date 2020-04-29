@@ -27,7 +27,7 @@ use Illuminate\Support\Facades\Config;
     * $pid    int  层级
     * return  string
     * */
-
+        
     function getTree($array, $pid =0, $level = 0){
 
         //声明静态数组,避免递归调用时,多次声明导致数组覆盖
