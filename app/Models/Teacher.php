@@ -65,17 +65,67 @@ class Teacher extends Model {
         if(!isset($body['type']) || empty($body['type']) || $body['type'] <= 0 || !in_array($body['type'] , [1,2])){
             return ['code' => 202 , 'msg' => '老师类型不合法'];
         }
+        
+        //每页显示的条数
+        $paginate = isset($body['paginate']) && $body['paginate'] > 0 ? $body['paginate'] : 15;
 
-        //条件组合
-        $condtion[]    =  ['type' , '=' ,$body['type']];
-
-        //判断讲师或教务姓名是否为空
-        if(isset($body['real_name']) && !empty($body['real_name'])){
-            $condtion[]  =  ['real_name' , 'like' , '%'.$body['real_name'].'%'];
+        //获取讲师或教务列表
+        $teacher_list = self::where(function($query) use ($body){
+            $query->where('is_del' , '=' , 0);
+            //获取老师类型(讲师还是教务)
+            $query->where('type' , '=' , $body['type']);
+            
+            //判断搜索内容是否为空
+            if(isset($body['search']) && !empty($body['search'])){
+                $query->where('id','=',$body['search'])->orWhere('real_name','like','%'.$body['search'].'%');
+            }
+        })->select('id as teacher_id','real_name','phone','create_at','number','is_recommend')->orderByDesc('create_at')->paginate($paginate);
+        return ['code' => 200 , 'msg' => '获取老师列表成功' , 'data' => $teacher_list];
+    }
+    
+    /*
+     * @param  description   讲师或教务搜索列表
+     * @param  参数说明       body包含以下参数[
+     *     parent_id     学科分类id
+     *     real_name     老师姓名
+     * ]
+     * @param author    dzj
+     * @param ctime     2020-04-29
+     */
+    public static function getTeacherSearchList($body=[]) {
+        //获取讲师或教务列表
+        $teacher_list = self::where(function($query) use ($body){
+            $query->where('is_del' , '=' , 0);
+            //判断学科分类是否选择
+            if(isset($body['parent_id']) && !empty($body['parent_id']) && $body['parent_id'] > 0){
+                $query->where('parent_id','=',$body['parent_id']);
+            }
+            
+            //判断姓名是否为空
+            if(isset($body['real_name']) && !empty($body['real_name'])){
+                $query->where('real_name','like','%'.$body['real_name'].'%');
+            }
+        })->select('id as teacher_id','real_name','type')->orderByDesc('create_at')->get()->toArray();
+        
+        //判断获取列表是否为空
+        if($teacher_list && !empty($teacher_list)){
+            $arr = [];
+            foreach($teacher_list as $k => $v){
+                //教务
+                if($v['type'] == 1){
+                    $arr['jiaowu'][] = [
+                        'teacher_id' =>  $v['teacher_id'] ,
+                        'real_name'  =>  $v['real_name']
+                    ];
+                } else {
+                    $arr['jiangshi'][] = [
+                        'teacher_id' =>  $v['teacher_id'] ,
+                        'real_name'  =>  $v['real_name']
+                    ];
+                }
+            }
+            $teacher_list = $arr;
         }
-
-        //根据id获取讲师或教务列表
-        $teacher_list = self::where($condtion)->select('id as teacher_id','real_name','phone','create_at','number','is_recommend')->paginate($body['paginate']);
         return ['code' => 200 , 'msg' => '获取老师列表成功' , 'data' => $teacher_list];
     }
 
@@ -306,7 +356,7 @@ class Teacher extends Model {
             AdminLog::insertAdminLog([
                 'admin_id'       =>   1  ,
                 'module_name'    =>  'Teacher' ,
-                'route_url'      =>  'admin/teacher/doInsertTeacher' , 
+                'route_url'      =>  'admin/teacher/doDeleteTeacher' , 
                 'operate_method' =>  'delete' ,
                 'content'        =>  json_encode($body) ,
                 'ip'             =>  $_SERVER["REMOTE_ADDR"] ,

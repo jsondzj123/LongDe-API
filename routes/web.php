@@ -37,12 +37,16 @@ $router->group(['prefix' => 'web'], function () use ($router) {
 
 
 $router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use ($router) {
-    //用户学员相关模块
-    $router->group(['prefix' => 'user'], function () use ($router) {
-        //获取学员列表
-        $router->get('getUserList', 'UserController@getUserList');
+    //用户学员相关模块(dzj)
+    $router->group(['prefix' => 'student'], function () use ($router) {
+        $router->post('doInsertStudent', 'StudentController@doInsertStudent');        //添加学员的方法
+        $router->post('doUpdateStudent', 'StudentController@doUpdateStudent');        //更改学员的方法
+        $router->post('doForbidStudent', 'StudentController@doForbidStudent');        //启用/禁用学员的方法
+        $router->post('doStudentEnrolment', 'StudentController@doStudentEnrolment');  //学员报名的方法
+        $router->post('getStudentInfoById', 'StudentController@getStudentInfoById');  //获取学员信息
+        $router->post('getStudentList', 'StudentController@getStudentList');          //获取学员列表
     });
-    //讲师教务相关模块
+    //讲师教务相关模块(dzj)
     $router->group(['prefix' => 'teacher'], function () use ($router) {
         $router->post('doInsertTeacher', 'TeacherController@doInsertTeacher');        //添加讲师教务的方法
         $router->post('doUpdateTeacher', 'TeacherController@doUpdateTeacher');        //更改讲师教务的方法
@@ -50,6 +54,23 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use (
         $router->post('doRecommendTeacher', 'TeacherController@doRecommendTeacher');  //推荐讲师的方法
         $router->post('getTeacherInfoById', 'TeacherController@getTeacherInfoById');  //获取老师信息
         $router->post('getTeacherList', 'TeacherController@getTeacherList');          //获取老师列表
+        $router->post('getTeacherSearchList', 'CommonController@getTeacherSearchList'); //讲师或教务搜索列表
+    });
+    //题库相关模块(dzj)
+    $router->group(['prefix' => 'question'], function () use ($router) {
+        /****************题库科目部分  start****************/
+        $router->post('doInsertSubject', 'QuestionController@doInsertSubject');        //添加题库科目的方法
+        $router->post('doUpdateSubject', 'QuestionController@doUpdateSubject');        //更改题库科目的方法
+        $router->post('doDeleteSubject', 'QuestionController@doDeleteSubject');        //删除题库科目的方法
+        $router->post('getSubjectList', 'QuestionController@getSubjectList');          //获取题库科目列表
+        /****************题库科目部分  end****************/
+        
+        /****************章节考点部分  start****************/
+        $router->post('doInsertChapters', 'QuestionController@doInsertChapters');        //添加题库科目的方法
+        $router->post('doUpdateChapters', 'QuestionController@doUpdateChapters');        //更改题库科目的方法
+        $router->post('doDeleteChapters', 'QuestionController@doDeleteChapters');        //删除题库科目的方法
+        $router->post('getChaptersList', 'QuestionController@getChaptersList');          //获取章节考点列表
+        /****************章节考点部分  end****************/
     });
     //运营模块
     $router->group(['prefix' => 'article'], function () use ($router) {
