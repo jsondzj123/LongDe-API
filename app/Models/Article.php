@@ -19,8 +19,8 @@ class Article extends Model {
          */
     public static function getArticleList($data){
         //获取用户网校id
-        $data['num'] = isset($data['num'])?$data['num']:20;
-        $list = self::select('ld_article.*','ld_school.name','ld_article_type.typename','ld_admin_user.account')
+        $data['num'] = isset($data['num'])?$data['num']:1;
+        $list = self::select('ld_article.id','ld_article.title','ld_article.create_at','ld_school.name','ld_article_type.typename','ld_admin_user.account')
             ->leftJoin('ld_school','ld_school.id','=','ld_article.school_id')
             ->leftJoin('ld_article_type','ld_article_type.id','=','ld_article.article_type_id')
             ->leftJoin('ld_admin_user','ld_admin_user.id','=','ld_article.user_id')
@@ -37,39 +37,56 @@ class Article extends Model {
                  }
             })
             ->orderBy('id','desc')
-            ->simplePaginate($data['num']);
-        //分类列表
-        $typelist = Articletype::Typelist();
+            ->paginate($data['num']);
+//            ->simplePaginate($data['num']);
+//        //分类列表
+//        $typelist = Articletype::Typelist();
         //分校列表
-        $school = School::SchoolAll();
-        $newlist['list'] = $list; //数据
-        $newlist['condition'] = $data; //条件
-        $newlist['typelist'] = $typelist; //类型
-        $newlist['school'] = $school; //学校
-        return $newlist;
+//        $school = School::SchoolAll();
+//        $newlist['list'] = $list; //数据
+//        $newlist['condition'] = $data; //条件
+//        $newlist['typelist'] = $typelist; //类型
+//        $newlist['school'] = $school; //学校
+        return $list;
     }
     /*
          * @param 修改文章状态
          * @param  $id 文章id
+         * @param  $type 1启用0禁用
          * @param  $adminid 操作员id
          * @param  author  苏振文
          * @param  ctime   2020/4/28 15:43
          * return  array
          */
-    public static function editStatus($id,$adminid){
-        $articleOnes = self::where(['id'=>$id,'is_del'=>1])->field();
+    public static function editStatus($id,$adminid,$type){
+        $articleOnes = self::where(['id'=>$id,'is_del'=>1])->first();
         if(!$articleOnes){
             return 404;
         }
-        if($articleOnes['status'] == 0){
-            return 300;
-        }
-         $update = self::where(['id'=>$id])->update(['status'=>0]);
-        if($update){
-            //加操作日志
-            return 200;
+        //启用
+        if($type == 1){
+            if($articleOnes['status'] == 1){
+                return 200;
+            }
+            $update = self::where(['id'=>$id])->update(['status'=>1]);
+            if($update){
+                //加操作日志
+                return 200;
+            }else{
+                return 500;
+            }
         }else{
-            return 500;
+            //禁用
+            if($articleOnes['status'] == 0){
+                return 300;
+            }
+            $update = self::where(['id'=>$id])->update(['status'=>0]);
+            if($update){
+                //加操作日志
+                return 200;
+            }else{
+                return 500;
+            }
         }
     }
     /*
@@ -80,12 +97,12 @@ class Article extends Model {
          * return  array
          */
     public static function editDelToId($id,$adminid){
-        $articleOnes = self::where(['id'=>$id,'is_del'=>0])->field();
+        $articleOnes = self::where(['id'=>$id])->first();
         if(!$articleOnes){
             return 404;
         }
         if($articleOnes['is_del'] == 0){
-            return 300;
+            return 200;
         }
         $update = self::where(['id'=>$id])->update(['is_del'=>0]);
         if($update){
@@ -118,9 +135,10 @@ class Article extends Model {
         //图片上传
         //附件上传
         //缓存查出用户id和分校id
-        $adminid = '';
+        $adminid = 1;
         $data['school_id'] = 1;
         $data['user_id'] = 1;
+        $data['update_at'] = date('Y-m-d H:i:s');
         $add = self::insert($data);
         if($add){
             return 200;
@@ -139,17 +157,19 @@ class Article extends Model {
         if(empty($id)){
             return 400;//参数为空
         }
-        $find = self::select('ld_article.*,ld_school.name,ld_article_type.type_name')
-                 ->leftJoin('ld_school','ld_school.id','=','ld_article.school_id')
-                 ->leftJoin('ld_article_type','ld_article_type.id','=','ld_article.article_type_id')
-                 ->where(['ld_article.id'=>$id,'ld_article.is_del'=>1])->first();
+        $find = self::select('ld_article.*','ld_school.name','ld_article_type.typename')
+                ->leftJoin('ld_school','ld_school.id','=','ld_article.school_id')
+                ->leftJoin('ld_article_type','ld_article_type.id','=','ld_article.article_type_id')
+                ->where(['ld_article.id'=>$id,'ld_article.is_del'=>1])
+                ->first();
         if($find){
-            $type = Articletype::getArticleList($find['school_id']);
-            $arr = [
-                'list'=>$find,
-                'typelist'=>$type
-            ];
-            return $arr;
+            unset($find['user_id']);
+            unset($find['share']);
+            unset($find['status']);
+            unset($find['is_del']);
+            unset($find['create_at']);
+            unset($find['update_at']);
+            return $find;
         }else{
             return 500;//条件不对
         }
@@ -170,6 +190,8 @@ class Article extends Model {
          * return  array
          */
     public static function exitForId($data){
+        $id = $data['id'];
+        unset($data['id']);
         //判断封面是否有更新
         if(!empty($data['image'])){
             //进行封面上传
@@ -180,7 +202,12 @@ class Article extends Model {
             //进行封面上传
             $data['accessory'] = '';
         }
-        $res = self::where(['id'=>$data['id']])->update($data);
+        //判断是否为空
+        if(empty($data['title']) || empty($data['key_word']) || empty($data['sources'])|| empty($data['accessory'])|| empty($data['description'])|| empty($data['text'])){
+            return false;
+        }
+        $data['update_at'] = date('Y-m-d H:i:s');
+        $res = self::where(['id'=>$id])->update($data);
         return $res;
     }
 }

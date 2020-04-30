@@ -37,17 +37,19 @@ class ArticleController extends Controller {
         rDate('1','成功',$list);
     }
     /*
-         * @param  文章表禁用
+         * @param  文章表禁用或启用
          * @param  $id    文章id
+         * @param  $type   1启用0禁用
          * @param  author  苏振文
          * @param  ctime   2020/4/28 15:4  1
          * return  array
          */
     public function editStatusToId(){
         $id = $_POST['id'];
+        $type = $_POST['type'];
         //后台操作员   id
         $adminid = 1;
-        $update = Article::editStatus($id,$adminid);
+        $update = Article::editStatus($id,$adminid,$type);
         if($update==200){
             rDate($update,'操作成功');
         }else{
@@ -82,7 +84,7 @@ class ArticleController extends Controller {
     public function findToId(){
         $id = $_POST['id'];
         $find = Article::findOne($id);
-        if(is_array($find)){
+        if($find){
             rDate('200','获取成功',$find);
         }else{
             rDate($find,'获取失败');
@@ -99,9 +101,9 @@ class ArticleController extends Controller {
         $data = $request->post();
         $find = Article::exitForId($data);
         if ($find){
-            rDate('200','成功');
+            rDate('200','修改成功');
         }else{
-            rDate('300','失败');
+            rDate('300','修改失败');
         }
     }
 }
