@@ -11,10 +11,6 @@ use Validator;
 use Log;
 use JwtAuth;
 
-
-
-
-
 class AuthenticateController extends Controller {
 
 
@@ -102,7 +98,7 @@ class AuthenticateController extends Controller {
         $user = JWTAuth::user();
         $user['token'] = $token;
         $this->setTokenToRedis($user->id, $token);
-        return $this->response(['code' => 200, 'data' => $user]);
+        return $this->response($user);
     }
 
     public function resetPassword(Request $request) {
