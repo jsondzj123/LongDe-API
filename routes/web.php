@@ -17,13 +17,12 @@ $router->get('/', function () use ($router) {
     return $router->app->version();
 });
 
-
 //客户端(ios,安卓)路由接口
 $router->group(['prefix' => 'api'], function () use ($router) {
     $router->post('user/login','Api\UserController@login');
     $router->post('user/userinfo','Api\UserController@getUserinfo');
-    $router->group(['prefix' => 'user' , 'middleware'=>'auth:api'], function () use ($router) {
-        $router->get('logReg', 'Api\UserController@loginAndRegister');
+    $router->group(['prefix' => 'user' , 'middleware'=>'api'], function () use ($router) {
+        $router->post('logReg', 'Api\UserController@loginAndRegister');
         $router->get('getUserInfoById', 'Api\UserController@getUserInfoById');
         $router->get('userLogin', 'Api\UserController@userLogin');
         $router->post('logout','Api\UserController@logout');
@@ -36,36 +35,47 @@ $router->group(['prefix' => 'web'], function () use ($router) {
 
 });
 
+
 //后台端路由接口
-
-$router->group(['prefix' => 'admin'], function () use ($router) {
-    $router->group(['prefix' => 'user'], function () use ($router) {
-        $router->post('login', 'Api\Admin\LoginController@login');
-    });
-});
-
 $router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use ($router) {
      //后台登录（lys）
     $router->group(['prefix' => 'login'], function () use ($router) {
-        //获取用户权限(lys)
-        $router->get('getUserAuth', 'LoginController@getUserAuth');
+        $router->get('getUserAuth', 'LoginController@getUserAuth');     //获取用户权限方法
     });
+    //系统用户管理模块（lys）
     $router->group(['prefix' => 'adminuser'], function () use ($router) {
-        //获取后台用户列表(lys)
-        $router->post('getUserList', 'AdminUserController@getUserList');
-        $router->post('upUserStatus', 'AdminUserController@upUserStatus');
+        $router->post('getUserList', 'AdminUserController@getUserList'); //获取后台用户列表方法
+        $router->post('upUserStatus', 'AdminUserController@upUserStatus');//更改账号状态方法 (删除/禁用)
+        $router->post('getAccount', 'CommonController@getAccountInfoOne');//获取添加账号信息（school，roleAuth）方法
+        $router->post('getAuthList', 'AdminUserController@getAuthList');  //获取角色列表方法 
+        $router->post('doInsertAdminUser', 'AdminUserController@doInsertAdminUser');  //添加用户方法 
     });
+    //系统角色管理模块 （lys）
     $router->group(['prefix' => 'role'], function () use ($router) {
-        //获取后台用户列表(lys)
-        $router->post('getAuthList', 'RoleController@getAuthList');
-        $router->post('upRoleStatus', 'RoleController@upRoleStatus');
+        $router->post('getAuthList', 'RoleController@getAuthList'); //获取后台角色列表方法
+        $router->get('upRoleStatus/{id}', 'RoleController@upRoleStatus');
+        $router->post('getRoleAuth', 'CommonController@getRoleAuth');//获取role_auth列表
+        $router->post('doRoleInsert', 'RoleController@doRoleInsert');//添加角色方法
     });
-    //用户学员相关模块
-    $router->group(['prefix' => 'user'], function () use ($router) {
-        //获取学员列表
-        $router->get('getUserList', 'UserController@getUserList');
+    
+    $router->group(['prefix' => 'user'], function () use ($router) { //用户学员相关模块方法
+        $router->get('getUserList', 'UserController@getUserList'); //获取学员列表方法
     });
-    //讲师教务相关模块
+    
+});
+
+$router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use ($router) {
+    //用户学员相关模块(dzj)
+    $router->group(['prefix' => 'student'], function () use ($router) {
+        $router->post('doInsertStudent', 'StudentController@doInsertStudent');        //添加学员的方法
+        $router->post('doUpdateStudent', 'StudentController@doUpdateStudent');        //更改学员的方法
+        $router->post('doForbidStudent', 'StudentController@doForbidStudent');        //启用/禁用学员的方法
+        $router->post('doStudentEnrolment', 'StudentController@doStudentEnrolment');  //学员报名的方法
+        $router->post('getStudentInfoById', 'StudentController@getStudentInfoById');  //获取学员信息
+        $router->post('getStudentList', 'StudentController@getStudentList');          //获取学员列表
+    });
+    //讲师教务相关模块(dzj)
+
     $router->group(['prefix' => 'teacher'], function () use ($router) {
         $router->post('doInsertTeacher', 'TeacherController@doInsertTeacher');        //添加讲师教务的方法
         $router->post('doUpdateTeacher', 'TeacherController@doUpdateTeacher');        //更改讲师教务的方法
@@ -73,5 +83,10 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use (
         $router->post('doRecommendTeacher', 'TeacherController@doRecommendTeacher');  //推荐讲师的方法
         $router->post('getTeacherInfoById', 'TeacherController@getTeacherInfoById');  //获取老师信息
         $router->post('getTeacherList', 'TeacherController@getTeacherList');          //获取老师列表
+        $router->post('getTeacherSearchList', 'CommonController@getTeacherSearchList'); //讲师或教务搜索列表
+    });
+    //运营模块
+    $router->group(['prefix' => 'article'], function () use ($router) {
+        $router->post('getArticleList', 'ArticleController@getArticleList');//获取文章列表
     });
 });

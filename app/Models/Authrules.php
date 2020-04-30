@@ -54,6 +54,24 @@ class Authrules extends Model {
             return ['code'=>201,'msg'=>'权限信息不存在'];
         }
     }
+        /*
+         * @param  descriptsion 获取权限列表
+         * @param  $where[
+                    'id' => 权限id串
+                    ...
+                ]  查询条件
+         * @param  $field  字段
+         * @param  author  lys
+         * @param  ctime   2020/4/30
+         * return  array
+         */
+    public static function getAuthAlls($where=[],$field=['*']){
+        return  self::where(function($query) use ($where){ 
+            if(isset($where['id']) && $where['id'] != ''  ){
+                $query->whereIn('id',$where['id']);
+            }
+        })->select($field)->get()->toArray();        
+    }
 
    
 }

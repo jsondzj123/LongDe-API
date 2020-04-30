@@ -49,4 +49,52 @@ use Illuminate\Support\Facades\Config;
         return $list;
     }
 //}
+
+/*
+ * @param  description   获取IP地址
+ * @param  author        dzj
+ * @param  ctime         2020-04-27
+ */
+function getip() {
+    static $realip;
+    if (isset($_SERVER)) {
+        if (isset($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+            $realip = $_SERVER['HTTP_X_FORWARDED_FOR'];
+        } else if (isset($_SERVER['HTTP_CLIENT_IP'])) {
+            $realip = $_SERVER['HTTP_CLIENT_IP'];
+        } else {
+            $realip = $_SERVER['REMOTE_ADDR'];
+        }
+    } else {
+        if (getenv('HTTP_X_FORWARDED_FOR')) {
+            $realip = getenv('HTTP_X_FORWARDED_FOR');
+        } else if (getenv('HTTP_CLIENT_IP')) {
+            $realip = getenv('HTTP_CLIENT_IP');
+        } else {
+            $realip = getenv('REMOTE_ADDR');
+        }
+    }
+    return $realip;
+}
+
+
+ /*
+ * @param  descriptsion    实现三级分类的列表
+ * @param  author          dzj
+ * @param  ctime           2020-04-29
+ * return  array
+ */
+function getParentsList($categorys,$pId = 0,$l=0){
+    $list =array();
+    foreach ($categorys as $k=>$v){
+        if ($v['parent_id'] == $pId){
+            unset($categorys[$k]);
+            if ($l < 2){
+                $v['children'] = getParentsList($categorys,$v['id'],$l+1);
+            }
+            $list[] = $v;
+        }
+    }
+    return $list;
+}
 ?>

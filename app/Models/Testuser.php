@@ -3,11 +3,17 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class User extends Model {
+class Testuser extends Model {
     //指定别的表名
-    public $table = 'longdeapi_user';
+    public $table = 'ce_testuser';
     //时间戳设置
     public $timestamps = false;
+
+
+    public static function Find($id){
+        $res = self::where(['id'=>$id,'is_valid'=>1])->get();
+        return $res;
+    }
 
     /*
      * @param  descriptsion 添加用户方法

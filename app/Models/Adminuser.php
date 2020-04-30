@@ -10,16 +10,16 @@ class Adminuser extends Model {
     public $timestamps = false;
     /*
          * @param  descriptsion 后台账号信息
-         * @param  $user_id     用户id
+         * @param  $where[
+         *    id   =>       用户id
+         *    ....
+         * ]
          * @param  author  苏振文
          * @param  ctime   2020/4/25 15:44
          * return  array
          */
-    public static function getUserOne($id){
-        if(empty($id) || !intval($id)){
-            return ['code'=>202,'msg'=>'参数为空或类型不正确'];
-        }
-        $userInfo = self::where(['id'=>$id])->first();
+    public static function getUserOne($where){
+        $userInfo = self::where($where)->first();
         if($userInfo){
             return ['code'=>200,'msg'=>'获取后台用户信息成功','data'=>$userInfo];
         }else{
@@ -50,9 +50,37 @@ class Adminuser extends Model {
             ->get()->forPage($page,$limit)->toArray();
         return $data;  
     }
-
+    /*
+     * @param  descriptsion 更新状态方法
+     * @param  $where[
+     *    id   =>       用户id
+     *    ....
+     * ]
+     * @param  $update[
+     *    is_del   =>      删除状态码
+     *    is_forbid =>     启禁状态码
+     * ]
+     * @param  author  lys
+     * @param  ctime   2020-04-13
+     * return  int
+     */
     public static function upUserStatus($where,$update){
         $result = self::where($where)->update($update);
+        return $result;
+    }
+    /*
+     * @param  descriptsion 添加用户方法
+     * @param  $insertArr[
+     *    phone   =>     手机号
+     *    account =>     登录账号
+     *    ....
+     * ]
+     * @param  author  duzhijian
+     * @param  ctime   2020-04-13
+     * return  int
+     */
+    public static function insertAdminUser($insertArr){
+        $result = self::insertGetId($insertArr);
         return $result;
     }
 }

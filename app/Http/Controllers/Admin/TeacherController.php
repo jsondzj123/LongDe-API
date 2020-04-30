@@ -73,10 +73,7 @@ class TeacherController extends Controller {
     /*
      * @param  descriptsion    删除老师的方法
      * @param  参数说明         body包含以下参数[
-     *     data      => [] ,
-     *     condition => [
-     *         teacher_id   讲师或教务id
-     *     ]
+     *      teacher_id   讲师或教务id
      * ]
      * @param  author          dzj
      * @param  ctime           2020-04-25
@@ -98,12 +95,8 @@ class TeacherController extends Controller {
     /*
      * @param  descriptsion    推荐老师的方法
      * @param  参数说明         body包含以下参数[
-     *     data      => [
-     *         is_recommend   是否推荐(1代表推荐,2代表不推荐)
-     *     ] ,
-     *     condition => [
-     *         teacher_id   讲师或教务id
-     *     ]
+     *      is_recommend   是否推荐(1代表推荐,2代表不推荐)
+     *      teacher_id   讲师或教务id
      * ]
      * @param  author          dzj
      * @param  ctime           2020-04-25
@@ -147,13 +140,8 @@ class TeacherController extends Controller {
     /*
      * @param  description   讲师或教务列表
      * @param  参数说明       body包含以下参数[
-     *     data => [
-     *         
-     *     ],
-     *     condition => [
-     *         real_name   讲师或教务姓名
-     *         type        老师类型(1代表教务,2代表讲师)
-     *     ]  
+     *     real_name   讲师或教务姓名
+     *     type        老师类型(1代表教务,2代表讲师)
      * ]
      * @param author    dzj
      * @param ctime     2020-04-25
