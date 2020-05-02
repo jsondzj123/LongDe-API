@@ -64,6 +64,7 @@ $app->singleton(
 
 $app->configure('app');
 $app->configure('code');
+$app->configure('jwt');
 
 /*
 |--------------------------------------------------------------------------
@@ -83,6 +84,7 @@ $app->configure('code');
 $app->routeMiddleware([
      'auth' => App\Http\Middleware\Authenticate::class,
      'api' => App\Http\Middleware\ApidateToken::class,
+     'cors' => App\Http\Middleware\Cors::class,
 ]);
 
 /*
