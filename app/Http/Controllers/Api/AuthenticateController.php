@@ -69,9 +69,10 @@ class AuthenticateController extends Controller {
      * @return User
      */
     protected function create(array $data) {
+        
         return User::create([
             'username' => $data['username'],
-            'mobile' => $data['mobile'],
+            'mobile' => isset($data['mobile']) ?: '',
             'password' => password_hash($data['password'], PASSWORD_DEFAULT),
             'email' => isset($data['email']) ?: '',
         ]);
