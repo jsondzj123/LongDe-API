@@ -17,31 +17,197 @@ class Article extends Model {
          * @param  ctime   2020/4/27 9:48
          * return  array
          */
-    public static function getArticleList($school_id,$type_id,$title,$page,$num){
-        $where=[];
-        if($school_id != ''){
-            $where['school_id'] = $school_id;
-        }
-        if($type_id != ''){
-            $where['article_type_id'] = $type_id;
-        }
-        $list = self::where($where)
-            ->where('title','like','%'.$title.'%')
+    public static function getArticleList($data){
+        //获取用户网校id
+        $data['num'] = isset($data['num'])?$data['num']:1;
+        $list = self::select('ld_article.id','ld_article.title','ld_article.create_at','ld_school.name','ld_article_type.typename','ld_admin_user.account')
+            ->leftJoin('ld_school','ld_school.id','=','ld_article.school_id')
+            ->leftJoin('ld_article_type','ld_article_type.id','=','ld_article.article_type_id')
+            ->leftJoin('ld_admin_user','ld_admin_user.id','=','ld_article.user_id')
+            ->where(function($query) use ($data) {
+                 if($data['school_id'] != ''){
+                     $query->where('ld_article.school_id',$data['school_id']);
+                 }
+                 if($data['type_id'] != ''){
+                     $query->where('ld_article.article_type_id',$data['type_id']);
+                 }
+                 if($data['title'] != ''){
+                     $query->where('ld_article.title','like','%'.$data['title'].'%')
+                         ->orwhere('ld_article.id',$data['title']);
+                 }
+            })
             ->orderBy('id','desc')
-            ->simplePaginate($num);
-        //条件数组
-        $condition = [
-              'school_id'=>$school_id,
-              'type_id'=>$type_id,
-              'title'=>$title,
-        ];
-        //分类列表
-        $typelist = Articletype::Typelist();
+            ->paginate($data['num']);
+//            ->simplePaginate($data['num']);
+//        //分类列表
+//        $typelist = Articletype::Typelist();
         //分校列表
-
-        $newlist['list'] = $list;
-        $newlist['condition'] = $condition;
-        $newlist['typelist'] = $typelist;
-        return $newlist;
+//        $school = School::SchoolAll();
+//        $newlist['list'] = $list; //数据
+//        $newlist['condition'] = $data; //条件
+//        $newlist['typelist'] = $typelist; //类型
+//        $newlist['school'] = $school; //学校
+        return $list;
+    }
+    /*
+         * @param 修改文章状态
+         * @param  $id 文章id
+         * @param  $type 1启用0禁用
+         * @param  $adminid 操作员id
+         * @param  author  苏振文
+         * @param  ctime   2020/4/28 15:43
+         * return  array
+         */
+    public static function editStatus($id,$adminid,$type){
+        $articleOnes = self::where(['id'=>$id,'is_del'=>1])->first();
+        if(!$articleOnes){
+            return 404;
+        }
+        //启用
+        if($type == 1){
+            if($articleOnes['status'] == 1){
+                return 200;
+            }
+            $update = self::where(['id'=>$id])->update(['status'=>1]);
+            if($update){
+                //加操作日志
+                return 200;
+            }else{
+                return 500;
+            }
+        }else{
+            //禁用
+            if($articleOnes['status'] == 0){
+                return 300;
+            }
+            $update = self::where(['id'=>$id])->update(['status'=>0]);
+            if($update){
+                //加操作日志
+                return 200;
+            }else{
+                return 500;
+            }
+        }
+    }
+    /*
+         * @param  软删除
+         * @param  $user_id     参数
+         * @param  author  苏振文
+         * @param  ctime   2020/4/28 17:33
+         * return  array
+         */
+    public static function editDelToId($id,$adminid){
+        $articleOnes = self::where(['id'=>$id])->first();
+        if(!$articleOnes){
+            return 404;
+        }
+        if($articleOnes['is_del'] == 0){
+            return 200;
+        }
+        $update = self::where(['id'=>$id])->update(['is_del'=>0]);
+        if($update){
+            //加操作日志
+            return 200;
+        }else{
+            return 500;
+        }
+    }
+    /*
+         * @param  新增
+         * @param  school_id   分校id
+         * @param  article_type_id   分类id
+         * @param  title   标题
+         * @param  image   封面
+         * @param  key_word   关键词
+         * @param  sources  来源
+         * @param  accessory   附件
+         * @param  description  摘要
+         * @param  text   正文
+         * @param  author  苏振文
+         * @param  ctime   2020/4/28 17:45
+         * return  array
+         */
+    public static function addArticle($data){
+        if(empty($data['article_type_id']) ||empty($data['title'])||empty($data['image'])||empty($data['key_word'])||empty($data['sources'])||empty($data['accessory'])||empty($data['description'])||empty($data['text'])){
+            //内容为空
+            return 400;
+        }
+        //图片上传
+        //附件上传
+        //缓存查出用户id和分校id
+        $adminid = 1;
+        $data['school_id'] = 1;
+        $data['user_id'] = 1;
+        $data['update_at'] = date('Y-m-d H:i:s');
+        $add = self::insert($data);
+        if($add){
+            return 200;
+        }else{
+            return 500;
+        }
+    }
+    /*
+         * @param  单条查询
+         * @param  $id    文章id
+         * @param  author  苏振文
+         * @param  ctime   2020/4/28 19:30
+         * return  array
+         */
+    public static function findOne($id){
+        if(empty($id)){
+            return 400;//参数为空
+        }
+        $find = self::select('ld_article.*','ld_school.name','ld_article_type.typename')
+                ->leftJoin('ld_school','ld_school.id','=','ld_article.school_id')
+                ->leftJoin('ld_article_type','ld_article_type.id','=','ld_article.article_type_id')
+                ->where(['ld_article.id'=>$id,'ld_article.is_del'=>1])
+                ->first();
+        if($find){
+            unset($find['user_id']);
+            unset($find['share']);
+            unset($find['status']);
+            unset($find['is_del']);
+            unset($find['create_at']);
+            unset($find['update_at']);
+            return $find;
+        }else{
+            return 500;//条件不对
+        }
+    }
+    /*
+         * @param  单条修改
+         * @param  id   文章id
+         * @param  article_type_id   分类id
+         * @param  title   标题
+         * @param  image   封面
+         * @param  key_word   关键词
+         * @param  sources  来源
+         * @param  accessory   附件
+         * @param  description  摘要
+         * @param  text   正文
+         * @param  author  苏振文
+         * @param  ctime   2020/4/28 19:43
+         * return  array
+         */
+    public static function exitForId($data){
+        $id = $data['id'];
+        unset($data['id']);
+        //判断封面是否有更新
+        if(!empty($data['image'])){
+            //进行封面上传
+            $data['image'] = '';
+        }
+        //判断封面是否有更新
+        if(!empty($data['accessory'])){
+            //进行封面上传
+            $data['accessory'] = '';
+        }
+        //判断是否为空
+        if(empty($data['title']) || empty($data['key_word']) || empty($data['sources'])|| empty($data['accessory'])|| empty($data['description'])|| empty($data['text'])){
+            return false;
+        }
+        $data['update_at'] = date('Y-m-d H:i:s');
+        $res = self::where(['id'=>$id])->update($data);
+        return $res;
     }
 }

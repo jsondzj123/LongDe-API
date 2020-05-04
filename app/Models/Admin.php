@@ -8,18 +8,17 @@ use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 use Illuminate\Contracts\Auth\Access\Authorizable as AuthorizableContract;
 use Tymon\JWTAuth\Contracts\JWTSubject;
  
-class User extends Model implements AuthenticatableContract, AuthorizableContract, JWTSubject
+class Admin extends Model implements AuthenticatableContract, AuthorizableContract, JWTSubject
 {
     use Authenticatable, Authorizable;
- 
- 
+
     /**
      * The attributes that are mass assignable.
      *
      * @var array
      */
     protected $fillable = [
-        'username', 'email', 'mobile'
+        'username', 'password', 'email', 'mobile', 'realname', 'sex', 'admin_id'
     ];
  
     /**
@@ -28,11 +27,12 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
      * @var array
      */
     protected $hidden = [
-        'password', 
+        'password',
         'created_at',
         'updated_at'
     ];
- 
+
+
     public function getJWTIdentifier()
     {
         return $this->getKey();
@@ -40,19 +40,18 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
  
     public function getJWTCustomClaims()
     {
-        return [];
+        return ['role' => 'admin'];
     }
-    
-
 
     /*
-     * @param  descriptsion 获取用户所建立的课程列表
-     * @param  author  duzhijian
-     * @param  ctime   2020-04-13
-     * return  array
-     */
-    public function lesson() {
-        return $this->hasMany('App\Models\Lessons');
+         * @param  descriptsion 后台账号信息
+         * @param  $user_id     用户id
+         * @param  author  苏振文
+         * @param  ctime   2020/4/25 15:44
+         * return  array
+         */
+    public static function GetUserOne($id){
+        $return = self::where(['id'=>$id])->first();
+        return $return;
     }
-
 }
