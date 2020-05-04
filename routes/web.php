@@ -89,4 +89,8 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use (
         $router->post('exitTypeForId', 'ArticletypeController@exitTypeForId');//文章分类修改
         $router->post('OnelistType', 'ArticletypeController@OnelistType');//单条查询
     });
+    //订单模块   苏振文
+    $router->group(['prefix' => 'order'], function () use ($router) {
+        $router->post('orderList', 'ArticletypeController@orderList');//订单列表
+    });
 });
