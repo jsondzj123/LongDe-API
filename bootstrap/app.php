@@ -86,6 +86,7 @@ $app->routeMiddleware([
      'api' => App\Http\Middleware\ApidateToken::class,
     // 'admin' => App\Http\Middleware\AuthAdmin::class,
     // 'jwt.role' => App\Http\Middleware\JWTRoleAuth::class,
+     'cors' => App\Http\Middleware\Cors::class,
 ]);
 
 /*
