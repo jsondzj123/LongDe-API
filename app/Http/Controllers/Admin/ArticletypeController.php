@@ -53,7 +53,6 @@ class ArticletypeController extends Controller {
             return response()->json(['code' => $edit , 'msg' => '删除失败']);
         }
     }
-
     /*
          * @param  添加
          * @param  author  苏振文
@@ -92,7 +91,7 @@ class ArticletypeController extends Controller {
     }
     /*
          * @param  单条查询
-         * @param  $id
+         * @param  $id 类型id
          * @param  author  苏振文
          * @param  ctime   2020/5/4 10:00
          * return  array
