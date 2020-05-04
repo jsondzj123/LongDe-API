@@ -53,7 +53,6 @@ class ArticletypeController extends Controller {
             return response()->json(['code' => $edit , 'msg' => '删除失败']);
         }
     }
-
     /*
          * @param  添加
          * @param  author  苏振文
