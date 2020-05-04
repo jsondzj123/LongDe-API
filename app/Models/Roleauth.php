@@ -23,6 +23,9 @@ class Roleauth extends Model {
     public static function getRoleOne($where=[],$field = ['*']){
         
         $return = self::where(function($query) use ($where){
+                    if( isset($where['id'] ) && $where['id'] != ''){
+                        $query->where('id','=',$where['id']);
+                    }
                     if( isset($where['school_id'] ) && $where['school_id'] != ''){
                         $query->where('school_id','=',$where['school_id']);
                     }

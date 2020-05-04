@@ -123,5 +123,32 @@ class AdminUserController extends Controller {
            return  response()->json(['code'=>500,'msg'=>'网络超时，请重试']); 
         }
     }
+    /*
+     * @param  description   获取账号信息（编辑）
+     * @param  参数说明       body包含以下参数[
+     *      id => 账号id  
+     * ]
+     * @param author    lys
+     * @param ctime     2020-05-04
+     */
+
+    public function getAdminUserUpdate(Request $request){
+        $data = $request->post();
+        if( !isset($data['id']) || empty($data['id']) ){
+            return response()->json(['code'=>201,'msg'=>'缺少参数，参数为空']);
+        }
+         $where['id']   = $data['id'];
+        $adminUserArr = Adminuser::getUserOne($where);
+        if($adminUserArr['code'] != 200){
+            return response()->json(['code'=>202,'msg'=>'用户不存在']);    
+        }
+        $roleAuthArr = Roleauth::getRoleAuthAlls(['school_id'=>$adminUserArr['data']['school_id'],'is_del'=>1],['id','r_name']);
+        $teacher_id_arr = explode(',', $adminUserArr['data']['teacher_id']);
+        print_r($teacher_id_arr);die;
+       
+    
+    }
+
+
      
 }

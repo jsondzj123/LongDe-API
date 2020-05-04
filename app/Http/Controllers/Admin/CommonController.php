@@ -80,7 +80,7 @@ class CommonController extends BaseController {
             } 
             $adminUserSchoolId = $data['data']['school_id'];
             $adminUserSchoolType = $data['data']['school_status']; 
-       
+            
             if($adminUserSchoolType >0){
                 //总校 Auth 
                 $roleAuthArr = \App\Models\Authrules::getAuthAlls([],['id','name','title','parent_id']);
