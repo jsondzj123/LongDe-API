@@ -18,17 +18,26 @@ $router->get('/', function () use ($router) {
 });
 
 //客户端(ios,安卓)路由接口
-$router->group(['prefix' => 'api'], function () use ($router) {
-    $router->post('user/login','Api\UserController@login');
-    $router->post('user/userinfo','Api\UserController@getUserinfo');
+/*$router->group(['prefix' => 'api'], function () use ($router) {
+    $router->post('login','Api\AuthenticateController@postLogin');
+    $router->post('register','Api\AuthenticateController@register');
+
+    $router->group(['middleware'=>['jwt.role:user', 'jwt.auth']], function () use ($router) {
+        $router->get('user/{id}', 'Api\UserController@show');
+
+    });
+    
+
     $router->group(['prefix' => 'user' , 'middleware'=>'api'], function () use ($router) {
+
+        $router->post('user/userinfo','Api\UserController@getUserinfo');
         $router->post('logReg', 'Api\UserController@loginAndRegister');
         $router->get('getUserInfoById', 'Api\UserController@getUserInfoById');
-        $router->get('userLogin', 'Api\UserController@userLogin');
+        
         $router->post('logout','Api\UserController@logout');
         $router->post('refreshToken','Api\UserController@refreshToken');
     });
-});
+});*/
 
 //PC端路由接口
 $router->group(['prefix' => 'web'], function () use ($router) {
@@ -36,7 +45,20 @@ $router->group(['prefix' => 'web'], function () use ($router) {
 });
 
 
+
 $router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use ($router) {
+    //后台管理系统接口(sxl)
+    $router->post('register', 'Admin\AuthenticateController@register');
+    $router->post('login', 'Admin\AuthenticateController@postLogin');
+
+
+    $router->group(['prefix' => 'admin', 'middleware'=> 'jwt.auth'], function () use ($router) {
+        //用户详情
+        $router->get('{id}', 'AdminController@show');
+        //获取学员列表
+        //$router->get('getUserList', 'UserController@getUserList');
+    });
+
     //用户学员相关模块(dzj)
     $router->group(['prefix' => 'student'], function () use ($router) {
         $router->post('doInsertStudent', 'StudentController@doInsertStudent');        //添加学员的方法
@@ -47,6 +69,8 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use (
         $router->post('getStudentList', 'StudentController@getStudentList');          //获取学员列表
     });
     //讲师教务相关模块(dzj)
+    
+    //讲师教务相关模块
     $router->group(['prefix' => 'teacher'], function () use ($router) {
         $router->post('doInsertTeacher', 'TeacherController@doInsertTeacher');        //添加讲师教务的方法
         $router->post('doUpdateTeacher', 'TeacherController@doUpdateTeacher');        //更改讲师教务的方法
@@ -90,3 +114,5 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use (
         $router->post('OnelistType', 'ArticletypeController@OnelistType');//单条查询
     });
 });
+
+

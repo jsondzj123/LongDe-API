@@ -36,7 +36,8 @@ return [
     */
 
     'guards' => [
-        'api' => ['driver' => 'jwt' , 'provider' => 'users'],   //更改为JWT驱动
+        'api' => ['driver' => 'jwt' , 'provider' => 'admins'],   //更改为JWT驱动
+        //'admin' => ['driver' => 'jwt' , 'provider' => 'admins'], 
     ],
 
     /*
@@ -59,7 +60,11 @@ return [
     'providers' => [
         'users' => [
             'driver' => 'eloquent',
-            'model'  => \App\Models\Auth::class   //指定用于token验证的模型类
+            'model'  => \App\Models\User::class   //指定用于token验证的模型类
+        ],
+        'admins' => [
+            'driver' => 'eloquent',
+            'model'  => \App\Models\Admin::class   //指定用于token验证的模型类
         ]
     ],
 
