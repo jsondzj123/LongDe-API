@@ -45,16 +45,14 @@ class School extends Model {
 
     }
 
-}
-
     /*
          * @param  分校列表
          * @param  author  苏振文
          * @param  ctime   2020/4/28 14:43
          * return  array
          */
-    public static function SchoolAll(){
-        $list = self::select('id','name')->where(['is_forbid'=>1,'is_del'=>1])->get()->toArray();
+    public static function SchoolAll($where=[],$field=['*']){
+        $list = self::select($field)->where($where)->get()->toArray();
         return $list;
     }
 

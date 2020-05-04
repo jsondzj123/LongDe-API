@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\Adminuser;
 use App\Models\Roleauth;
 use App\Models\Authrules;
+use App\Models\School;
 use Illuminate\Support\Facades\Redis;
 
 
@@ -142,11 +143,52 @@ class AdminUserController extends Controller {
         if($adminUserArr['code'] != 200){
             return response()->json(['code'=>202,'msg'=>'用户不存在']);    
         }
+        $adminUserArr['data']['school_name'] = School::getSchoolOne(['id'=>$adminUserArr['data']['school_id'],'is_forbid'=>1,'is_del'=>1],['name'])['data']['name'];
         $roleAuthArr = Roleauth::getRoleAuthAlls(['school_id'=>$adminUserArr['data']['school_id'],'is_del'=>1],['id','r_name']);
         $teacher_id_arr = explode(',', $adminUserArr['data']['teacher_id']);
-        print_r($teacher_id_arr);die;
-       
+        $teacherArr = [
+                ['id'=>1,'teacher_name'=>'张老师','type'=>1],
+                ['id'=>2,'teacher_name'=>'王老师','type'=>1],
+                ['id'=>3,'teacher_name'=>'李老师','type'=>2],
+                ['id'=>4,'teacher_name'=>'徐老师','type'=>2]
+        ];
+        $arr = [
+            'admin_user'=>$adminUserArr,
+            'teacher' => $teacherArr,
+            'role_auth' => $roleAuthArr,
+            'id'=>$data['id'],
+
+        ];
+        return response()->json(['code'=>200,'msg'=>'获取信息成功','data'=>$arr]);
     
+    }
+     /*
+     * @param  description   账号信息（编辑）
+     * @param  参数说明       body包含以下参数[
+     *      id => 账号id  
+     * ]
+     * @param author    lys
+     * @param ctime     2020-05-04
+     */
+
+    public function doAdminUserUpdate(Request $request){
+         $data = $request->post();
+        if( !isset($data['school_id']) || !isset($data['account']) || !isset($data['real_name']) || !isset($data['phone'])  || !isset($data['sex']) || !isset($data['password']) || !isset($data['pwd'])  || !isset($data['role_id']) || !isset($data['teacher_id']) || !isset($data['id'])  ){
+            return response()->json(['code'=>201,'msg'=>'缺少参数']);
+        }
+        if($data['password'] != $data['pwd']){
+            return response()->json(['code'=>202,'msg'=>'登录密码不一致']);
+        }
+        $where['school_id'] = $data['school_id'];
+        $where['account']   = $data['account'];
+        $where['is_del'] = 1;
+        $count = Adminuser::where($where)->where('id','!=',$data['id'])->count();
+        if($count >=1 ){
+             return response()->json(['code'=>203,'msg'=>'用户名已存在']);    
+        }
+        unset($data['pwd']);
+        $result = Adminuser::where('id','=',$data['id'])->update($data);
+        return   response()->json(['code'=>200,'msg'=>'更改成功']); 
     }
 
 

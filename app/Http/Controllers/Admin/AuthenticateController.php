@@ -95,7 +95,6 @@ class AuthenticateController extends Controller {
         ]);
     }
 
-
     public function setTokenToRedis($userId, $token) {
         try {
             Redis::set('longde:admin:' . env('APP_ENV') . ':user:token', $userId, $token);

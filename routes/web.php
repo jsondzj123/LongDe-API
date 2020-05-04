@@ -81,8 +81,8 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use (
 
 $router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use ($router) {
     //后台管理系统接口(sxl)
-    $router->post('register', 'Admin\AuthenticateController@register');
-    $router->post('login', 'Admin\AuthenticateController@postLogin');
+    $router->post('register', 'AuthenticateController@register');
+    $router->post('login', 'AuthenticateController@postLogin');
 
 
     $router->group(['prefix' => 'admin', 'middleware'=> 'jwt.auth'], function () use ($router) {
