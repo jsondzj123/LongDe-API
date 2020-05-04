@@ -17,9 +17,9 @@ class ArticleController extends Controller {
         $data = $request->post();
         $list = Article::addArticle($data);
         if($list){
-            rDate($list,'成功');
+            return response()->json(['code' => $list , 'msg' => '添加成功']);
         }else{
-            rDate($list,'失败');
+            return response()->json(['code' => $list , 'msg' => '添加失败']);
         }
     }
     /*
@@ -34,7 +34,7 @@ class ArticleController extends Controller {
     public function getArticleList(Request $request){
         $data = $request->post();
         $list = Article::getArticleList($data);
-        rDate('1','成功',$list);
+        return response()->json(['code' => 200 , 'msg' => '添加成功','data' => $list]);
     }
     /*
          * @param  文章表禁用或启用
@@ -51,9 +51,9 @@ class ArticleController extends Controller {
         $adminid = 1;
         $update = Article::editStatus($id,$adminid,$type);
         if($update==200){
-            rDate($update,'操作成功');
+            return response()->json(['code' => $update , 'msg' => '操作成功']);
         }else{
-            rDate($update,'操作失败');
+            return response()->json(['code' => $update , 'msg' => '操作失败']);
         }
     }
     /*
@@ -69,9 +69,9 @@ class ArticleController extends Controller {
         $adminid = 1;
         $update = Article::editDelToId($id,$adminid);
         if($update==200){
-            rDate($update,'操作成功');
+            return response()->json(['code' => $update , 'msg' => '操作成功']);
         }else{
-            rDate($update,'操作失败');
+            return response()->json(['code' => $update , 'msg' => '操作失败']);
         }
     }
     /*
@@ -85,9 +85,9 @@ class ArticleController extends Controller {
         $id = $_POST['id'];
         $find = Article::findOne($id);
         if($find){
-            rDate('200','获取成功',$find);
+            return response()->json(['code' => 200 , 'msg' => '获取成功','data'=>$find]);
         }else{
-            rDate($find,'获取失败');
+            return response()->json(['code' => $find , 'msg' => '获取失败']);
         }
     }
     /*
@@ -101,9 +101,9 @@ class ArticleController extends Controller {
         $data = $request->post();
         $find = Article::exitForId($data);
         if ($find){
-            rDate('200','修改成功');
+            return response()->json(['code' => 200 , 'msg' => '修改成功']);
         }else{
-            rDate('300','修改失败');
+            return response()->json(['code' => 300 , 'msg' => '修改失败']);
         }
     }
 }

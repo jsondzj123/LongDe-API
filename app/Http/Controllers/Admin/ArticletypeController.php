@@ -17,7 +17,7 @@ class ArticletypeController extends Controller {
         $school = isset($_POST['school_id'])?$_POST['school_id']:'';
         $page = isset($_POST['page'])?$_POST['page']:20;
         $list = Articletype::getArticleList($school,$page);
-        rDate('200','成功',$list);
+        return response()->json(['code' => 200 , 'msg' => '获取成功','data'=>$list]);
     }
     /*
          * @param  禁用&启用分类
@@ -32,9 +32,9 @@ class ArticletypeController extends Controller {
         $type = $_POST['type'];
         $edit = Articletype::editStatusToId($type,$id);
         if($edit==200){
-            rDate($edit,'修改成功');
+            return response()->json(['code' => $edit , 'msg' => '修改成功']);
         }else{
-            rDate($edit,'修改失败');
+            return response()->json(['code' => $edit , 'msg' => '修改失败']);
         }
     }
     /*
@@ -48,9 +48,9 @@ class ArticletypeController extends Controller {
         $id = $_POST['id'];
         $edit = Articletype::editDelToId($id);
         if($edit==200){
-            rDate($edit,'删除成功');
+            return response()->json(['code' => $edit , 'msg' => '删除成功']);
         }else{
-            rDate($edit,'删除失败');
+            return response()->json(['code' => $edit , 'msg' => '删除失败']);
         }
     }
 
@@ -64,14 +64,14 @@ class ArticletypeController extends Controller {
         $data = $request->post();
         $add = Articletype::addType($data);
         if($add==400){
-            rDate('400','此分类已存在');
+            return response()->json(['code' => 400 , 'msg' => '此分类已存在']);
         }elseif ($add == 500){
-            rDate('500','参数不正确');
+            return response()->json(['code' => 500 , 'msg' => '参数不正确']);
         }else{
             if($add){
-                rDate($add,'添加成功');
+                return response()->json(['code' => $add , 'msg' => '添加成功']);
             }else{
-                rDate($add,'添加失败');
+                return response()->json(['code' => $add , 'msg' => '添加失败']);
             }
         }
     }
@@ -85,9 +85,9 @@ class ArticletypeController extends Controller {
         $data = $request->post();
         $exid = Articletype::editForId($data);
         if($exid == 200){
-            rDate($exid,'修改成功');
+            return response()->json(['code' => $exid , 'msg' => '修改成功']);
         }else{
-            rDate($exid,'修改失败');
+            return response()->json(['code' => $exid , 'msg' => '修改失败']);
         }
     }
     /*
@@ -101,9 +101,9 @@ class ArticletypeController extends Controller {
         $id = $_POST['id'];
         $find = Articletype::oneFind($id);
         if(!$find){
-            rDate('300','获取失败');
+            return response()->json(['code' => 300 , 'msg' => '获取失败']);
         }else{
-            rDate('200','获取成功',$find);
+            return response()->json(['code' => 200 , 'msg' => '获取成功','data'=>$find]);
         }
     }
 }
