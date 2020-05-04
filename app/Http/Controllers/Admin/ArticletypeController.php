@@ -46,7 +46,7 @@ class ArticletypeController extends Controller {
          */
     public function exitDelForId(){
         $id = $_POST['id'];
-        $edit = Articletype::editDelToId(2,$id);
+        $edit = Articletype::editDelToId($id);
         if($edit==200){
             rDate($edit,'删除成功');
         }else{
@@ -81,13 +81,29 @@ class ArticletypeController extends Controller {
          * @param  ctime   2020/4/30 15:11
          * return  array
          */
-    public function exitForId(Request $request){
+    public function exitTypeForId(Request $request){
         $data = $request->post();
         $exid = Articletype::editForId($data);
         if($exid == 200){
             rDate($exid,'修改成功');
         }else{
             rDate($exid,'修改失败');
+        }
+    }
+    /*
+         * @param  单条查询
+         * @param  $id
+         * @param  author  苏振文
+         * @param  ctime   2020/5/4 10:00
+         * return  array
+         */
+    public function OnelistType(){
+        $id = $_POST['id'];
+        $find = Articletype::oneFind($id);
+        if(!$find){
+            rDate('300','获取失败');
+        }else{
+            rDate('200','获取成功',$find);
         }
     }
 }

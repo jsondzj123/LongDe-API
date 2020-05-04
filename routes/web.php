@@ -82,10 +82,11 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use (
         $router->post('findToId', 'ArticleController@findToId');//获取单条文章数据
         $router->post('exitForId', 'ArticleController@exitForId');//文章修改
         /*------------文章分类模块------------------*/
+        $router->post('addType', 'ArticletypeController@addType');//文章分类添加
         $router->post('getTypeList', 'ArticletypeController@getTypeList');//获取文章分类列表
         $router->post('editStatusForId', 'ArticletypeController@editStatusForId');//文章分类禁用&启用
         $router->post('exitDelForId', 'ArticletypeController@exitDelForId');//文章分类删除
-        $router->post('addType', 'ArticletypeController@addType');//文章分类添加
-//        $router->post('exitForId', 'ArticletypeController@exitForId');//文章分类修改
+        $router->post('exitTypeForId', 'ArticletypeController@exitTypeForId');//文章分类修改
+        $router->post('OnelistType', 'ArticletypeController@OnelistType');//单条查询
     });
 });

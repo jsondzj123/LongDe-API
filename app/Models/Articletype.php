@@ -21,7 +21,7 @@ class Articletype extends Model {
        if($school_id != ''){
            $where['ld_article_type.school_id'] = $school_id;
        }
-       $typelist = self::select('ld_article_type.*','ld_school.name','ld_admin_user.account')
+       $typelist = self::select('ld_article_type.id','ld_article_type.typename','ld_article_type.status','ld_school.name','ld_admin_user.account')
            ->leftJoin('ld_school','ld_school.id','=','ld_article_type.school_id')
            ->leftJoin('ld_admin_user','ld_admin_user.id','=','ld_article_type.user_id')
            ->where($where)
@@ -88,7 +88,7 @@ class Articletype extends Model {
          * return  array
          */
     public static function editDelToId($id){
-        $articleOnes = self::where(['id'=>$id])->field();
+        $articleOnes = self::where(['id'=>$id])->first();
         if(!$articleOnes){
             return 404;
         }
@@ -152,5 +152,20 @@ class Articletype extends Model {
         }else{
             return 500;
         }
+    }
+    /*
+         * @param  单条查询
+         * @param  $id
+         * @param  author  苏振文
+         * @param  ctime   2020/5/4 10:02
+         * return  array
+         */
+    public static function oneFind($id){
+
+        $find = self::select('ld_article_type.id','ld_article_type.typename','ld_article_type.description','ld_school.name')
+            ->leftJoin('ld_school','ld_school.id','=','ld_article_type.school_id')
+            ->where(['ld_article_type.id'=>$id,'ld_article_type.is_del'=>1])
+            ->first();
+        return $find;
     }
 }
