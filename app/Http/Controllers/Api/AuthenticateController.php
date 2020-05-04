@@ -44,7 +44,7 @@ class AuthenticateController extends Controller {
             return response($validator->errors()->first(), 422);
         }
         $user = $this->create($request->all());
-        return $this->login($credentials);
+        return $this->login($user);
     }
 
     /**

@@ -18,19 +18,26 @@ $router->get('/', function () use ($router) {
 });
 
 //客户端(ios,安卓)路由接口
-$router->group(['prefix' => 'api'], function () use ($router) {
+/*$router->group(['prefix' => 'api'], function () use ($router) {
     $router->post('login','Api\AuthenticateController@postLogin');
     $router->post('register','Api\AuthenticateController@register');
 
+    $router->group(['middleware'=>['jwt.role:user', 'jwt.auth']], function () use ($router) {
+        $router->get('user/{id}', 'Api\UserController@show');
+
+    });
+    
+
     $router->group(['prefix' => 'user' , 'middleware'=>'api'], function () use ($router) {
+
         $router->post('user/userinfo','Api\UserController@getUserinfo');
         $router->post('logReg', 'Api\UserController@loginAndRegister');
         $router->get('getUserInfoById', 'Api\UserController@getUserInfoById');
-        $router->get('userLogin', 'Api\UserController@userLogin');
+        
         $router->post('logout','Api\UserController@logout');
         $router->post('refreshToken','Api\UserController@refreshToken');
     });
-});
+});*/
 
 //PC端路由接口
 $router->group(['prefix' => 'web'], function () use ($router) {
@@ -38,12 +45,21 @@ $router->group(['prefix' => 'web'], function () use ($router) {
 });
 
 
-$router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use ($router) {
-    //用户学员相关模块
-    $router->group(['prefix' => 'user'], function () use ($router) {
+//后台管理系统接口
+$router->group(['prefix' => 'admin'], function () use ($router) {
+    //注册
+    $router->post('register', 'Admin\AuthenticateController@register');
+    //登录
+    $router->post('login', 'Admin\AuthenticateController@postLogin');
+
+    $router->group(['prefix' => 'admin', 'middleware'=> 'jwt.auth'], function () use ($router) {
+        //用户详情
+        $router->get('{id}', 'Admin\AdminController@show');
         //获取学员列表
-        $router->get('getUserList', 'UserController@getUserList');
-    });
+        //$router->get('getUserList', 'UserController@getUserList');
+});
+
+    
     //讲师教务相关模块
     $router->group(['prefix' => 'teacher'], function () use ($router) {
         $router->post('doInsertTeacher', 'TeacherController@doInsertTeacher');        //添加讲师教务的方法
@@ -58,3 +74,5 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use (
         $router->post('getArticleList', 'ArticleController@getArticleList');//获取文章列表
     });
 });
+
+

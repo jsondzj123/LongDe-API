@@ -63,7 +63,8 @@ $app->singleton(
 */
 
 $app->configure('app');
-$app->configure('code');
+$app->configure('auth');
+$app->configure('jwt');
 
 /*
 |--------------------------------------------------------------------------
@@ -83,6 +84,8 @@ $app->configure('code');
 $app->routeMiddleware([
      'auth' => App\Http\Middleware\Authenticate::class,
      'api' => App\Http\Middleware\ApidateToken::class,
+    // 'admin' => App\Http\Middleware\AuthAdmin::class,
+    // 'jwt.role' => App\Http\Middleware\JWTRoleAuth::class,
 ]);
 
 /*

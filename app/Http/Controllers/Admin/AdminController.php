@@ -2,7 +2,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-#use App\Models\User;
+use App\Models\Admin;
 #use App\Models\Auth;
 
 #use DB;
@@ -16,19 +16,14 @@ use Tymon\JWTAuth\JWTAuth;
 
 
 
-class UserController extends Controller {
-    protected $jwt;
+class AdminController extends Controller {
+            
 
-    /*public function __construct(JWTAuth $jwt) {
-        $this->jwt = $jwt;
-    }*/
 
-    public function loginAndRegister(){
-        //echo 'nnn';
-       //Redis::set('name', 'guwenjie');
-        $values = Redis::get('name');
-        dd($values);
-
+    public function show($id)
+    {
+        $admin = Admin::findOrFail($id);
+        return $this->response($admin);
     }
 
     /*
