@@ -11,31 +11,39 @@ use Log;
 use JWTAuth;
 use Validator;
 use Tymon\JWTAuth\Exceptions\JWTException;
-
+use App\Http\Controllers\Admin\AdminUserController as AdminUser;
 
 
 
 
 class AuthenticateController extends Controller {
+  
 
     public function postLogin(Request $request) {
+
         $validator = Validator::make($request->all(), [
             'username'=> 'required',
             'password'=> 'required'
         ]);
+        
         if ($validator->fails()) {
             return $this->response($validator->errors()->first(), 422);
         }
+        
         $credentials = $request->only('username', 'password');
+
         return $this->login($credentials); 
     }
 
     public function register(Request $request) {
         $validator = $this->validator($request->all());
+
         if ($validator->fails()) {
             return response($validator->errors()->first(), 422);
         }
+
         $user = $this->create($request->all())->toArray();
+
         return $this->login($user);
     }
 
@@ -54,11 +62,13 @@ class AuthenticateController extends Controller {
         } catch (JWTException $e) {
             Log::error('创建token失败' . $e->getMessage());
             return response('创建token失败', 500);
-        }
-
+        }   
+        
         $user = JWTAuth::user();
         $user['token'] = $token;
         $this->setTokenToRedis($user->id, $token);
+        $AdminUser = new AdminUser();
+        $user['auth'] =  $AdminUser->getAdminUserLoginAuth($user['role_id']);  //获取后台用户菜单栏（lys 5.5）
         return $this->response($user);
     } 
     /**
@@ -69,7 +79,7 @@ class AuthenticateController extends Controller {
      */
     protected function validator(array $data) {
         return Validator::make($data, [
-            'username' => 'required|max:255|unique:admins',
+            'username' => 'required|max:255|unique:ld_admin',
             'mobile' => 'min:11',
             'password' => 'required|min:6',
             'email' => 'email',

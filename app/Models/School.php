@@ -12,6 +12,23 @@ class School extends Model {
     //时间戳设置
     public $timestamps = false;
 
+
+     public function message()
+    {
+        return [
+            'page.required' => '请传入页码',
+            'page.integer' => '页码类型不合法',
+            'limit.required' => '请传入显示条数',
+            'page.integer' => '显示条数类型不合法',
+        ];
+    }
+     public function rule()
+    {
+        return ['page','limit'];
+    }
+    public function 
+
+
     /*
          * @param  descriptsion 获取学校信息
          * @param  $school_id   学校id

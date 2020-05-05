@@ -5,7 +5,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 class Adminuser extends Model {
     //指定别的表名
-    public $table = 'ld_admin_user';
+    public $table = 'ld_admin';
     //时间戳设置
     public $timestamps = false;
     /*

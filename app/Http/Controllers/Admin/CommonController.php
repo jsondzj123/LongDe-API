@@ -56,7 +56,7 @@ class CommonController extends BaseController {
                 //分校
                 $schoolData = \App\Models\School::getSchoolOne($adminUserSchoolId,['id','name']);
             }
-            $rolAuthArr = \App\Models\Roleauth::getRoleAuthAlls(['school_id'=>$adminUserSchoolId],['id','r_name']);
+            $rolAuthArr = \App\Models\Roleauth::getRoleAuthAlls(['school_id'=>$adminUserSchoolId],['id','role_name']);
             $arr = [
                 'school'=>$schoolData,
                 'role_auth'=>$rolAuthArr
@@ -86,7 +86,7 @@ class CommonController extends BaseController {
                 $roleAuthArr = \App\Models\Authrules::getAuthAlls([],['id','name','title','parent_id']);
             }else{
                 //分校  Auth
-                $schoolData = \App\Models\Roleauth::getRoleOne(['school_id'=>$adminUserSchoolId,'is_del'=>1,'is_super'=>1],['id','r_name','auth_desc','auth_id']);
+                $schoolData = \App\Models\Roleauth::getRoleOne(['school_id'=>$adminUserSchoolId,'is_del'=>1,'is_super'=>1],['id','role_name','auth_desc','auth_id']);
               
                 if( $schoolData['code'] != 200){    
                      return response()->json(['code' => 403 , 'msg' => '请联系总校超级管理员' ]);
@@ -99,7 +99,7 @@ class CommonController extends BaseController {
                 $roleAuthArr = \App\Models\Authrules::getAuthAlls(['id'=>$auth_id_arr],['id','name','title','parent_id']);
             }
 
-            $roleAuthData = \App\Models\Roleauth::getRoleAuthAlls(['school_id'=>$adminUserSchoolId,'is_del'=>1],['id','r_name','auth_desc','auth_id']);
+            $roleAuthData = \App\Models\Roleauth::getRoleAuthAlls(['school_id'=>$adminUserSchoolId,'is_del'=>1],['id','role_name','auth_desc','auth_id']);
             $roleAuthArr  = getParentsList($roleAuthArr);
             $arr = [
                 'role_auth'=>$roleAuthData,

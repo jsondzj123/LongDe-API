@@ -83,9 +83,10 @@ $app->configure('jwt');
 
 $app->routeMiddleware([
      'auth' => App\Http\Middleware\Authenticate::class,
-     'api' => App\Http\Middleware\ApidateToken::class,
+     'api' => App\Http\Middleware\ApiAuthToken::class,
     // 'jwt.role' => App\Http\Middleware\JWTRoleAuth::class,
      'cors' => App\Http\Middleware\Cors::class,
+     
 ]);
 
 /*

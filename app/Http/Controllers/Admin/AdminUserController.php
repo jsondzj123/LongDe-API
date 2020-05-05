@@ -10,7 +10,6 @@ use App\Models\Authrules;
 use App\Models\School;
 use Illuminate\Support\Facades\Redis;
 
-
 class AdminUserController extends Controller {
   
      /*
@@ -19,12 +18,14 @@ class AdminUserController extends Controller {
      *     search       搜索条件
      *     page         当前页码
      *     limit        每页显示条件
+     *     school_id    学校id
      * ]
      * @param author    lys
      * @param ctime     2020-04-29
      */
     public function getUserList(Request $request){
     	$data =  $request->post();
+
     	if(!isset($data['search']) || !isset($data['page']) || !isset($data['limit']) ){
     		return response()->json(['code'=>201,'msg'=>'缺少参数']);
     	}
@@ -34,7 +35,8 @@ class AdminUserController extends Controller {
     	if( isset($data['limit']) || empty($data['limit']) || $data['page']<1 ) {
     		$data['limit'] = 10;
     	}
-        $adminUserArr = Adminuser::getUserAll($data['search'],$data['page'],$data['limit']);
+        $school_id = 1;
+        $adminUserArr = Adminuser::getUserAll(['school_id'=>$school_id],$data['search'],$data['page'],$data['limit']);
        	$arr = [
        		'data' => $adminUserArr,
        		'page' => $data['page'],
@@ -162,7 +164,7 @@ class AdminUserController extends Controller {
         return response()->json(['code'=>200,'msg'=>'获取信息成功','data'=>$arr]);
     
     }
-     /*
+    /*
      * @param  description   账号信息（编辑）
      * @param  参数说明       body包含以下参数[
      *      id => 账号id  
@@ -189,6 +191,33 @@ class AdminUserController extends Controller {
         unset($data['pwd']);
         $result = Adminuser::where('id','=',$data['id'])->update($data);
         return   response()->json(['code'=>200,'msg'=>'更改成功']); 
+    }
+    /*
+     * @param  description   登录账号权限（菜单栏）
+     * @param  参数说明       body包含以下参数[
+     *      id => 角色id
+     * ]
+     * @param author    lys
+     * @param ctime     2020-05-05
+     */
+
+    public function getAdminUserLoginAuth($admin_role_id){
+        $admin_role_id = 1;
+        if(empty($admin_role_id) || !intval($admin_role_id)){
+            return response()->json(['code'=>204,'msg'=>'参数值为空或参数类型错误']);
+        }
+        $adminRole =  Roleauth::getRoleOne(['id'=>$admin_role_id,'is_forbid'=>1,'is_del'=>1],['id','role_name','auth_id']);
+        if($adminRole['code'] != 200){
+            return response()->json(['code'=>$adminRole['code'],'msg'=>$adminRole['msg']]);
+        }
+        $adminRuths = Authrules::getAdminAuthAll($adminRole['data']['auth_id']);
+        if($adminRuths['code'] != 200){
+            return response()->json(['code'=>$adminRuths['code'],'msg'=>$adminRuths['msg']]);
+        }
+        return $adminRuths['data'];
+
+
+
     }
 
 

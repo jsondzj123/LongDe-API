@@ -18,4 +18,9 @@ class AdminController extends Controller {
         $admin = Admin::findOrFail($id);
         return $this->response($admin);
     }
+    public function info(Request $request){
+    	dd($request->all());
+        $admin = Admin::findOrFail($id);
+        return $this->response($admin);
+    }
 }

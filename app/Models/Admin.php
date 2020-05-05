@@ -12,15 +12,16 @@ class Admin extends Model implements AuthenticatableContract, AuthorizableContra
 {
     use Authenticatable, Authorizable;
 
+    public $table = 'ld_admin';
     /**
      * The attributes that are mass assignable.
      *
      * @var array
      */
     protected $fillable = [
-        'username', 'password', 'email', 'mobile', 'realname', 'sex', 'admin_id'
+        'username', 'password', 'email', 'mobile', 'realname', 'sex', 'admin_id','teacher_id','school_status','school_id','is_forbid','is_del'
     ];
- 
+    
     /**
      * The attributes excluded from the model's JSON form.
      *
@@ -30,7 +31,7 @@ class Admin extends Model implements AuthenticatableContract, AuthorizableContra
         'password',
         'created_at',
         'updated_at'
-    ];
+    ]; 
 
 
     public function getJWTIdentifier()

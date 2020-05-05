@@ -10,7 +10,7 @@ class Roleauth extends Model {
     public $timestamps = false;
 
     protected $fillable = [
-        'r_name', 'auth_id', 'auth_desc', 'admin_id', 'school_id'
+        'role_name', 'auth_id', 'auth_desc', 'admin_id', 'school_id'
     ];
 
     /*
@@ -29,8 +29,8 @@ class Roleauth extends Model {
                     if( isset($where['school_id'] ) && $where['school_id'] != ''){
                         $query->where('school_id','=',$where['school_id']);
                     }
-                    if( isset($where['r_name'] ) && $where['r_name'] != ''){
-                        $query->where('r_name','=',$where['r_name']);
+                    if( isset($where['role_name'] ) && $where['role_name'] != ''){
+                        $query->where('role_name','=',$where['role_name']);
                     }
                     if( isset($where['is_del'] ) && $where['is_del'] != ''){
                         $query->where('is_del','=',$where['is_del']);
@@ -38,7 +38,7 @@ class Roleauth extends Model {
                     if( isset($where['is_super'] ) && $where['is_super'] != ''){
                         $query->where('is_super','=',$where['is_super']);
                     } 
-        })->select($field)->first();
+        })->select($field)->first()->toArray();
          if($return){
             return ['code'=>200,'msg'=>'获取角色信息成功','data'=>$return];
         }else{
