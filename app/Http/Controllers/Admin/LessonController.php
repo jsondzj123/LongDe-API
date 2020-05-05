@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Lessons;
 use Illuminate\Http\Request;
-use CurrentUser;
+use CurrentAdmin;
 use DB;
 
 class LessonController extends Controller {
@@ -20,7 +20,7 @@ class LessonController extends Controller {
         $currentCount = $request->input('current_count') ?: 0;
         $count = $request->input('count') ?: 15;
         $total = Lesson::where(['status' => 1, 'is_del' => 0])->count();
-        $lessons = Lesson::with(['user' => function ($query) {
+        $lesson = Lesson::with(['user' => function ($query) {
             $query->select('id', 'name', 'head_pic');
         }])
             ->where(['status' => 1, 'is_del' => 0])
@@ -30,7 +30,7 @@ class LessonController extends Controller {
             ->get();
 
         $data = [
-            'page_data' => $lessons,
+            'page_data' => $lesson,
             'total' => $total,
         ];
         return $this->response($data);

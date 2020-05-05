@@ -8,7 +8,7 @@ use Illuminate\Http\Request;
 
 class Controller extends BaseController {
     //接受数据参数
-    public $accept_data;
+    public static $accept_data;
     /*
 
      * @param  description   基础底层数据加密部分
@@ -17,6 +17,7 @@ class Controller extends BaseController {
      * @param  ctime         2020-04-16
      * return  string
      */
+<<<<<<< HEAD
     // public function __construct(Request $request) {
 
 
@@ -29,6 +30,12 @@ class Controller extends BaseController {
     //     //app('rsa')->Test();
 
     // }
+=======
+    public function __construct(Request $request) {
+        self::$accept_data = app('rsa')->servicersadecrypt($request);
+        //app('rsa')->Test();
+    }
+>>>>>>> dev
 
      /*返回json串
      * addtime 2020.4.28
