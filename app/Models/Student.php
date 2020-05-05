@@ -53,20 +53,17 @@ class Student extends Model {
      *     is_forbid    账号状态
      *     state_status 开课状态
      *     real_name    姓名
-     *     paginate     每页显示条数
+     *     pagesize     每页显示条数
      * ]
      * @param  author          dzj
      * @param  ctime           2020-04-27
      * return  array
      */
     public static function getStudentList($body=[]) {
-        //判断传过来的数组数据是否为空
-        if(!$body || !is_array($body)){
-            return ['code' => 202 , 'msg' => '传递数据不合法'];
-        }
-        
         //每页显示的条数
-        $paginate = isset($body['paginate']) && $body['paginate'] > 0 ? $body['paginate'] : 15;
+        $pagesize = isset($body['pagesize']) && $body['pagesize'] > 0 ? $body['pagesize'] : 15;
+        $page     = isset($body['page']) && $body['page'] > 0 ? $body['page'] : 1;
+        $offset   = ($page - 1) * $pagesize;
 
         //学员列表
         $student_list = self::where(function($query) use ($body){
@@ -89,7 +86,7 @@ class Student extends Model {
             if(isset($body['search']) && !empty($body['search'])){
                 $query->where('real_name','like','%'.$body['search'].'%')->orWhere('phone','like','%'.$body['search'].'%');
             }
-        })->select('id as student_id','real_name','phone','create_at','enroll_status','state_status','is_forbid')->orderByDesc('create_at')->paginate($paginate);
+        })->select('id as student_id','real_name','phone','create_at','enroll_status','state_status','is_forbid')->orderByDesc('create_at')->offset($offset)->limit($pagesize)->get();
         return ['code' => 200 , 'msg' => '获取学员列表成功' , 'data' => $student_list];
     }
 

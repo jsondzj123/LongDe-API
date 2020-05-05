@@ -66,7 +66,7 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use (
         $router->post('doForbidStudent', 'StudentController@doForbidStudent');        //启用/禁用学员的方法
         $router->post('doStudentEnrolment', 'StudentController@doStudentEnrolment');  //学员报名的方法
         $router->post('getStudentInfoById', 'StudentController@getStudentInfoById');  //获取学员信息
-        $router->post('getStudentList', 'StudentController@getStudentList');          //获取学员列表
+        $router->post('getStudentList', 'CommonController@getStudentList');           //获取学员列表
     });
     //讲师教务相关模块(dzj)
     
@@ -90,9 +90,9 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use (
         /****************题库科目部分  end****************/
 
         /****************章节考点部分  start****************/
-        $router->post('doInsertChapters', 'QuestionController@doInsertChapters');        //添加题库科目的方法
-        $router->post('doUpdateChapters', 'QuestionController@doUpdateChapters');        //更改题库科目的方法
-        $router->post('doDeleteChapters', 'QuestionController@doDeleteChapters');        //删除题库科目的方法
+        $router->post('doInsertChapters', 'QuestionController@doInsertChapters');        //添加章节考点的方法
+        $router->post('doUpdateChapters', 'QuestionController@doUpdateChapters');        //更改章节考点的方法
+        $router->post('doDeleteChapters', 'QuestionController@doDeleteChapters');        //删除章节考点的方法
         $router->post('getChaptersList', 'QuestionController@getChaptersList');          //获取章节考点列表
         /****************章节考点部分  end****************/
         $router->get('export', 'CommonController@doExportExamLog'); //讲师或教务搜索列表

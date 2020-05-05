@@ -67,7 +67,9 @@ class Teacher extends Model {
         }
         
         //每页显示的条数
-        $paginate = isset($body['paginate']) && $body['paginate'] > 0 ? $body['paginate'] : 15;
+        $pagesize = isset($body['pagesize']) && $body['pagesize'] > 0 ? $body['pagesize'] : 15;
+        $page     = isset($body['page']) && $body['page'] > 0 ? $body['page'] : 1;
+        $offset   = ($page - 1) * $pagesize;
 
         //获取讲师或教务列表
         $teacher_list = self::where(function($query) use ($body){
@@ -79,7 +81,7 @@ class Teacher extends Model {
             if(isset($body['search']) && !empty($body['search'])){
                 $query->where('id','=',$body['search'])->orWhere('real_name','like','%'.$body['search'].'%');
             }
-        })->select('id as teacher_id','real_name','phone','create_at','number','is_recommend')->orderByDesc('create_at')->paginate($paginate);
+        })->select('id as teacher_id','real_name','phone','create_at','number','is_recommend')->orderByDesc('create_at')->offset($offset)->limit($pagesize)->get();
         return ['code' => 200 , 'msg' => '获取老师列表成功' , 'data' => $teacher_list];
     }
     

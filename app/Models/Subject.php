@@ -38,7 +38,7 @@ class Subject extends Model {
 
         //判断科目id是否合法
         if(!isset($body['bank_id']) || empty($body['bank_id']) || $body['bank_id'] <= 0){
-            return ['code' => 202 , 'msg' => '科目id不合法'];
+            return ['code' => 202 , 'msg' => '题库id不合法'];
         }
 
         //获取题库科目列表
