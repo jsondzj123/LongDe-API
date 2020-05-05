@@ -215,7 +215,7 @@ class Teacher extends Model {
         if(false !== self::where('id',$teacher_id)->update($body)){
             //添加日志操作
             AdminLog::insertAdminLog([
-                'admin_id'       =>   1  ,
+                'admin_id'       =>   AdminLog::getAdminInfo()->id  ,
                 'module_name'    =>  'Teacher' ,
                 'route_url'      =>  'admin/teacher/doUpdateTeacher' , 
                 'operate_method' =>  'update' ,
@@ -303,7 +303,7 @@ class Teacher extends Model {
         }
 
         //将所属网校id和后台人员id追加
-        $body['admin_id']   = 1;
+        $body['admin_id']   = AdminLog::getAdminInfo()->id;
         $body['school_id']  = 1;
         $body['create_at']  = date('Y-m-d H:i:s');
 
@@ -311,7 +311,7 @@ class Teacher extends Model {
         if(false !== self::insertTeacher($body)){
             //添加日志操作
             AdminLog::insertAdminLog([
-                'admin_id'       =>   1  ,
+                'admin_id'       =>   AdminLog::getAdminInfo()->id  ,
                 'module_name'    =>  'Teacher' ,
                 'route_url'      =>  'admin/teacher/doInsertTeacher' , 
                 'operate_method' =>  'insert' ,
@@ -356,7 +356,7 @@ class Teacher extends Model {
         if(false !== self::where('id',$body['teacher_id'])->update($data)){
             //添加日志操作
             AdminLog::insertAdminLog([
-                'admin_id'       =>   1  ,
+                'admin_id'       =>   AdminLog::getAdminInfo()->id  ,
                 'module_name'    =>  'Teacher' ,
                 'route_url'      =>  'admin/teacher/doDeleteTeacher' , 
                 'operate_method' =>  'delete' ,
@@ -402,7 +402,7 @@ class Teacher extends Model {
         if(false !== self::where('id',$body['teacher_id'])->update($data)){
             //添加日志操作
             AdminLog::insertAdminLog([
-                'admin_id'       =>   1  ,
+                'admin_id'       =>   AdminLog::getAdminInfo()->id  ,
                 'module_name'    =>  'Teacher' ,
                 'route_url'      =>  'admin/teacher/doRecommendTeacher' , 
                 'operate_method' =>  'delete' ,

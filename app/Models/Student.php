@@ -171,7 +171,7 @@ class Student extends Model {
         if(false !== self::where('id',$student_id)->update($body)){
             //添加日志操作
             AdminLog::insertAdminLog([
-                'admin_id'       =>   1  ,
+                'admin_id'       =>   AdminLog::getAdminInfo()->id  ,
                 'module_name'    =>  'Student' ,
                 'route_url'      =>  'admin/student/doUpdateStudent' , 
                 'operate_method' =>  'update' ,
@@ -251,7 +251,7 @@ class Student extends Model {
         }
 
         //将所属网校id和后台人员id追加
-        $body['admin_id']   = 1;
+        $body['admin_id']   = AdminLog::getAdminInfo()->id;
         $body['school_id']  = 1;
         $body['reg_source'] = 2;
         $body['create_at']  = date('Y-m-d H:i:s');
@@ -260,7 +260,7 @@ class Student extends Model {
         if(false !== self::insertStudent($body)){
             //添加日志操作
             AdminLog::insertAdminLog([
-                'admin_id'       =>   1  ,
+                'admin_id'       =>   AdminLog::getAdminInfo()->id  ,
                 'module_name'    =>  'Student' ,
                 'route_url'      =>  'admin/student/doInsertStudent' , 
                 'operate_method' =>  'insert' ,
@@ -305,7 +305,7 @@ class Student extends Model {
         if(false !== self::where('id',$body['student_id'])->update($data)){
             //添加日志操作
             AdminLog::insertAdminLog([
-                'admin_id'       =>   1  ,
+                'admin_id'       =>   AdminLog::getAdminInfo()->id  ,
                 'module_name'    =>  'Student' ,
                 'route_url'      =>  'admin/student/doForbidStudent' , 
                 'operate_method' =>  'update' ,

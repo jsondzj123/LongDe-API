@@ -89,7 +89,7 @@ class Subject extends Model {
         if(false !== self::where('id',$subject_id)->update($body)){
             //添加日志操作
             AdminLog::insertAdminLog([
-                'admin_id'       =>   1  ,
+                'admin_id'       =>   AdminLog::getAdminInfo()->id  ,
                 'module_name'    =>  'Question' ,
                 'route_url'      =>  'admin/question/doUpdateSubject' , 
                 'operate_method' =>  'update' ,
@@ -131,7 +131,7 @@ class Subject extends Model {
         }
 
         //将后台人员id追加
-        $body['admin_id']   = 1;
+        $body['admin_id']   = AdminLog::getAdminInfo()->id;
         $body['create_at']  = date('Y-m-d H:i:s');
 
         //将数据插入到表中
@@ -139,7 +139,7 @@ class Subject extends Model {
         if($subject_id && $subject_id > 0){
             //添加日志操作
             AdminLog::insertAdminLog([
-                'admin_id'       =>   1  ,
+                'admin_id'       =>   AdminLog::getAdminInfo()->id  ,
                 'module_name'    =>  'Question' ,
                 'route_url'      =>  'admin/question/doInsertSubject' , 
                 'operate_method' =>  'insert' ,
@@ -183,7 +183,7 @@ class Subject extends Model {
         if(false !== self::where('id',$body['subject_id'])->update($data)){
             //添加日志操作
             AdminLog::insertAdminLog([
-                'admin_id'       =>   1  ,
+                'admin_id'       =>   AdminLog::getAdminInfo()->id  ,
                 'module_name'    =>  'Question' ,
                 'route_url'      =>  'admin/question/doDeleteSubject' , 
                 'operate_method' =>  'delete' ,
@@ -228,7 +228,7 @@ class Subject extends Model {
         if(false !== self::whereIn('id',$subject_ids)->update(['bank_id' => $body['bank_id'] , 'update_at' => date('Y-m-d H:i:s')])){
             //添加日志操作
             AdminLog::insertAdminLog([
-                'admin_id'       =>   1  ,
+                'admin_id'       =>   AdminLog::getAdminInfo()->id  ,
                 'module_name'    =>  'Question' ,
                 'route_url'      =>  'admin/question/doUpdateBankIds' , 
                 'operate_method' =>  'delete' ,

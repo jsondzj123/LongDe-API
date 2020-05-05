@@ -8,6 +8,17 @@ class AdminLog extends Model {
     public $table      = 'ld_admin_operate_log';
     //时间戳设置
     public $timestamps = false;
+    
+    /*
+     * @param  description   获取后端用户基本信息
+     * @param  data          数组数据
+     * @param  author        dzj
+     * @param  ctime         2020-05-05
+     * return  int
+     */
+    public static function getAdminInfo(){
+        return \App\Tools\CurrentAdmin::user();
+    }
 
     /*
      * @param  description   添加后台日志的方法

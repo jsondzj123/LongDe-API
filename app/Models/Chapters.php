@@ -118,7 +118,7 @@ class Chapters extends Model {
         if(false !== self::where('id',$chapters_id)->update($body)){
             //添加日志操作
             AdminLog::insertAdminLog([
-                'admin_id'       =>   1  ,
+                'admin_id'       =>   AdminLog::getAdminInfo()->id  ,
                 'module_name'    =>  'Chapters' ,
                 'route_url'      =>  'admin/question/doUpdateChapters' , 
                 'operate_method' =>  'update' ,
@@ -180,7 +180,7 @@ class Chapters extends Model {
         }
 
         //将后台人员id追加
-        $body['admin_id']   = 1;
+        $body['admin_id']   = AdminLog::getAdminInfo()->id;
         $body['create_at']  = date('Y-m-d H:i:s');
 
         //将数据插入到表中
@@ -188,7 +188,7 @@ class Chapters extends Model {
         if($chapters_id && $chapters_id > 0){
             //添加日志操作
             AdminLog::insertAdminLog([
-                'admin_id'       =>   1  ,
+                'admin_id'       =>   AdminLog::getAdminInfo()->id  ,
                 'module_name'    =>  'Chapters' ,
                 'route_url'      =>  'admin/question/doInsertChapters' , 
                 'operate_method' =>  'insert' ,
@@ -232,7 +232,7 @@ class Chapters extends Model {
         if(false !== self::where('id',$body['chapters_id'])->update($data)){
             //添加日志操作
             AdminLog::insertAdminLog([
-                'admin_id'       =>   1  ,
+                'admin_id'       =>   AdminLog::getAdminInfo()->id  ,
                 'module_name'    =>  'Chapters' ,
                 'route_url'      =>  'admin/question/doDeleteChapters' , 
                 'operate_method' =>  'delete' ,
