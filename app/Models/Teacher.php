@@ -304,7 +304,7 @@ class Teacher extends Model {
 
         //将所属网校id和后台人员id追加
         $body['admin_id']   = AdminLog::getAdminInfo()->id;
-        $body['school_id']  = 1;
+        $body['school_id']  = AdminLog::getAdminInfo()->school_id;
         $body['create_at']  = date('Y-m-d H:i:s');
 
         //将数据插入到表中
