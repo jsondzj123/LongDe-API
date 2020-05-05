@@ -95,6 +95,7 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use (
         $router->post('doDeleteChapters', 'QuestionController@doDeleteChapters');        //删除题库科目的方法
         $router->post('getChaptersList', 'QuestionController@getChaptersList');          //获取章节考点列表
         /****************章节考点部分  end****************/
+        $router->get('export', 'CommonController@doExportExamLog'); //讲师或教务搜索列表
     });
     //运营模块   苏振文
     $router->group(['prefix' => 'article'], function () use ($router) {

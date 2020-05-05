@@ -8,7 +8,7 @@ use Illuminate\Http\Request;
 
 class Controller extends BaseController {
     //接受数据参数
-    public $accept_data;
+    public static $accept_data;
     /*
 
      * @param  description   基础底层数据加密部分

@@ -109,6 +109,8 @@ $app->register(App\Providers\Rsa\RsaServiceProvider::class);
 $app->register(\Tymon\JWTAuth\Providers\LumenServiceProvider::class);
 //加载redis服务
 $app->register(\Illuminate\Redis\RedisServiceProvider::class);
+//加载注册excel
+$app->register(\Maatwebsite\Excel\ExcelServiceProvider::class);
 /*
 |--------------------------------------------------------------------------
 | Load The Application Routes
