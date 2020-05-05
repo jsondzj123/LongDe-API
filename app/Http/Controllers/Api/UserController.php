@@ -37,7 +37,6 @@ class UserController extends Controller {
      * @param $user_id  
      */
     public function getUserInfoById(Request $request){
-        echo 2;die;
         /*$userinfo = DB::table("longdeapi_user")->get()->toArray();
         echo "<pre>";
         print_r($userinfo);*/
