@@ -166,12 +166,15 @@ class Student extends Model {
         //将更新时间追加
         $body['update_at'] = date('Y-m-d H:i:s');
         unset($body['student_id']);
+        
+        //获取后端的操作员id
+        $admin_id = isset(AdminLog::getAdminInfo()->admin_user->id) ? AdminLog::getAdminInfo()->admin_user->id : 0;
 
         //根据学员id更新信息
         if(false !== self::where('id',$student_id)->update($body)){
             //添加日志操作
             AdminLog::insertAdminLog([
-                'admin_id'       =>   AdminLog::getAdminInfo()->id  ,
+                'admin_id'       =>   $admin_id  ,
                 'module_name'    =>  'Student' ,
                 'route_url'      =>  'admin/student/doUpdateStudent' , 
                 'operate_method' =>  'update' ,
@@ -249,10 +252,14 @@ class Student extends Model {
         if(isset($body['educational']) && !empty($body['educational']) && !in_array($body['educational'] , [1,2,3,4,5,6,7,8])){
             return ['code' => 202 , 'msg' => '最高学历类型不合法'];
         }
+        
+        //获取后端的操作员id
+        $admin_id = isset(AdminLog::getAdminInfo()->admin_user->id) ? AdminLog::getAdminInfo()->admin_user->id : 0;
+        $school_id= isset(AdminLog::getAdminInfo()->admin_user->school_id) ? AdminLog::getAdminInfo()->admin_user->school_id : 0;
 
         //将所属网校id和后台人员id追加
-        $body['admin_id']   = AdminLog::getAdminInfo()->id;
-        $body['school_id']  = AdminLog::getAdminInfo()->school_id;
+        $body['admin_id']   = $admin_id;
+        $body['school_id']  = $school_id;
         $body['reg_source'] = 2;
         $body['create_at']  = date('Y-m-d H:i:s');
 
@@ -260,7 +267,7 @@ class Student extends Model {
         if(false !== self::insertStudent($body)){
             //添加日志操作
             AdminLog::insertAdminLog([
-                'admin_id'       =>   AdminLog::getAdminInfo()->id  ,
+                'admin_id'       =>   $admin_id  ,
                 'module_name'    =>  'Student' ,
                 'route_url'      =>  'admin/student/doInsertStudent' , 
                 'operate_method' =>  'insert' ,
@@ -294,18 +301,24 @@ class Student extends Model {
         if(!isset($body['student_id']) || empty($body['student_id']) || $body['student_id'] <= 0){
             return ['code' => 202 , 'msg' => '学员id不合法'];
         }
+        
+        //根据学员的id获取学员的状态
+        $is_forbid = self::where('id',$body['student_id'])->pluck('is_forbid');
 
         //追加更新时间
         $data = [
-            'is_forbid'    => $body['is_forbid'] == 1 ? 1 : 2 ,
+            'is_forbid'    => $is_forbid[0] > 1 ? 1 : 2 ,
             'update_at'    => date('Y-m-d H:i:s')
         ];
+        
+        //获取后端的操作员id
+        $admin_id = isset(AdminLog::getAdminInfo()->admin_user->id) ? AdminLog::getAdminInfo()->admin_user->id : 0;
 
         //根据学员id更新账号状态
         if(false !== self::where('id',$body['student_id'])->update($data)){
             //添加日志操作
             AdminLog::insertAdminLog([
-                'admin_id'       =>   AdminLog::getAdminInfo()->id  ,
+                'admin_id'       =>   $admin_id  ,
                 'module_name'    =>  'Student' ,
                 'route_url'      =>  'admin/student/doForbidStudent' , 
                 'operate_method' =>  'update' ,

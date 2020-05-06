@@ -114,6 +114,16 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use (
         $router->post('doDeleteChapters', 'QuestionController@doDeleteChapters');        //删除章节考点的方法
         $router->post('getChaptersList', 'QuestionController@getChaptersList');          //获取章节考点列表
         /****************章节考点部分  end****************/
+        
+        /****************题库部分  start****************/
+        $router->post('doInsertBank', 'BankController@doInsertBank');                    //添加题库的方法
+        $router->post('doUpdateBank', 'BankController@doUpdateBank');                    //更新题库的方法
+        $router->post('doDeleteBank', 'BankController@doDeleteBank');                    //删除题库的方法
+        $router->post('doOpenCloseBank', 'BankController@doOpenCloseBank');              //题库开启/关闭的方法
+        $router->post('getBankInfoById', 'BankController@getBankInfoById');              //获取题库详情信息
+        $router->post('getBankList', 'CommonController@getBankList');                    //获取题库列表
+        /****************题库部分  end****************/
+        
         $router->get('export', 'CommonController@doExportExamLog'); //讲师或教务搜索列表
     });
     //运营模块(szw)

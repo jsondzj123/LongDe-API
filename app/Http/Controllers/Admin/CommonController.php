@@ -73,6 +73,27 @@ class CommonController extends BaseController {
     }
     
     /*
+     * @param  descriptsion    获取题库列表
+     * @param  author          dzj
+     * @param  ctime           2020-05-06
+     * return  array
+     */
+    public function getBankList(){
+        //获取提交的参数
+        try{
+            //获取全部题库列表
+            $data = \App\Models\Bank::getBankList();
+            if($data['code'] == 200){
+                return response()->json(['code' => 200 , 'msg' => '获取题库列表成功' , 'data' => $data['data']]);
+            } else {
+                return response()->json(['code' => $data['code'] , 'msg' => $data['msg']]);
+            }
+        } catch (Exception $ex) {
+            return response()->json(['code' => 500 , 'msg' => $ex->getMessage()]);
+        }
+    }
+    
+    /*
      * @param  description   导入功能方法
      * @param  参数说明[
      *     $imxport      导入文件名称

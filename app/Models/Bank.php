@@ -1,0 +1,517 @@
+<?php
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+use App\Models\AdminLog;
+use Validator;
+use DB;
+use App\Models\QuestionSubject as Subject;
+use Illuminate\Support\Facades\Redis;
+
+class Bank extends Model {
+    //指定别的表名
+    public $table      = 'ld_question_bank';
+    //时间戳设置
+    public $timestamps = false;
+
+    /*
+     * @param  description   添加题库方法
+     * @param  data          数组数据
+     * @param  author        dzj
+     * @param  ctime         2020-05-06
+     * return  int
+     */
+    public static function insertBank($data) {
+        return self::insertGetId($data);
+    }
+
+    /*
+     * @param  descriptsion    获取题库列表
+     * @param  author          dzj
+     * @param  ctime           2020-05-06
+     * return  array
+     */
+    public static function getBankList($body=[]) {
+        //获取题库列表
+        $bank_list = self::select('id as bank_id','topic_name','describe','is_open')->withCount(['subjectToBank as subject_count' => function($query) {
+            $query->where('is_del' , '=' , 0);
+        } , 'papersToBank as papers_count' => function($query) {
+            $query->where('is_del' , '=' , 0);
+        } , 'examToBank as exam_count' => function($query) {
+            $query->where('is_del' , '=' , 0);
+        }])->where(function($query) use ($body){
+            //删除状态
+            $query->where('is_del' , '=' , 0)->where('is_open' , '=' , 0);
+            
+            //获取后端的操作员id
+            $admin_id = isset(AdminLog::getAdminInfo()->admin_user->id) ? AdminLog::getAdminInfo()->admin_user->id : 0;
+            
+            //操作员id
+            $query->where('admin_id' , '=' , $admin_id);
+        })->orderByDesc('create_at')->get();
+        
+        return ['code' => 200 , 'msg' => '获取题库列表成功' , 'data' => $bank_list];
+    }
+    
+    /*
+     * @param  descriptsion    根据题库id获取题库详情信息
+     * @param  参数说明         body包含以下参数[
+     *     bank_id   题库id
+     * ]
+     * @param  author          dzj
+     * @param  ctime           2020-05-06
+     * return  array
+     */
+    public static function getBankInfoById($body=[]) {
+        //规则结构
+        $rule = [
+            'bank_id'   =>   'bail|required|min:1'
+        ];
+        
+        //信息提示
+        $message = [
+            'bank_id.required'    =>  json_encode(['code'=>201,'msg'=>'题库id为空']) ,
+            'bank_id.min'         =>  json_encode(['code'=>202,'msg'=>'题库id不合法']) ,
+        ];
+        
+        $validator = Validator::make($body , $rule , $message);
+        if ($validator->fails()) {
+            return json_decode($validator->errors()->first() , true);
+        }
+
+        //根据id获取题库详细信息
+        $bank_info = self::where('id',$body['bank_id'])->select('topic_name','parent_id','child_id','describe','subject_id')->first()->toArray();
+
+        //根据科目id获取科目信息
+        $subject_list = Subject::findMany(explode(',' , $bank_info['subject_id']) , ['id','subject_name']);
+        
+        //科目列表赋值
+        $bank_info['subject_list'] = $subject_list;
+        return ['code' => 200 , 'msg' => '获取题库信息成功' , 'data' => $bank_info];
+    }
+
+    /*
+     * @param  descriptsion    更改题库的方法[二期功能]
+     * @param  参数说明         body包含以下参数[
+     *     bank_id     题库id
+     *     topic_name  题库名称
+     *     subject_id  科目id
+     *     parent_id   一级分类id
+     *     child_id    二级分类id
+     *     describe    题库描述
+     * ]
+     * @param  author          dzj
+     * @param  ctime           2020-05-06
+     * return  array
+     */
+    /*public static function doUpdateBank($body=[]){
+        //规则结构
+        $rule = [
+            'bank_id'      =>   'bail|required|numeric|min:1' ,
+            'topic_name'   =>   'bail|required' ,
+            'subject_id'   =>   'bail|required' ,
+            'parent_id'    =>   'bail|required|numeric|min:1' ,
+            'child_id'     =>   'bail|required|numeric|min:1' ,
+            'describe'     =>   'bail|required'
+        ];
+        
+        //信息提示
+        $message = [
+            'bank_id.required'      =>  json_encode(['code'=>201,'msg'=>'题库id为空']) ,
+            'bank_id.min'           =>  json_encode(['code'=>202,'msg'=>'题库id不合法']) ,
+            'topic_name.required'   =>  json_encode(['code'=>201,'msg'=>'请输入题库名称']) ,
+            'subject_id.required'   =>  json_encode(['code'=>201,'msg'=>'请添加科目']) ,
+            'parent_id.required'    =>  json_encode(['code'=>201,'msg'=>'请选择一级分类']) ,
+            'parent_id.min'         =>  json_encode(['code'=>202,'msg'=>'一级分类id不合法']) ,
+            'child_id.required'     =>  json_encode(['code'=>201,'msg'=>'请选择二级分类']) ,
+            'child_id.min'          =>  json_encode(['code'=>202,'msg'=>'二级分类id不合法']) ,
+            'describe.required'     =>  json_encode(['code'=>201,'msg'=>'请输入题库描述']) ,
+        ];
+        
+        $validator = Validator::make($body , $rule , $message);
+        if ($validator->fails()) {
+            return json_decode($validator->errors()->first() , true);
+        }
+        
+        //获取后端的操作员id
+        $admin_id = isset(AdminLog::getAdminInfo()->admin_user->id) ? AdminLog::getAdminInfo()->admin_user->id : 0;
+        
+        //键赋值
+        $key = 'admin:'.$admin_id.':bank:'.$body['bank_id'];
+        
+        //追加到list列表中【方便后期hash获取】
+        Redis::rpush('bank_list' , $key);
+        
+        //存储题库信息到redis中
+        Redis::hMset($key , $body);
+        
+        $aaa = Redis::hMset($key , $body);
+        if(Redis::exists($key)) {
+            $bbb = Redis::hMget($key , array('topic_name'));
+        echo "<pre>";
+        print_r($bbb);
+        }
+    }*/
+    
+    
+    /*
+     * @param  descriptsion    更新题库列表的方法[二期功能]
+     * @param  author          dzj
+     * @param  ctime           2020-05-06
+     * return  array
+     */
+    /*public static function doUpdateBankList(){
+        //存储当前题库更新的时间
+        $current_time_length = Redis::strlen('bank_update_time');
+        if($current_time_length > 0){
+            $current_time = Redis::get('bank_update_time');
+        } else {
+            //获取当前服务器时间
+            $current_time = date('Y-m-d H:i');
+            Redis::set('bank_update_time' , $current_time);
+        }
+        
+        //获取更新时间
+        $update_time = date('Y-m-d H:i:s');
+
+        //返回题库列表的长度
+        $bank_length = Redis::lLen('bank_list');
+        
+        //判断列表长度是否大于0
+        if($bank_length > 0){
+            //获取所有需要更新的题库数据
+            $bank_list = Redis::lrange('bank_list' , 0 , -1);
+            
+            //空数组赋值
+            $arr = [];
+            
+            //循环获取列表的key值
+            foreach($bank_list as $k=>$v){
+                //通过hash的key值获取题库的数据
+                $bank_info = Redis::hMget($v , ['bank_id' , 'topic_name' , 'subject_id' , 'parent_id' , 'child_id' , 'describe']);
+                
+                //题库的id
+                $bank_id = $bank_info[0];
+                
+                //重新组装成数组
+                $arr_field = [
+                    'topic_name' =>  $bank_info[1] ,   //题库的名称
+                    'subject_id' =>  $bank_info[2] ,   //科目的id(多个逗号分隔)
+                    'parent_id'  =>  $bank_info[3] ,   //一级分类的id
+                    'child_id'   =>  $bank_info[4] ,   //二级分类的id
+                    'describe'   =>  $bank_info[5] ,   //题库的描述
+                    'update_at'  =>  $update_time
+                ];
+                
+                //更新题库信息
+                if(false !== self::where('id',$bank_id)->update($arr_field)){
+                    //更新题库科目的所属题库id
+                    Subject::doUpdateBankIds(['bank_id' => $bank_id , 'subject_ids' => $arr_field['subject_id'] , 'update_at' => $update_time]);
+
+                    //添加日志操作
+                    AdminLog::insertAdminLog([
+                        'admin_id'       =>   $admin_id  ,
+                        'module_name'    =>  'Question' ,
+                        'route_url'      =>  'admin/question/doUpdateBankList' , 
+                        'operate_method' =>  'update' ,
+                        'content'        =>  json_encode($arr_field) ,
+                        'ip'             =>  $_SERVER["REMOTE_ADDR"] ,
+                        'create_at'      =>  $update_time
+                    ]);
+                    
+                    //从redis中删除hash数据
+                    Redis::del($v);
+                    
+                    //从redis中删除题库list数据
+                    Redis::del('bank_list');
+                }
+            }
+        }
+        //获取最新更新题库时间
+        Redis::set('bank_update_time' , $update_time);
+        return ['code' => 200 , 'msg' => '更新成功'];
+    }*/
+    
+    
+    /*
+     * @param  descriptsion    更改题库的方法
+     * @param  参数说明         body包含以下参数[
+     *     bank_id     题库id
+     *     topic_name  题库名称
+     *     subject_id  科目id
+     *     parent_id   一级分类id
+     *     child_id    二级分类id
+     *     describe    题库描述
+     * ]
+     * @param  author          dzj
+     * @param  ctime           2020-05-06
+     * return  array
+     */
+    public static function doUpdateBank($body=[]){
+        //规则结构
+        $rule = [
+            'bank_id'      =>   'bail|required|numeric|min:1' ,
+            'topic_name'   =>   'bail|required' ,
+            'subject_id'   =>   'bail|required' ,
+            'parent_id'    =>   'bail|required|numeric|min:1' ,
+            'child_id'     =>   'bail|required|numeric|min:1' ,
+            'describe'     =>   'bail|required'
+        ];
+        
+        //信息提示
+        $message = [
+            'bank_id.required'      =>  json_encode(['code'=>201,'msg'=>'题库id为空']) ,
+            'bank_id.min'           =>  json_encode(['code'=>202,'msg'=>'题库id不合法']) ,
+            'topic_name.required'   =>  json_encode(['code'=>201,'msg'=>'请输入题库名称']) ,
+            'subject_id.required'   =>  json_encode(['code'=>201,'msg'=>'请添加科目']) ,
+            'parent_id.required'    =>  json_encode(['code'=>201,'msg'=>'请选择一级分类']) ,
+            'parent_id.min'         =>  json_encode(['code'=>202,'msg'=>'一级分类id不合法']) ,
+            'child_id.required'     =>  json_encode(['code'=>201,'msg'=>'请选择二级分类']) ,
+            'child_id.min'          =>  json_encode(['code'=>202,'msg'=>'二级分类id不合法']) ,
+            'describe.required'     =>  json_encode(['code'=>201,'msg'=>'请输入题库描述']) ,
+        ];
+        
+        $validator = Validator::make($body , $rule , $message);
+        if ($validator->fails()) {
+            return json_decode($validator->errors()->first() , true);
+        }
+        
+        //获取后端的操作员id
+        $admin_id = isset(AdminLog::getAdminInfo()->admin_user->id) ? AdminLog::getAdminInfo()->admin_user->id : 0;
+
+        //获取题库id
+        $bank_id = $body['bank_id'];
+        
+        //将更新时间追加
+        $body['update_at'] = date('Y-m-d H:i:s');
+        unset($body['bank_id']);
+
+        //根据题库id更新信息
+        if(false !== self::where('id',$bank_id)->update($body)){
+            //更新题库科目的所属题库id
+            Subject::doUpdateBankIds(['bank_id' => $bank_id , 'subject_ids' => $body['subject_id'] , 'update_at' => date('Y-m-d H:i:s')]);
+            
+            //添加日志操作
+            AdminLog::insertAdminLog([
+                'admin_id'       =>   $admin_id  ,
+                'module_name'    =>  'Question' ,
+                'route_url'      =>  'admin/question/doUpdateBank' , 
+                'operate_method' =>  'update' ,
+                'content'        =>  json_encode($body) ,
+                'ip'             =>  $_SERVER["REMOTE_ADDR"] ,
+                'create_at'      =>  date('Y-m-d H:i:s')
+            ]);
+            return ['code' => 200 , 'msg' => '更新成功'];
+        } else {
+            return ['code' => 203 , 'msg' => '更新失败'];
+        }
+    }
+
+
+    /*
+     * @param  description   增加题库的方法
+     * @param  参数说明         body包含以下参数[
+     *     topic_name  题库名称
+     *     subject_id  科目id
+     *     parent_id   一级分类id
+     *     child_id    二级分类id
+     *     describe    题库描述
+     * ]
+     * @param author    dzj
+     * @param ctime     2020-04-29
+     * return string
+     */
+    public static function doInsertBank($body=[]){
+        //规则结构
+        $rule = [
+            'topic_name'   =>   'bail|required' ,
+            'subject_id'   =>   'bail|required' ,
+            'parent_id'    =>   'bail|required|numeric|min:1' ,
+            'child_id'     =>   'bail|required|numeric|min:1' ,
+            'describe'     =>   'bail|required'
+        ];
+        
+        //信息提示
+        $message = [
+            'topic_name.required'   =>  json_encode(['code'=>201,'msg'=>'请输入题库名称']) ,
+            'subject_id.required'   =>  json_encode(['code'=>201,'msg'=>'请添加科目']) ,
+            'parent_id.required'    =>  json_encode(['code'=>201,'msg'=>'请选择一级分类']) ,
+            'parent_id.min'         =>  json_encode(['code'=>202,'msg'=>'一级分类id不合法']) ,
+            'child_id.required'     =>  json_encode(['code'=>201,'msg'=>'请选择二级分类']) ,
+            'child_id.min'          =>  json_encode(['code'=>202,'msg'=>'二级分类id不合法']) ,
+            'describe.required'     =>  json_encode(['code'=>201,'msg'=>'请输入题库描述']) ,
+        ];
+        
+        $validator = Validator::make($body , $rule , $message);
+        if ($validator->fails()) {
+            return json_decode($validator->errors()->first() , true);
+        }
+        
+        //获取后端的操作员id
+        $admin_id = isset(AdminLog::getAdminInfo()->admin_user->id) ? AdminLog::getAdminInfo()->admin_user->id : 0;
+
+        //将后台人员id追加
+        $body['admin_id']   = $admin_id;
+        $body['create_at']  = date('Y-m-d H:i:s');
+
+        //将数据插入到表中
+        $bank_id = self::insertBank($body);
+        if($bank_id && $bank_id > 0){
+            //更新题库科目的所属题库id
+            Subject::doUpdateBankIds(['bank_id' => $bank_id , 'subject_ids' => $body['subject_id']]);
+            
+            //添加日志操作
+            AdminLog::insertAdminLog([
+                'admin_id'       =>   $admin_id  ,
+                'module_name'    =>  'Question' ,
+                'route_url'      =>  'admin/question/doInsertBank' , 
+                'operate_method' =>  'insert' ,
+                'content'        =>  json_encode($body) ,
+                'ip'             =>  $_SERVER["REMOTE_ADDR"] ,
+                'create_at'      =>  date('Y-m-d H:i:s')
+            ]);
+            return ['code' => 200 , 'msg' => '添加成功'];
+        } else {
+            return ['code' => 203 , 'msg' => '添加失败'];
+        }
+    }
+
+    /*
+     * @param  descriptsion    删除题库的方法
+     * @param  参数说明         body包含以下参数[
+     *      bank_id   题库id
+     * ]
+     * @param  author          dzj
+     * @param  ctime           2020-04-29
+     * return  array
+     */
+    public static function doDeleteBank($body=[]) {
+        //规则结构
+        $rule = [
+            'bank_id'   =>   'bail|required|min:1'
+        ];
+        
+        //信息提示
+        $message = [
+            'bank_id.required'    =>  json_encode(['code'=>201,'msg'=>'题库id为空']) ,
+            'bank_id.min'         =>  json_encode(['code'=>202,'msg'=>'题库id不合法']) ,
+        ];
+        
+        $validator = Validator::make($body , $rule , $message);
+        if ($validator->fails()) {
+            return json_decode($validator->errors()->first() , true);
+        }
+
+        //追加更新时间
+        $data = [
+            'is_del'     => 1 ,
+            'update_at'  => date('Y-m-d H:i:s')
+        ];
+        
+        //获取后端的操作员id
+        $admin_id = isset(AdminLog::getAdminInfo()->admin_user->id) ? AdminLog::getAdminInfo()->admin_user->id : 0;
+
+        //根据题库id更新删除状态
+        if(false !== self::where('id',$body['bank_id'])->update($data)){
+            //添加日志操作
+            AdminLog::insertAdminLog([
+                'admin_id'       =>   $admin_id  ,
+                'module_name'    =>  'Question' ,
+                'route_url'      =>  'admin/question/doDeleteBank' , 
+                'operate_method' =>  'delete' ,
+                'content'        =>  json_encode($body) ,
+                'ip'             =>  $_SERVER["REMOTE_ADDR"] ,
+                'create_at'      =>  date('Y-m-d H:i:s')
+            ]);
+            return ['code' => 200 , 'msg' => '删除成功'];
+        } else {
+            return ['code' => 203 , 'msg' => '删除失败'];
+        }
+    }
+    
+    /*
+     * @param  descriptsion    题库开启/关闭的方法
+     * @param  参数说明         body包含以下参数[
+     *      bank_id   题库id
+     * ]
+     * @param  author          dzj
+     * @param  ctime           2020-05-06
+     * return  array
+     */
+    public static function doOpenCloseBank($body=[]) {
+        //规则结构
+        $rule = [
+            'bank_id'   =>   'bail|required|min:1'
+        ];
+        
+        //信息提示
+        $message = [
+            'bank_id.required'    =>  json_encode(['code'=>201,'msg'=>'题库id为空']) ,
+            'bank_id.min'         =>  json_encode(['code'=>202,'msg'=>'题库id不合法']) ,
+        ];
+        
+        $validator = Validator::make($body , $rule , $message);
+        if ($validator->fails()) {
+            return json_decode($validator->errors()->first() , true);
+        }
+        
+        //根据题库的id获取题库的状态
+        $is_open = self::where('id',$body['bank_id'])->pluck('is_open');
+
+        //追加更新时间
+        $data = [
+            'is_open'    => $is_open[0] > 0 ? 0 : 1 ,
+            'update_at'  => date('Y-m-d H:i:s')
+        ];
+        
+        //获取后端的操作员id
+        $admin_id = isset(AdminLog::getAdminInfo()->admin_user->id) ? AdminLog::getAdminInfo()->admin_user->id : 0;
+
+        //根据题库id更新题库状态
+        if(false !== self::where('id',$body['bank_id'])->update($data)){
+            //添加日志操作
+            AdminLog::insertAdminLog([
+                'admin_id'       =>   $admin_id  ,
+                'module_name'    =>  'Question' ,
+                'route_url'      =>  'admin/question/doOpenCloseBank' , 
+                'operate_method' =>  'update' ,
+                'content'        =>  json_encode($body) ,
+                'ip'             =>  $_SERVER["REMOTE_ADDR"] ,
+                'create_at'      =>  date('Y-m-d H:i:s')
+            ]);
+            return ['code' => 200 , 'msg' => '操作成功'];
+        } else {
+            return ['code' => 203 , 'msg' => '操作失败'];
+        }
+    }
+    
+    /*
+     * @param  descriptsion 获取科目与题库建立的联系
+     * @param  author  duzhijian
+     * @param  ctime   2020-05-06
+     * return  array
+     */
+    public function subjectToBank() {
+        return $this->hasMany('App\Models\QuestionSubject' , 'bank_id' , 'id');
+    }
+    
+    /*
+     * @param  descriptsion 获取试卷与题库建立的联系
+     * @param  author  duzhijian
+     * @param  ctime   2020-05-06
+     * return  array
+     */
+    public function papersToBank() {
+        return $this->hasMany('App\Models\Papers' , 'bank_id' , 'id');
+    }
+    
+    /*
+     * @param  descriptsion 获取试题与题库建立的联系
+     * @param  author  duzhijian
+     * @param  ctime   2020-05-06
+     * return  array
+     */
+    public function examToBank() {
+        return $this->hasMany('App\Models\Exam' , 'bank_id' , 'id');
+    }
+}

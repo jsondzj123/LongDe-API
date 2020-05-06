@@ -216,12 +216,15 @@ class Teacher extends Model {
         //将更新时间追加
         $body['update_at'] = date('Y-m-d H:i:s');
         unset($body['teacher_id']);
+        
+        //获取后端的操作员id
+        $admin_id = isset(AdminLog::getAdminInfo()->admin_user->id) ? AdminLog::getAdminInfo()->admin_user->id : 0;
 
         //根据讲师或教务id更新信息
         if(false !== self::where('id',$teacher_id)->update($body)){
             //添加日志操作
             AdminLog::insertAdminLog([
-                'admin_id'       =>   AdminLog::getAdminInfo()->id  ,
+                'admin_id'       =>   $admin_id  ,
                 'module_name'    =>  'Teacher' ,
                 'route_url'      =>  'admin/teacher/doUpdateTeacher' , 
                 'operate_method' =>  'update' ,
@@ -307,17 +310,22 @@ class Teacher extends Model {
                 }
             }
         }
+        
+        //获取后端的操作员id
+        $admin_id = isset(AdminLog::getAdminInfo()->admin_user->id) ? AdminLog::getAdminInfo()->admin_user->id : 0;
+        $school_id= isset(AdminLog::getAdminInfo()->admin_user->school_id) ? AdminLog::getAdminInfo()->admin_user->school_id : 0;
+
 
         //将所属网校id和后台人员id追加
-        $body['admin_id']   = AdminLog::getAdminInfo()->id;
-        $body['school_id']  = AdminLog::getAdminInfo()->school_id;
+        $body['admin_id']   = $admin_id;
+        $body['school_id']  = $school_id;
         $body['create_at']  = date('Y-m-d H:i:s');
 
         //将数据插入到表中
         if(false !== self::insertTeacher($body)){
             //添加日志操作
             AdminLog::insertAdminLog([
-                'admin_id'       =>   AdminLog::getAdminInfo()->id  ,
+                'admin_id'       =>   $admin_id  ,
                 'module_name'    =>  'Teacher' ,
                 'route_url'      =>  'admin/teacher/doInsertTeacher' , 
                 'operate_method' =>  'insert' ,
@@ -357,12 +365,15 @@ class Teacher extends Model {
             'is_del'     => 1 ,
             'update_at'  => date('Y-m-d H:i:s')
         ];
+        
+        //获取后端的操作员id
+        $admin_id = isset(AdminLog::getAdminInfo()->admin_user->id) ? AdminLog::getAdminInfo()->admin_user->id : 0;
 
         //根据讲师或教务id更新删除状态
         if(false !== self::where('id',$body['teacher_id'])->update($data)){
             //添加日志操作
             AdminLog::insertAdminLog([
-                'admin_id'       =>   AdminLog::getAdminInfo()->id  ,
+                'admin_id'       =>   $admin_id  ,
                 'module_name'    =>  'Teacher' ,
                 'route_url'      =>  'admin/teacher/doDeleteTeacher' , 
                 'operate_method' =>  'delete' ,
@@ -403,12 +414,15 @@ class Teacher extends Model {
             'is_recommend' => $body['is_recommend'] == 1 ? 1 : 0 ,
             'update_at'    => date('Y-m-d H:i:s')
         ];
+        
+        //获取后端的操作员id
+        $admin_id = isset(AdminLog::getAdminInfo()->admin_user->id) ? AdminLog::getAdminInfo()->admin_user->id : 0;
 
         //根据讲师或教务id更新推荐状态
         if(false !== self::where('id',$body['teacher_id'])->update($data)){
             //添加日志操作
             AdminLog::insertAdminLog([
-                'admin_id'       =>   AdminLog::getAdminInfo()->id  ,
+                'admin_id'       =>   $admin_id  ,
                 'module_name'    =>  'Teacher' ,
                 'route_url'      =>  'admin/teacher/doRecommendTeacher' , 
                 'operate_method' =>  'delete' ,

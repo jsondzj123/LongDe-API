@@ -88,9 +88,12 @@ class Enrolment extends Model {
         if(!isset($body['payment_time']) || empty($body['payment_time'])){
             return ['code' => 201 , 'msg' => '请输入付款时间'];
         }
+        
+        //获取后端的操作员id
+        $admin_id = isset(AdminLog::getAdminInfo()->admin_user->id) ? AdminLog::getAdminInfo()->admin_user->id : 0;
 
         //将所属网校id和后台人员id追加
-        $body['admin_id']   = 1;
+        $body['admin_id']   = $admin_id;
         $body['status']     = 1;
         $body['create_at']  = date('Y-m-d H:i:s');
 
@@ -103,7 +106,7 @@ class Enrolment extends Model {
             
             //添加日志操作
             AdminLog::insertAdminLog([
-                'admin_id'       =>   1  ,
+                'admin_id'       =>   $admin_id  ,
                 'module_name'    =>  'Enrolment' ,
                 'route_url'      =>  'admin/student/doStudentEnrolment' , 
                 'operate_method' =>  'insert' ,
