@@ -492,7 +492,7 @@ class Bank extends Model {
      * return  array
      */
     public function subjectToBank() {
-        return $this->hasMany('App\Models\Subject' , 'bank_id' , 'id');
+        return $this->hasMany('App\Models\QuestionSubject' , 'bank_id' , 'id');
     }
     
     /*
