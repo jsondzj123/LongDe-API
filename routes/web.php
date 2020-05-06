@@ -67,6 +67,15 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use (
     $router->post('lesson', 'LessonController@store');
     $router->post('lesson/{id}/update', 'LessonController@update');
     $router->get('lesson/{id}/delete', 'LessonController@destroy');
+
+    /*
+     * 科目模块
+    */
+    $router->get('subject', 'SubjectController@index');
+    $router->get('subject/{id}', 'SubjectController@show');
+    $router->post('subject', 'SubjectController@store');
+    $router->post('subject/{id}/update', 'SubjectController@update');
+    $router->get('subject/{id}/delete', 'SubjectController@destroy');
     
 
     //用户学员相关模块(dzj)
