@@ -84,12 +84,15 @@ class Subject extends Model {
         //将更新时间追加
         $body['update_at'] = date('Y-m-d H:i:s');
         unset($body['subject_id']);
+        
+        //获取后端的操作员id
+        $admin_id = isset(AdminLog::getAdminInfo()->admin_user->id) ? AdminLog::getAdminInfo()->admin_user->id : 0;
 
         //根据讲师或教务id更新信息
         if(false !== self::where('id',$subject_id)->update($body)){
             //添加日志操作
             AdminLog::insertAdminLog([
-                'admin_id'       =>   AdminLog::getAdminInfo()->id  ,
+                'admin_id'       =>   $admin_id  ,
                 'module_name'    =>  'Question' ,
                 'route_url'      =>  'admin/question/doUpdateSubject' , 
                 'operate_method' =>  'update' ,
@@ -129,9 +132,12 @@ class Subject extends Model {
         if(!isset($body['subject_name']) || empty($body['subject_name'])){
             return ['code' => 201 , 'msg' => '请输入科目名称'];
         }
+        
+        //获取后端的操作员id
+        $admin_id = isset(AdminLog::getAdminInfo()->admin_user->id) ? AdminLog::getAdminInfo()->admin_user->id : 0;
 
         //将后台人员id追加
-        $body['admin_id']   = AdminLog::getAdminInfo()->id;
+        $body['admin_id']   = $admin_id;
         $body['create_at']  = date('Y-m-d H:i:s');
 
         //将数据插入到表中
@@ -139,7 +145,7 @@ class Subject extends Model {
         if($subject_id && $subject_id > 0){
             //添加日志操作
             AdminLog::insertAdminLog([
-                'admin_id'       =>   AdminLog::getAdminInfo()->id  ,
+                'admin_id'       =>   $admin_id  ,
                 'module_name'    =>  'Question' ,
                 'route_url'      =>  'admin/question/doInsertSubject' , 
                 'operate_method' =>  'insert' ,
@@ -178,12 +184,15 @@ class Subject extends Model {
             'is_del'     => 1 ,
             'update_at'  => date('Y-m-d H:i:s')
         ];
+        
+        //获取后端的操作员id
+        $admin_id = isset(AdminLog::getAdminInfo()->admin_user->id) ? AdminLog::getAdminInfo()->admin_user->id : 0;
 
         //根据题库科目id更新删除状态
         if(false !== self::where('id',$body['subject_id'])->update($data)){
             //添加日志操作
             AdminLog::insertAdminLog([
-                'admin_id'       =>   AdminLog::getAdminInfo()->id  ,
+                'admin_id'       =>   $admin_id  ,
                 'module_name'    =>  'Question' ,
                 'route_url'      =>  'admin/question/doDeleteSubject' , 
                 'operate_method' =>  'delete' ,
@@ -222,23 +231,26 @@ class Subject extends Model {
         if(!isset($body['subject_ids']) || empty($body['subject_ids'])){
             return ['code' => 202 , 'msg' => '题库科目id不合法'];
         }
+        
+        //获取后端的操作员id
+        $admin_id = isset(AdminLog::getAdminInfo()->admin_user->id) ? AdminLog::getAdminInfo()->admin_user->id : 0;
 
         //根据题库科目id更新题库
         $subject_ids = explode(',',$body['subject_ids']);
         if(false !== self::whereIn('id',$subject_ids)->update(['bank_id' => $body['bank_id'] , 'update_at' => date('Y-m-d H:i:s')])){
             //添加日志操作
             AdminLog::insertAdminLog([
-                'admin_id'       =>   AdminLog::getAdminInfo()->id  ,
+                'admin_id'       =>   $admin_id  ,
                 'module_name'    =>  'Question' ,
                 'route_url'      =>  'admin/question/doUpdateBankIds' , 
-                'operate_method' =>  'delete' ,
+                'operate_method' =>  'update' ,
                 'content'        =>  json_encode($body) ,
                 'ip'             =>  $_SERVER["REMOTE_ADDR"] ,
                 'create_at'      =>  date('Y-m-d H:i:s')
             ]);
-            return ['code' => 200 , 'msg' => '更新成功'];
+            return true;
         } else {
-            return ['code' => 203 , 'msg' => '更新失败'];
+            return false;
         }
     }
 }

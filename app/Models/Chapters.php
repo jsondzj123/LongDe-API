@@ -113,12 +113,15 @@ class Chapters extends Model {
         //将更新时间追加
         $body['update_at'] = date('Y-m-d H:i:s');
         unset($body['chapters_id']);
+        
+        //获取后端的操作员id
+        $admin_id = isset(AdminLog::getAdminInfo()->admin_user->id) ? AdminLog::getAdminInfo()->admin_user->id : 0;
 
         //根据id更新信息
         if(false !== self::where('id',$chapters_id)->update($body)){
             //添加日志操作
             AdminLog::insertAdminLog([
-                'admin_id'       =>   AdminLog::getAdminInfo()->id  ,
+                'admin_id'       =>   $admin_id  ,
                 'module_name'    =>  'Chapters' ,
                 'route_url'      =>  'admin/question/doUpdateChapters' , 
                 'operate_method' =>  'update' ,
@@ -178,9 +181,12 @@ class Chapters extends Model {
         if(!isset($body['name']) || empty($body['name'])){
             return ['code' => 201 , 'msg' => '请输入名称'];
         }
+        
+        //获取后端的操作员id
+        $admin_id = isset(AdminLog::getAdminInfo()->admin_user->id) ? AdminLog::getAdminInfo()->admin_user->id : 0;
 
         //将后台人员id追加
-        $body['admin_id']   = AdminLog::getAdminInfo()->id;
+        $body['admin_id']   = $admin_id;
         $body['create_at']  = date('Y-m-d H:i:s');
 
         //将数据插入到表中
@@ -188,7 +194,7 @@ class Chapters extends Model {
         if($chapters_id && $chapters_id > 0){
             //添加日志操作
             AdminLog::insertAdminLog([
-                'admin_id'       =>   AdminLog::getAdminInfo()->id  ,
+                'admin_id'       =>   $admin_id  ,
                 'module_name'    =>  'Chapters' ,
                 'route_url'      =>  'admin/question/doInsertChapters' , 
                 'operate_method' =>  'insert' ,
@@ -227,12 +233,15 @@ class Chapters extends Model {
             'is_del'     => 1 ,
             'update_at'  => date('Y-m-d H:i:s')
         ];
+        
+        //获取后端的操作员id
+        $admin_id = isset(AdminLog::getAdminInfo()->admin_user->id) ? AdminLog::getAdminInfo()->admin_user->id : 0;
 
         //根据题库科目id更新删除状态
         if(false !== self::where('id',$body['chapters_id'])->update($data)){
             //添加日志操作
             AdminLog::insertAdminLog([
-                'admin_id'       =>   AdminLog::getAdminInfo()->id  ,
+                'admin_id'       =>   $admin_id  ,
                 'module_name'    =>  'Chapters' ,
                 'route_url'      =>  'admin/question/doDeleteChapters' , 
                 'operate_method' =>  'delete' ,
