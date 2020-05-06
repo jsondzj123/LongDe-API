@@ -117,8 +117,7 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use (
     //订单&支付模块(szw)
     $router->group(['prefix' => 'order'], function () use ($router) {
         $router->post('orderList', 'OrderController@orderList');//订单列表
-        $router->post('Alipay', 'OrderController@Alipay');//支付宝支付
-        $router->post('Wxpay', 'OrderController@Wxpay');//微信支付
+        $router->post('orderPay', 'OrderController@orderPay');//订单在线支付
     });
 });
 

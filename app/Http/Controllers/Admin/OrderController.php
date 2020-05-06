@@ -75,42 +75,21 @@ class OrderController extends Controller {
 
 
     /*
-         * @param  app微信支付
+         * @param  app支付
          * @param
          * @param  author  苏振文
          * @param  ctime   2020/5/6 11:35
          * return  array
          */
-    public function Wxpay(){
-        echo "123";die;
+    public function orderPay(){
         try{
-            $arr=[
-                'student_id'=>1,
-                'price'=>0.01,
-                'lession_price'=>100,
-                'pay_type'=>1,
-                'class_id'=>1
-            ];
-            $orderlist = Order::orderPayList($arr);
+            $orderlist = Order::orderPayList(self::$accept_data);
             return response()->json($orderlist);
         } catch (Exception $ex) {
             return response()->json(['code' => 500 , 'msg' => $ex->getMessage()]);
         }
     }
-    /*
-         * @param  app支付宝支付
-         * @param
-         * @param  author  苏振文
-         * @param  ctime   2020/5/6 11:35
-         * return  array
-         */
-    public function Alipay(){
-        //生成预订单
-        $price = 0.01;
-        $ordernumber = "202005041720111478";
-        $return = app('ali')->createAppPay($ordernumber,'商品简介',$price);
-        print_r($return);
-    }
+
     /*
          * @param  pc端支付
          * @param

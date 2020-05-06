@@ -121,7 +121,7 @@ class Order extends Model {
             $data['class_id'] = $arr['class_id'];
             $add = self::insert($data);
             if($add){
-                if($arr['type'] == 1){
+                if($arr['pay_type'] == 1){
                     $return = app('wx')->getPrePayOrder($data['order_number'],$data['price']);
                 }else{
                     $return = app('ali')->createAppPay($data['order_number'],'商品简介',$data['price']);
