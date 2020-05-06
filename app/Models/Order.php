@@ -163,7 +163,7 @@ class Order extends Model {
             if($find['status'] == 2){
                 return ['code' => 200 , 'msg' => '审核已通过'];
             }else if($find['status'] == 1){
-                $update = self::where(['id'=>$data['order_id']])->save(['status'=>2]);
+                $update = self::where(['id'=>$data['order_id']])->update(['status'=>2]);
                 if($update){
                     //加日志
                     return ['code' => 200 , 'msg' => '审核通过'];
@@ -177,7 +177,7 @@ class Order extends Model {
             if($find['status'] == 4){
                 return ['code' => 200 , 'msg' => '回审已通过'];
             }else if($find['status'] == 1 || $find['status'] == 2){
-                $update = self::where(['id'=>$data['order_id']])->save(['status'=>4]);
+                $update = self::where(['id'=>$data['order_id']])->update(['status'=>4]);
                 if($update){
                     //加日志
                     return ['code' => 200 , 'msg' => '回审通过'];
@@ -197,10 +197,12 @@ class Order extends Model {
          * return  array
          */
     public static function findOrderForId($data){
-        $list = self::select('ld_order.*','ld_student.real_name','ld_student.school_id','ld_student.phone','ld_school.name','lessons.title')
+        $list = self::select('ld_order.order_number','ld_order.create_at','ld_order.price','ld_order.order_type','ld_order.status','ld_order.pay_time','ld_student.real_name','ld_student.phone','ld_school.name','lessons.title','lessons.price as lessprice','teachers.teacher_name')
             ->leftJoin('ld_student','ld_student.id','=','ld_order.student_id')
             ->leftJoin('ld_school','ld_school.id','=','ld_student.school_id')
             ->leftJoin('lessons','lessons.id','=','ld_order.class_id')
+            ->leftJoin('lesson_teachers','lesson_teachers.lesson_id','=','lessons.id')
+            ->leftJoin('teachers','teachers.id','=','lesson_teachers.teacher_id')
             ->where(['ld_order.id'=>$data['order_id']])
             ->first();
         if($list){

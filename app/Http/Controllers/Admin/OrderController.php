@@ -51,7 +51,12 @@ class OrderController extends Controller {
     public function auditToId(){
         //获取提交的参数
         try{
-            $data = Order::exitForIdStatus(self::$accept_data);
+            $data=[
+                'order_id'=>$_POST['order_id'],
+                'status'=>$_POST['status']
+            ];
+            $data = Order::exitForIdStatus($data);
+//            $data = Order::exitForIdStatus(self::$accept_data);
             if($data['code'] == 200){
                 return response()->json($data);
             } else {
