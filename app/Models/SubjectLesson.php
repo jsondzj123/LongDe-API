@@ -6,15 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 class SubjectLesson extends Model {
 
     protected $fillable = [
-    	'title',
-        'keyword',
-        'cover',
-        'price',
-        'favorable_price',
-        'method', 
-        'teacher_id',
-        'description',
-        'introduction'
+    	'subject_id',
+        'lesson_id',
     ];
 
     protected $hidden = [
