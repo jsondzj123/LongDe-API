@@ -2,7 +2,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Subject;
+use App\Models\QuestionSubject as Subject;
 use App\Models\Chapters;
 
 class QuestionController extends Controller {
