@@ -78,11 +78,18 @@ class CommonController extends BaseController {
      * @param  ctime           2020-05-06
      * return  array
      */
-    public function getBankList(){
+    public function getBankList(Request $request){
         //获取提交的参数
         try{
+            //判断token或者body是否为空
+            if(!empty($request->input('token')) && !empty($request->input('body'))){
+                $rsa_data = app('rsa')->servicersadecrypt($request);
+            } else {
+                $rsa_data = [];
+            }
+            
             //获取全部题库列表
-            $data = \App\Models\Bank::getBankList();
+            $data = \App\Models\Bank::getBankList($rsa_data);
             if($data['code'] == 200){
                 return response()->json(['code' => 200 , 'msg' => '获取题库列表成功' , 'data' => $data['data']]);
             } else {

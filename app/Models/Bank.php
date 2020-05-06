@@ -32,25 +32,37 @@ class Bank extends Model {
      * return  array
      */
     public static function getBankList($body=[]) {
-        //获取题库列表
-        $bank_list = self::select('id as bank_id','topic_name','describe','is_open')->withCount(['subjectToBank as subject_count' => function($query) {
-            $query->where('is_del' , '=' , 0);
-        } , 'papersToBank as papers_count' => function($query) {
-            $query->where('is_del' , '=' , 0);
-        } , 'examToBank as exam_count' => function($query) {
-            $query->where('is_del' , '=' , 0);
-        }])->where(function($query) use ($body){
-            //删除状态
-            $query->where('is_del' , '=' , 0)->where('is_open' , '=' , 0);
-            
-            //获取后端的操作员id
-            $admin_id = isset(AdminLog::getAdminInfo()->admin_user->id) ? AdminLog::getAdminInfo()->admin_user->id : 0;
-            
-            //操作员id
-            $query->where('admin_id' , '=' , $admin_id);
-        })->orderByDesc('create_at')->get();
+        //每页显示的条数
+        $pagesize = isset($body['pagesize']) && $body['pagesize'] > 0 ? $body['pagesize'] : 15;
+        $page     = isset($body['page']) && $body['page'] > 0 ? $body['page'] : 1;
+        $offset   = ($page - 1) * $pagesize;
         
-        return ['code' => 200 , 'msg' => '获取题库列表成功' , 'data' => $bank_list];
+        //获取后端的操作员id
+        $admin_id = isset(AdminLog::getAdminInfo()->admin_user->id) ? AdminLog::getAdminInfo()->admin_user->id : 0;
+
+        //获取题库的总数量
+        $bank_count = self::where('is_del' , '=' , 0)->where('is_open' , '=' , 0)->where('admin_id' , '=' , $admin_id)->count();
+        if($bank_count > 0){
+            //获取题库列表
+            $bank_list = self::select('id as bank_id','topic_name','describe','is_open')->withCount(['subjectToBank as subject_count' => function($query) {
+                $query->where('is_del' , '=' , 0);
+            } , 'papersToBank as papers_count' => function($query) {
+                $query->where('is_del' , '=' , 0);
+            } , 'examToBank as exam_count' => function($query) {
+                $query->where('is_del' , '=' , 0);
+            }])->where(function($query) use ($body){
+                //删除状态
+                $query->where('is_del' , '=' , 0)->where('is_open' , '=' , 0);
+
+                //获取后端的操作员id
+                $admin_id = isset(AdminLog::getAdminInfo()->admin_user->id) ? AdminLog::getAdminInfo()->admin_user->id : 0;
+
+                //操作员id
+                $query->where('admin_id' , '=' , $admin_id);
+            })->orderByDesc('create_at')->offset($offset)->limit($pagesize)->get();
+            return ['code' => 200 , 'msg' => '获取题库列表成功' , 'data' => ['bank_list' => $bank_list , 'total' => $bank_count , 'pagesize' => $pagesize , 'page' => $page]];
+        }
+        return ['code' => 200 , 'msg' => '获取题库列表成功' , 'data' => ['bank_list' => [] , 'total' => 0 , 'pagesize' => $pagesize , 'page' => $page]];
     }
     
     /*
