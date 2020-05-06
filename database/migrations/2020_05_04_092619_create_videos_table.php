@@ -16,7 +16,7 @@ class CreateVideosTable extends Migration
         Schema::create('videos', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('admin_id')->default(0)->comment('操作员ID');
-            $table->integer('subject_id')->default(0)->comment('科目ID');
+            $table->integer('subject_id')->unsigned()->comment('科目ID');
             $table->string('name')->comment('视频名称');
             $table->integer('category')->default(0)->comment('类型:1视频2音频3课件4文档');
             $table->string('url')->comment('资源地址');

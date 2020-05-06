@@ -21,7 +21,6 @@ class LessonController extends Controller {
     public function index(Request $request){
         $currentCount = $request->input('current_count') ?: 0;
         $count = $request->input('count') ?: 2;
-        dd($request->input('count'));
         $total = Lesson::count();
         $lesson = Lesson::with('teachers')
             ->orderBy('status', 'desc')

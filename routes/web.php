@@ -59,6 +59,16 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use (
         //$router->get('getUserList', 'UserController@getUserList');
     });
 
+    /*
+     * 课程模块
+    */
+    $router->get('lesson', 'LessonController@index');
+    $router->get('lesson/{id}', 'LessonController@show');
+    $router->post('lesson', 'LessonController@store');
+    $router->post('lesson/{id}/update', 'LessonController@update');
+    $router->get('lesson/{id}/delete', 'LessonController@destroy');
+    
+
     //用户学员相关模块(dzj)
     $router->group(['prefix' => 'student'], function () use ($router) {
         $router->post('doInsertStudent', 'StudentController@doInsertStudent');        //添加学员的方法
