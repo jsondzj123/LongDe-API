@@ -31,12 +31,13 @@ class Controller extends BaseController {
      * */
     protected function response($data, $statusCode = 200)
     {
+
         if ($statusCode == 200 && is_string($data)) {
-            return response()->json(['message' => $data]);
+            return response()->json(['msg' => $data]);
         } elseif (is_string($data)) {
-            return response()->json(['error' => $data], $statusCode);
+            return response()->json(['code' => $statusCode, 'msg' => $data]);
         } else {
-            return response()->json($data, $statusCode);
+            return response()->json(['code' => $statusCode, 'data' => $data]);
         }
         return response()->json($data);
     }
