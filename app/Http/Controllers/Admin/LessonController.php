@@ -20,12 +20,14 @@ class LessonController extends Controller {
      */
     public function index(Request $request){
         $currentCount = $request->input('current_count') ?: 0;
-        $count = $request->input('count') ?: 2;
+        $count = $request->input('count') ?: 15;
+        $subject_id = $request->input('subject_id') ?: [];
+        $subjectIds = json_decode($subject_id, true);
         $total = Lesson::count();
-        $lesson = Lesson::with('teachers')
-            ->orderBy('status', 'desc')
-            ->skip($currentCount)->take($count)
-            ->get();
+        $lesson = Lesson::with('teachers', 'subjects')
+                ->orderBy('status', 'desc')
+                ->skip($currentCount)->take($count)
+                ->get();
 
         $data = [
             'page_data' => $lesson,
@@ -43,7 +45,7 @@ class LessonController extends Controller {
      * return  array
      */
     public function show($id) {
-        $lesson = Lesson::with('teachers')->find($id);
+        $lesson = Lesson::with('teachers', 'subjects')->find($id);
         if(empty($lesson)){
             return $this->response('课程不存在', 404);
         }
@@ -69,10 +71,12 @@ class LessonController extends Controller {
             'teacher_id' => 'required',
             'description' => 'required',
             'introduction' => 'required',
+            'subject_id' => 'required',
         ]);
         if ($validator->fails()) {
             return $this->response($validator->errors()->first(), 422);
         }
+        $subjectIds = json_decode($request->input('subject_id'), true);
         $teacherIds = json_decode($request->input('teacher_id'), true);
         $user = CurrentAdmin::user();
 
@@ -90,6 +94,9 @@ class LessonController extends Controller {
                 ]);
             if(!empty($teacherIds)){
                 $lesson->teachers()->attach($teacherIds); 
+            }
+            if(!empty($subjectIds)){
+                $lesson->subjects()->attach($subjectIds); 
             }
         } catch (Exception $e) {
             Log::error('创建失败:'.$e->getMessage());
