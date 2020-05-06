@@ -67,7 +67,9 @@ class Teacher extends Model {
         }
         
         //每页显示的条数
-        $paginate = isset($body['paginate']) && $body['paginate'] > 0 ? $body['paginate'] : 15;
+        $pagesize = isset($body['pagesize']) && $body['pagesize'] > 0 ? $body['pagesize'] : 15;
+        $page     = isset($body['page']) && $body['page'] > 0 ? $body['page'] : 1;
+        $offset   = ($page - 1) * $pagesize;
 
         //获取讲师或教务列表
         $teacher_list = self::where(function($query) use ($body){
@@ -79,7 +81,7 @@ class Teacher extends Model {
             if(isset($body['search']) && !empty($body['search'])){
                 $query->where('id','=',$body['search'])->orWhere('real_name','like','%'.$body['search'].'%');
             }
-        })->select('id as teacher_id','real_name','phone','create_at','number','is_recommend')->orderByDesc('create_at')->paginate($paginate);
+        })->select('id as teacher_id','real_name','phone','create_at','number','is_recommend')->orderByDesc('create_at')->offset($offset)->limit($pagesize)->get();
         return ['code' => 200 , 'msg' => '获取老师列表成功' , 'data' => $teacher_list];
     }
     
@@ -213,7 +215,7 @@ class Teacher extends Model {
         if(false !== self::where('id',$teacher_id)->update($body)){
             //添加日志操作
             AdminLog::insertAdminLog([
-                'admin_id'       =>   1  ,
+                'admin_id'       =>   AdminLog::getAdminInfo()->id  ,
                 'module_name'    =>  'Teacher' ,
                 'route_url'      =>  'admin/teacher/doUpdateTeacher' , 
                 'operate_method' =>  'update' ,
@@ -301,15 +303,15 @@ class Teacher extends Model {
         }
 
         //将所属网校id和后台人员id追加
-        $body['admin_id']   = 1;
-        $body['school_id']  = 1;
+        $body['admin_id']   = AdminLog::getAdminInfo()->id;
+        $body['school_id']  = AdminLog::getAdminInfo()->school_id;
         $body['create_at']  = date('Y-m-d H:i:s');
 
         //将数据插入到表中
         if(false !== self::insertTeacher($body)){
             //添加日志操作
             AdminLog::insertAdminLog([
-                'admin_id'       =>   1  ,
+                'admin_id'       =>   AdminLog::getAdminInfo()->id  ,
                 'module_name'    =>  'Teacher' ,
                 'route_url'      =>  'admin/teacher/doInsertTeacher' , 
                 'operate_method' =>  'insert' ,
@@ -354,7 +356,7 @@ class Teacher extends Model {
         if(false !== self::where('id',$body['teacher_id'])->update($data)){
             //添加日志操作
             AdminLog::insertAdminLog([
-                'admin_id'       =>   1  ,
+                'admin_id'       =>   AdminLog::getAdminInfo()->id  ,
                 'module_name'    =>  'Teacher' ,
                 'route_url'      =>  'admin/teacher/doDeleteTeacher' , 
                 'operate_method' =>  'delete' ,
@@ -400,7 +402,7 @@ class Teacher extends Model {
         if(false !== self::where('id',$body['teacher_id'])->update($data)){
             //添加日志操作
             AdminLog::insertAdminLog([
-                'admin_id'       =>   1  ,
+                'admin_id'       =>   AdminLog::getAdminInfo()->id  ,
                 'module_name'    =>  'Teacher' ,
                 'route_url'      =>  'admin/teacher/doRecommendTeacher' , 
                 'operate_method' =>  'delete' ,
