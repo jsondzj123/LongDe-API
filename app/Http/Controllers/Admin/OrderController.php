@@ -67,10 +67,26 @@ class OrderController extends Controller {
          * @param  ctime   2020/5/6 14:12
          * return  array
          */
-    public function ExxelExport(){
+    public function ExcelExport(){
         $list = Order::getList(self::$accept_data);
     }
-
+    /*
+         * @param  OA修改状态
+         * @param  $order_id  订单id
+         * @param  $status   状态码1成功2失败
+         * @param  author  苏振文
+         * @param  ctime   2020/5/6 16:30
+         * return  array
+         */
+    public function orderUpOaForId(){
+        //获取提交的参数
+        try{
+            $data = Order::orderUpOaForId(self::$accept_data);
+            return response()->json($data);
+        } catch (Exception $ex) {
+            return response()->json(['code' => 500 , 'msg' => $ex->getMessage()]);
+        }
+    }
 
 
 
@@ -83,6 +99,14 @@ class OrderController extends Controller {
          */
     public function orderPay(){
         try{
+//            $arr=[
+//                'student_id'=>1,
+//                'price'=>0.01,
+//                'lession_price'=>100,
+//                'pay_type'=>1,
+//                'class_id'=>1
+//            ];
+//            $orderlist = Order::orderPayList($arr);
             $orderlist = Order::orderPayList(self::$accept_data);
             return response()->json($orderlist);
         } catch (Exception $ex) {
@@ -99,5 +123,26 @@ class OrderController extends Controller {
          */
     public function Pcpay(){
 
+    }
+    /*
+         * @param  微信回调地址
+         * @param  author  苏振文
+         * @param  ctime   2020/5/6 17:08
+         * return  array
+         */
+    public function wxnotify_url(){
+        $xml = file_get_contents("php://input");
+        $notify = Order::wxnotify_url($xml);
+        return response()->json($notify);
+    }
+    /*
+         * @param 支付宝回调地址
+         * @param  author  苏振文
+         * @param  ctime   2020/5/6 17:09
+         * return  array
+         */
+    public function alinotify_url(){
+        $notify = Order::alinotify_url($_POST);
+        return response()->json($notify);
     }
 }

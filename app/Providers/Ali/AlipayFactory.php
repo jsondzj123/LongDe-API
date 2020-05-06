@@ -39,7 +39,7 @@ class AlipayFactory{
             'product_code'        =>    'QUICK_MSECURITY_PAY',
         ];
         //商户外网可以访问的异步地址 (异步回掉地址，根据自己需求写)
-        $request->setNotifyUrl("http://".$_SERVER['HTTP_HOST'].'/apply.php/Api/alinotify_url');
+        $request->setNotifyUrl("http://".$_SERVER['HTTP_HOST'].'/Admin/order/alinotify_url');
         $request->setBizContent(json_encode($bizcontent));
         //这里和普通的接口调用不同，使用的是sdkExecute
         $response = $this->aop->sdkExecute($request);

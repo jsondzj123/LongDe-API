@@ -1,6 +1,7 @@
 <?php
 namespace App\Providers\Wx;
 use App\Providers\xml\XML2Array;
+use Illuminate\Support\Facades\Storage;
 
 class WxpayFactory{
     public function test(){
@@ -10,11 +11,10 @@ class WxpayFactory{
         //获取商品名称
         $shopname = "聚合e家-购买";
         $url = "https://api.mch.weixin.qq.com/pay/unifiedorder";
-        $notify_url = 'https://'.$_SERVER['HTTP_HOST'].'/apply.php/Api/wxnotify_url';
+        $notify_url = 'https://'.$_SERVER['HTTP_HOST'].'/Admin/order/wxnotify_url';
         $out_trade_no = $order_number;
-        // $total_fee = 1;
         $onoce_str = $this->getRandChar(32);
-        $data["appid"] = 'wx7663a456bb43d30b';//wxead541d41c2c549f
+        $data["appid"] = 'wx7663a456bb43d30b';
         $data["body"] = $shopname;
         $data["mch_id"] = '1553512891';
         $data["nonce_str"] = $onoce_str;
@@ -29,8 +29,8 @@ class WxpayFactory{
         $response = $this->postXmlCurl($xml, $url);
         //将微信返回的结果xml转成数组
         $res = $this->xmlstr_to_array($response);
-//        file_put_contents('sign2.txt', '时间:' . date('Y-m-d H:i:s') . print_r($res, true), FILE_APPEND);
-
+//        file_put_contents('wxpay.txt', '时间:' . date('Y-m-d H:i:s') . print_r($res, true), FILE_APPEND);
+        Storage::disk('logs')->append('wxpay.txt', 'time:'.date('Y-m-d H:i:s')."\nresponse:".$res);
         $sign2 = $this->getOrder($res['prepay_id']["@cdata"]);
         if(!empty($sign2)){
             $arr = array('code'=>200,'list'=>$sign2);

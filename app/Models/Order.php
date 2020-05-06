@@ -1,7 +1,10 @@
 <?php
 namespace App\Models;
 
+use App\Providers\aop\AopClient\AopClient;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class Order extends Model {
     //指定别的表名
@@ -101,6 +104,7 @@ class Order extends Model {
          */
     public static function orderPayList($arr){
         try{
+            DB::beginTransaction();
             if(!$arr || empty($arr)){
                 return ['code' => 201 , 'msg' => '参数错误'];
             }
@@ -111,7 +115,7 @@ class Order extends Model {
             $data['order_number'] = date('YmdHis', time()) . rand(1111, 9999);
             $data['admin_id'] = 0;  //操作员id
             $data['order_type'] = 2;        //1线下支付 2 线上支付
-            $data['student_id'] = $arr['user_id'];
+            $data['student_id'] = $arr['student_id'];
             $data['price'] = $arr['price'];
             $data['lession_price'] = $arr['lession_price'];
             $data['pay_status'] = 4;
@@ -123,20 +127,25 @@ class Order extends Model {
             if($add){
                 if($arr['pay_type'] == 1){
                     $return = app('wx')->getPrePayOrder($data['order_number'],$data['price']);
+                    if($return['code'] == 200){
+                        return ['code' => 200 , 'msg' => '生成预订单成功','data'=>$return['list']];
+                    }else{
+                        throw new Exception($return['list']);
+                    }
                 }else{
                     $return = app('ali')->createAppPay($data['order_number'],'商品简介',$data['price']);
+                    return ['code' => 200 , 'msg' => '生成预订单成功','data'=>$return];
                 }
-                return ['code' => 200 , 'msg' => '生成预订单成功','data'=>$return];
             }else{
-                return ['code' => 202 , 'msg' => '生成预订单失败'];
+                throw new Exception('生成订单失败');
             }
+            DB::commit();
         } catch (Exception $ex) {
+            DB::rollback();
             return ['code' => 201 , 'msg' => $ex->getMessage()];
         }
 
     }
-
-
     /*
          * @param  修改审核状态
          * @param  $order_id 订单id
@@ -202,5 +211,123 @@ class Order extends Model {
         }else{
             return ['code' => 201 , 'msg' => '查询失败'];
         }
+    }
+    /*
+         * @param  订单修改oa状态
+         * @param  $order_id
+         * @param  $status
+         * @param  author  苏振文
+         * @param  ctime   2020/5/6 16:33
+         * return  array
+         */
+    public static function orderUpOaForId($data){
+        if(!$data || empty($data)){
+            return ['code' => 201 , 'msg' => '参数错误'];
+        }
+        $up = self::where(['id'=>$data['order_id']])->save(['oa_status'=>$data['status']]);
+        if($up){
+            return ['code' => 200 , 'msg' => '修改成功'];
+        }else{
+            return ['code' => 202 , 'msg' => '修改失败'];
+        }
+    }
+    /*
+         * @param  微信支付 订单回调，逻辑处理  修改订单状态  添加课程有效期
+         * @param  author  苏振文
+         * @param  ctime   2020/5/6 17:09
+         * return  array
+         */
+    public static function wxnotify_url($xml){
+        if(!$xml) {
+            return ['code' => 201 , 'msg' => '参数错误'];
+        }
+        $data =  self::xmlToArray($xml);
+        Storage ::disk('logs')->append('wxpaynotify.txt', 'time:'.date('Y-m-d H:i:s')."\nresponse:".$data);
+        if($data && $data['result_code']=='SUCCESS') {
+                $where = array(
+                    'order_number'=>$data['attach'],
+                );
+                $orderinfo = self::where($where)->first();
+                if (!$orderinfo) {
+                    return ['code' => 202 , 'msg' => '订单不存在'];
+                }
+                //完成支付
+                if ($orderinfo->status > 0 ) {
+                    return '<xml><return_code><![CDATA[SUCCESS]]></return_code><return_msg><![CDATA[OK]]></return_msg></xml>';
+                }
+            try{
+                DB::beginTransaction();
+                //修改订单状态
+                $arr = array(
+                    'third_party_number'=>$data['transaction_id'],
+                    'status'=>1,
+                    'pay_time'=>date('Y-m-d H:i:s'),
+                    'update_at'=>date('Y-m-d H:i:s')
+                );
+                $res = self::where($where)->update($arr);
+                if (!$res) {
+                    throw new Exception('回调失败');
+                }
+                return '<xml><return_code><![CDATA[SUCCESS]]></return_code><return_msg><![CDATA[OK]]></return_msg></xml>';
+                DB::commit();
+            } catch (Exception $ex) {
+                DB::rollback();
+                return "<xml><return_code><![CDATA[FAIL]]></return_code><return_msg><![CDATA[error]]></return_msg></xml>";
+            }
+        } else {
+            return "<xml><return_code><![CDATA[FAIL]]></return_code><return_msg><![CDATA[error]]></return_msg></xml>";
+        }
+
+    }
+
+    /*
+         * @param  支付宝支付 订单回调 逻辑处理
+         * @param  author  苏振文
+         * @param  ctime   2020/5/6 17:50
+         * return  array
+         */
+    public static function alinotify_url($arr){
+        require_once './App/Providers/Ali/aop/AopClient.php';
+        require_once('./App/Providers/Ali/aop/request/AlipayTradeAppPayRequest.php');
+        $aop = new AopClient();
+        $aop->alipayrsaPublicKey = 'MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAh8I+MABQoa5Lr0hnb9+UeAgHCtZlwJ84+c18Kh/JWO+CAbKqGkmZ6GxrWo2X/vnY2Qf6172drEThHwafNrUqdl/zMMpg16IlwZqDeQuCgSM/4b/0909K+RRtUq48/vRM6denyhvR44fs+d4jZ+4a0v0m0Kk5maMCv2/duWejrEkU7+BG1V+YXKOb0++n8We/ZIrG/OiiXedViwSW3il9/Q5xa21KlcDPjykWyoPolR2MIFqu8PLh2z8uufCPSlFuABMyL+djo8y9RMzTWH+jN2WxcqMSDMIcwGFk3emZKzoy06a5k4Ea8/l3uHq8sbbepvpmC/dZZ0+CZdXgPnVRywIDAQAB';
+        $flag = $aop->rsaCheckV1($arr, NULL, "RSA2");
+        Storage ::disk('logs')->append('alipaynotify.txt', 'time:'.date('Y-m-d H:i:s')."\nresponse:".$arr);
+        if($arr['trade_status'] == 'TRADE_SUCCESS' ){
+            $orders = self::where(['order_number'=>$arr['out_trade_no']])->first();
+            if ($orders['status'] > 0) {
+                //已经支付完成
+                return 'success';
+            }else {
+                try{
+                    DB::beginTransaction();
+                    //修改订单状态
+                    $arr = array(
+                        'third_party_number'=>$arr['transaction_id'],
+                        'status'=>1,
+                        'pay_time'=>date('Y-m-d H:i:s'),
+                        'update_at'=>date('Y-m-d H:i:s')
+                    );
+                    $res = self::where(['order_number'=>$arr['out_trade_no']])->update($arr);
+                    if (!$res) {
+                        throw new Exception('回调失败');
+                    }
+                    DB::commit();
+                } catch (Exception $ex) {
+                    DB::rollback();
+                    return 'fail';
+                }
+            }
+        }else{
+            return 'fail';
+        }
+    }
+    /*
+        * xml转换数组
+        */
+    public static function xmlToArray($xml) {
+        //将XML转为array
+        $array_data = json_decode(json_encode(simplexml_load_string($xml, 'SimpleXMLElement', LIBXML_NOCDATA)), true);
+        return $array_data;
     }
 }

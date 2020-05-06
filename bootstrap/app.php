@@ -106,6 +106,7 @@ $app->register(App\Providers\EventServiceProvider::class);
 $app->register(App\Providers\Rsa\RsaServiceProvider::class);
 //微信支付
 $app->register(App\Providers\Wx\WxServiceProvider::class);
+//ali
 $app->register(App\Providers\Ali\AliServiceProvider::class);
 
 // JWT
@@ -113,7 +114,7 @@ $app->register(\Tymon\JWTAuth\Providers\LumenServiceProvider::class);
 //加载redis服务
 $app->register(\Illuminate\Redis\RedisServiceProvider::class);
 //加载注册excel
-$app->register(\Maatwebsite\Excel\ExcelServiceProvider::class);
+//$app->register(\Maatwebsite\Excel\ExcelServiceProvider::class);
 /*
 |--------------------------------------------------------------------------
 | Load The Application Routes

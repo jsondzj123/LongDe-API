@@ -118,6 +118,11 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use (
     $router->group(['prefix' => 'order'], function () use ($router) {
         $router->post('orderList', 'OrderController@orderList');//订单列表
         $router->post('orderPay', 'OrderController@orderPay');//订单在线支付
+        $router->post('findOrderForId', 'OrderController@findOrderForId');//订单详情
+        $router->post('auditToId', 'OrderController@auditToId');//订单审核通过/不通过
+        $router->post('orderUpOaForId', 'OrderController@orderUpOaForId');//订单修改oa状态
+        $router->post('wxnotify_url', 'OrderController@wxnotify_url');//微信回调
+        $router->post('alinotify_url', 'OrderController@alinotify_url');//ali回调
     });
 });
 
