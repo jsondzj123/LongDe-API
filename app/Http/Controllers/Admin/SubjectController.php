@@ -2,17 +2,16 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Lesson;
+use App\Models\Subject;
 use Illuminate\Http\Request;
 use App\Tools\CurrentAdmin;
 use DB;
 use Validator;
-use App\Models\Teacher;
 
-class LessonController extends Controller {
+class SubjectController extends Controller {
 
     /*
-     * @param  课程列表
+     * @param  科目列表
      * @param  current_count   count
      * @param  author  孙晓丽
      * @param  ctime   2020/5/1 
@@ -20,15 +19,16 @@ class LessonController extends Controller {
      */
     public function index(Request $request){
         $currentCount = $request->input('current_count') ?: 0;
-        $count = $request->input('count') ?: 2;
-        $total = Lesson::count();
-        $lesson = Lesson::with('teachers')
-            ->orderBy('status', 'desc')
+        $count = $request->input('count') ?: 15;
+        $total = Subject::where('pid', 0)->count();
+        $subject = Subject::orderBy('status', 'desc')
             ->skip($currentCount)->take($count)
             ->get();
-
+        foreach ($subject as $value) {
+            $value['childs'] = $value->childs();
+        }
         $data = [
-            'page_data' => $lesson,
+            'page_data' => $subject,
             'total' => $total,
         ];
         return $this->response($data);
@@ -36,23 +36,24 @@ class LessonController extends Controller {
 
 
     /*
-     * @param  课程详情
-     * @param  课程id
+     * @param  科目详情
+     * @param  科目id
      * @param  author  孙晓丽
      * @param  ctime   2020/5/1 
      * return  array
      */
     public function show($id) {
-        $lesson = Lesson::with('teachers')->find($id);
-        if(empty($lesson)){
-            return $this->response('课程不存在', 404);
+        $subject = Subject::find($id);
+        $subject['childs'] = $subject->childs(); 
+        if(empty($subject)){
+            return $this->response('科目不存在', 404);
         }
-        return $this->response($lesson);
+        return $this->response($subject);
     }
 
 
     /**
-     * 添加课程.
+     * 添加科目.
      *
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
@@ -60,37 +61,23 @@ class LessonController extends Controller {
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'title' => 'required',
-            'keyword' => 'required',
+            'name' => 'required',
             'cover' => 'required',
-            'price' => 'required',
-            'favorable_price' => 'required',
-            'method' => 'required',
-            'teacher_id' => 'required',
             'description' => 'required',
-            'introduction' => 'required',
         ]);
         if ($validator->fails()) {
             return $this->response($validator->errors()->first(), 422);
         }
-        $teacherIds = json_decode($request->input('teacher_id'), true);
         $user = CurrentAdmin::user();
 
         try {
-            $lesson = Lesson::create([
+            $subject = Subject::create([
                     'admin_id' => intval($user->id),
-                    'title' => $request->input('title'),
-                    'keyword' => $request->input('keyword'),
+                    'pid' => $request->input('pid') ?: 0,
+                    'name' => $request->input('name'),
                     'cover' => $request->input('cover'),
-                    'price' => $request->input('price'),
-                    'favorable_price' => $request->input('favorable_price'),
-                    'method' => $request->input('method'),
                     'description' => $request->input('description'),
-                    'introduction' => $request->input('introduction'),
                 ]);
-            if(!empty($teacherIds)){
-                $lesson->teachers()->attach($teacherIds); 
-            }
         } catch (Exception $e) {
             Log::error('创建失败:'.$e->getMessage());
             return $this->response($e->getMessage(), 500);
@@ -108,31 +95,22 @@ class LessonController extends Controller {
      */
     public function update($id, Request $request) {
         $validator = Validator::make($request->all(), [
-            'title' => 'required',
-            'keyword' => 'required',
+            'name' => 'required',
             'cover' => 'required',
-            'price' => 'required',
-            'favorable_price' => 'required',
-            'method' => 'required',
-            'teacher_id' => 'required',
             'description' => 'required',
-            'introduction' => 'required',
         ]);
         if ($validator->fails()) {
             return $this->response($validator->errors()->first(), 422);
         }
-        $lesson = Lesson::findOrFail($id);;
-        $lesson->title = $request->input('title') ?: $lesson->title;
-        $lesson->keyword = $request->input('keyword') ?: $lesson->keyword;
-        $lesson->cover = $request->input('cover') ?: $lesson->cover;
-        $lesson->price = $request->input('price') ?: $lesson->price;
-        $lesson->method = $request->input('method') ?: $lesson->method;
-        $lesson->description = $request->input('description') ?: $lesson->description;
+        $subject = Subject::findOrFail($id);;
+        $subject->name = $request->input('name') ?: $subject->name;
+        $subject->cover = $request->input('cover') ?: $subject->cover;
+        $subject->description = $request->input('description') ?: $subject->description;
         try {
-            $lesson->save();
+            $subject->save();
             return $this->response("修改成功");
         } catch (Exception $e) {
-            Log::error('修改课程信息失败' . $e->getMessage());
+            Log::error('修改科目信息失败' . $e->getMessage());
             return $this->response("修改成功");
         }
     }
@@ -145,9 +123,9 @@ class LessonController extends Controller {
      * @return \Illuminate\Http\Response
      */
     public function destroy($id) {
-        $lesson = Lesson::findOrFail($id);
-        $lesson->is_del = 1;
-        if (!$lesson->save()) {
+        $subject = Subject::findOrFail($id);
+        $subject->is_del = 1;
+        if (!$subject->save()) {
             return $this->response("删除失败", 500);
         }
         return $this->response("删除成功");
