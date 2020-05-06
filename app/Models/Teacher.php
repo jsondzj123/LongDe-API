@@ -10,6 +10,12 @@ class Teacher extends Model {
     //时间戳设置
     public $timestamps = false;
 
+    protected $fillable = [
+        'teacher_name',
+        'teacher_introduce',
+        'teacher_header_pic',
+        'subject_id'
+    ];
     /*
      * @param  description   添加教师/教务方法
      * @param  data          数组数据
