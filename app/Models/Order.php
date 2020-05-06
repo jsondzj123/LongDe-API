@@ -18,7 +18,7 @@ class Order extends Model {
          * @param  $status  状态
          * @param  $state_time 开始时间
          * @param  $end_time 结束时间
-         * @param  $order_sn 订单号
+         * @param  $order_number 订单号
          * @param  author  苏振文
          * @param  ctime   2020/5/4 14:41
          * return  array
@@ -27,13 +27,9 @@ class Order extends Model {
         if(empty($data['num'])){
             $data['num'] = 20;
         }
-        if(empty($data['state_time'])){
-            $data['state_time'] = "1999-01-01 12:12:12";
-        }
-        if(empty($data['end_time'])){
-            $data['end_time'] = "2999-01-01 12:12:12";
-        }
-        $order = self::select('ld_order.*','ld_student.phone','ld_student.real_name')
+        $statetime = (!empty($data['state_time']))?$data['state_time']:"1999-01-01 12:12:12";
+        $endtime = (!empty($data['end_time']))?$data['end_time']:"2999-01-01 12:12:12";
+        $order = self::select('ld_order.id','ld_order.order_number','ld_order.order_type','ld_order.price','ld_order.pay_status','ld_order.pay_type','ld_order.status','ld_order.create_at','ld_order.oa_status','ld_order.student_id','ld_student.phone','ld_student.real_name')
             ->leftJoin('ld_student','ld_student.id','=','ld_order.student_id')
             ->where(function($query) use ($data) {
                 if(isset($data['school_id'])){
@@ -46,7 +42,7 @@ class Order extends Model {
                     $query->where('ld_order.order_number',$data['order_number']);
                 }
             })
-            ->whereBetween('ld_order.create_at', [$data['state_time'], $data['end_time']])
+            ->whereBetween('ld_order.create_at', [$statetime, $endtime])
             ->orderBy('ld_order.id','desc')
             ->paginate($data['num']);
         return $order;
@@ -201,12 +197,12 @@ class Order extends Model {
          * return  array
          */
     public static function findOrderForId($data){
-        $list = self::select('ld_order.*','ld_student.real_name','ld_student.phone','ld_school.name','lessons.title')
+        $list = self::select('ld_order.*','ld_student.real_name','ld_student.school_id','ld_student.phone','ld_school.name','lessons.title')
             ->leftJoin('ld_student','ld_student.id','=','ld_order.student_id')
             ->leftJoin('ld_school','ld_school.id','=','ld_student.school_id')
             ->leftJoin('lessons','lessons.id','=','ld_order.class_id')
             ->where(['ld_order.id'=>$data['order_id']])
-            ->field();
+            ->first();
         if($list){
             return ['code' => 200 , 'msg' => '查询成功','data'=>$list];
         }else{

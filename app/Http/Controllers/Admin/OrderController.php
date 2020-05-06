@@ -12,15 +12,13 @@ class OrderController extends Controller {
          * @param  $status  状态
          * @param  $state_time 开始时间
          * @param  $end_time 结束时间
-         * @param  $order_sn 订单号
+         * @param  $order_number 订单号
          * @param  author  苏振文
          * @param  ctime   2020/5/4 11:29
          * return  array
          */
-    public function orderList(Request $request){
-//        $list = Order::getList(self::$accept_data);
-        $aa = $request->post();
-        $list = Order::getList($aa);
+    public function orderList(){
+        $list = Order::getList(self::$accept_data);
         return response()->json(['code' => 200 , 'msg' => '获取成功','data'=>$list]);
     }
     /*
@@ -33,12 +31,12 @@ class OrderController extends Controller {
     public function findOrderForId(){
         //获取提交的参数
         try{
-            $data = Order::findOrderForId(self::$accept_data);
-            if($data['code'] == 200){
-                return response()->json($data);
-            } else {
-                return response()->json($data);
-            }
+            $data=[
+                'order_id'=>$_POST['order_id']
+            ];
+            $data = Order::findOrderForId($data);
+//            $data = Order::findOrderForId(self::$accept_data);
+            return response()->json($data);
         } catch (Exception $ex) {
             return response()->json(['code' => 500 , 'msg' => $ex->getMessage()]);
         }
