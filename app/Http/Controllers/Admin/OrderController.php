@@ -3,6 +3,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Order;
+use Illuminate\Http\Request;
 
 class OrderController extends Controller {
     /*
@@ -16,8 +17,10 @@ class OrderController extends Controller {
          * @param  ctime   2020/5/4 11:29
          * return  array
          */
-    public function orderList(){
-        $list = Order::getList(self::$accept_data);
+    public function orderList(Request $request){
+//        $list = Order::getList(self::$accept_data);
+        $aa = $request->post();
+        $list = Order::getList($aa);
         return response()->json(['code' => 200 , 'msg' => '获取成功','data'=>$list]);
     }
     /*

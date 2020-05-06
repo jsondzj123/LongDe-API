@@ -27,25 +27,26 @@ class Order extends Model {
         if(empty($data['num'])){
             $data['num'] = 20;
         }
+        if(empty($data['state_time'])){
+            $data['state_time'] = "1999-01-01 12:12:12";
+        }
+        if(empty($data['end_time'])){
+            $data['end_time'] = "2999-01-01 12:12:12";
+        }
         $order = self::select('ld_order.*','ld_student.phone','ld_student.real_name')
             ->leftJoin('ld_student','ld_student.id','=','ld_order.student_id')
             ->where(function($query) use ($data) {
-                if($data['school_id'] != ''){
+                if(isset($data['school_id'])){
                     $query->where('ld_student.school_id',$data['school_id']);
                 }
-                if($data['status'] != ''){
+                if(isset($data['status'])){
                     $query->where('ld_order.status',$data['status']);
                 }
-                if($data['order_number'] != ''){
+                if(isset($data['order_number'])){
                     $query->where('ld_order.order_number',$data['order_number']);
                 }
-                if($data['state_time'] != ''){
-                    $query->where('ld_order.create_at',$data['state_time']);
-                }
-                if($data['end_time'] != ''){
-                    $query->where('ld_order.create_at',$data['end_time']);
-                }
             })
+            ->whereBetween('ld_order.create_at', [$data['state_time'], $data['end_time']])
             ->orderBy('ld_order.id','desc')
             ->paginate($data['num']);
         return $order;
@@ -200,10 +201,10 @@ class Order extends Model {
          * return  array
          */
     public static function findOrderForId($data){
-        $list = self::select('ld_order.*','ld_student.real_name','ld_student.phone','ld_school.name')
+        $list = self::select('ld_order.*','ld_student.real_name','ld_student.phone','ld_school.name','lessons.title')
             ->leftJoin('ld_student','ld_student.id','=','ld_order.student_id')
             ->leftJoin('ld_school','ld_school.id','=','ld_student.school_id')
-            ->leftJoin()
+            ->leftJoin('lessons','lessons.id','=','ld_order.class_id')
             ->where(['ld_order.id'=>$data['order_id']])
             ->field();
         if($list){
