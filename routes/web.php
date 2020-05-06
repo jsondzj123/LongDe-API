@@ -26,14 +26,14 @@ $router->get('/', function () use ($router) {
         $router->get('user/{id}', 'Api\UserController@show');
 
     });
-    
+
 
     $router->group(['prefix' => 'user' , 'middleware'=>'api'], function () use ($router) {
 
         $router->post('user/userinfo','Api\UserController@getUserinfo');
         $router->post('logReg', 'Api\UserController@loginAndRegister');
         $router->get('getUserInfoById', 'Api\UserController@getUserInfoById');
-        
+
         $router->post('logout','Api\UserController@logout');
         $router->post('refreshToken','Api\UserController@refreshToken');
     });
@@ -69,7 +69,7 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use (
         $router->post('getStudentList', 'StudentController@getStudentList');          //获取学员列表
     });
     //讲师教务相关模块(dzj)
-    
+
     //讲师教务相关模块
     $router->group(['prefix' => 'teacher'], function () use ($router) {
         $router->post('doInsertTeacher', 'TeacherController@doInsertTeacher');        //添加讲师教务的方法
@@ -96,7 +96,7 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use (
         $router->post('getChaptersList', 'QuestionController@getChaptersList');          //获取章节考点列表
         /****************章节考点部分  end****************/
     });
-    //运营模块   苏振文
+    //运营模块(szw)
     $router->group(['prefix' => 'article'], function () use ($router) {
         /*------------文章模块---------------------*/
         $router->post('getArticleList', 'ArticleController@getArticleList');//获取文章列表
@@ -113,9 +113,11 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use (
         $router->post('exitTypeForId', 'ArticletypeController@exitTypeForId');//文章分类修改
         $router->post('OnelistType', 'ArticletypeController@OnelistType');//单条查询
     });
-    //订单模块   苏振文
+    //订单&支付模块(szw)
     $router->group(['prefix' => 'order'], function () use ($router) {
-        $router->post('orderList', 'ArticletypeController@orderList');//订单列表
+        $router->post('orderList', 'OrderController@orderList');//订单列表
+        $router->post('Alipay', 'OrderController@Alipay');//支付宝支付
+        $router->post('Wxpay', 'OrderController@Wxpay');//微信支付
     });
 });
 
