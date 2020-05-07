@@ -98,6 +98,6 @@ class StatisticsController extends Controller {
         * return  array
         */
    public function TeacherList(){
-       
+
    }
 }

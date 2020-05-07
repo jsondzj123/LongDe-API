@@ -188,4 +188,136 @@ class CommonController extends BaseController {
         //获取提交的参数
         return Excel::download(new \App\Exports\ExamExport, 'examlog.xlsx');
     }
+    
+    
+    /*
+     * @param  description   学员公共参数列表
+     * @param  author        dzj
+     * @param  ctime         2020-04-30
+     */
+    public function getStudentCommonList(){
+        //证件类型
+        $papers_type_array = [[
+                'id'  =>  1 ,
+                'name'=> '身份证'
+            ] ,
+            [
+                'id'  =>  2 ,
+                'name'=> '护照'
+            ] ,
+            [
+                'id'  =>  3 ,
+                'name'=> '港澳通行证'
+            ],
+            [
+                'id'  =>  4 ,
+                'name'=> '台胞证'
+            ],
+            [
+                'id'  =>  5 ,
+                'name'=> '军官证'
+            ],
+            [
+                'id'  =>  6 ,
+                'name'=> '士官证'
+            ],
+            [
+                'id'  =>  7 ,
+                'name'=> '其他'
+            ]
+        ];
+        
+        //学历
+        $educational_array = [
+            [
+                'id'  =>  1 ,
+                'name'=> '小学'
+            ] ,
+            [
+                'id'  =>  2 ,
+                'name'=> '初中'
+            ] ,
+            [
+                'id'  =>  3 ,
+                'name'=> '高中'
+            ],
+            [
+                'id'  =>  4 ,
+                'name'=> '大专'
+            ],
+            [
+                'id'  =>  5 ,
+                'name'=> '大本'
+            ],
+            [
+                'id'  =>  6 ,
+                'name'=> '研究生'
+            ],
+            [
+                'id'  =>  7 ,
+                'name'=> '博士生'
+            ],
+            [
+                'id'  =>  8 ,
+                'name'=>  '博士后及以上'
+            ]
+        ];
+        return response()->json(['code' => 200 , 'msg' => '返回数据成功' , 'data' => ['papers_type_list' => $papers_type_array , 'educational_list' => $educational_array]]);
+    }
+    
+    /*
+     * @param  description   题库公共参数列表
+     * @param  author        dzj
+     * @param  ctime         2020-05-07
+     */
+    public function getBankCommonList(){
+        //试题类型
+        $diffculty_array = [
+            [
+                'id'  =>  1 ,
+                'name'=> '真题'
+            ] ,
+            [
+                'id'  =>  2 ,
+                'name'=> '模拟题'
+            ] ,
+            [
+                'id'  =>  3 ,
+                'name'=> '其他'
+            ]
+        ];
+        
+        //选择题型
+        $type_array = [
+            [
+                'id'  =>  1 ,
+                'name'=> '单选题'
+            ] ,
+            [
+                'id'  =>  2 ,
+                'name'=> '多选题'
+            ] ,
+            [
+                'id'  =>  3 ,
+                'name'=> '不定项'
+            ] ,
+            [
+                'id'  =>  4 ,
+                'name'=> '判断题'
+            ] ,
+            [
+                'id'  =>  5 ,
+                'name'=> '填空题'
+            ] ,
+            [
+                'id'  =>  6 ,
+                'name'=> '简答题'
+            ] ,
+            [
+                'id'  =>  7 ,
+                'name'=> '材料题'
+            ]
+        ];
+        return response()->json(['code' => 200 , 'msg' => '返回数据成功' , 'data' => ['diffculty_list' => $diffculty_array , 'type_list' => $type_array]]);
+    }
 }

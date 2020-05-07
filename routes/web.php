@@ -84,7 +84,9 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use (
     $router->get('video/{id}', 'VideoController@show');
     $router->post('video', 'VideoController@store');
     $router->post('video/{id}/update', 'VideoController@update');
-    $router->get('video/{id}/delete', 'VideoController@destroy');
+
+    $router->get('video/{id}/edit', 'VideoController@edit');
+
 
     //用户学员相关模块(dzj)
     $router->group(['prefix' => 'student'], function () use ($router) {
@@ -94,6 +96,7 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use (
         $router->post('doStudentEnrolment', 'StudentController@doStudentEnrolment');  //学员报名的方法
         $router->post('getStudentInfoById', 'StudentController@getStudentInfoById');  //获取学员信息
         $router->post('getStudentList', 'CommonController@getStudentList');           //获取学员列表
+        $router->post('getStudentCommonList', 'CommonController@getStudentCommonList');  //学员公共参数列表
     });
     //讲师教务相关模块(dzj)
 
@@ -132,7 +135,17 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use (
         $router->post('getBankList', 'CommonController@getBankList');                    //获取题库列表
         /****************题库部分  end****************/
 
-        $router->get('export', 'CommonController@doExportExamLog'); //讲师或教务搜索列表
+
+        /****************试卷部分  start****************/
+        $router->post('doInsertPapers', 'PapersController@doInsertPapers');              //添加试卷的方法
+        $router->post('doUpdatePapers', 'PapersController@doUpdatePapers');              //更新试卷的方法
+        $router->post('doDeletePapers', 'PapersController@doDeletePapers');              //删除试卷的方法
+        $router->post('doPublishPapers', 'PapersController@doPublishPapers');            //发布/取消发布试卷的方法
+        $router->post('getPapersInfoById', 'PapersController@getPapersInfoById');        //获取试卷详情信息
+        /****************试卷部分  end****************/
+
+        $router->get('export', 'CommonController@doExportExamLog'); //导入导出demo
+        $router->post('getBankCommonList', 'CommonController@getBankCommonList');        //题库公共参数列表
     });
     //运营模块(szw)
     $router->group(['prefix' => 'article'], function () use ($router) {
