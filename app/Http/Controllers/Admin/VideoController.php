@@ -3,9 +3,10 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Video;
+use App\Models\Subject;
 use Illuminate\Http\Request;
-use CurrentUser;
-use DB;
+use  App\Tools\CurrentAdmin;
+use Validator;
 
 class VideoController extends Controller {
 
@@ -19,16 +20,15 @@ class VideoController extends Controller {
     public function index(Request $request){
         $currentCount = $request->input('current_count') ?: 0;
         $count = $request->input('count') ?: 15;
-        $total = Video::where(['status' => 1, 'is_del' => 0])->count();
-        $video = Video::with(['user' => function ($query) {
-            $query->select('id', 'name', 'head_pic');
-        }])
-            ->where(['status' => 1, 'is_del' => 0])
-            ->orderBy('top_id', 'desc')
+        $total = Video::where('is_del', 0)->count();
+        $video = Video::with('subject')
+            ->where('is_del', 0)
             ->orderBy('id', 'desc')
             ->skip($currentCount)->take($count)
             ->get();
-
+        foreach ($video as $value) {
+            $value->subject->parent = Subject::find($value->subject->pid);
+        }
         $data = [
             'page_data' => $video,
             'total' => $total,
@@ -45,16 +45,44 @@ class VideoController extends Controller {
      * return  array
      */
     public function show($id) {
-        $video = Video::with(['user' => function ($query) {
-            $query->select('id', 'name', 'head_pic');
-        }])
-            ->where('is_del', 0)
-            ->findOrFail($id);
-        Video::where('id', $id)->update(['watch_num' => DB::raw('watch_num + 1')]);
+        $video = Video::with('subject')->findOrFail($id);
         return $this->response($video);
     }
 
 
+    /**
+     * 添加资源.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function store(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'name' => 'required',
+            'subject_id' => 'required',
+            'category' => 'required',
+            'url' => 'required',
+        ]);
+        if ($validator->fails()) {
+            return $this->response($validator->errors()->first(), 422);
+        }
+        $user = CurrentAdmin::user();
+        try {
+            Video::create([
+                'admin_id' => intval($user->id),
+                'name' => $request->input('name'),
+                'subject_id' => $request->input('subject_id'),
+                'category' => $request->input('category'),
+                'url' => $request->input('url'),
+            ]);
+
+        } catch (Exception $e) {
+            Log::error('创建失败:'.$e->getMessage());
+            return $this->response($e->getMessage(), 500);
+        }
+        return $this->response('创建成功');
+    }
 
     /**
      * Update the specified resource in storage.
@@ -65,8 +93,10 @@ class VideoController extends Controller {
      */
     public function update(Request $request) {
         $video = new Video();
-        $video->name = $request->input('name') ?: $user->name;
-        $video->cover = $request->input('cover') ?: $user->cover;
+        $video->name = $request->input('name') ?: $video->name;
+        $video->subject_id = $request->input('subject_id') ?: $video->subject_id;
+        $video->category = $request->input('category') ?: $video->category;
+        $video->url = $request->input('url') ?: $video->url;
         try {
             $video->save();
             return $this->response("修改成功");
@@ -78,6 +108,25 @@ class VideoController extends Controller {
 
 
     /**
+     * 启用/禁用
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function edit($id) {
+        $video = Video::findOrFail($id);
+        if($video->status == 1){
+            $video->status = 0;
+        }else{
+            $video->status = 1;
+        }
+        if (!$video->save()) {
+            return $this->response("操作失败", 500);
+        }
+        return $this->response("操作成功");
+    }
+
+    /**
      * 删除
      *
      * @param  int  $id
@@ -85,7 +134,8 @@ class VideoController extends Controller {
      */
     public function destroy($id) {
         $video = Video::findOrFail($id);
-        if (!$video->destroy($id)) {
+        $video->id_del = 1;
+        if (!$video->save()) {
             return $this->response("删除失败", 500);
         }
         return $this->response("删除成功");

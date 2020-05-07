@@ -2,10 +2,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Http\Request;
 
 class Subject extends Model {
 
 	protected $fillable = [
+        'id',
     	'admin_id',
         'pid',
         'name',
@@ -25,6 +27,13 @@ class Subject extends Model {
     public function childs()
     {
     	return $this->where('pid', $this->id)->get();
+    }
+
+
+    public function parent()
+    {
+
+        return $this->where('id', $this->pid)->first();
     }
 }
 
