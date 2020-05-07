@@ -99,6 +99,7 @@ class CommonController extends BaseController {
             return response()->json(['code' => 500 , 'msg' => $ex->getMessage()]);
         }
     }
+
     
     /*
      * @param  description   导入功能方法

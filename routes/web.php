@@ -139,6 +139,7 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use (
         $router->post('doDeletePapers', 'PapersController@doDeletePapers');              //删除试卷的方法
         $router->post('doPublishPapers', 'PapersController@doPublishPapers');            //发布/取消发布试卷的方法
         $router->post('getPapersInfoById', 'PapersController@getPapersInfoById');        //获取试卷详情信息
+        $router->post('getPapersList', 'PapersController@getPapersList');                //获取题库列表
         /****************试卷部分  end****************/
         
         $router->get('export', 'CommonController@doExportExamLog'); //导入导出demo

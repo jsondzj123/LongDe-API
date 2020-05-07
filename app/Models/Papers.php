@@ -3,6 +3,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use App\Models\AdminLog;
+use App\Models\PapersExam;
+use App\Models\QuestionSubject;
 use Validator;
 
 class Papers extends Model {
@@ -306,5 +308,136 @@ class Papers extends Model {
         //根据id获取试卷详细信息
         $papers_info = self::select('papers_name','diffculty','papers_time','area','cover_img','content','type')->findOrFail($body['papers_id']);
         return ['code' => 200 , 'msg' => '获取试卷信息成功' , 'data' => $papers_info];
+    }
+    
+    /*
+     * @param  descriptsion    获取试卷列表
+     * @param  author          dzj
+     * @param  ctime           2020-05-07
+     * return  array
+     */
+    public static function getPapersList($body=[]) {
+        //每页显示的条数
+        $pagesize = isset($body['pagesize']) && $body['pagesize'] > 0 ? $body['pagesize'] : 15;
+        $page     = isset($body['page']) && $body['page'] > 0 ? $body['page'] : 1;
+        $offset   = ($page - 1) * $pagesize;
+        
+        //获取后端的操作员id
+        $admin_id = isset(AdminLog::getAdminInfo()->admin_user->id) ? AdminLog::getAdminInfo()->admin_user->id : 0;
+        
+        //获取当前的科目
+        if(!isset($body['subject_id']) || empty($body['subject_id'])){
+            //获取当前的科目
+            $subject_info = QuestionSubject::select("id as subject_id")->where("admin_id" ,"=" , $admin_id)->where("bank_id" , "=" , $body['bank_id'])->where("is_del" , "=" , 0)->first()->toArray();
+            $body['subject_id'] = $subject_info['subject_id'];
+        }
+
+        //获取试卷的总数量
+        $papers_count = self::where('is_del' , '=' , 0)->where('admin_id' , '=' , $admin_id)->where("subject_id" , "=" , $body['subject_id'])->count();
+        if($papers_count > 0){
+            //获取试卷列表
+            $papers_list = self::select('id as papers_id','papers_name','papers_time','is_publish','signle_score','more_score','judge_score','options_score','pack_score','short_score','material_score','type')->where(function($query) use ($body){
+                //题库的id
+                $query->where('bank_id' , '=' , $body['bank_id']);
+                
+                //删除状态
+                $query->where('is_del' , '=' , 0);
+                
+                //获取后端的操作员id
+                $admin_id = isset(AdminLog::getAdminInfo()->admin_user->id) ? AdminLog::getAdminInfo()->admin_user->id : 0;
+                
+                //获取科目的id
+                if(!empty($body['subject_id']) && $body['subject_id'] > 0){
+                    $query->where('subject_id' , '=' , $body['subject_id']);
+                }
+                
+                //获取试卷类型
+                if(!empty($body['diffculty']) && $body['diffculty'] > 0 && in_array($body['diffculty'] , [1,2,3])){
+                    $query->where('diffculty' , '=' , $body['diffculty']);
+                }
+                
+                //获取试卷状态
+                if(!empty($body['is_publish']) && $body['is_publish'] >= 0){
+                    $query->where('is_publish' , '=' , $body['is_publish']);
+                }
+                
+                //获取试卷名称
+                if(!empty($body['papers_name'])){
+                    $query->where('papers_name','like',$body['papers_name'].'%');
+                }
+
+                //操作员id
+                $query->where('admin_id' , '=' , $admin_id);
+            })->orderByDesc('create_at')->offset($offset)->limit($pagesize)->get()->toArray();
+     
+            foreach($papers_list as $k=>$v){
+                $consult = [];
+                
+                //字符串转数组
+                $type_array     = explode(',' , $v['type']);
+                
+                //单选题总题数
+                if(in_array(1,$type_array)){
+                    $signle_count     = PapersExam::where("papers_id" , "=" , $v['papers_id'])->where("type" , "=" , 1)->count();
+                    if($signle_count > 0){
+                        $consult[] = ['type'=>'单选题' , 'count' => $signle_count , 'score' => $v['signle_score'] , 'sum_score' => $v['signle_score'] * $signle_count];
+                    }
+                }
+                
+                //多选题总题数
+                if(in_array(2,$type_array)){  
+                    $more_count     = PapersExam::where("papers_id" , "=" , $v['papers_id'])->where("type" , "=" , 2)->count();
+                    if($more_count > 0){
+                        $consult[] = ['type'=>'多选题' , 'count' => $more_count , 'score' => $v['more_score'] , 'sum_score' => $v['more_score'] * $more_count];
+                    }
+                }
+                
+                //不定项总题数
+                if(in_array(3,$type_array)){  
+                    $options_count     = PapersExam::where("papers_id" , "=" , $v['papers_id'])->where("type" , "=" , 3)->count();
+                    if($options_count > 0){
+                        $consult[]     = ['type'=>'不定项' , 'count' => $options_count , 'score' => $v['options_score'] , 'sum_score' => $v['options_score'] * $options_count];
+                    }
+                }
+                
+                //判断题总题数
+                if(in_array(4,$type_array)){  
+                    $judge_count     = PapersExam::where("papers_id" , "=" , $v['papers_id'])->where("type" , "=" , 4)->count();
+                    if($judge_count > 0){
+                        $consult[]     = ['type'=>'判断题' , 'count' => $judge_count , 'score' => $v['judge_score'] , 'sum_score' => $v['judge_score'] * $judge_count];
+                    }
+                }
+                
+                //填空题总题数
+                if(in_array(5,$type_array)){  
+                    $pack_count     = PapersExam::where("papers_id" , "=" , $v['papers_id'])->where("type" , "=" , 5)->count();
+                    if($pack_count > 0){
+                        $consult[]     = ['type'=>'填空题' , 'count' => $pack_count , 'score' => $v['pack_score'] , 'sum_score' => $v['pack_score'] * $pack_count];
+                    }
+                }
+                
+                //简答题总题数
+                if(in_array(6,$type_array)){  
+                    $short_count     = PapersExam::where("papers_id" , "=" , $v['papers_id'])->where("type" , "=" , 6)->count();
+                    if($short_count > 0){
+                        $consult[]     = ['type'=>'简答题' , 'count' => $short_count , 'score' => $v['short_score'] , 'sum_score' => $v['short_score'] * $short_count];
+                    }
+                }
+                
+                //材料总题数
+                if(in_array(7,$type_array)){  
+                    $material_count     = PapersExam::where("papers_id" , "=" , $v['papers_id'])->where("type" , "=" , 7)->count();
+                    if($material_count > 0){
+                        $consult[]     = ['type'=>'材料题' , 'count' => $material_count , 'score' => $v['material_score'] , 'sum_score' => $v['material_score'] * $material_count];
+                    }
+                }
+                
+                //试卷试题类型赋值
+                $papers_list[$k]['exam_list']      = $consult;
+                $papers_list[$k]['exam_sum_score'] = array_sum(array_column($papers_list[$k]['exam_list'], 'sum_score'));
+            }
+            return ['code' => 200 , 'msg' => '获取试卷列表成功' , 'data' => ['papers_list' => $papers_list , 'total' => $papers_count , 'pagesize' => $pagesize , 'page' => $page]];
+        }
+        return ['code' => 200 , 'msg' => '获取试卷列表成功' , 'data' => ['papers_list' => [] , 'total' => 0 , 'pagesize' => $pagesize , 'page' => $page]];
     }
 }
