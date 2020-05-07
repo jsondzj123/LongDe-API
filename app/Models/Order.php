@@ -105,16 +105,21 @@ class Order extends Model {
             if(!$arr || empty($arr)){
                 return ['code' => 201 , 'msg' => '参数错误'];
             }
-            if(empty($arr['student_id']) || empty($arr['price']) || empty($arr['lession_price']) || empty($arr['pay_type']) || empty($arr['class_id'])){
+            if(empty($arr['student_id']) || empty($arr['pay_type']) || empty($arr['class_id'])){
                 return ['code' => 202 , 'msg' => '参数不能为空'];
+            }
+            //根据课程id 查询价格
+            $lesson = Lesson::select('price','favorable_price')->where(['id'=>$arr['class_id'],'is_del'=>0,'is_forbid'=>0,'status'=>1])->first();
+            if(!$lesson){
+                return ['code' => 203 , 'msg' => '此课程选择无效'];
             }
             //数据入库，生成订单
             $data['order_number'] = date('YmdHis', time()) . rand(1111, 9999);
             $data['admin_id'] = 0;  //操作员id
             $data['order_type'] = 2;        //1线下支付 2 线上支付
             $data['student_id'] = $arr['student_id'];
-            $data['price'] = $arr['price'];
-            $data['lession_price'] = $arr['lession_price'];
+            $data['price'] = $lesson['favorable_price'];
+            $data['lession_price'] = $lesson['price'];
             $data['pay_status'] = 4;
             $data['pay_type'] = $arr['pay_type'];
             $data['status'] = 0;
@@ -223,7 +228,7 @@ class Order extends Model {
         if(!$data || empty($data)){
             return ['code' => 201 , 'msg' => '参数错误'];
         }
-        $up = self::where(['id'=>$data['order_id']])->save(['oa_status'=>$data['status']]);
+        $up = self::where(['id'=>$data['order_id'],'order_type'=>1])->update(['oa_status'=>$data['status']]);
         if($up){
             return ['code' => 200 , 'msg' => '修改成功'];
         }else{

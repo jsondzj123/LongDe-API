@@ -29,8 +29,8 @@ class WxpayFactory{
         $response = $this->postXmlCurl($xml, $url);
         //将微信返回的结果xml转成数组
         $res = $this->xmlstr_to_array($response);
-//        file_put_contents('wxpay.txt', '时间:' . date('Y-m-d H:i:s') . print_r($res, true), FILE_APPEND);
-        Storage::disk('logs')->append('wxpay.txt', 'time:'.date('Y-m-d H:i:s')."\nresponse:".$res);
+        file_put_contents('wxpay.txt', '时间:' . date('Y-m-d H:i:s') . print_r($res, true), FILE_APPEND);
+//        Storage::disk('logs')->append('wxpay.txt', 'time:'.date('Y-m-d H:i:s')."\nresponse:".$res);
         $sign2 = $this->getOrder($res['prepay_id']["@cdata"]);
         if(!empty($sign2)){
             $arr = array('code'=>200,'list'=>$sign2);
