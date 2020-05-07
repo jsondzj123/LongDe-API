@@ -77,7 +77,15 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use (
     $router->post('subject/{id}/update', 'SubjectController@update');
     $router->get('subject/{id}/delete', 'SubjectController@destroy');
     
-
+    /*
+     * 录播模块
+    */
+    $router->get('video', 'VideoController@index');
+    $router->get('video/{id}', 'VideoController@show');
+    $router->post('video', 'VideoController@store');
+    $router->post('video/{id}/update', 'VideoController@update');
+    $router->get('video/{id}/delete', 'VideoController@destroy');
+    
     //用户学员相关模块(dzj)
     $router->group(['prefix' => 'student'], function () use ($router) {
         $router->post('doInsertStudent', 'StudentController@doInsertStudent');        //添加学员的方法
