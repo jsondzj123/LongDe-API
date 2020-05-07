@@ -114,7 +114,8 @@ class VideoController extends Controller {
      */
     public function destroy($id) {
         $video = Video::findOrFail($id);
-        if (!$video->destroy($id)) {
+        $video->id_del = 1;
+        if (!$video->save()) {
             return $this->response("删除失败", 500);
         }
         return $this->response("删除成功");
