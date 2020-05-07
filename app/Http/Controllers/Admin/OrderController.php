@@ -31,11 +31,11 @@ class OrderController extends Controller {
     public function findOrderForId(){
         //获取提交的参数
         try{
-            $data=[
-                'order_id'=>$_POST['order_id']
-            ];
-            $data = Order::findOrderForId($data);
-//            $data = Order::findOrderForId(self::$accept_data);
+//            $data=[
+//                'order_id'=>$_POST['order_id']
+//            ];
+//            $data = Order::findOrderForId($data);
+            $data = Order::findOrderForId(self::$accept_data);
             return response()->json($data);
         } catch (Exception $ex) {
             return response()->json(['code' => 500 , 'msg' => $ex->getMessage()]);
@@ -51,12 +51,12 @@ class OrderController extends Controller {
     public function auditToId(){
         //获取提交的参数
         try{
-            $data=[
-                'order_id'=>$_POST['order_id'],
-                'status'=>$_POST['status']
-            ];
-            $data = Order::exitForIdStatus($data);
-//            $data = Order::exitForIdStatus(self::$accept_data);
+//            $data=[
+//                'order_id'=>$_POST['order_id'],
+//                'status'=>$_POST['status']
+//            ];
+//            $data = Order::exitForIdStatus($data);
+            $data = Order::exitForIdStatus(self::$accept_data);
             if($data['code'] == 200){
                 return response()->json($data);
             } else {
@@ -87,12 +87,12 @@ class OrderController extends Controller {
     public function orderUpOaForId(){
         //获取提交的参数
         try{
-            $data=[
-                'order_id'=>$_POST['order_id'],
-                'status'=>$_POST['status']
-            ];
-            $data = Order::orderUpOaForId($data);
-//            $data = Order::orderUpOaForId(self::$accept_data);
+//            $data=[
+//                'order_id'=>$_POST['order_id'],
+//                'status'=>$_POST['status']
+//            ];
+//            $data = Order::orderUpOaForId($data);
+            $data = Order::orderUpOaForId(self::$accept_data);
             return response()->json($data);
         } catch (Exception $ex) {
             return response()->json(['code' => 500 , 'msg' => $ex->getMessage()]);
@@ -110,8 +110,8 @@ class OrderController extends Controller {
          */
     public function orderPay(){
         try{
-            $orderlist = Order::orderPayList($_POST);
-//            $orderlist = Order::orderPayList(self::$accept_data);
+//            $orderlist = Order::orderPayList($_POST);
+            $orderlist = Order::orderPayList(self::$accept_data);
             return response()->json($orderlist);
         } catch (Exception $ex) {
             return response()->json(['code' => 500 , 'msg' => $ex->getMessage()]);
@@ -127,8 +127,8 @@ class OrderController extends Controller {
          */
     public function Pcpay(){
         try{
-            $orderlist = Order::orderPayList($_POST);
-//            $orderlist = Order::orderPayList(self::$accept_data);
+//            $orderlist = Order::orderPayList($_POST);
+            $orderlist = Order::orderPayList(self::$accept_data);
             return response()->json($orderlist);
         } catch (Exception $ex) {
             return response()->json(['code' => 500 , 'msg' => $ex->getMessage()]);
