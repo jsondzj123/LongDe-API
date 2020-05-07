@@ -21,7 +21,7 @@ class SubjectController extends Controller {
         $currentCount = $request->input('current_count') ?: 0;
         $count = $request->input('count') ?: 15;
         $total = Subject::where('pid', 0)->count();
-        $subject = Subject::orderBy('status', 'desc')
+        $subject = Subject::where('pid', 0)->orderBy('status', 'desc')
             ->skip($currentCount)->take($count)
             ->get();
         foreach ($subject as $value) {

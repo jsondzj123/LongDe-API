@@ -1,6 +1,7 @@
 <?php
 namespace App\Models;
 
+use App\Tools\CurrentAdmin;
 use Illuminate\Database\Eloquent\Model;
 
 class Article extends Model {
@@ -47,7 +48,7 @@ class Article extends Model {
 //        $newlist['condition'] = $data; //条件
 //        $newlist['typelist'] = $typelist; //类型
 //        $newlist['school'] = $school; //学校
-        return $list;
+        return ['code' => 200 , 'msg' => '查询成功','data'=>$list];
     }
     /*
          * @param 修改文章状态
@@ -58,34 +59,34 @@ class Article extends Model {
          * @param  ctime   2020/4/28 15:43
          * return  array
          */
-    public static function editStatus($id,$adminid,$type){
-        $articleOnes = self::where(['id'=>$id,'is_del'=>1])->first();
+    public static function editStatus($data){
+        $articleOnes = self::where(['id'=>$data['id'],'is_del'=>1])->first();
         if(!$articleOnes){
-            return 404;
+            return ['code' => 204 , 'msg' => '参数不对'];
         }
         //启用
-        if($type == 1){
+        if($data['type'] == 1){
             if($articleOnes['status'] == 1){
-                return 200;
+                return ['code' => 200 , 'msg' => '修改成功'];
             }
-            $update = self::where(['id'=>$id])->update(['status'=>1]);
+            $update = self::where(['id'=>$data['id']])->update(['status'=>1]);
             if($update){
                 //加操作日志
-                return 200;
+                return ['code' => 200 , 'msg' => '修改成功'];
             }else{
-                return 500;
+                return ['code' => 201 , 'msg' => '修改失败'];
             }
         }else{
             //禁用
             if($articleOnes['status'] == 0){
-                return 300;
+                return ['code' => 200 , 'msg' => '修改成功'];
             }
-            $update = self::where(['id'=>$id])->update(['status'=>0]);
+            $update = self::where(['id'=>$data['id']])->update(['status'=>0]);
             if($update){
                 //加操作日志
-                return 200;
+                return ['code' => 200 , 'msg' => '修改成功'];
             }else{
-                return 500;
+                return ['code' => 201 , 'msg' => '修改失败'];
             }
         }
     }
@@ -96,20 +97,20 @@ class Article extends Model {
          * @param  ctime   2020/4/28 17:33
          * return  array
          */
-    public static function editDelToId($id,$adminid){
-        $articleOnes = self::where(['id'=>$id])->first();
+    public static function editDelToId($data){
+        $articleOnes = self::where(['id'=>$data['id']])->first();
         if(!$articleOnes){
-            return 404;
+            return ['code' => 204 , 'msg' => '参数不对'];
         }
         if($articleOnes['is_del'] == 0){
-            return 200;
+            return ['code' => 200 , 'msg' => '删除成功'];
         }
-        $update = self::where(['id'=>$id])->update(['is_del'=>0]);
+        $update = self::where(['id'=>$data['id']])->update(['is_del'=>0]);
         if($update){
             //加操作日志
-            return 200;
+            return ['code' => 200 , 'msg' => '删除成功'];
         }else{
-            return 500;
+            return ['code' => 201 , 'msg' => '删除失败'];
         }
     }
     /*
@@ -130,20 +131,18 @@ class Article extends Model {
     public static function addArticle($data){
         if(empty($data['article_type_id']) ||empty($data['title'])||empty($data['image'])||empty($data['key_word'])||empty($data['sources'])||empty($data['accessory'])||empty($data['description'])||empty($data['text'])){
             //内容为空
-            return 400;
+            return ['code' => 201 , 'msg' => '内容为空'];
         }
-        //图片上传
-        //附件上传
         //缓存查出用户id和分校id
-        $adminid = 1;
-        $data['school_id'] = 1;
-        $data['user_id'] = 1;
+        $admin = CurrentAdmin::user();
+        $data['school_id'] = $admin['school_id'];
+        $data['user_id'] = $admin['id'];
         $data['update_at'] = date('Y-m-d H:i:s');
         $add = self::insert($data);
         if($add){
-            return 200;
+            return ['code' => 200 , 'msg' => '添加成功'];
         }else{
-            return 500;
+            return ['code' => 202 , 'msg' => '添加失败'];
         }
     }
     /*
@@ -153,14 +152,14 @@ class Article extends Model {
          * @param  ctime   2020/4/28 19:30
          * return  array
          */
-    public static function findOne($id){
-        if(empty($id)){
-            return 400;//参数为空
+    public static function findOne($data){
+        if(empty($data['id'])){
+            return ['code' => 201 , 'msg' => '参数为空'];
         }
         $find = self::select('ld_article.*','ld_school.name','ld_article_type.typename')
                 ->leftJoin('ld_school','ld_school.id','=','ld_article.school_id')
                 ->leftJoin('ld_article_type','ld_article_type.id','=','ld_article.article_type_id')
-                ->where(['ld_article.id'=>$id,'ld_article.is_del'=>1])
+                ->where(['ld_article.id'=>$data['id'],'ld_article.is_del'=>1])
                 ->first();
         if($find){
             unset($find['user_id']);
@@ -169,9 +168,9 @@ class Article extends Model {
             unset($find['is_del']);
             unset($find['create_at']);
             unset($find['update_at']);
-            return $find;
+            return ['code' => 200 , 'msg' => '获取成功','data'=>$find];
         }else{
-            return 500;//条件不对
+            return ['code' => 202 , 'msg' => '获取失败'];
         }
     }
     /*
@@ -204,10 +203,14 @@ class Article extends Model {
         }
         //判断是否为空
         if(empty($data['title']) || empty($data['key_word']) || empty($data['sources'])|| empty($data['accessory'])|| empty($data['description'])|| empty($data['text'])){
-            return false;
+            return ['code' => 201 , 'msg' => '参数不能为空'];
         }
         $data['update_at'] = date('Y-m-d H:i:s');
         $res = self::where(['id'=>$id])->update($data);
-        return $res;
+        if($res){
+            return ['code' => 200 , 'msg' => '更新成功'];
+        }else{
+            return ['code' => 202 , 'msg' => '更新失败'];
+        }
     }
 }

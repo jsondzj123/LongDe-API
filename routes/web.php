@@ -26,14 +26,14 @@ $router->get('/', function () use ($router) {
         $router->get('user/{id}', 'Api\UserController@show');
 
     });
-    
+
 
     $router->group(['prefix' => 'user' , 'middleware'=>'api'], function () use ($router) {
 
         $router->post('user/userinfo','Api\UserController@getUserinfo');
         $router->post('logReg', 'Api\UserController@loginAndRegister');
         $router->get('getUserInfoById', 'Api\UserController@getUserInfoById');
-        
+
         $router->post('logout','Api\UserController@logout');
         $router->post('refreshToken','Api\UserController@refreshToken');
     });
@@ -77,7 +77,15 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use (
     $router->post('subject/{id}/update', 'SubjectController@update');
     $router->get('subject/{id}/delete', 'SubjectController@destroy');
     
-
+    /*
+     * 录播模块
+    */
+    $router->get('video', 'VideoController@index');
+    $router->get('video/{id}', 'VideoController@show');
+    $router->post('video', 'VideoController@store');
+    $router->post('video/{id}/update', 'VideoController@update');
+    $router->get('video/{id}/delete', 'VideoController@destroy');
+    
     //用户学员相关模块(dzj)
     $router->group(['prefix' => 'student'], function () use ($router) {
         $router->post('doInsertStudent', 'StudentController@doInsertStudent');        //添加学员的方法
@@ -89,7 +97,7 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use (
         $router->post('getStudentCommonList', 'CommonController@getStudentCommonList');  //学员公共参数列表
     });
     //讲师教务相关模块(dzj)
-    
+
     //讲师教务相关模块
     $router->group(['prefix' => 'teacher'], function () use ($router) {
         $router->post('doInsertTeacher', 'TeacherController@doInsertTeacher');        //添加讲师教务的方法
@@ -136,7 +144,7 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use (
         $router->get('export', 'CommonController@doExportExamLog'); //导入导出demo
         $router->post('getBankCommonList', 'CommonController@getBankCommonList');        //题库公共参数列表
     });
-    //运营模块   苏振文
+    //运营模块(szw)
     $router->group(['prefix' => 'article'], function () use ($router) {
         /*------------文章模块---------------------*/
         $router->post('getArticleList', 'ArticleController@getArticleList');//获取文章列表
@@ -152,6 +160,16 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use (
         $router->post('exitDelForId', 'ArticletypeController@exitDelForId');//文章分类删除
         $router->post('exitTypeForId', 'ArticletypeController@exitTypeForId');//文章分类修改
         $router->post('OnelistType', 'ArticletypeController@OnelistType');//单条查询
+    });
+    //订单&支付模块(szw)
+    $router->group(['prefix' => 'order'], function () use ($router) {
+        $router->post('orderList', 'OrderController@orderList');//订单列表
+        $router->post('orderPay', 'OrderController@orderPay');//订单在线支付
+        $router->post('findOrderForId', 'OrderController@findOrderForId');//订单详情
+        $router->post('auditToId', 'OrderController@auditToId');//订单审核通过/不通过
+        $router->post('orderUpOaForId', 'OrderController@orderUpOaForId');//订单修改oa状态
+        $router->post('wxnotify_url', 'OrderController@wxnotify_url');//微信回调
+        $router->post('alinotify_url', 'OrderController@alinotify_url');//ali回调
     });
 });
 
