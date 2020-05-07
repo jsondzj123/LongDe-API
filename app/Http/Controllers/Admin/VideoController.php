@@ -20,8 +20,9 @@ class VideoController extends Controller {
     public function index(Request $request){
         $currentCount = $request->input('current_count') ?: 0;
         $count = $request->input('count') ?: 15;
-        $total = Video::where(['status' => 0, 'is_del' => 0])->count();
-        $video = Video::with('subject')->where(['status' => 0, 'is_del' => 0])
+        $total = Video::where('is_del', 0)->count();
+        $video = Video::with('subject')
+            ->where('is_del', 0)
             ->orderBy('id', 'desc')
             ->skip($currentCount)->take($count)
             ->get();
@@ -105,6 +106,25 @@ class VideoController extends Controller {
         }
     }
 
+
+    /**
+     * 启用/禁用
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function edit($id) {
+        $video = Video::findOrFail($id);
+        if($video->status == 1){
+            $video->status = 0;
+        }else{
+            $video->status = 1;
+        }
+        if (!$video->save()) {
+            return $this->response("操作失败", 500);
+        }
+        return $this->response("操作成功");
+    }
 
     /**
      * 删除

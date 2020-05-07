@@ -85,6 +85,7 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use (
     $router->post('video', 'VideoController@store');
     $router->post('video/{id}/update', 'VideoController@update');
     $router->get('video/{id}/delete', 'VideoController@destroy');
+    $router->get('video/{id}/edit', 'VideoController@edit');
     
     
     //用户学员相关模块(dzj)
