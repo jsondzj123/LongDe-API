@@ -87,6 +87,16 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use (
     $router->get('video/{id}/delete', 'VideoController@destroy');
     $router->get('video/{id}/edit', 'VideoController@edit');
     
+    /*
+     * 直播模块
+    */
+    $router->get('live', 'LiveController@index');
+    $router->get('live/{id}', 'LiveController@show');
+    $router->post('live', 'LiveController@store');
+    $router->post('live/{id}/update', 'LiveController@update');
+    $router->get('live/{id}/delete', 'LiveController@destroy');
+    $router->get('live/{id}/edit', 'LiveController@edit');
+
     
     //用户学员相关模块(dzj)
     $router->group(['prefix' => 'student'], function () use ($router) {
