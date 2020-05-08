@@ -83,9 +83,10 @@ $app->configure('jwt');
 
 $app->routeMiddleware([
      'auth' => App\Http\Middleware\Authenticate::class,
-     'api' => App\Http\Middleware\ApidateToken::class,
+     'api' => App\Http\Middleware\ApiAuthToken::class,
     // 'jwt.role' => App\Http\Middleware\JWTRoleAuth::class,
      'cors' => App\Http\Middleware\Cors::class,
+     
 ]);
 
 /*
@@ -114,7 +115,7 @@ $app->register(\Tymon\JWTAuth\Providers\LumenServiceProvider::class);
 //加载redis服务
 $app->register(\Illuminate\Redis\RedisServiceProvider::class);
 //加载注册excel
-$app->register(\Maatwebsite\Excel\ExcelServiceProvider::class);
+// $app->register(\Maatwebsite\Excel\ExcelServiceProvider::class);
 /*
 |--------------------------------------------------------------------------
 | Load The Application Routes

@@ -24,7 +24,6 @@ class CommonController extends BaseController {
             } else {
                 $rsa_data = [];
             }
-            
             //获取讲师教务搜索列表
             $data = \App\Models\Teacher::getTeacherSearchList($rsa_data);
             if($data['code'] == 200){
@@ -36,6 +35,36 @@ class CommonController extends BaseController {
             return response()->json(['code' => 500 , 'msg' => $ex->getMessage()]);
         }
     }
+
+    /*
+     * @param  description   获取添加账号信息
+     * @param  id            当前登录用户id
+     * @param author    lys
+     * @param ctime     2020-04-29
+    */
+    public function getAccountInfoOne(Request $request){
+        try{
+            $adminId = $request->input('id');
+            $data =  \App\Models\Adminuser::getUserOne($adminId);
+            if($data['code'] != 200){
+                return response()->json(['code' => $data['code'] , 'msg' => $data['msg']]);
+            } 
+            $adminUserSchoolId = $data['data']['school_id'];
+            $adminUserSchoolType = $data['data']['school_status']; 
+            if($adminUserSchoolType >0){
+                //总校
+                $schoolData = \App\Models\School::getSchoolAlls(['id','name']);
+            }else{
+                //分校
+                $schoolData = \App\Models\School::getSchoolOne($adminUserSchoolId,['id','name']);
+            }
+            $rolAuthArr = \App\Models\Roleauth::getRoleAuthAlls(['school_id'=>$adminUserSchoolId],['id','role_name']);
+            $arr = [
+                'school'=>$schoolData,
+                'role_auth'=>$rolAuthArr
+            ];
+            return response()->json(['code' => 200 , 'msg' => '获取信息成功' , 'data' => $arr]);
+
     
     /*
      * @param  descriptsion    获取学员列表
@@ -67,10 +96,60 @@ class CommonController extends BaseController {
             } else {
                 return response()->json(['code' => $data['code'] , 'msg' => $data['msg']]);
             }
+
         } catch (Exception $ex) {
             return response()->json(['code' => 500 , 'msg' => $ex->getMessage()]);
         }
     }
+
+    /*
+     * @param  description   获取角色权限列表
+     * @param author    lys
+     * @param ctime     2020-04-29
+    */
+    public  function getRoleAuth(Request $request){
+         try{
+            $adminId = $request->input('id');
+            $data =  \App\Models\Adminuser::getUserOne(['id'=>$adminId]);
+            if($data['code'] != 200){
+                return response()->json(['code' => $data['code'] , 'msg' => $data['msg']]);
+            } 
+            $adminUserSchoolId = $data['data']['school_id'];
+            $adminUserSchoolType = $data['data']['school_status']; 
+            
+            if($adminUserSchoolType >0){
+                //总校 Auth 
+                $roleAuthArr = \App\Models\Authrules::getAuthAlls([],['id','name','title','parent_id']);
+            }else{
+                //分校  Auth
+                $schoolData = \App\Models\Roleauth::getRoleOne(['school_id'=>$adminUserSchoolId,'is_del'=>1,'is_super'=>1],['id','role_name','auth_desc','auth_id']);
+              
+                if( $schoolData['code'] != 200){    
+                     return response()->json(['code' => 403 , 'msg' => '请联系总校超级管理员' ]);
+                }
+                $auth_id_arr = explode(',',$schoolData['data']['auth_id']);
+      
+                if(!$auth_id_arr){
+                     $auth_id_arr = [$auth_id];
+                }
+                $roleAuthArr = \App\Models\Authrules::getAuthAlls(['id'=>$auth_id_arr],['id','name','title','parent_id']);
+            }
+
+            $roleAuthData = \App\Models\Roleauth::getRoleAuthAlls(['school_id'=>$adminUserSchoolId,'is_del'=>1],['id','role_name','auth_desc','auth_id']);
+            $roleAuthArr  = getParentsList($roleAuthArr);
+            $arr = [
+                'role_auth'=>$roleAuthData,
+                'auth'=>$roleAuthArr,
+                'school_id'=>$adminUserSchoolId,
+                'admin_id' =>$adminId,
+            ];
+            return response()->json(['code' => 200 , 'msg' => '获取信息成功' , 'data' => $arr]);
+        } catch (Exception $ex) {
+            return response()->json(['code' => 500 , 'msg' => $ex->getMessage()]);
+        }   
+    }
+
+
     
     /*
      * @param  descriptsion    获取题库列表
@@ -189,7 +268,7 @@ class CommonController extends BaseController {
         //获取提交的参数
         return Excel::download(new \App\Exports\ExamExport, 'examlog.xlsx');
     }
-    
+
     
     /*
      * @param  description   学员公共参数列表
@@ -321,4 +400,7 @@ class CommonController extends BaseController {
         ];
         return response()->json(['code' => 200 , 'msg' => '返回数据成功' , 'data' => ['diffculty_list' => $diffculty_array , 'type_list' => $type_array]]);
     }
+
+
+
 }
