@@ -150,8 +150,8 @@ class Admin extends Model implements AuthenticatableContract, AuthorizableContra
             return ['code' => 202 , 'msg' => '传递数据不合法'];
         }
          // $adminUserInfo  = CurrentAdmin::user();  //当前登录用户所有信息
-        $adminUserInfo['school_status'] = 1 //学校状态
-        $adminUserInfo['school_id'] = 1 //学校id
+        $adminUserInfo['school_status'] = 1; //学校状态
+        $adminUserInfo['school_id'] = 1; //学校id
         if($adminUserInfo['school_status'] == 1){
             //判断学校id是否合法
             if(!isset($body['school_id']) ||  $body['school_id'] <= 0){

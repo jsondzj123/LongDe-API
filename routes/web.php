@@ -91,10 +91,13 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use (
     $router->post('login', 'AuthenticateController@postLogin');
 
 
-    $router->group(['prefix' => 'admin', 'middleware'=> ['jwt.auth','api']], function () use ($router) {
+    $router->group(['prefix' => 'admin', 'middleware'=> ['jwt.auth']], function () use ($router) {
         //用户详情
         $router->get('{id}', 'AdminController@show');
         $router->post('info', 'AdminController@info');
+         // $router->post('info', function() use ($router){
+         //    echo 11;
+         // });
         //获取学员列表
         //$router->get('getUserList', 'UserController@getUserList');
     });
