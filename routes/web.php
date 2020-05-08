@@ -48,7 +48,7 @@ $router->group(['prefix' => 'web'], function () use ($router) {
 $router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use ($router) {
 
     //系统用户管理模块（lys）
-    $router->group(['prefix' => 'adminuser' ,'middleware'=> ['jwt.auth','api']], function () use ($router) {
+    $router->group(['prefix' => 'adminuser' ], function () use ($router) {
         $router->post('getUserList', 'AdminUserController@getUserList'); //获取后台用户列表方法
         $router->post('upUserStatus', 'AdminUserController@upUserStatus');//更改账号状态方法 (删除/禁用)
         $router->post('getAccount', 'CommonController@getAccountInfoOne');//获取添加账号信息（school，roleAuth）方法
@@ -67,11 +67,19 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use (
         $router->post('doRoleAuthUpdate', 'RoleController@doRoleAuthUpdate');//编辑角色信息
     });
     
-    $router->group(['prefix' => 'user'], function () use ($router) { //用户学员相关模块方法
+    $router->group(['prefix' => 'user','middleware'=> ['jwt.auth']], function () use ($router) { //用户学员相关模块方法
         $router->get('getUserList', 'UserController@getUserList'); //获取学员列表方法
     });
-    $router->group(['prefix' => 'school'], function () use ($router) { //用户学员相关模块方法
+    $router->group(['prefix' => 'school',], function () use ($router) { //用户学员相关模块方法
         $router->post('getSchoolList', 'SchoolController@getSchoolList'); //获取学员列表方法
+        $router->post('doUpdateSchoolStatus', 'SchoolController@doUpdateSchoolStatus'); //获取学员列表方法
+        $router->post('doInsertSchool', 'SchoolController@doInsertSchool'); //添加分校信息并创建分校管理员
+        $router->post('getSchoolUpdate', 'SchoolController@getSchoolUpdate'); //获取分校信息（编辑）
+        $router->post('doSchoolUpdate', 'SchoolController@doSchoolUpdate'); //编辑分校信息
+        $router->post('getSchoolById', 'SchoolController@getSchoolById'); //查看分校超级管理角色信息
+        $router->post('getAdminById', 'SchoolController@getAdminById'); //获取分校超级管理用户信息（编辑） 
+        $router->post('doAdminUpdate', 'SchoolController@doAdminUpdate'); //编辑分校超级管理用户信息
+        $router->post('getSchoolTeacherList', 'SchoolController@getSchoolTeacherList'); //获取分校讲师列表
     });
     
 });

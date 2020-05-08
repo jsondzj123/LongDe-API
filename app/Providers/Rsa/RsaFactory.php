@@ -335,8 +335,8 @@ class RsaFactory {
             'describe'  => '测试的内容文字' ,
             'content'   => '内容是测试内容',
             'type'      => 2,*/
-            'is_recommend'=>1,
-            'teacher_id'=> 5
+            'search'=>'',
+            
                // 'is_recommend' => 1
         ];
         $ccc = $this->rsaencrypt($key , $arr);

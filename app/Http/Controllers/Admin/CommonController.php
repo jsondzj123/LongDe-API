@@ -35,7 +35,7 @@ class CommonController extends BaseController {
             return response()->json(['code' => 500 , 'msg' => $ex->getMessage()]);
         }
     }
-<<<<<<< HEAD
+
     /*
      * @param  description   获取添加账号信息
      * @param  id            当前登录用户id
@@ -64,7 +64,7 @@ class CommonController extends BaseController {
                 'role_auth'=>$rolAuthArr
             ];
             return response()->json(['code' => 200 , 'msg' => '获取信息成功' , 'data' => $arr]);
-=======
+
     
     /*
      * @param  descriptsion    获取学员列表
@@ -96,12 +96,12 @@ class CommonController extends BaseController {
             } else {
                 return response()->json(['code' => $data['code'] , 'msg' => $data['msg']]);
             }
->>>>>>> dev
+
         } catch (Exception $ex) {
             return response()->json(['code' => 500 , 'msg' => $ex->getMessage()]);
         }
     }
-<<<<<<< HEAD
+
     /*
      * @param  description   获取角色权限列表
      * @param author    lys
@@ -149,7 +149,7 @@ class CommonController extends BaseController {
         }   
     }
 
-=======
+
     
     /*
      * @param  description   导入功能方法
@@ -239,5 +239,5 @@ class CommonController extends BaseController {
         //获取提交的参数
         return Excel::download(new \App\Exports\ExamExport, 'examlog.xlsx');
     }
->>>>>>> dev
+
 }

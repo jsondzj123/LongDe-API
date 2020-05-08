@@ -9,7 +9,8 @@
         "illuminate/redis": "^7.5",
         "laravel/lumen-framework": "^7.0",
         "predis/predis": "^1.1",
-        "tymon/jwt-auth": "dev-develop"
+        "tymon/jwt-auth": "dev-develop",
+        "maatwebsite/excel": "2.*"
     },
     "require-dev": {
         "fzaninotto/faker": "^1.9.1",

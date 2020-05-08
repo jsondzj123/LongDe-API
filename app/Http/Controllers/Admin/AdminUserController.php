@@ -4,45 +4,34 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Teacher;
 use Illuminate\Http\Request;
-use App\Models\Adminuser;
+use App\Models\Admin as Adminuser;
 use App\Models\Roleauth;
 use App\Models\Authrules;
 use App\Models\School;
 use Illuminate\Support\Facades\Redis;
+use App\Tools\CurrentAdmin;
+
 
 class AdminUserController extends Controller {
   
      /*
      * @param  description   获取用户列表
      * @param  参数说明       body包含以下参数[
-     *     search       搜索条件
-     *     page         当前页码
-     *     limit        每页显示条件
-     *     school_id    学校id
+     *     search       搜索条件 （非必填项）
+     *     page         当前页码 （不是必填项）
+     *     limit        每页显示条件 （不是必填项）
+     *     school_id    学校id  （非必填项）
      * ]
      * @param author    lys
      * @param ctime     2020-04-29
      */
-    public function getUserList(Request $request){
-    	$data =  $request->post();
-
-    	if(!isset($data['search']) || !isset($data['page']) || !isset($data['limit']) ){
-    		return response()->json(['code'=>201,'msg'=>'缺少参数']);
-    	}
-    	if( empty($data['page']) || $data['page']<=1 ){
-    		$data['page'] =1;
-    	}
-    	if( isset($data['limit']) || empty($data['limit']) || $data['page']<1 ) {
-    		$data['limit'] = 10;
-    	}
-        $school_id = 1;
-        $adminUserArr = Adminuser::getUserAll(['school_id'=>$school_id],$data['search'],$data['page'],$data['limit']);
-       	$arr = [
-       		'data' => $adminUserArr,
-       		'page' => $data['page'],
-       		'limit' => $data['limit'],
-       	];
-        return response()->json(['code'=>200,'msg'=>'Success','data'=>$arr]);    
+    public function getAdminUserList(){
+        $result     = Adminuser::getAdminUserList(self::$accept_data)
+        if($result['code'] == 200){
+            return response()->json($result);
+        }else{
+            return response()->json($result);
+        }
     }
     
     /*
