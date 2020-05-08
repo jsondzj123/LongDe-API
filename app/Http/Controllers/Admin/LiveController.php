@@ -7,6 +7,7 @@ use App\Models\Subject;
 use Illuminate\Http\Request;
 use  App\Tools\CurrentAdmin;
 use Validator;
+use App\Tools\MTCloud;
 
 class LiveController extends Controller {
 
@@ -20,9 +21,8 @@ class LiveController extends Controller {
     public function index(Request $request){
         $currentCount = $request->input('current_count') ?: 0;
         $count = $request->input('count') ?: 15;
-        $total = Live::where('is_del', 0)->count();
-        $live = Live::with('subject')
-            ->where('is_del', 0)
+        $total = Live::where(['is_del'=> 0, 'is_forbid' => 0])->count();
+        $live = Live::where(['is_del'=> 0, 'is_forbid' => 0])
             ->orderBy('id', 'desc')
             ->skip($currentCount)->take($count)
             ->get();
@@ -59,9 +59,9 @@ class LiveController extends Controller {
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
+            'subject_id' => 'required',
             'name' => 'required',
-            'cover' => 'required',
-            'describe' => 'required',
+            'description' => 'required',
         ]);
         if ($validator->fails()) {
             return $this->response($validator->errors()->first(), 422);
@@ -70,10 +70,9 @@ class LiveController extends Controller {
         try {
             Live::create([
                 'admin_id' => intval($user->id),
+                'subject_id' => $request->input('subject_id'),
                 'name' => $request->input('name'),
-                'cover' => $request->input('cover'),
-                'describe' => $request->input('describe'),
-                'url' => $request->input('url') ?: '',
+                'description' => $request->input('description'),
             ]);
 
         } catch (Exception $e) {
@@ -91,11 +90,12 @@ class LiveController extends Controller {
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request) {
+        $user = CurrentAdmin::user();
         $live = new Live();
-        $live->name = $request->input('name') ?: $live->name;
+        $live->admin_id = $user->id;
         $live->subject_id = $request->input('subject_id') ?: $live->subject_id;
-        $live->category = $request->input('category') ?: $live->category;
-        $live->url = $request->input('url') ?: $live->url;
+        $live->name = $request->input('name') ?: $live->name;
+        $live->description = $request->input('description') ?: $live->description;
         try {
             $live->save();
             return $this->response("修改成功");
@@ -114,10 +114,10 @@ class LiveController extends Controller {
      */
     public function edit($id) {
         $live = Live::findOrFail($id);
-        if($live->status == 1){
-            $live->status = 0;
+        if($live->is_forbid == 1){
+            $live->is_forbid = 0;
         }else{
-            $live->status = 1;
+            $live->is_forbid = 1;
         }
         if (!$live->save()) {
             return $this->response("操作失败", 500);
