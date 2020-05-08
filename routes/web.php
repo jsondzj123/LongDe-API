@@ -178,7 +178,9 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use (
     $router->group(['prefix' => 'statistics'], function () use ($router) {
         $router->post('StudentList', 'StatisticsController@StudentList');//学员统计
         $router->post('TeacherList', 'StatisticsController@TeacherList');//教师统计
+        $router->post('TeacherClasshour', 'StatisticsController@TeacherClasshour');//教师课时详情
         $router->post('LiveList', 'StatisticsrController@LiveList');//直播统计
+        $router->post('LiveDetails', 'StatisticsrController@LiveDetails');//直播详情
     });
 });
 
