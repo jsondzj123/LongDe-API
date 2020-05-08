@@ -17,11 +17,24 @@ class Controller extends BaseController {
      * @param  ctime         2020-04-16
      * return  string
      */
-    public function __construct(Request $request) {
 
-//        self::$accept_data = app('rsa')->servicersadecrypt($request);
-        //app('rsa')->Test();
+    // public function __construct(Request $request) {
+
+
+    //     self::$accept_data = app('rsa')->servicersadecrypt($request);
+
+    //     // self::$accept_data = app('rsa')->servicersadecrypt($request);
+
+    //     //self::$accept_data = app('rsa')->servicersadecrypt($request);
+
+    //     // app('rsa')->Test();
+    // }
+
+    public function __construct(Request $request) {
+         //self::$accept_data = app('rsa')->servicersadecrypt($request);
+       app('rsa')->Test();
     }
+
 
      /*返回json串
      * addtime 2020.4.28
@@ -32,13 +45,12 @@ class Controller extends BaseController {
      * */
     protected function response($data, $statusCode = 200)
     {
-
         if ($statusCode == 200 && is_string($data)) {
-            return response()->json(['msg' => $data]);
+            return response()->json(['message' => $data]);
         } elseif (is_string($data)) {
-            return response()->json(['code' => $statusCode, 'msg' => $data]);
+            return response()->json(['error' => $data], $statusCode);
         } else {
-            return response()->json(['code' => $statusCode, 'data' => $data]);
+            return response()->json($data, $statusCode);
         }
         return response()->json($data);
     }

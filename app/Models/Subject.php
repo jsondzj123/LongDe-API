@@ -28,12 +28,5 @@ class Subject extends Model {
     {
     	return $this->where('pid', $this->id)->get();
     }
-
-
-    public function parent()
-    {
-
-        return $this->where('id', $this->pid)->first();
-    }
 }
 

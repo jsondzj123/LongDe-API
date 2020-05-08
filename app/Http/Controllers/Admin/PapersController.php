@@ -134,4 +134,25 @@ class PapersController extends Controller {
             return response()->json(['code' => 500 , 'msg' => $ex->getMessage()]);
         }
     }
+    
+    /*
+     * @param  descriptsion    获取试卷列表
+     * @param  author          dzj
+     * @param  ctime           2020-05-07
+     * return  array
+     */
+    public function getPapersList(){
+        //获取提交的参数
+        try{
+            //获取科目对应的试卷列表
+            $data = Papers::getPapersList(self::$accept_data);
+            if($data['code'] == 200){
+                return response()->json(['code' => 200 , 'msg' => '获取试卷列表成功' , 'data' => $data['data']]);
+            } else {
+                return response()->json(['code' => $data['code'] , 'msg' => $data['msg']]);
+            }
+        } catch (Exception $ex) {
+            return response()->json(['code' => 500 , 'msg' => $ex->getMessage()]);
+        }
+    }
 }
