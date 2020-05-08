@@ -43,8 +43,8 @@ class AdminUserController extends Controller {
      * @param author    lys
      * @param ctime     2020-04-29
      */
-    public function upUserStatus(Request $request){
-    	$data =  $request->post(); 
+    public function upUserStatus(){
+    	$data =  self::$accept_data;
     	$where = [];
     	$updateArr = [];
     	if( !isset($data['id']) || !isset($data['type']) ){
@@ -56,7 +56,7 @@ class AdminUserController extends Controller {
     	}	
     	$where['id'] = $data['id'];
     	if($data['type'] == 1){
-    			$updateArr['is_del'] = 1;	
+    			$updateArr['is_del'] = 0;	
     	}else if($data['type'] == 2){
     		if($userInfo['data']['is_forbid'] == 1)  $updateArr['is_forbid'] = 0;  else  $updateArr['is_forbid'] = 1;	
     	}

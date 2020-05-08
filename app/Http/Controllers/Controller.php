@@ -30,19 +30,10 @@ class Controller extends BaseController {
     //     // app('rsa')->Test();
     // }
 
-
     public function __construct(Request $request) {
-
-         self::$accept_data = app('rsa')->servicersadecrypt($request);
-
-        //app('rsa')->Test();
+         //self::$accept_data = app('rsa')->servicersadecrypt($request);
+       app('rsa')->Test();
     }
-
-    // public function __construct(Request $request) {
-    //      self::$accept_data = app('rsa')->servicersadecrypt($request);
-    //     //app('rsa')->Test();
-    // }
-
 
 
      /*返回json串
@@ -54,13 +45,12 @@ class Controller extends BaseController {
      * */
     protected function response($data, $statusCode = 200)
     {
-
         if ($statusCode == 200 && is_string($data)) {
-            return response()->json(['msg' => $data]);
+            return response()->json(['message' => $data]);
         } elseif (is_string($data)) {
-            return response()->json(['code' => $statusCode, 'msg' => $data]);
+            return response()->json(['error' => $data], $statusCode);
         } else {
-            return response()->json(['code' => $statusCode, 'data' => $data]);
+            return response()->json($data, $statusCode);
         }
         return response()->json($data);
     }

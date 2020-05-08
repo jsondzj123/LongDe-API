@@ -49,7 +49,7 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use (
 
     //系统用户管理模块（lys）
     $router->group(['prefix' => 'adminuser' ], function () use ($router) {
-        $router->post('getUserList', 'AdminUserController@getUserList'); //获取后台用户列表方法
+        $router->post('getAdminUserList', 'AdminUserController@getAdminUserList'); //获取后台用户列表方法
         $router->post('upUserStatus', 'AdminUserController@upUserStatus');//更改账号状态方法 (删除/禁用)
         $router->post('getAccount', 'CommonController@getAccountInfoOne');//获取添加账号信息（school，roleAuth）方法
         $router->post('getAuthList', 'AdminUserController@getAuthList');  //获取角色列表方法 

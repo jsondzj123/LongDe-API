@@ -336,6 +336,7 @@ class RsaFactory {
             'content'   => '内容是测试内容',
             'type'      => 2,*/
 
+
             //'pagesize'=> 10,
             //'page'    => 2,
             'topic_name'    => '单元测试题库45555' ,
@@ -343,10 +344,15 @@ class RsaFactory {
             'parent_id'     => 6 ,
             'child_id'      => 7 ,
             'describe'      => '单元一侧',
-            'bank_id'       => 1
+            'bank_id'       => 1,
             //'teacher_id'=> 5
 
             'search'=>'',
+
+            // 'search'=>'',
+            
+            'id' =>1
+
             
 
                // 'is_recommend' => 1
