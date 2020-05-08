@@ -335,7 +335,9 @@ class RsaFactory {
             'describe'  => '测试的内容文字' ,
             'content'   => '内容是测试内容',
             'type'      => 2,*/
-            'search'=>'',
+            // 'search'=>'',
+            
+            'id' =>1
             
                // 'is_recommend' => 1
         ];

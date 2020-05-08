@@ -150,8 +150,8 @@ class Admin extends Model implements AuthenticatableContract, AuthorizableContra
             return ['code' => 202 , 'msg' => '传递数据不合法'];
         }
          // $adminUserInfo  = CurrentAdmin::user();  //当前登录用户所有信息
-        $adminUserInfo['school_status'] = 1; //学校状态
-        $adminUserInfo['school_id'] = 1; //学校id
+        $adminUserInfo['school_status'] = 0; //学校状态
+        $adminUserInfo['school_id'] = 2; //学校id
         if($adminUserInfo['school_status'] == 1){
             //判断学校id是否合法
             if(!isset($body['school_id']) ||  $body['school_id'] <= 0){
@@ -167,6 +167,7 @@ class Admin extends Model implements AuthenticatableContract, AuthorizableContra
         if(!empty($body['school_id'])){
             $school_id = $body['school_id'];//根据搜索条件查询
         }
+
         $pagesize = isset($body['pagesize']) && $body['pagesize'] > 0 ? $body['pagesize'] : 15;
         $page     = isset($body['page']) && $body['page'] > 0 ? $body['page'] : 1;
         $offset   = ($page - 1) * $pagesize;
@@ -178,7 +179,7 @@ class Admin extends Model implements AuthenticatableContract, AuthorizableContra
         $admin_count = self::where(['is_del'=>1,'school_id'=>$school_id])->count();
         if($admin_count >0){
             $adminUserData =  self::leftjoin('ld_role_auth','ld_role_auth.id', '=', 'ld_admin.role_id')
-                ->where(function($query) use ($body){
+                ->where(function($query) use ($body,$school_id){
                 if(!empty($body['search'])){
                     $query->where('ld_admin.real_name','like','%'.$body['search'].'%')
                         ->orWhere('ld_admin.account','like','%'.$body['search'].'%')
@@ -187,8 +188,8 @@ class Admin extends Model implements AuthenticatableContract, AuthorizableContra
                     $query->where('ld_admin.is_del',1);
                     $query->where('ld_admin.school_id',$school_id);
                 })->offset($offset)->limit($pagesize)->get();
-            return ['code'=>200,'msg'=>'Success','data'=>['admin_list' => $adminUserData , 'total' => $admin_count , 'pagesize' => $pagesize , 'page' => $page,'school_list'=>$SchoolInfo]];
+            return ['code'=>200,'msg'=>'Success','data'=>['admin_list' => $adminUserData ,'school_list'=>$SchoolInfo, 'total' => $admin_count , 'pagesize' => $pagesize , 'page' => $page,'search'=>$body['search']]];
         }
-        return ['code'=>200,'msg'=>'Success','data'=>['admin_list' => [] , 'total' => 0 , 'pagesize' => $pagesize , 'page' => $page,'school_list'=>$SchoolInfo]];
+        return ['code'=>200,'msg'=>'Success','data'=>['admin_list' => [] ,'school_list'=>$SchoolInfo, 'total' => 0 , 'pagesize' => $pagesize , 'page' => $page,'search'=>$body['search']]];
     }
 }
