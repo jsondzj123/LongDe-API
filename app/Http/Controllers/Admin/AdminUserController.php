@@ -26,7 +26,7 @@ class AdminUserController extends Controller {
      * @param ctime     2020-04-29
      */
     public function getAdminUserList(){
-        $result     = Adminuser::getAdminUserList(self::$accept_data)
+        $result     = Adminuser::getAdminUserList(self::$accept_data);
         if($result['code'] == 200){
             return response()->json($result);
         }else{

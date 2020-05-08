@@ -30,12 +30,19 @@ class Controller extends BaseController {
     //     // app('rsa')->Test();
     // }
 
+
     public function __construct(Request $request) {
 
          self::$accept_data = app('rsa')->servicersadecrypt($request);
 
         //app('rsa')->Test();
     }
+
+    // public function __construct(Request $request) {
+    //      self::$accept_data = app('rsa')->servicersadecrypt($request);
+    //     //app('rsa')->Test();
+    // }
+
 
 
      /*返回json串
