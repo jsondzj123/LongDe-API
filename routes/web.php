@@ -69,6 +69,15 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use (
     $router->get('lesson/{id}/delete', 'LessonController@destroy');
 
     /*
+     * 章节模块
+    */
+    $router->get('lessonChild', 'LessonChildController@index');
+    $router->get('lessonChild/{id}', 'LessonChildController@show');
+    $router->post('lessonChild/{lesson_id}', 'LessonChildController@store');
+    $router->post('lessonChild/{id}/update', 'LessonChildController@update');
+    $router->get('lessonChild/{id}/delete', 'LessonChildController@destroy');
+
+    /*
      * 科目模块
     */
     $router->get('subject', 'SubjectController@index');
