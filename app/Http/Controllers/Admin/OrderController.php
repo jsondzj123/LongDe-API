@@ -31,11 +31,11 @@ class OrderController extends Controller {
     public function findOrderForId(){
         //获取提交的参数
         try{
-            $data=[
-                'order_id'=>$_POST['order_id']
-            ];
-            $data = Order::findOrderForId($data);
-//            $data = Order::findOrderForId(self::$accept_data);
+//            $data=[
+//                'order_id'=>$_POST['order_id']
+//            ];
+//            $data = Order::findOrderForId($data);
+            $data = Order::findOrderForId(self::$accept_data);
             return response()->json($data);
         } catch (Exception $ex) {
             return response()->json(['code' => 500 , 'msg' => $ex->getMessage()]);
@@ -51,12 +51,12 @@ class OrderController extends Controller {
     public function auditToId(){
         //获取提交的参数
         try{
-            $data=[
-                'order_id'=>$_POST['order_id'],
-                'status'=>$_POST['status']
-            ];
-            $data = Order::exitForIdStatus($data);
-//            $data = Order::exitForIdStatus(self::$accept_data);
+//            $data=[
+//                'order_id'=>$_POST['order_id'],
+//                'status'=>$_POST['status']
+//            ];
+//            $data = Order::exitForIdStatus($data);
+            $data = Order::exitForIdStatus(self::$accept_data);
             if($data['code'] == 200){
                 return response()->json($data);
             } else {
@@ -87,6 +87,11 @@ class OrderController extends Controller {
     public function orderUpOaForId(){
         //获取提交的参数
         try{
+//            $data=[
+//                'order_id'=>$_POST['order_id'],
+//                'status'=>$_POST['status']
+//            ];
+//            $data = Order::orderUpOaForId($data);
             $data = Order::orderUpOaForId(self::$accept_data);
             return response()->json($data);
         } catch (Exception $ex) {
@@ -105,14 +110,7 @@ class OrderController extends Controller {
          */
     public function orderPay(){
         try{
-//            $arr=[
-//                'student_id'=>1,
-//                'price'=>0.01,
-//                'lession_price'=>100,
-//                'pay_type'=>1,
-//                'class_id'=>1
-//            ];
-//            $orderlist = Order::orderPayList($arr);
+//            $orderlist = Order::orderPayList($_POST);
             $orderlist = Order::orderPayList(self::$accept_data);
             return response()->json($orderlist);
         } catch (Exception $ex) {
@@ -128,6 +126,13 @@ class OrderController extends Controller {
          * return  array
          */
     public function Pcpay(){
+        try{
+//            $orderlist = Order::orderPayList($_POST);
+            $orderlist = Order::orderPayList(self::$accept_data);
+            return response()->json($orderlist);
+        } catch (Exception $ex) {
+            return response()->json(['code' => 500 , 'msg' => $ex->getMessage()]);
+        }
     }
     /*
          * @param  微信回调地址

@@ -23,6 +23,7 @@ class Controller extends BaseController {
         self::$accept_data = $request->toArray();
     }
 
+
      /*返回json串
      * addtime 2020.4.28
      * auther 孙晓丽
@@ -32,15 +33,13 @@ class Controller extends BaseController {
      * */
     protected function response($data, $statusCode = 200)
     {
-
         if ($statusCode == 200 && is_string($data)) {
-            return response()->json(['msg' => $data]);
+            return response()->json(['message' => $data]);
         } elseif (is_string($data)) {
-            return response()->json(['code' => $statusCode, 'msg' => $data]);
+            return response()->json(['error' => $data], $statusCode);
         } else {
-            return response()->json(['code' => $statusCode, 'data' => $data]);
+            return response()->json($data, $statusCode);
         }
         return response()->json($data);
     }
-
 }

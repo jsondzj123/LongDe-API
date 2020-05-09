@@ -2,18 +2,24 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Http\Request;
 
-class Subject extends Model {
+class LessonChild extends Model {
 
-	protected $fillable = [
+	//指定别的表名
+    public $table = 'lesson_childs';
+
+
+    protected $fillable = [
         'id',
     	'admin_id',
+        'lesson_id',
         'pid',
         'name',
-        'cover',
         'description',
-        'status', 
+        'category', 
+        'url',
+        'size',
+        'is_free'
     ];
 
     protected $hidden = [
@@ -23,10 +29,8 @@ class Subject extends Model {
         'is_forbid'
     ];
 
-
-    public function childs()
-    {
-    	return $this->where('pid', $this->id)->get();
+    public function childs() {
+        return $this->id;
     }
 }
 

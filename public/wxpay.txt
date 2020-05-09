@@ -46,3 +46,64 @@
         )
 
 )
+时间:2020-05-07 02:59:10Array
+(
+    [return_code] => Array
+        (
+            [@cdata] => FAIL
+        )
+
+    [return_msg] => Array
+        (
+            [@cdata] => invalid total_fee
+        )
+
+)
+时间:2020-05-07 03:02:08Array
+(
+    [return_code] => Array
+        (
+            [@cdata] => SUCCESS
+        )
+
+    [return_msg] => Array
+        (
+            [@cdata] => OK
+        )
+
+    [appid] => Array
+        (
+            [@cdata] => wx7663a456bb43d30b
+        )
+
+    [mch_id] => Array
+        (
+            [@cdata] => 1553512891
+        )
+
+    [nonce_str] => Array
+        (
+            [@cdata] => deVnuNxBYhDJEhCO
+        )
+
+    [sign] => Array
+        (
+            [@cdata] => 8B9AFB0E8C856A61EE720942D350D0F3
+        )
+
+    [result_code] => Array
+        (
+            [@cdata] => SUCCESS
+        )
+
+    [prepay_id] => Array
+        (
+            [@cdata] => wx07110205418387f9bcdff0641179559900
+        )
+
+    [trade_type] => Array
+        (
+            [@cdata] => APP
+        )
+
+)
