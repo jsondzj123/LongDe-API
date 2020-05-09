@@ -23,9 +23,9 @@ class Articletype extends Model {
            $where['ld_article_type.school_id'] = $data['school_id'];
        }
        $page = (!empty($data['page']))?$data['page']:20;
-       $typelist = self::select('ld_article_type.id','ld_article_type.typename','ld_article_type.status','ld_school.name','ld_admin_user.account')
+       $typelist = self::select('ld_article_type.id','ld_article_type.typename','ld_article_type.status','ld_school.name','ld_admin.username')
            ->leftJoin('ld_school','ld_school.id','=','ld_article_type.school_id')
-           ->leftJoin('ld_admin_user','ld_admin_user.id','=','ld_article_type.user_id')
+           ->leftJoin('ld_admin','ld_admin.id','=','ld_article_type.user_id')
            ->where($where)
            ->orderBy('ld_article_type.id','desc')
            ->paginate($page);
