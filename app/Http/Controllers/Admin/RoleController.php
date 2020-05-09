@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Teacher;
 use Illuminate\Http\Request;
-use App\Models\Adminuser;
+use App\Models\Admin as adminUser;
 use App\Models\Roleauth;
 use App\Models\Authrules;
 use Illuminate\Support\Facades\Redis;
@@ -51,14 +51,15 @@ class RoleController extends Controller {
      * @param  author    lys
      * @param  ctime     2020-04-28 13:27
      */
-    public function upRoleStatus(Request $request){
-        $id = $request->post('id');
+    public function upRoleStatus(){
+        $id = self::$accept_data['id'];
         if( !isset($id) || empty($id)){
             return response()->json(['code'=>203,'msg'=>'参数为空或缺少参数']);
         }
         $role = Roleauth::findOrfail($id);
         $role->is_del = 0;
-        if($role->save()){
+        $result = adminUser::where('role_id',$id)->update(['is_forbid'=>0]); //角色软删后，属该角色账号全禁用
+        if($role->save() && $result){
             return response()->json(['code'=>200,'msg'=>'更改成功']);
         }else{
             return response()->json(['code'=>201,'msg'=>'更改失败']);

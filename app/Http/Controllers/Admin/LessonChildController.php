@@ -2,33 +2,33 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Lesson;
+use App\Models\LessonChild;
 use Illuminate\Http\Request;
 use App\Tools\CurrentAdmin;
 use DB;
 use Validator;
 use App\Models\Teacher;
 
-class LessonController extends Controller {
+class LessonChildController extends Controller {
 
     /*
-     * @param  课程列表
+     * @param  章节列表
      * @param  current_count   count
      * @param  author  孙晓丽
-     * @param  ctime   2020/5/1 
+     * @param  ctime   2020/5/8 
      * return  array
      */
     public function index(Request $request){
         $currentCount = $request->input('current_count') ?: 0;
         $count = $request->input('count') ?: 15;
-        $subject_id = $request->input('subject_id') ?: [];
-        $subjectIds = json_decode($subject_id, true);
-        $total = Lesson::count();
-        $lesson = Lesson::with('teachers', 'subjects', 'childs')
-                ->orderBy('status', 'desc')
+        $lesson_id = $request->input('lesson_id');
+        $total = LessonChild::where(['is_del' => 0, 'is_forbid' => 0, 'lesson_id' => $lesson_id])->count();
+        $lesson = LessonChild::where(['is_del' => 0, 'is_forbid' => 0, 'lesson_id' => $lesson_id])
                 ->skip($currentCount)->take($count)
                 ->get();
-
+        foreach ($lesson as $k => $value) {
+            $lesson[$k]['childs'] = LessonChild::where('pid', $value->id)->get();
+        }
         $data = [
             'page_data' => $lesson,
             'total' => $total,
@@ -45,7 +45,8 @@ class LessonController extends Controller {
      * return  array
      */
     public function show($id) {
-        $lesson = Lesson::with('teachers', 'subjects')->find($id);
+        $lesson = LessonChild::find($id);
+        $lesson['childs'] = LessonChild::where('pid', $id)->get();
         if(empty($lesson)){
             return $this->response('课程不存在', 404);
         }
@@ -59,45 +60,31 @@ class LessonController extends Controller {
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store($lesson_id, Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'title' => 'required',
-            'keyword' => 'required',
-            'cover' => 'required',
-            'price' => 'required',
-            'favorable_price' => 'required',
-            'method' => 'required',
-            'teacher_id' => 'required',
-            'description' => 'required',
-            'introduction' => 'required',
-            'subject_id' => 'required',
+            'name'      => 'required',
+            'pid'       => 'required',
+            'category'  => 'required_unless:pid,0', 
+            'url'       => 'required_unless:pid,0',
+            'size'      => 'required_unless:pid,0',
+            'is_free'   => 'required_unless:pid,0',
         ]);
         if ($validator->fails()) {
             return $this->response($validator->errors()->first(), 422);
         }
-        $subjectIds = json_decode($request->input('subject_id'), true);
-        $teacherIds = json_decode($request->input('teacher_id'), true);
         $user = CurrentAdmin::user();
-
         try {
-            $lesson = Lesson::create([
+            $lesson = LessonChild::create([
                     'admin_id' => intval($user->id),
-                    'title' => $request->input('title'),
-                    'keyword' => $request->input('keyword'),
-                    'cover' => $request->input('cover'),
-                    'price' => $request->input('price'),
-                    'favorable_price' => $request->input('favorable_price'),
-                    'method' => $request->input('method'),
-                    'description' => $request->input('description'),
-                    'introduction' => $request->input('introduction'),
+                    'lesson_id' => $lesson_id,
+                    'name'      => $request->input('name'),
+                    'pid'       => $request->input('pid'),
+                    'category'  => $request->input('category') ?: 0, 
+                    'url'       => $request->input('url'),
+                    'size'      => $request->input('size') ?: 0,
+                    'is_free'   => $request->input('is_free') ?: 0,
                 ]);
-            if(!empty($teacherIds)){
-                $lesson->teachers()->attach($teacherIds); 
-            }
-            if(!empty($subjectIds)){
-                $lesson->subjects()->attach($subjectIds); 
-            }
         } catch (Exception $e) {
             Log::error('创建失败:'.$e->getMessage());
             return $this->response($e->getMessage(), 500);
@@ -128,7 +115,7 @@ class LessonController extends Controller {
         if ($validator->fails()) {
             return $this->response($validator->errors()->first(), 422);
         }
-        $lesson = Lesson::findOrFail($id);;
+        $lesson = LessonChild::findOrFail($id);;
         $lesson->title = $request->input('title') ?: $lesson->title;
         $lesson->keyword = $request->input('keyword') ?: $lesson->keyword;
         $lesson->cover = $request->input('cover') ?: $lesson->cover;
@@ -152,7 +139,7 @@ class LessonController extends Controller {
      * @return \Illuminate\Http\Response
      */
     public function destroy($id) {
-        $lesson = Lesson::findOrFail($id);
+        $lesson = LessonChild::findOrFail($id);
         $lesson->is_del = 1;
         if (!$lesson->save()) {
             return $this->response("删除失败", 500);

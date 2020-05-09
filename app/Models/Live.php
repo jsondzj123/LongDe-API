@@ -6,10 +6,10 @@ use Illuminate\Database\Eloquent\Model;
 class Live extends Model {
 
     protected $fillable = [
+        'admin_id',
+        'subject_id',
         'name',
-        'cover',
-        'describe',
-        'url', 
+        'description',
     ];
 
     protected $hidden = [
@@ -18,5 +18,10 @@ class Live extends Model {
         'is_del',
         'is_forbid'
     ];
+
+
+    public function subject() {
+        return $this->belongsTo('App\Models\Subject');
+    }
 }
 

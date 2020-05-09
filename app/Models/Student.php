@@ -71,9 +71,9 @@ class Student extends Model {
             //学员列表
             $student_list = self::where(function($query) use ($body){
                 //判断学科id是否选择
-                if(isset($body['subject_id']) && !empty($body['subject_id']) && $body['subject_id'] > 0){
+                /*if(isset($body['subject_id']) && !empty($body['subject_id']) && $body['subject_id'] > 0){
                     $query->where('subject_id' , '=' , $body['subject_id']);
-                }
+                }*/
 
                 //判断账号状态是否选择
                 if(isset($body['is_forbid']) && !empty($body['is_forbid']) && in_array($body['is_forbid'] , [1,2])){

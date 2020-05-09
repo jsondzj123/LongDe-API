@@ -161,4 +161,114 @@ class StudentController extends Controller {
             return response()->json(['code' => 500 , 'msg' => $ex->getMessage()]);
         }
     }
+    
+        /*
+     * @param  descriptsion    获取学员列表
+     * @param  参数说明         body包含以下参数[
+     *     student_id   学员id
+     *     is_forbid    账号状态
+     *     state_status 开课状态
+     *     real_name    姓名
+     *     paginate     每页显示条数
+     * ]
+     * @param  author          dzj
+     * @param  ctime           2020-04-27
+     * return  array
+     */
+    public function getStudentList(){
+        //获取提交的参数
+        try{
+            //判断token或者body是否为空
+            /*if(!empty($request->input('token')) && !empty($request->input('body'))){
+                $rsa_data = app('rsa')->servicersadecrypt($request);
+            } else {
+                $rsa_data = [];
+            }*/
+            
+            //获取全部学员列表
+            $data = Student::getStudentList(self::$accept_data);
+            if($data['code'] == 200){
+                return response()->json(['code' => 200 , 'msg' => '获取学员列表成功' , 'data' => $data['data']]);
+            } else {
+                return response()->json(['code' => $data['code'] , 'msg' => $data['msg']]);
+            }
+        } catch (Exception $ex) {
+            return response()->json(['code' => 500 , 'msg' => $ex->getMessage()]);
+        }
+    }
+    
+    /*
+     * @param  description   学员公共参数列表
+     * @param  author        dzj
+     * @param  ctime         2020-04-30
+     */
+    public function getStudentCommonList(){
+        //证件类型
+        $papers_type_array = [[
+                'id'  =>  1 ,
+                'name'=> '身份证'
+            ] ,
+            [
+                'id'  =>  2 ,
+                'name'=> '护照'
+            ] ,
+            [
+                'id'  =>  3 ,
+                'name'=> '港澳通行证'
+            ],
+            [
+                'id'  =>  4 ,
+                'name'=> '台胞证'
+            ],
+            [
+                'id'  =>  5 ,
+                'name'=> '军官证'
+            ],
+            [
+                'id'  =>  6 ,
+                'name'=> '士官证'
+            ],
+            [
+                'id'  =>  7 ,
+                'name'=> '其他'
+            ]
+        ];
+        
+        //学历
+        $educational_array = [
+            [
+                'id'  =>  1 ,
+                'name'=> '小学'
+            ] ,
+            [
+                'id'  =>  2 ,
+                'name'=> '初中'
+            ] ,
+            [
+                'id'  =>  3 ,
+                'name'=> '高中'
+            ],
+            [
+                'id'  =>  4 ,
+                'name'=> '大专'
+            ],
+            [
+                'id'  =>  5 ,
+                'name'=> '大本'
+            ],
+            [
+                'id'  =>  6 ,
+                'name'=> '研究生'
+            ],
+            [
+                'id'  =>  7 ,
+                'name'=> '博士生'
+            ],
+            [
+                'id'  =>  8 ,
+                'name'=>  '博士后及以上'
+            ]
+        ];
+        return response()->json(['code' => 200 , 'msg' => '返回数据成功' , 'data' => ['papers_type_list' => $papers_type_array , 'educational_list' => $educational_array]]);
+    }
 }

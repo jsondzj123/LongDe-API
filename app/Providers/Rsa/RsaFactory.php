@@ -337,25 +337,64 @@ class RsaFactory {
             'type'      => 2,*/
 
 
+
             //'pagesize'=> 10,
             //'page'    => 2,
-            'topic_name'    => '单元测试题库45555' ,
-            'subject_id'    => '1,2,3,8' ,
-            'parent_id'     => 6 ,
-            'child_id'      => 7 ,
-            'describe'      => '单元一侧',
-            'bank_id'       => 1,
-            //'teacher_id'=> 5
-
-            'search'=>'',
-
+            // 'topic_name'    => '单元测试题库45555' ,
+            // 'subject_id'    => '1,2,3,8' ,
+            // 'parent_id'     => 6 ,
+            // 'child_id'      => 7 ,
+            // 'describe'      => '单元一侧',
+            // 'bank_id'       => 1,
+            // //'teacher_id'=> 5
             // 'search'=>'',
-            
-            'id' =>1
-
-            
-
+            // // 'search'=>'',
+            // 'id' =>1,
+            // 'school_id'=>1,
+            // 'username'=>'kobe',
+            // 'realname'=>'kobe',
+            // 'mobile'=>'13520351725',
+            // 'sex'=>'1',
+            // 'password'=>'kobe',
+            // 'pwd'=>'kobe',
+            // 'role_id'=>'1',
+            // 'teacher_id'=>'1,2,3,4,5,6',
                // 'is_recommend' => 1
+            
+            'type'          =>  1 ,
+            'exam_id'       =>  36 ,
+            'subject_id'    =>  16 ,
+            'bank_id'       =>  0 ,
+            'exam_content'  => "What might Johnny Lee Baker be?" ,
+            'option_list'   => [
+                [
+                    'option_no'    =>  'A' ,
+                    'option_name'  =>  'A fireman.' ,
+                    'correct_flag' =>  0
+                ],
+                [
+                    'option_no'    =>  'B' ,
+                    'option_name'  =>  'A teacher.' ,
+                    'correct_flag' =>  0
+                ],
+                [
+                    'option_no'    =>  'C' ,
+                    'option_name'  =>  'A shopkeeper.' ,
+                    'correct_flag' =>  0
+                ],
+                [
+                    'option_no'    =>  'D' ,
+                    'option_name'  =>  'A policeman.' ,
+                    'correct_flag' =>  1                ]
+            ],
+            'answer'        => 'D' ,
+            'text_analysis' => '测试文字' ,
+            'audio_analysis'=> '1.mv' ,
+            'video_analysis'=> '2.mp4',
+            'chapter_id'    => 1 ,
+            'joint_id'      => 2 ,
+            'point_id'      => 3 ,
+            'item_diffculty'=> 1
         ];
         $ccc = $this->rsaencrypt($key , $arr);
         $ccc = json_decode($ccc , true);
