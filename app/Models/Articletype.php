@@ -168,6 +168,7 @@ class Articletype extends Model {
             ->leftJoin('ld_school','ld_school.id','=','ld_article_type.school_id')
             ->where(['ld_article_type.id'=>$data['id'],'ld_article_type.is_del'=>1])
             ->first();
+        
         return ['code' => 200 , 'msg' => '获取成功','data'=>$find];
     }
 }
