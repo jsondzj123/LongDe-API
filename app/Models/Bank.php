@@ -41,7 +41,7 @@ class Bank extends Model {
         $admin_id = isset(AdminLog::getAdminInfo()->admin_user->id) ? AdminLog::getAdminInfo()->admin_user->id : 0;
 
         //获取题库的总数量
-        $bank_count = self::where('is_del' , '=' , 0)->where('is_open' , '=' , 0)->where('admin_id' , '=' , $admin_id)->count();
+        $bank_count = self::where('is_del' , '=' , 0)->where('admin_id' , '=' , $admin_id)->count();
         if($bank_count > 0){
             //获取题库列表
             $bank_list = self::select('id as bank_id','topic_name','describe','is_open')->withCount(['subjectToBank as subject_count' => function($query) {
@@ -52,7 +52,7 @@ class Bank extends Model {
                 $query->where('is_del' , '=' , 0);
             }])->where(function($query) use ($body){
                 //删除状态
-                $query->where('is_del' , '=' , 0)->where('is_open' , '=' , 0);
+                $query->where('is_del' , '=' , 0);
 
                 //获取后端的操作员id
                 $admin_id = isset(AdminLog::getAdminInfo()->admin_user->id) ? AdminLog::getAdminInfo()->admin_user->id : 0;

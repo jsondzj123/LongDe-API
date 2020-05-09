@@ -229,6 +229,8 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use (
         
         /****************试题部分  start****************/
         $router->post('doInsertExam', 'ExamController@doInsertExam');                    //添加试题的方法
+        $router->get('getExamList', 'ExamController@getExamList');                       //试题列表的方法
+        $router->get('getExamCommonList', 'ExamController@getExamCommonList');           //试题公共参数列表
         /****************试题部分  end****************/
         
         $router->get('export', 'CommonController@doExportExamLog'); //导入导出demo
