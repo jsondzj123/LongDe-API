@@ -335,9 +335,18 @@ class RsaFactory {
             'describe'  => '测试的内容文字' ,
             'content'   => '内容是测试内容',
             'type'      => 2,*/
-            // 'search'=>'',
             
-            'id' =>1
+            'school_id'=>1,
+            'username'=>'kobe',
+            'realname'=>'kobe',
+            'mobile'=>'13520351725',
+            'sex'=>'1',
+            'password'=>'kobe',
+            'pwd'=>'kobe',
+            'role_id'=>'1',
+            'teacher_id'=>'1,2,3,4,5,6',
+            
+           
             
                // 'is_recommend' => 1
         ];
