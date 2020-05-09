@@ -17,10 +17,10 @@ class Controller extends BaseController {
      * @param  ctime         2020-04-16
      * return  string
      */
-    public function __construct(Request $request) {
+    public function __construct() {
         //self::$accept_data = app('rsa')->servicersadecrypt($request);
         //app('rsa')->Test();
-        self::$accept_data = $request->toArray();
+        self::$accept_data = $_REQUEST;
     }
 
 
