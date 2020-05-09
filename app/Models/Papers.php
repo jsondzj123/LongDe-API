@@ -378,7 +378,7 @@ class Papers extends Model {
                 
                 //单选题总题数
                 if(in_array(1,$type_array)){
-                    $signle_count     = PapersExam::where("papers_id" , "=" , $v['papers_id'])->where("type" , "=" , 1)->count();
+                    $signle_count     = PapersExam::where("papers_id" , "=" , $v['papers_id'])->where("type" , "=" , 1)->where('is_del' , '=' , 0)->count();
                     if($signle_count > 0){
                         $consult[] = ['type'=>'单选题' , 'count' => $signle_count , 'score' => $v['signle_score'] , 'sum_score' => $v['signle_score'] * $signle_count];
                     }
@@ -386,7 +386,7 @@ class Papers extends Model {
                 
                 //多选题总题数
                 if(in_array(2,$type_array)){  
-                    $more_count     = PapersExam::where("papers_id" , "=" , $v['papers_id'])->where("type" , "=" , 2)->count();
+                    $more_count     = PapersExam::where("papers_id" , "=" , $v['papers_id'])->where("type" , "=" , 2)->where('is_del' , '=' , 0)->count();
                     if($more_count > 0){
                         $consult[] = ['type'=>'多选题' , 'count' => $more_count , 'score' => $v['more_score'] , 'sum_score' => $v['more_score'] * $more_count];
                     }
@@ -394,7 +394,7 @@ class Papers extends Model {
                 
                 //不定项总题数
                 if(in_array(3,$type_array)){  
-                    $options_count     = PapersExam::where("papers_id" , "=" , $v['papers_id'])->where("type" , "=" , 3)->count();
+                    $options_count     = PapersExam::where("papers_id" , "=" , $v['papers_id'])->where("type" , "=" , 3)->where('is_del' , '=' , 0)->count();
                     if($options_count > 0){
                         $consult[]     = ['type'=>'不定项' , 'count' => $options_count , 'score' => $v['options_score'] , 'sum_score' => $v['options_score'] * $options_count];
                     }
@@ -402,7 +402,7 @@ class Papers extends Model {
                 
                 //判断题总题数
                 if(in_array(4,$type_array)){  
-                    $judge_count     = PapersExam::where("papers_id" , "=" , $v['papers_id'])->where("type" , "=" , 4)->count();
+                    $judge_count     = PapersExam::where("papers_id" , "=" , $v['papers_id'])->where("type" , "=" , 4)->where('is_del' , '=' , 0)->count();
                     if($judge_count > 0){
                         $consult[]     = ['type'=>'判断题' , 'count' => $judge_count , 'score' => $v['judge_score'] , 'sum_score' => $v['judge_score'] * $judge_count];
                     }
@@ -410,7 +410,7 @@ class Papers extends Model {
                 
                 //填空题总题数
                 if(in_array(5,$type_array)){  
-                    $pack_count     = PapersExam::where("papers_id" , "=" , $v['papers_id'])->where("type" , "=" , 5)->count();
+                    $pack_count     = PapersExam::where("papers_id" , "=" , $v['papers_id'])->where("type" , "=" , 5)->where('is_del' , '=' , 0)->count();
                     if($pack_count > 0){
                         $consult[]     = ['type'=>'填空题' , 'count' => $pack_count , 'score' => $v['pack_score'] , 'sum_score' => $v['pack_score'] * $pack_count];
                     }
@@ -418,7 +418,7 @@ class Papers extends Model {
                 
                 //简答题总题数
                 if(in_array(6,$type_array)){  
-                    $short_count     = PapersExam::where("papers_id" , "=" , $v['papers_id'])->where("type" , "=" , 6)->count();
+                    $short_count     = PapersExam::where("papers_id" , "=" , $v['papers_id'])->where("type" , "=" , 6)->where('is_del' , '=' , 0)->count();
                     if($short_count > 0){
                         $consult[]     = ['type'=>'简答题' , 'count' => $short_count , 'score' => $v['short_score'] , 'sum_score' => $v['short_score'] * $short_count];
                     }
@@ -426,7 +426,7 @@ class Papers extends Model {
                 
                 //材料总题数
                 if(in_array(7,$type_array)){  
-                    $material_count     = PapersExam::where("papers_id" , "=" , $v['papers_id'])->where("type" , "=" , 7)->count();
+                    $material_count     = PapersExam::where("papers_id" , "=" , $v['papers_id'])->where("type" , "=" , 7)->where('is_del' , '=' , 0)->count();
                     if($material_count > 0){
                         $consult[]     = ['type'=>'材料题' , 'count' => $material_count , 'score' => $v['material_score'] , 'sum_score' => $v['material_score'] * $material_count];
                     }

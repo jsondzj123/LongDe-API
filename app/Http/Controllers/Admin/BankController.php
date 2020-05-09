@@ -126,4 +126,88 @@ class BankController extends Controller {
             return response()->json(['code' => 500 , 'msg' => $ex->getMessage()]);
         }
     }
+    
+        /*
+     * @param  descriptsion    获取题库列表
+     * @param  author          dzj
+     * @param  ctime           2020-05-06
+     * return  array
+     */
+    public function getBankList(){
+        //获取提交的参数
+        try{
+            //判断token或者body是否为空
+            /*if(!empty($request->input('token')) && !empty($request->input('body'))){
+                $rsa_data = app('rsa')->servicersadecrypt($request);
+            } else {
+                $rsa_data = [];
+            }*/
+            
+            //获取全部题库列表
+            $data = \App\Models\Bank::getBankList(self::$accept_data);
+            if($data['code'] == 200){
+                return response()->json(['code' => 200 , 'msg' => '获取题库列表成功' , 'data' => $data['data']]);
+            } else {
+                return response()->json(['code' => $data['code'] , 'msg' => $data['msg']]);
+            }
+        } catch (Exception $ex) {
+            return response()->json(['code' => 500 , 'msg' => $ex->getMessage()]);
+        }
+    }
+    
+    /*
+     * @param  description   题库公共参数列表
+     * @param  author        dzj
+     * @param  ctime         2020-05-07
+     */
+    public function getBankCommonList(){
+        //试题类型
+        $diffculty_array = [
+            [
+                'id'  =>  1 ,
+                'name'=> '真题'
+            ] ,
+            [
+                'id'  =>  2 ,
+                'name'=> '模拟题'
+            ] ,
+            [
+                'id'  =>  3 ,
+                'name'=> '其他'
+            ]
+        ];
+        
+        //选择题型
+        $type_array = [
+            [
+                'id'  =>  1 ,
+                'name'=> '单选题'
+            ] ,
+            [
+                'id'  =>  2 ,
+                'name'=> '多选题'
+            ] ,
+            [
+                'id'  =>  3 ,
+                'name'=> '不定项'
+            ] ,
+            [
+                'id'  =>  4 ,
+                'name'=> '判断题'
+            ] ,
+            [
+                'id'  =>  5 ,
+                'name'=> '填空题'
+            ] ,
+            [
+                'id'  =>  6 ,
+                'name'=> '简答题'
+            ] ,
+            [
+                'id'  =>  7 ,
+                'name'=> '材料题'
+            ]
+        ];
+        return response()->json(['code' => 200 , 'msg' => '返回数据成功' , 'data' => ['diffculty_list' => $diffculty_array , 'type_list' => $type_array]]);
+    }
 }

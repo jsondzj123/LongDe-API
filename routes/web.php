@@ -94,9 +94,9 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use (
         $router->post('doUpdateStudent', 'StudentController@doUpdateStudent');        //更改学员的方法
         $router->post('doForbidStudent', 'StudentController@doForbidStudent');        //启用/禁用学员的方法
         $router->post('doStudentEnrolment', 'StudentController@doStudentEnrolment');  //学员报名的方法
-        $router->post('getStudentInfoById', 'StudentController@getStudentInfoById');  //获取学员信息
-        $router->post('getStudentList', 'CommonController@getStudentList');           //获取学员列表
-        $router->post('getStudentCommonList', 'CommonController@getStudentCommonList');  //学员公共参数列表
+        $router->get('getStudentInfoById', 'StudentController@getStudentInfoById');   //获取学员信息
+        $router->get('getStudentList', 'StudentController@getStudentList');           //获取学员列表
+        $router->get('getStudentCommonList', 'StudentController@getStudentCommonList');  //学员公共参数列表
     });
     //讲师教务相关模块(dzj)
 
@@ -106,9 +106,9 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use (
         $router->post('doUpdateTeacher', 'TeacherController@doUpdateTeacher');        //更改讲师教务的方法
         $router->post('doDeleteTeacher', 'TeacherController@doDeleteTeacher');        //删除讲师教务的方法
         $router->post('doRecommendTeacher', 'TeacherController@doRecommendTeacher');  //推荐讲师的方法
-        $router->post('getTeacherInfoById', 'TeacherController@getTeacherInfoById');  //获取老师信息
-        $router->post('getTeacherList', 'TeacherController@getTeacherList');          //获取老师列表
-        $router->post('getTeacherSearchList', 'CommonController@getTeacherSearchList'); //讲师或教务搜索列表
+        $router->get('getTeacherInfoById', 'TeacherController@getTeacherInfoById');   //获取老师信息
+        $router->get('getTeacherList', 'TeacherController@getTeacherList');           //获取老师列表
+        $router->get('getTeacherSearchList', 'TeacherController@getTeacherSearchList'); //讲师或教务搜索列表
     });
     //题库相关模块(dzj)
     $router->group(['prefix' => 'question'], function () use ($router) {
@@ -116,14 +116,14 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use (
         $router->post('doInsertSubject', 'QuestionController@doInsertSubject');        //添加题库科目的方法
         $router->post('doUpdateSubject', 'QuestionController@doUpdateSubject');        //更改题库科目的方法
         $router->post('doDeleteSubject', 'QuestionController@doDeleteSubject');        //删除题库科目的方法
-        $router->post('getSubjectList', 'QuestionController@getSubjectList');          //获取题库科目列表
+        $router->get('getSubjectList', 'QuestionController@getSubjectList');           //获取题库科目列表
         /****************题库科目部分  end****************/
 
         /****************章节考点部分  start****************/
         $router->post('doInsertChapters', 'QuestionController@doInsertChapters');        //添加章节考点的方法
         $router->post('doUpdateChapters', 'QuestionController@doUpdateChapters');        //更改章节考点的方法
         $router->post('doDeleteChapters', 'QuestionController@doDeleteChapters');        //删除章节考点的方法
-        $router->post('getChaptersList', 'QuestionController@getChaptersList');          //获取章节考点列表
+        $router->get('getChaptersList', 'QuestionController@getChaptersList');           //获取章节考点列表
         /****************章节考点部分  end****************/
         
         /****************题库部分  start****************/
@@ -131,8 +131,9 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use (
         $router->post('doUpdateBank', 'BankController@doUpdateBank');                    //更新题库的方法
         $router->post('doDeleteBank', 'BankController@doDeleteBank');                    //删除题库的方法
         $router->post('doOpenCloseBank', 'BankController@doOpenCloseBank');              //题库开启/关闭的方法
-        $router->post('getBankInfoById', 'BankController@getBankInfoById');              //获取题库详情信息
-        $router->post('getBankList', 'CommonController@getBankList');                    //获取题库列表
+        $router->get('getBankInfoById', 'BankController@getBankInfoById');               //获取题库详情信息
+        $router->get('getBankList', 'BankController@getBankList');                       //获取题库列表
+        $router->get('getBankCommonList', 'BankController@getBankCommonList');           //题库公共参数列表
         /****************题库部分  end****************/
         
         /****************试卷部分  start****************/
@@ -140,12 +141,15 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use (
         $router->post('doUpdatePapers', 'PapersController@doUpdatePapers');              //更新试卷的方法
         $router->post('doDeletePapers', 'PapersController@doDeletePapers');              //删除试卷的方法
         $router->post('doPublishPapers', 'PapersController@doPublishPapers');            //发布/取消发布试卷的方法
-        $router->post('getPapersInfoById', 'PapersController@getPapersInfoById');        //获取试卷详情信息
-        $router->post('getPapersList', 'PapersController@getPapersList');                //获取题库列表
+        $router->get('getPapersInfoById', 'PapersController@getPapersInfoById');         //获取试卷详情信息
+        $router->get('getPapersList', 'PapersController@getPapersList');                 //获取题库列表
         /****************试卷部分  end****************/
         
+        /****************试题部分  start****************/
+        $router->post('doInsertExam', 'ExamController@doInsertExam');                    //添加试题的方法
+        /****************试题部分  end****************/
+        
         $router->get('export', 'CommonController@doExportExamLog'); //导入导出demo
-        $router->post('getBankCommonList', 'CommonController@getBankCommonList');        //题库公共参数列表
     });
     //运营模块(szw)
     $router->group(['prefix' => 'article'], function () use ($router) {
