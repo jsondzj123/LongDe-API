@@ -200,10 +200,11 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use (
         /****************题库科目部分  end****************/
 
         /****************章节考点部分  start****************/
-        $router->post('doInsertChapters', 'QuestionController@doInsertChapters');        //添加章节考点的方法
-        $router->post('doUpdateChapters', 'QuestionController@doUpdateChapters');        //更改章节考点的方法
-        $router->post('doDeleteChapters', 'QuestionController@doDeleteChapters');        //删除章节考点的方法
-        $router->get('getChaptersList', 'QuestionController@getChaptersList');           //获取章节考点列表
+        $router->post('doInsertChapters', 'QuestionController@doInsertChapters');           //添加章节考点的方法
+        $router->post('doUpdateChapters', 'QuestionController@doUpdateChapters');           //更改章节考点的方法
+        $router->post('doDeleteChapters', 'QuestionController@doDeleteChapters');           //删除章节考点的方法
+        $router->get('getChaptersList', 'QuestionController@getChaptersList');              //获取章节考点列表
+        $router->post('getChaptersSelectList', 'QuestionController@getChaptersSelectList'); //获取章节考点下拉选择列表
         /****************章节考点部分  end****************/
 
         /****************题库部分  start****************/

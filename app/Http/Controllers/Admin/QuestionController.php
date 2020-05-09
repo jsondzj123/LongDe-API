@@ -195,4 +195,30 @@ class QuestionController extends Controller {
             return response()->json(['code' => 500 , 'msg' => $ex->getMessage()]);
         }
     }
+    
+    /*
+     * @param  descriptsion    获取章节考点选择列表
+     * @param  参数说明         body包含以下参数[
+     *     bank_id         题库id
+     *     subject_id      科目id
+     *     chapters_id     章节id
+     *     type            查询类型(0代表章1代表节2代表考点)
+     * ]
+     * @param  author          dzj
+     * @param  ctime           2020-05-09
+     * return  array
+     */
+    public function getChaptersSelectList(){
+        //获取提交的参数
+        try{
+            $data = Chapters::getChaptersSelectList(self::$accept_data);
+            if($data['code'] == 200){
+                return response()->json(['code' => 200 , 'msg' => '获取章节考点选择列表成功' , 'data' => $data['data']]);
+            } else {
+                return response()->json(['code' => $data['code'] , 'msg' => $data['msg']]);
+            }
+        } catch (Exception $ex) {
+            return response()->json(['code' => 500 , 'msg' => $ex->getMessage()]);
+        }
+    }
 }

@@ -254,4 +254,53 @@ class Chapters extends Model {
             return ['code' => 203 , 'msg' => '删除失败'];
         }
     }
+    
+    /*
+     * @param  descriptsion    获取章节考点选择列表
+     * @param  参数说明         body包含以下参数[
+     *     bank_id         题库id
+     *     subject_id      科目id
+     *     chapters_id     章节id
+     *     type            查询类型(1代表节2代表考点)
+     * ]
+     * @param  author          dzj
+     * @param  ctime           2020-05-09
+     * return  array
+     */
+    public static function getChaptersSelectList($body=[]) {
+        //判断传过来的数组数据是否为空
+        if(!$body || !is_array($body)){
+            return ['code' => 202 , 'msg' => '传递数据不合法'];
+        }
+
+        //判断题库id是否合法
+        if(!isset($body['bank_id']) || empty($body['bank_id']) || $body['bank_id'] <= 0){
+            return ['code' => 202 , 'msg' => '题库id不合法'];
+        }
+        
+        //判断科目id是否合法
+        if(!isset($body['subject_id']) || empty($body['subject_id']) || $body['subject_id'] <= 0){
+            return ['code' => 202 , 'msg' => '科目id不合法'];
+        }
+        
+        //根据题库id和科目id获取章节考点列表
+        $list = self::select('id as chapters_id' , 'name')->where(function($query) use ($body){
+            //题库id
+            $query->where("bank_id" , "=" , $body['bank_id']);
+            
+            //科目id
+            $query->where("subject_id" , "=" , $body['subject_id']);
+            
+            //删除状态
+            $query->where("is_del" , "=" , 0);
+            
+            //判断节考点id是否为空
+            if((isset($body['chapters_id']) && $body['chapters_id'] > 0) && (isset($body['type']) && $body['type'] > 0 && in_array($body['type'] , [1,2]))){
+                $query->where("parent_id" , "=" , $body['chapters_id'])->where("type" , "=" , $body['type']);
+            } else {
+                $query->where("type" , "=" , 0);
+            }
+        })->get();
+        return ['code' => 200 , 'msg' => '获取章节考点选择列表成功' , 'data' => $list];
+    }
 }
