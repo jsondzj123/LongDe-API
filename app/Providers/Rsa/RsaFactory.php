@@ -340,31 +340,25 @@ class RsaFactory {
 
             //'pagesize'=> 10,
             //'page'    => 2,
-            'topic_name'    => '单元测试题库45555' ,
-            'subject_id'    => '1,2,3,8' ,
-            'parent_id'     => 6 ,
-            'child_id'      => 7 ,
-            'describe'      => '单元一侧',
-            'bank_id'       => 1,
-            //'teacher_id'=> 5
-
-            'search'=>'',
-
+            // 'topic_name'    => '单元测试题库45555' ,
+            // 'subject_id'    => '1,2,3,8' ,
+            // 'parent_id'     => 6 ,
+            // 'child_id'      => 7 ,
+            // 'describe'      => '单元一侧',
+            // 'bank_id'       => 1,
+            // //'teacher_id'=> 5
             // 'search'=>'',
-            
-            'id' =>1
-
-
-            
-            'school_id'=>1,
-            'username'=>'kobe',
-            'realname'=>'kobe',
-            'mobile'=>'13520351725',
-            'sex'=>'1',
-            'password'=>'kobe',
-            'pwd'=>'kobe',
-            'role_id'=>'1',
-            'teacher_id'=>'1,2,3,4,5,6',
+            // // 'search'=>'',
+            // 'id' =>1,
+            // 'school_id'=>1,
+            // 'username'=>'kobe',
+            // 'realname'=>'kobe',
+            // 'mobile'=>'13520351725',
+            // 'sex'=>'1',
+            // 'password'=>'kobe',
+            // 'pwd'=>'kobe',
+            // 'role_id'=>'1',
+            // 'teacher_id'=>'1,2,3,4,5,6',
             
            
 

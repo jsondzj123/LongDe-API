@@ -92,7 +92,7 @@ class AdminUserController extends Controller {
     public function doInsertAdminUser(){
 
         $data = self::$accept_data;
-        // print_r(self::$accept_data);die;
+         
         $validator = Validator::make($data, 
                 [
                 'school_id' => 'required|integer',
