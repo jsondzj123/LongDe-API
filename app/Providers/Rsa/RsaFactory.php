@@ -337,14 +337,64 @@ class RsaFactory {
             'type'      => 2,*/
             //'pagesize'=> 10,
             //'page'    => 2,
-            'topic_name'    => '单元测试题库45555' ,
-            'subject_id'    => '1,2,3,8' ,
-            'parent_id'     => 6 ,
-            'child_id'      => 7 ,
-            'describe'      => '单元一侧',
-            'bank_id'       => 1
+            //'topic_name'    => '单元测试题库45555' ,
+            //'subject_id'    => '1,2,3,8' ,
+            //'parent_id'     => 6 ,
+            //'child_id'      => 7 ,
+           // 'describe'      => '单元一侧',
+           // 'bank_id'        => 4 ,
+            //'subject_id'     => 16 ,
+            //'is_publish'     => 1 ,
+            //'papers_name'    => '全国' ,
+            //'diffculty'      => 3
+            //'page'            => 1
+            /*'papers_name'      => '全国山东卷' ,
+            'diffculty'        => 1,
+            'papers_time'      => 150 ,
+            'area'             => 22 ,
+            'cover_img'        => 'https://dss2.baidu.com/6ONYsjip0QIZ8tyhnq/it/u=1490446676,4161923318&fm=85&app=92&f=JPEG?w=121&h=75&s=BD207137199FE04D004514D30100E0B2' ,
+            'content'          => '2019年全国统一高考6月7日开考。根据教育部的消息，今年高考总报名人数达到了1031万 ，比去年增加56万人。高考是热血青春的印记，它见证了我们的拼搏、奋斗、坚持和成长，它诠释了什么是“不负韶华”！2019年高考来了，祝愿考生金榜题名，愿每位考生合上笔盖的刹那，有着侠客收剑入鞘的骄傲！【2019山东文综答案】　【2019全国卷一试卷完整答案】
+　　2019综合科目考试时间6月8日9时至11时30分， 考试科目为文科综合、理科综合。
+　　2019年山东卷适用全国卷一（即新课标I卷、乙卷），其他适用地区：河南、河北、山西、江西、湖北、湖南、安徽、福建、广东。根据国家相关法律法规，在各省教育考试院官方正式公布试题之前，不得发布考题内容。闽南网（http://m.mnw.cn/）将在2019高考考试全部结束后，同步转发由各省考试院官方发布的试题及官方标答，方便考生对答案估算成绩，大家可以Ctrl + D先收藏网址，以便第一时间收到通知。按照往年的经验，预计在6月8日晚上7点，即可发布！
+　　2019年山东高考成绩公布时间：考生高考文化课成绩于6月25日前公布,考生对成绩如有疑问,可于成绩正式公布次日起3日内,向考试地县(市、区)招生考试机构申请复核,逾期不再受理。再次祝各位高考学子笔如手中乐器，下笔若演奏般自信，以梦为马，不负韶华，祝你们拥有一个飞驰人生。' ,
+            'type'             => '1,2,5'*/
             //'teacher_id'=> 5
                // 'is_recommend' => 1
+            
+            'type'          =>  1 ,
+            'exam_id'       =>  36 ,
+            'subject_id'    =>  16 ,
+            'bank_id'       =>  0 ,
+            'exam_content'  => "What might Johnny Lee Baker be?" ,
+            'option_list'   => [
+                [
+                    'option_no'    =>  'A' ,
+                    'option_name'  =>  'A fireman.' ,
+                    'correct_flag' =>  0
+                ],
+                [
+                    'option_no'    =>  'B' ,
+                    'option_name'  =>  'A teacher.' ,
+                    'correct_flag' =>  0
+                ],
+                [
+                    'option_no'    =>  'C' ,
+                    'option_name'  =>  'A shopkeeper.' ,
+                    'correct_flag' =>  0
+                ],
+                [
+                    'option_no'    =>  'D' ,
+                    'option_name'  =>  'A policeman.' ,
+                    'correct_flag' =>  1                ]
+            ],
+            'answer'        => 'D' ,
+            'text_analysis' => '测试文字' ,
+            'audio_analysis'=> '1.mv' ,
+            'video_analysis'=> '2.mp4',
+            'chapter_id'    => 1 ,
+            'joint_id'      => 2 ,
+            'point_id'      => 3 ,
+            'item_diffculty'=> 1
         ];
         $ccc = $this->rsaencrypt($key , $arr);
         $ccc = json_decode($ccc , true);
