@@ -49,6 +49,7 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use (
 
     //系统用户管理模块（lys）
     $router->group(['prefix' => 'adminuser' ], function () use ($router) {
+
         $router->post('getAdminUserList', 'AdminUserController@getAdminUserList'); //获取后台用户列表方法 √
         $router->post('upUserStatus', 'AdminUserController@upUserStatus');//更改账号状态方法 (删除/禁用) √
         $router->post('getInsertAdminUser', 'CommonController@getInsertAdminUser');//获取添加账号信息（school，roleAuth）方法 √
@@ -56,6 +57,15 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use (
         $router->post('getAuthList', 'AdminUserController@getAuthList');  //获取角色列表方法 √
         $router->post('getAdminUserUpdate', 'AdminUserController@getAdminUserUpdate');  //获取用户信息（编辑） 
         $router->post('doAdminUserUpdate', 'AdminUserController@doAdminUserUpdate');//编辑用户信息
+
+        $router->post('getAdminUserList', 'AdminUserController@getAdminUserList'); //获取后台用户列表方法
+        $router->post('upUserStatus', 'AdminUserController@upUserStatus');//更改账号状态方法 (删除/禁用)
+        $router->post('getAccount', 'CommonController@getAccountInfoOne');//获取添加账号信息（school，roleAuth）方法
+        $router->post('getAuthList', 'AdminUserController@getAuthList');  //获取角色列表方法
+        $router->post('doInsertAdminUser', 'AdminUserController@doInsertAdminUser');  //添加用户方法
+        $router->post('getAdminUserUpdate', 'AdminUserController@getAdminUserUpdate');  //获取用户信息（编辑）
+        $router->post('doAdminUserUpdate', 'AdminUserController@doAdminUserUpdate');//编辑角色信息
+
     });
     //系统角色管理模块 （lys）
     $router->group(['prefix' => 'role'], function () use ($router) {
@@ -66,6 +76,10 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use (
         $router->post('getRoleAuthUpdate', 'RoleController@getRoleAuthUpdate');// 获取角色信息（编辑）
         $router->post('doRoleAuthUpdate', 'RoleController@doRoleAuthUpdate');//编辑角色信息
     });
+
+
+
+
     $router->group(['prefix' => 'user','middleware'=> ['jwt.auth']], function () use ($router) { //用户学员相关模块方法
         $router->get('getUserList', 'UserController@getUserList'); //获取学员列表方法
     });
@@ -76,11 +90,11 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use (
         $router->post('getSchoolUpdate', 'SchoolController@getSchoolUpdate'); //获取分校信息（编辑）
         $router->post('doSchoolUpdate', 'SchoolController@doSchoolUpdate'); //编辑分校信息
         $router->post('getSchoolById', 'SchoolController@getSchoolById'); //查看分校超级管理角色信息
-        $router->post('getAdminById', 'SchoolController@getAdminById'); //获取分校超级管理用户信息（编辑） 
+        $router->post('getAdminById', 'SchoolController@getAdminById'); //获取分校超级管理用户信息（编辑）
         $router->post('doAdminUpdate', 'SchoolController@doAdminUpdate'); //编辑分校超级管理用户信息
         $router->post('getSchoolTeacherList', 'SchoolController@getSchoolTeacherList'); //获取分校讲师列表
     });
-    
+
 });
 
 
@@ -111,6 +125,15 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use (
     $router->get('lesson/{id}/delete', 'LessonController@destroy');
 
     /*
+     * 章节模块
+    */
+    $router->get('lessonChild', 'LessonChildController@index');
+    $router->get('lessonChild/{id}', 'LessonChildController@show');
+    $router->post('lessonChild/{lesson_id}', 'LessonChildController@store');
+    $router->post('lessonChild/{id}/update', 'LessonChildController@update');
+    $router->get('lessonChild/{id}/delete', 'LessonChildController@destroy');
+
+    /*
      * 科目模块
     */
     $router->get('subject', 'SubjectController@index');
@@ -118,7 +141,7 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use (
     $router->post('subject', 'SubjectController@store');
     $router->post('subject/{id}/update', 'SubjectController@update');
     $router->get('subject/{id}/delete', 'SubjectController@destroy');
-    
+
     /*
      * 录播模块
     */
@@ -126,9 +149,10 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use (
     $router->get('video/{id}', 'VideoController@show');
     $router->post('video', 'VideoController@store');
     $router->post('video/{id}/update', 'VideoController@update');
-    $router->get('video/{id}/delete', 'VideoController@destroy');
+
     $router->get('video/{id}/edit', 'VideoController@edit');
-    
+
+
     /*
      * 直播模块
     */
@@ -139,7 +163,6 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use (
     $router->get('live/{id}/delete', 'LiveController@destroy');
     $router->get('live/{id}/edit', 'LiveController@edit');
 
-    
     //用户学员相关模块(dzj)
     $router->group(['prefix' => 'student'], function () use ($router) {
         $router->post('doInsertStudent', 'StudentController@doInsertStudent');        //添加学员的方法
@@ -154,7 +177,7 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use (
 
 
 
-    
+
 
     //讲师教务相关模块
 
@@ -182,7 +205,7 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use (
         $router->post('doDeleteChapters', 'QuestionController@doDeleteChapters');        //删除章节考点的方法
         $router->post('getChaptersList', 'QuestionController@getChaptersList');          //获取章节考点列表
         /****************章节考点部分  end****************/
-        
+
         /****************题库部分  start****************/
         $router->post('doInsertBank', 'BankController@doInsertBank');                    //添加题库的方法
         $router->post('doUpdateBank', 'BankController@doUpdateBank');                    //更新题库的方法
@@ -191,7 +214,8 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use (
         $router->post('getBankInfoById', 'BankController@getBankInfoById');              //获取题库详情信息
         $router->post('getBankList', 'CommonController@getBankList');                    //获取题库列表
         /****************题库部分  end****************/
-        
+
+
         /****************试卷部分  start****************/
         $router->post('doInsertPapers', 'PapersController@doInsertPapers');              //添加试卷的方法
         $router->post('doUpdatePapers', 'PapersController@doUpdatePapers');              //更新试卷的方法
@@ -200,7 +224,7 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use (
         $router->post('getPapersInfoById', 'PapersController@getPapersInfoById');        //获取试卷详情信息
         $router->post('getPapersList', 'PapersController@getPapersList');                //获取题库列表
         /****************试卷部分  end****************/
-        
+
         $router->get('export', 'CommonController@doExportExamLog'); //导入导出demo
         $router->post('getBankCommonList', 'CommonController@getBankCommonList');        //题库公共参数列表
     });
@@ -230,6 +254,14 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use (
         $router->post('orderUpOaForId', 'OrderController@orderUpOaForId');//订单修改oa状态
         $router->post('wxnotify_url', 'OrderController@wxnotify_url');//微信回调
         $router->post('alinotify_url', 'OrderController@alinotify_url');//ali回调
+    });
+    //数据模块（szw）
+    $router->group(['prefix' => 'statistics'], function () use ($router) {
+        $router->post('StudentList', 'StatisticsController@StudentList');//学员统计
+        $router->post('TeacherList', 'StatisticsController@TeacherList');//教师统计
+        $router->post('TeacherClasshour', 'StatisticsController@TeacherClasshour');//教师课时详情
+        $router->post('LiveList', 'StatisticsrController@LiveList');//直播统计
+        $router->post('LiveDetails', 'StatisticsrController@LiveDetails');//直播详情
     });
 });
 

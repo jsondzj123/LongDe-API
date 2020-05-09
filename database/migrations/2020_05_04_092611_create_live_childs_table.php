@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateLivesTable extends Migration
+class CreateLiveChildsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,7 +13,7 @@ class CreateLivesTable extends Migration
      */
     public function up()
     {
-        Schema::create('lives', function (Blueprint $table) {
+        Schema::create('live_childs', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('admin_id')->default(0)->comment('操作员ID');
             $table->string('course_name')->comment('课程名称');
