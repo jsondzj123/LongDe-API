@@ -328,8 +328,14 @@ class Papers extends Model {
         //获取当前的科目
         if(!isset($body['subject_id']) || empty($body['subject_id'])){
             //获取当前的科目
-            $subject_info = QuestionSubject::select("id as subject_id")->where("admin_id" ,"=" , $admin_id)->where("bank_id" , "=" , $body['bank_id'])->where("is_del" , "=" , 0)->first()->toArray();
-            $body['subject_id'] = $subject_info['subject_id'];
+            $subject_info = QuestionSubject::select("id as subject_id")->where("admin_id" ,"=" , $admin_id)->where("bank_id" , "=" , $body['bank_id'])->where("is_del" , "=" , 0)->first();
+            //根据题库id获取第一个科目的id
+            if($subject_info && !empty($subject_info)){
+                $subject_info = $subject_info->toArray();
+                $body['subject_id'] = $subject_info['subject_id'];
+            } else {
+                $body['subject_id'] = 0;
+            }
         }
 
         //获取试卷的总数量
