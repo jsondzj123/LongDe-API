@@ -38,7 +38,7 @@ class Roleauth extends Model {
                     if( isset($where['is_super'] ) && $where['is_super'] != ''){
                         $query->where('is_super','=',$where['is_super']);
                     } 
-        })->select($field)->first()->toArray();
+        })->select($field)->first();
          if($return){
             return ['code'=>200,'msg'=>'获取角色信息成功','data'=>$return];
         }else{

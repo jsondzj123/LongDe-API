@@ -25,7 +25,6 @@ class AuthenticateController extends Controller {
             'username'=> 'required',
             'password'=> 'required'
         ]);
-        
         if ($validator->fails()) {
             return $this->response($validator->errors()->first(), 422);
         }
@@ -68,7 +67,12 @@ class AuthenticateController extends Controller {
         $user['token'] = $token;
         $this->setTokenToRedis($user->id, $token);
         $AdminUser = new AdminUser();
-        $user['auth'] =  $AdminUser->getAdminUserLoginAuth($user['role_id']);  //获取后台用户菜单栏（lys 5.5）
+
+        $admin_user =  $AdminUser->getAdminUserLoginAuth($user['role_id']);  //获取后台用户菜单栏（lys 5.5）
+        if($admin_user['code']!=200){
+            return response()->json(['code'=>$admin_user['code'],'msg'=>$admin_user['msg']]);
+        }
+        $user['auth'] = $admin_user['data'];
         return $this->response($user);
     } 
     /**

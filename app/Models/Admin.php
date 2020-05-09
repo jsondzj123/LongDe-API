@@ -50,6 +50,8 @@ class Admin extends Model implements AuthenticatableContract, AuthorizableContra
     public static function message()
     {
         return [
+            'id.required'  => '用户id不能为空',
+            'id.integer'   =>'用户id不合法',
             'school_id.required'  => '学校id不能为空',
             'school_id.integer'   =>'学校id类型不合法',
             'username.required' => '账号不能为空',

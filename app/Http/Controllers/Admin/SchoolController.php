@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Teacher;
 use Illuminate\Http\Request;
-use App\Models\Admin;
+use App\Models\Admin as Adminuser;
 use App\Models\Roleauth;
 use App\Models\Authrules;
 use App\Models\School;
@@ -29,10 +29,11 @@ class SchoolController extends Controller {
             $page     = isset($body['page']) && $body['page'] > 0 ? $body['page'] : 1;
             $offset   = ($page - 1) * $pagesize;
             $data = $request->all();
-            !isset($page) || !empty($page) >0   
+    
             $validator = Validator::make($data, 
                 ['page' => 'required|integer',
-                'limit' => 'required|integer'],
+                'limit' => 'required|integer'
+                ],
                 School::message());
             if ($validator->fails()) {
                 return response()->json(json_decode($validator->errors()->first(),1));
@@ -65,8 +66,8 @@ class SchoolController extends Controller {
      * @param author    lys
      * @param ctime     2020-05-06
      */
-    public function doUpdateSchoolStatus(Request $request){
-        $data = $request->all();
+    public function doUpdateSchoolStatus(){
+        $data = self::$accept_data;
         $validator = Validator::make($data, 
                 ['type' => 'required|integer',
                 'school_id' => 'required|integer'],
@@ -125,8 +126,8 @@ class SchoolController extends Controller {
      * @param author    lys
      * @param ctime     2020-05-06
      */
-    public function doInsertSchool(Request $request){
-        $data = $request->all();
+    public function doInsertSchool(){
+        $data = self::$accept_data;
         $validator = Validator::make(
                 $data, 
                 ['name' => 'required|unique:ld_school',
@@ -153,7 +154,7 @@ class SchoolController extends Controller {
                 'dns'  =>$data['dns'],
                 'logo_url'  =>$data['logo_url'],
                 'introduce'  =>$data['introduce'],
-                'admin_id'  => 12,
+                'admin_id'  => CurrentAdmin::user()['id'],
             ];
             $school_id = School::insertGetId($school);
             if($school_id <0){
@@ -165,12 +166,12 @@ class SchoolController extends Controller {
                 'realname' =>$data['realname'],
                 'mobile' =>  $data['mobile'], 
                 'role_id' => 0,  
-                'admin_id'  => 12,
+                'admin_id'  => CurrentAdmin::user()['id'],
                 'school_id' =>$school_id,
                 'school_status' => 0,
             ];
             if(Admin::insertGetId($admin)>0){
-                return response()->json(['code' => 200 , 'msg' => '创建账号成功']);
+                return response()->json(['code' => 200 , 'msg' => '创建成功']);
             } else {
                 return response()->json(['code' => 201 , 'msg' => '创建账号未成功']);
             }
@@ -187,8 +188,8 @@ class SchoolController extends Controller {
      * @param author    lys
      * @param ctime     2020-05-06
      */
-    public function getSchoolUpdate(Request $request){
-        $data = $request->all();
+    public function getSchoolUpdate(){
+        $data = self::$accept_data;
         $validator = Validator::make(
                 $data, 
                 ['school_id' => 'required|integer'],
@@ -196,7 +197,7 @@ class SchoolController extends Controller {
         if($validator->fails()) {
             return response()->json(json_decode($validator->errors()->first(),1));
         }
-        $school = School::select('id','name','dns','logo_url','introduce')->find($data['school_id']);
+        $school = School::where('id',$data['school_id'])->select('id','name','dns','logo_url','introduce')->get()->toArray();
         return response()->json(['code' => 200 , 'msg' => 'Success','data'=>$school]);
     }
     /*
@@ -211,21 +212,22 @@ class SchoolController extends Controller {
      * @param author    lys
      * @param ctime     2020-05-06
      */
-    public function doSchoolUpdate(Request $request){
-        $data = $request->all();
+    public function doSchoolUpdate(){
+        $data = self::$accept_data;
+
         $validator = Validator::make(
                 $data, 
-                ['id' => 'required|integer',
-                'name' => 'required|unique:ld_school',
-                'dns' => 'required',
-                'logo_url' => 'required',
-                'introduce' => 'required'],
+                [
+                    'id' => 'required|integer',
+                    'name' => 'required|unique:ld_school',
+                    'dns' => 'required',
+                    'logo_url' => 'required',
+                    'introduce' => 'required'
+                ],
                 School::message());
         if($validator->fails()) {
-          
             return response()->json(json_decode($validator->errors()->first(),1));
         }
-        
         if(School::where('id',$data['id'])->update($data)){
             return response()->json(['code' => 200 , 'msg' => '更新成功']);
         }else{
@@ -240,8 +242,8 @@ class SchoolController extends Controller {
      * @param author    lys
      * @param ctime     2020-05-06
      */
-    public function getSchoolById(Request $request){
-        $data = $request->all();
+    public function getSchoolAdminById(){
+        $data = self::$accept_data;
         $validator = Validator::make(
                 $data, 
                 ['id' => 'required|integer'],
@@ -251,7 +253,7 @@ class SchoolController extends Controller {
         }
         $adminUser['school_name'] = School::select(['name'])->find($data['id']);
         $roleAuthId = Roleauth::where(['school_id'=>$data['id'],'is_super'=>1])->select('id','auth_id')->first()->toArray();
-        $adminUser = Admin::where(['school_id'=>$data['id'],'role_id'=>$roleAuthId['id'],'is_del'=>1])->select('id','username','realname','mobile')->first()->toArray();
+        $adminUser = Adminuser::where(['school_id'=>$data['id'],'role_id'=>$roleAuthId['id'],'is_del'=>1])->select('id','username','realname','mobile')->first()->toArray();
         $adminUser['role_id'] = $roleAuthId['id'];
         $adminUser['auth_id'] = $roleAuthId['auth_id'];
         $authRules = Authrules::getAuthAlls([],['id','name','title','parent_id']);
@@ -270,9 +272,12 @@ class SchoolController extends Controller {
      * @param author    lys
      * @param ctime     2020-05-07
      */
-    public function getAdminById(Request $request){
-        $id = $request->input('id');
-        $admin = Admin::select('id','realname','mobile')->find($id);
+    public function getAdminById(){
+        $id = self::$accept_data['id'];
+        if(!isset($id) && empty($id)){
+             return response()->json(['code'=>422,'msg'=>'用户id 为空或缺少']);
+        }
+        $admin = Adminuser::where('id',$id)->select('id','realname','mobile')->get();
         return response()->json(['code'=>200,'msg'=>'success','data'=>$admin]);
     }
     /*
@@ -285,7 +290,7 @@ class SchoolController extends Controller {
      */
     public function doAdminUpdate(){
         
-        $data = $request->all();
+        $data = self::$accept_data;
         $validator = Validator::make(
             $data, 
                 [
