@@ -10,7 +10,7 @@ use App\Models\Authrules;
 use App\Models\School;
 use Illuminate\Support\Facades\Redis;
 use App\Tools\CurrentAdmin;
-
+use Illuminate\Support\Facades\Validator;
 
 class AdminUserController extends Controller {
   
@@ -68,13 +68,9 @@ class AdminUserController extends Controller {
     	}
     }
 
-    public function getAuthList(Request $request){
-        $data = $request->post();
-        if( !isset($data['school_id']) ){
-            return response()->json(['code'=>201,'msg'=>'缺少参数']);
-        }
-        $roleAuthData = Roleauth::getRoleAuthAlls(['school_id'=>$data['school_id']],['id','r_name']);
-        return response()->json(['code'=>200,'msg'=>'Success','data'=>$roleAuthData]);    
+    public function getAuthList(){
+         $result =  Adminuser::getAuthList(self::$accept_data);
+         return response()->json($result);
     }
     /*
      * @param  description   添加后台账号
@@ -82,7 +78,7 @@ class AdminUserController extends Controller {
      *     school_id       所属学校id
      *     account         账号
      *     real_name       姓名
-     *     phone           手机号
+     *     mobile          手机号
      *     sex             性别
      *     password        密码
      *     pwd             确认密码
@@ -93,26 +89,40 @@ class AdminUserController extends Controller {
      * @param ctime     2020-04-29
      */
 
-    public function doInsertAdminUser(Request $request){
-        $data = $request->post();
-        if( !isset($data['school_id']) || !isset($data['account']) || !isset($data['real_name']) || !isset($data['phone'])  || !isset($data['sex']) || !isset($data['password']) || !isset($data['pwd'])  || !isset($data['role_id']) || !isset($data['teacher_id']) ){
-            return response()->json(['code'=>201,'msg'=>'缺少参数']);
+    public function doInsertAdminUser(){
+
+        $data = self::$accept_data;
+        // print_r(self::$accept_data);die;
+        $validator = Validator::make($data, 
+                [
+                'school_id' => 'required|integer',
+                'username' => 'required|unique:ld_admin',
+                'realname' => 'required',
+                'mobile' => 'required|regex:/^1[3456789][0-9]{9}$/',
+                'sex' => 'required|integer',
+                'password' => 'required',
+                'pwd' => 'required',
+                'role_id' => 'required|integer',
+                ],
+                Adminuser::message());
+        if($validator->fails()) {
+            return response()->json(['code'=>422,'msg'=>$validator->errors()->first()]);
+        }
+        if( !isset($data['teacher_id'])){
+            return response()->json(['code'=>422,'msg'=>'缺少教师id']);
         }
         if($data['password'] != $data['pwd']){
-            return response()->json(['code'=>202,'msg'=>'登录密码不一致']);
-        }
-        $where['school_id'] = $data['school_id'];
-        $where['account']   = $data['account'];
-        $adminUserArr = Adminuser::getUserOne($where);
-        if($adminUserArr['code'] == 200){
-             return response()->json(['code'=>203,'msg'=>'用户名已存在']);    
+            return response()->json(['code'=>422,'msg'=>'登录密码不一致']);
         }
         unset($data['pwd']);
+        $data['password'] = password_hash($data['password'], PASSWORD_DEFAULT);
+        // $data['admin_id'] = CurrentAdmin::user()['id'];
+         $data['admin_id'] = 1;
         $result = Adminuser::insertAdminUser($data);
-        if($result){
-          return   response()->json(['code'=>200,'msg'=>'Success']); 
+        if($result>0){
+            return   response()->json(['code'=>200,'msg'=>'添加成功']); 
         }else{
-           return  response()->json(['code'=>500,'msg'=>'网络超时，请重试']); 
+            return  response()->json(['code'=>500,'msg'=>'网络超时，请重试']); 
         }
     }
     /*

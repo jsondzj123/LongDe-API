@@ -337,6 +337,7 @@ class RsaFactory {
             'type'      => 2,*/
 
 
+
             //'pagesize'=> 10,
             //'page'    => 2,
             'topic_name'    => '单元测试题库45555' ,
@@ -352,6 +353,20 @@ class RsaFactory {
             // 'search'=>'',
             
             'id' =>1
+
+
+            
+            'school_id'=>1,
+            'username'=>'kobe',
+            'realname'=>'kobe',
+            'mobile'=>'13520351725',
+            'sex'=>'1',
+            'password'=>'kobe',
+            'pwd'=>'kobe',
+            'role_id'=>'1',
+            'teacher_id'=>'1,2,3,4,5,6',
+            
+           
 
             
 

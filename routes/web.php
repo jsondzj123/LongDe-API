@@ -49,24 +49,23 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use (
 
     //系统用户管理模块（lys）
     $router->group(['prefix' => 'adminuser' ], function () use ($router) {
-        $router->post('getAdminUserList', 'AdminUserController@getAdminUserList'); //获取后台用户列表方法
-        $router->post('upUserStatus', 'AdminUserController@upUserStatus');//更改账号状态方法 (删除/禁用)
-        $router->post('getAccount', 'CommonController@getAccountInfoOne');//获取添加账号信息（school，roleAuth）方法
-        $router->post('getAuthList', 'AdminUserController@getAuthList');  //获取角色列表方法 
-        $router->post('doInsertAdminUser', 'AdminUserController@doInsertAdminUser');  //添加用户方法 
+        $router->post('getAdminUserList', 'AdminUserController@getAdminUserList'); //获取后台用户列表方法 √
+        $router->post('upUserStatus', 'AdminUserController@upUserStatus');//更改账号状态方法 (删除/禁用) √
+        $router->post('getInsertAdminUser', 'CommonController@getInsertAdminUser');//获取添加账号信息（school，roleAuth）方法 √
+        $router->post('doInsertAdminUser', 'AdminUserController@doInsertAdminUser');  //添加账号方法 √
+        $router->post('getAuthList', 'AdminUserController@getAuthList');  //获取角色列表方法 √
         $router->post('getAdminUserUpdate', 'AdminUserController@getAdminUserUpdate');  //获取用户信息（编辑） 
-        $router->post('doAdminUserUpdate', 'AdminUserController@doAdminUserUpdate');//编辑角色信息
+        $router->post('doAdminUserUpdate', 'AdminUserController@doAdminUserUpdate');//编辑用户信息
     });
     //系统角色管理模块 （lys）
     $router->group(['prefix' => 'role'], function () use ($router) {
         $router->post('getAuthList', 'RoleController@getAuthList'); //获取后台角色列表方法
-        $router->post('upRoleStatus', 'RoleController@upRoleStatus');//修改状态码
+        $router->post('upRoleStatus', 'RoleController@upRoleStatus');//修改状态码 √
         $router->post('getRoleAuth', 'CommonController@getRoleAuth');//获取role_auth列表
         $router->post('doRoleInsert', 'RoleController@doRoleInsert');//添加角色方法
         $router->post('getRoleAuthUpdate', 'RoleController@getRoleAuthUpdate');// 获取角色信息（编辑）
         $router->post('doRoleAuthUpdate', 'RoleController@doRoleAuthUpdate');//编辑角色信息
     });
-    
     $router->group(['prefix' => 'user','middleware'=> ['jwt.auth']], function () use ($router) { //用户学员相关模块方法
         $router->get('getUserList', 'UserController@getUserList'); //获取学员列表方法
     });

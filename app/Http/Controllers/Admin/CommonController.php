@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Admin;
 use Laravel\Lumen\Routing\Controller as BaseController;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Http\Request;
-
+use App\Tools\CurrentAdmin;
 class CommonController extends BaseController {
     /*
      * @param  description   讲师或教务搜索列表
@@ -42,29 +42,34 @@ class CommonController extends BaseController {
      * @param author    lys
      * @param ctime     2020-04-29
     */
-    public function getAccountInfoOne(Request $request){
-        try{
-            $adminId = $request->input('id');
-            $data =  \App\Models\Adminuser::getUserOne($adminId);
+    public function getInsertAdminUser(){
+            
+            $adminId = CurrentAdmin::user()['id'];
+
+            $adminId = 1;
+
+            $data =  \App\Models\Admin::getUserOne(['id'=>$adminId]);
             if($data['code'] != 200){
                 return response()->json(['code' => $data['code'] , 'msg' => $data['msg']]);
             } 
             $adminUserSchoolId = $data['data']['school_id'];
             $adminUserSchoolType = $data['data']['school_status']; 
+
             if($adminUserSchoolType >0){
                 //总校
                 $schoolData = \App\Models\School::getSchoolAlls(['id','name']);
             }else{
                 //分校
-                $schoolData = \App\Models\School::getSchoolOne($adminUserSchoolId,['id','name']);
+                $schoolData = \App\Models\School::getSchoolOne(['id'=>$adminUserSchoolId],['id','name']);
             }
+         
             $rolAuthArr = \App\Models\Roleauth::getRoleAuthAlls(['school_id'=>$adminUserSchoolId],['id','role_name']);
             $arr = [
                 'school'=>$schoolData,
                 'role_auth'=>$rolAuthArr
             ];
             return response()->json(['code' => 200 , 'msg' => '获取信息成功' , 'data' => $arr]);
-
+    }
     
     /*
      * @param  descriptsion    获取学员列表
