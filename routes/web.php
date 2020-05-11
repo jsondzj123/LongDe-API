@@ -29,7 +29,6 @@ $router->get('/', function () use ($router) {
 
 
     $router->group(['prefix' => 'user' , 'middleware'=>'api'], function () use ($router) {
-
         $router->post('user/userinfo','Api\UserController@getUserinfo');
         $router->post('logReg', 'Api\UserController@loginAndRegister');
         $router->get('getUserInfoById', 'Api\UserController@getUserInfoById');
@@ -48,52 +47,41 @@ $router->group(['prefix' => 'web'], function () use ($router) {
 $router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use ($router) {
 
     //系统用户管理模块（lys）
-    $router->group(['prefix' => 'adminuser' ], function () use ($router) {
-
-        $router->post('getAdminUserList', 'AdminUserController@getAdminUserList'); //获取后台用户列表方法 √
-        $router->post('upUserStatus', 'AdminUserController@upUserStatus');//更改账号状态方法 (删除/禁用) √
-        $router->post('getInsertAdminUser', 'CommonController@getInsertAdminUser');//获取添加账号信息（school，roleAuth）方法 √
-        $router->post('doInsertAdminUser', 'AdminUserController@doInsertAdminUser');  //添加账号方法 √
-        $router->post('getAuthList', 'AdminUserController@getAuthList');  //获取角色列表方法 √
-        $router->post('getAdminUserUpdate', 'AdminUserController@getAdminUserUpdate');  //获取用户信息（编辑） 
-        $router->post('doAdminUserUpdate', 'AdminUserController@doAdminUserUpdate');//编辑用户信息
-
-        $router->post('getAdminUserList', 'AdminUserController@getAdminUserList'); //获取后台用户列表方法
-        $router->post('upUserStatus', 'AdminUserController@upUserStatus');//更改账号状态方法 (删除/禁用)
-        $router->post('getAccount', 'CommonController@getAccountInfoOne');//获取添加账号信息（school，roleAuth）方法
-        $router->post('getAuthList', 'AdminUserController@getAuthList');  //获取角色列表方法
-        $router->post('doInsertAdminUser', 'AdminUserController@doInsertAdminUser');  //添加用户方法
-        $router->post('getAdminUserUpdate', 'AdminUserController@getAdminUserUpdate');  //获取用户信息（编辑）
-        $router->post('doAdminUserUpdate', 'AdminUserController@doAdminUserUpdate');//编辑角色信息
-
-    });
-    //系统角色管理模块 （lys）
-    $router->group(['prefix' => 'role'], function () use ($router) {
-        $router->post('getAuthList', 'RoleController@getAuthList'); //获取后台角色列表方法
-        $router->post('upRoleStatus', 'RoleController@upRoleStatus');//修改状态码 √
-        $router->post('getRoleAuth', 'CommonController@getRoleAuth');//获取role_auth列表
-        $router->post('doRoleInsert', 'RoleController@doRoleInsert');//添加角色方法
-        $router->post('getRoleAuthUpdate', 'RoleController@getRoleAuthUpdate');// 获取角色信息（编辑）
-        $router->post('doRoleAuthUpdate', 'RoleController@doRoleAuthUpdate');//编辑角色信息
-    });
 
 
+        $router->group(['prefix' => 'adminuser','middleware'=> ['jwt.auth'] ], function () use ($router) {
+            $router->post('getAdminUserList', 'AdminUserController@getAdminUserList'); //获取后台用户列表方法 √ 5.8
+            $router->post('upUserStatus', 'AdminUserController@upUserStatus');//更改账号状态方法 (删除/禁用) √
+            $router->post('getInsertAdminUser', 'CommonController@getInsertAdminUser');//获取添加账号信息（school，roleAuth）方法 √
+            $router->post('doInsertAdminUser', 'AdminUserController@doInsertAdminUser');  //添加账号方法 √
+            $router->post('getAuthList', 'AdminUserController@getAuthList');  //获取角色列表方法 √
+            $router->post('getAdminUserUpdate', 'AdminUserController@getAdminUserUpdate');  //获取用户信息（编辑） √√√
+            $router->post('doAdminUserUpdate', 'AdminUserController@doAdminUserUpdate');//编辑用户信息  √√  5.9
+        }); 
+        //系统角色管理模块 （lys）
+        $router->group(['prefix' => 'role','middleware'=> ['jwt.auth']], function () use ($router) {
+            $router->post('getAuthList', 'RoleController@getAuthList'); //获取后台角色列表方法    xxx
+            $router->post('upRoleStatus', 'RoleController@upRoleStatus');//修改状态码 √
+            $router->post('getRoleAuthInsert', 'CommonController@getRoleAuth');//获取role_auth列表 √√
+            $router->post('doRoleAuthInsert', 'RoleController@doRoleInsert');//添加角色方法 √√
+            $router->post('getRoleAuthUpdate', 'RoleController@getRoleAuthUpdate');// 获取角色信息（编辑）√√
+            $router->post('doRoleAuthUpdate', 'RoleController@doRoleAuthUpdate');//编辑角色信息  √√
+        });
+        $router->group(['prefix' => 'user','middleware'=> ['jwt.auth']], function () use ($router) { //用户学员相关模块方法
+            $router->get('getUserList', 'UserController@getUserList'); //获取学员列表方法
+        });
+        $router->group(['prefix' => 'school','middleware'=> ['jwt.auth']], function () use ($router) { 
+            $router->post('getSchoolList', 'SchoolController@getSchoolList'); //获取网校列表方法 √√√  
+            $router->post('doUpdateSchoolStatus', 'SchoolController@doUpdateSchoolStatus'); //修改学校状态 （删除/禁启用）√√
+            $router->post('doInsertSchool', 'SchoolController@doInsertSchool'); //添加分校信息并创建分校管理员 √√
+            $router->post('getSchoolUpdate', 'SchoolController@getSchoolUpdate'); //获取分校信息（编辑）√√
+            $router->post('doSchoolUpdate', 'SchoolController@doSchoolUpdate'); //编辑分校信息  √√
+            $router->post('getSchoolAdminById', 'SchoolController@getSchoolAdminById'); //查看分校超级管理角色信息 √√
+            $router->post('getAdminById', 'SchoolController@getAdminById'); //获取分校超级管理用户信息（编辑） √√
+            $router->post('doAdminUpdate', 'SchoolController@doAdminUpdate'); //编辑分校超级管理用户信息   √√
+            $router->post('getSchoolTeacherList', 'SchoolController@getSchoolTeacherList'); //获取分校讲师列表  √√√  5.11
 
-
-    $router->group(['prefix' => 'user','middleware'=> ['jwt.auth']], function () use ($router) { //用户学员相关模块方法
-        $router->get('getUserList', 'UserController@getUserList'); //获取学员列表方法
-    });
-    $router->group(['prefix' => 'school',], function () use ($router) { //用户学员相关模块方法
-        $router->post('getSchoolList', 'SchoolController@getSchoolList'); //获取学员列表方法
-        $router->post('doUpdateSchoolStatus', 'SchoolController@doUpdateSchoolStatus'); //获取学员列表方法
-        $router->post('doInsertSchool', 'SchoolController@doInsertSchool'); //添加分校信息并创建分校管理员
-        $router->post('getSchoolUpdate', 'SchoolController@getSchoolUpdate'); //获取分校信息（编辑）
-        $router->post('doSchoolUpdate', 'SchoolController@doSchoolUpdate'); //编辑分校信息
-        $router->post('getSchoolById', 'SchoolController@getSchoolById'); //查看分校超级管理角色信息
-        $router->post('getAdminById', 'SchoolController@getAdminById'); //获取分校超级管理用户信息（编辑）
-        $router->post('doAdminUpdate', 'SchoolController@doAdminUpdate'); //编辑分校超级管理用户信息
-        $router->post('getSchoolTeacherList', 'SchoolController@getSchoolTeacherList'); //获取分校讲师列表
-    });
+        });
 
 });
 
@@ -108,9 +96,7 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use (
         //用户详情
         $router->get('{id}', 'AdminController@show');
         $router->post('info', 'AdminController@info');
-         // $router->post('info', function() use ($router){
-         //    echo 11;
-         // });
+        
         //获取学员列表
         //$router->get('getUserList', 'UserController@getUserList');
     });
@@ -173,14 +159,8 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use (
         $router->get('getStudentList', 'StudentController@getStudentList');           //获取学员列表
         $router->get('getStudentCommonList', 'StudentController@getStudentCommonList');  //学员公共参数列表
     });
+    
     //讲师教务相关模块(dzj)
-
-
-
-
-
-    //讲师教务相关模块
-
     $router->group(['prefix' => 'teacher'], function () use ($router) {
         $router->post('doInsertTeacher', 'TeacherController@doInsertTeacher');        //添加讲师教务的方法
         $router->post('doUpdateTeacher', 'TeacherController@doUpdateTeacher');        //更改讲师教务的方法
@@ -190,6 +170,7 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use (
         $router->get('getTeacherList', 'TeacherController@getTeacherList');           //获取老师列表
         $router->get('getTeacherSearchList', 'TeacherController@getTeacherSearchList'); //讲师或教务搜索列表
     });
+    
     //题库相关模块(dzj)
     $router->group(['prefix' => 'question'], function () use ($router) {
         /****************题库科目部分  start****************/
@@ -229,6 +210,10 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use (
         
         /****************试题部分  start****************/
         $router->post('doInsertExam', 'ExamController@doInsertExam');                    //添加试题的方法
+        $router->post('doDeleteExam', 'ExamController@doDeleteExam');                    //删除试题的方法
+        $router->post('doPublishExam', 'ExamController@doPublishExam');                  //发布试题的方法
+        $router->get('getExamList', 'ExamController@getExamList');                       //试题列表的方法
+        $router->get('getExamCommonList', 'ExamController@getExamCommonList');           //试题公共参数列表
         /****************试题部分  end****************/
         
         $router->get('export', 'CommonController@doExportExamLog'); //导入导出demo

@@ -3,6 +3,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use App\Models\AdminLog;
+use Illuminate\Support\Facades\Redis;
 
 class Chapters extends Model {
     //指定别的表名
@@ -109,6 +110,22 @@ class Chapters extends Model {
 
         //获取章节考点id
         $chapters_id = $body['chapters_id'];
+        
+        //key赋值
+        $key = 'chapters:update:'.$chapters_id;
+
+        //判断此章节考点是否被请求过一次(防止重复请求,且数据信息不存在)
+        if(Redis::get($key)){
+            return ['code' => 204 , 'msg' => '此章节考点不存在'];
+        } else {
+            //判断此章节考点在章节考点表中是否存在
+            $chapters_count = self::where('id',$chapters_id)->count();
+            if($chapters_count <= 0){
+                //存储章节考点的id值并且保存60s
+                Redis::setex($key , 60 , $chapters_id);
+                return ['code' => 204 , 'msg' => '此章节考点不存在'];
+            }
+        }
         
         //将更新时间追加
         $body['update_at'] = date('Y-m-d H:i:s');
@@ -226,6 +243,22 @@ class Chapters extends Model {
         //判断章节考点id是否合法
         if(!isset($body['chapters_id']) || empty($body['chapters_id']) || $body['chapters_id'] <= 0){
             return ['code' => 202 , 'msg' => 'id不合法'];
+        }
+        
+        //key赋值
+        $key = 'chapters:delete:'.$body['chapters_id'];
+
+        //判断此章节考点是否被请求过一次(防止重复请求,且数据信息不存在)
+        if(Redis::get($key)){
+            return ['code' => 204 , 'msg' => '此章节考点不存在'];
+        } else {
+            //判断此章节考点在章节考点表中是否存在
+            $chapters_count = self::where('id',$body['chapters_id'])->count();
+            if($chapters_count <= 0){
+                //存储章节考点的id值并且保存60s
+                Redis::setex($key , 60 , $body['chapters_id']);
+                return ['code' => 204 , 'msg' => '此章节考点不存在'];
+            }
         }
 
         //追加更新时间

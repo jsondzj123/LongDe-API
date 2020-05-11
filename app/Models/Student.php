@@ -3,6 +3,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use App\Models\AdminLog;
+use Illuminate\Support\Facades\Redis;
 
 class Student extends Model {
     //指定别的表名
@@ -39,6 +40,22 @@ class Student extends Model {
         //判断学员id是否合法
         if(!isset($body['student_id']) || empty($body['student_id']) || $body['student_id'] <= 0){
             return ['code' => 202 , 'msg' => '学员id不合法'];
+        }
+        
+        //key赋值
+        $key = 'student:studentinfo:'.$body['student_id'];
+
+        //判断此学员是否被请求过一次(防止重复请求,且数据信息不存在)
+        if(Redis::get($key)){
+            return ['code' => 204 , 'msg' => '此学员不存在'];
+        } else {
+            //判断此学员在学员表中是否存在
+            $student_count = self::where('id',$body['student_id'])->count();
+            if($student_count <= 0){
+                //存储学员的id值并且保存60s
+                Redis::setex($key , 60 , $body['student_id']);
+                return ['code' => 204 , 'msg' => '此学员不存在'];
+            }
         }
 
         //根据id获取学员详细信息
@@ -167,6 +184,22 @@ class Student extends Model {
         
         //获取学员id
         $student_id = $body['student_id'];
+        
+        //key赋值
+        $key = 'student:update:'.$student_id;
+
+        //判断此学员是否被请求过一次(防止重复请求,且数据信息不存在)
+        if(Redis::get($key)){
+            return ['code' => 204 , 'msg' => '此学员不存在'];
+        } else {
+            //判断此学员在学员表中是否存在
+            $student_count = self::where('id',$student_id)->count();
+            if($student_count <= 0){
+                //存储学员的id值并且保存60s
+                Redis::setex($key , 60 , $student_id);
+                return ['code' => 204 , 'msg' => '此学员不存在'];
+            }
+        }
         
         //将更新时间追加
         $body['update_at'] = date('Y-m-d H:i:s');
@@ -305,6 +338,22 @@ class Student extends Model {
         //判断学员id是否合法
         if(!isset($body['student_id']) || empty($body['student_id']) || $body['student_id'] <= 0){
             return ['code' => 202 , 'msg' => '学员id不合法'];
+        }
+
+        //key赋值
+        $key = 'student:forbid:'.$body['student_id'];
+
+        //判断此学员是否被请求过一次(防止重复请求,且数据信息不存在)
+        if(Redis::get($key)){
+            return ['code' => 204 , 'msg' => '此学员不存在'];
+        } else {
+            //判断此学员在学员表中是否存在
+            $student_count = self::where('id',$body['student_id'])->count();
+            if($student_count <= 0){
+                //存储学员的id值并且保存60s
+                Redis::setex($key , 60 , $body['student_id']);
+                return ['code' => 204 , 'msg' => '此学员不存在'];
+            }
         }
         
         //根据学员的id获取学员的状态

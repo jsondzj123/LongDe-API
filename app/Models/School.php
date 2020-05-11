@@ -58,7 +58,7 @@ class School extends Model {
          * return  array
          */
     public static function getSchoolOne($where,$field = ['*']){
-        $schoolInfo = self::where($where)->select($field)->first()->toArray();
+        $schoolInfo = self::where($where)->select($field)->first();
         if($schoolInfo){
             return ['code'=>200,'msg'=>'获取学校信息成功','data'=>$schoolInfo];
         }else{
@@ -120,7 +120,7 @@ class School extends Model {
             return ['code'=>202,'msg'=>'更新失败'];
         }
     }
-
+    
         /*
          * @param  获取分校讲师列表
          * @param  author  lys

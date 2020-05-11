@@ -38,7 +38,7 @@ class Roleauth extends Model {
                     if( isset($where['is_super'] ) && $where['is_super'] != ''){
                         $query->where('is_super','=',$where['is_super']);
                     } 
-        })->select($field)->first()->toArray();
+        })->select($field)->first();
          if($return){
             return ['code'=>200,'msg'=>'获取角色信息成功','data'=>$return];
         }else{
@@ -57,7 +57,7 @@ class Roleauth extends Model {
     public static function getRoleAuthAll($where=[],$page =1,$limit = 10){
         $return = self::where(function($query) use ($where){
                 if($where['search'] != ''){
-                    $query->where('r_name','like','%'.$where['search'].'%');
+                    $query->where('role_name','like','%'.$where['search'].'%');
                     $query->where('school_id','=',$where['school_id']);
                 }
             })->forPage($page,$limit)->get()->toArray();

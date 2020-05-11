@@ -3,6 +3,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use App\Models\AdminLog;
+use Illuminate\Support\Facades\Redis;
 
 class QuestionSubject extends Model {
     //指定别的表名
@@ -76,6 +77,22 @@ class QuestionSubject extends Model {
         //判断科目名称书否为空
         if(!isset($body['subject_name']) || empty($body['subject_name'])){
             return ['code' => 201 , 'msg' => '请输入科目名称'];
+        }
+        
+        //key赋值
+        $key = 'subject:update:'.$body['subject_id'];
+
+        //判断此试题科目是否被请求过一次(防止重复请求,且数据信息不存在)
+        if(Redis::get($key)){
+            return ['code' => 204 , 'msg' => '此科目不存在'];
+        } else {
+            //判断此科目在科目表中是否存在
+            $subject_count = self::where('id',$body['subject_id'])->count();
+            if($subject_count <= 0){
+                //存储科目的id值并且保存60s
+                Redis::setex($key , 60 , $body['subject_id']);
+                return ['code' => 204 , 'msg' => '此科目不存在'];
+            }
         }
 
         //获取科目id
@@ -178,6 +195,22 @@ class QuestionSubject extends Model {
         if(!isset($body['subject_id']) || empty($body['subject_id']) || $body['subject_id'] <= 0){
             return ['code' => 202 , 'msg' => '题库科目id不合法'];
         }
+        
+        //key赋值
+        $key = 'subject:delete:'.$body['subject_id'];
+
+        //判断此试题科目是否被请求过一次(防止重复请求,且数据信息不存在)
+        if(Redis::get($key)){
+            return ['code' => 204 , 'msg' => '此科目不存在'];
+        } else {
+            //判断此科目在科目表中是否存在
+            $subject_count = self::where('id',$body['subject_id'])->count();
+            if($subject_count <= 0){
+                //存储科目的id值并且保存60s
+                Redis::setex($key , 60 , $body['subject_id']);
+                return ['code' => 204 , 'msg' => '此科目不存在'];
+            }
+        }
 
         //追加更新时间
         $data = [
@@ -232,11 +265,29 @@ class QuestionSubject extends Model {
             return ['code' => 202 , 'msg' => '题库科目id不合法'];
         }
         
+        //key赋值
+        $key = 'subject:updateBankIds:'.$body['subject_ids'];
+
+        //判断此试题科目是否被请求过一次(防止重复请求,且数据信息不存在)
+        if(Redis::get($key)){
+            return ['code' => 204 , 'msg' => '此科目不存在'];
+        } else {
+            //题库科目id赋值
+            $subject_ids = explode(',',$body['subject_ids']);
+        
+            //判断此科目在科目表中是否存在
+            $subject_count = self::whereIn('id',$subject_ids)->count();
+            if($subject_count <= 0){
+                //存储科目的id值并且保存60s
+                Redis::setex($key , 60 , $body['subject_id']);
+                return ['code' => 204 , 'msg' => '此科目不存在'];
+            }
+        }
+        
         //获取后端的操作员id
         $admin_id = isset(AdminLog::getAdminInfo()->admin_user->id) ? AdminLog::getAdminInfo()->admin_user->id : 0;
 
-        //根据题库科目id更新题库
-        $subject_ids = explode(',',$body['subject_ids']);
+        //更新科目信息
         if(false !== self::whereIn('id',$subject_ids)->update(['bank_id' => $body['bank_id'] , 'update_at' => date('Y-m-d H:i:s')])){
             //添加日志操作
             AdminLog::insertAdminLog([
