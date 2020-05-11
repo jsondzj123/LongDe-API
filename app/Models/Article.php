@@ -32,7 +32,7 @@ class Article extends Model {
                  if(!empty($data['type_id']) && $data['type_id'] != '' ){
                      $query->where('ld_article.article_type_id',$data['type_id']);
                  }
-                 
+
                  if(!empty($data['title']) && $data['title'] != ''){
                      $query->where('ld_article.title','like','%'.$data['title'].'%')
                          ->orwhere('ld_article.id',$data['title']);
