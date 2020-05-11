@@ -170,7 +170,18 @@ class Order extends Model {
             }else if($find['status'] == 1){
                 $update = self::where(['id'=>$data['order_id']])->update(['status'=>2]);
                 if($update){
-                    //加日志
+                    //获取后端的操作员id
+                    $admin_id = isset(AdminLog::getAdminInfo()->admin_user->id) ? AdminLog::getAdminInfo()->admin_user->id : 0;
+                    //添加日志操作
+                    AdminLog::insertAdminLog([
+                        'admin_id'       =>   $admin_id  ,
+                        'module_name'    =>  'Order' ,
+                        'route_url'      =>  'admin/Order/exitForIdStatus' ,
+                        'operate_method' =>  'update' ,
+                        'content'        =>  '审核通过，修改id为'.$data['order_id'].json_encode($data) ,
+                        'ip'             =>  $_SERVER["REMOTE_ADDR"] ,
+                        'create_at'      =>  date('Y-m-d H:i:s')
+                    ]);
                     return ['code' => 200 , 'msg' => '审核通过'];
                 }else{
                     return ['code' => 203 , 'msg' => '操作失败'];
@@ -184,7 +195,18 @@ class Order extends Model {
             }else if($find['status'] == 1 || $find['status'] == 2){
                 $update = self::where(['id'=>$data['order_id']])->update(['status'=>4]);
                 if($update){
-                    //加日志
+                    //获取后端的操作员id
+                    $admin_id = isset(AdminLog::getAdminInfo()->admin_user->id) ? AdminLog::getAdminInfo()->admin_user->id : 0;
+                    //添加日志操作
+                    AdminLog::insertAdminLog([
+                        'admin_id'       =>   $admin_id  ,
+                        'module_name'    =>  'Order' ,
+                        'route_url'      =>  'admin/Order/exitForIdStatus' ,
+                        'operate_method' =>  'update' ,
+                        'content'        =>  '退回审核，修改id为'.$data['order_id'].json_encode($data) ,
+                        'ip'             =>  $_SERVER["REMOTE_ADDR"] ,
+                        'create_at'      =>  date('Y-m-d H:i:s')
+                    ]);
                     return ['code' => 200 , 'msg' => '回审通过'];
                 }else{
                     return ['code' => 203 , 'msg' => '操作失败'];
@@ -228,7 +250,7 @@ class Order extends Model {
         if(!$data || empty($data)){
             return ['code' => 201 , 'msg' => '参数错误'];
         }
-        $up = self::where(['id'=>$data['order_id'],'order_type'=>1])->update(['oa_status'=>$data['status']]);
+        $up = self::where(['id'=>$data['order_id'],'order_type'=>1])->update(['oa_status'=>$data['status'],'update_at'=>date('Y-m-d H:i:s')]);
         if($up){
             return ['code' => 200 , 'msg' => '修改成功'];
         }else{
@@ -326,6 +348,18 @@ class Order extends Model {
             return 'fail';
         }
     }
+    /*
+         * @param  author  苏振文
+         * @param  ctime   2020/5/11 15:15
+         * return  array
+         */
+    public static function pcpay($price){
+        $arr = app('wx')->getPcPayOrder('202005111519301234',$price);
+        return $arr;
+    }
+
+
+
     /*
         * xml转换数组
         */

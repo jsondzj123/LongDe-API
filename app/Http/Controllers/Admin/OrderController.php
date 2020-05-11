@@ -127,8 +127,9 @@ class OrderController extends Controller {
          */
     public function Pcpay(){
         try{
-//            $orderlist = Order::orderPayList($_POST);
-            $orderlist = Order::orderPayList(self::$accept_data);
+            $price = 0.01;
+            $orderlist = Order::pcpay($price);
+//            $orderlist = Order::orderPayList(self::$accept_data);
             return response()->json($orderlist);
         } catch (Exception $ex) {
             return response()->json(['code' => 500 , 'msg' => $ex->getMessage()]);

@@ -71,7 +71,18 @@ class Article extends Model {
             }
             $update = self::where(['id'=>$data['id']])->update(['status'=>1]);
             if($update){
-                //加操作日志
+                //获取后端的操作员id
+                $admin_id = isset(AdminLog::getAdminInfo()->admin_user->id) ? AdminLog::getAdminInfo()->admin_user->id : 0;
+                //添加日志操作
+                AdminLog::insertAdminLog([
+                    'admin_id'       =>   $admin_id  ,
+                    'module_name'    =>  'Article' ,
+                    'route_url'      =>  'admin/Article/editStatus' ,
+                    'operate_method' =>  'update' ,
+                    'content'        =>  '启用'.json_encode($data) ,
+                    'ip'             =>  $_SERVER["REMOTE_ADDR"] ,
+                    'create_at'      =>  date('Y-m-d H:i:s')
+                ]);
                 return ['code' => 200 , 'msg' => '修改成功'];
             }else{
                 return ['code' => 201 , 'msg' => '修改失败'];
@@ -83,7 +94,18 @@ class Article extends Model {
             }
             $update = self::where(['id'=>$data['id']])->update(['status'=>0]);
             if($update){
-                //加操作日志
+                //获取后端的操作员id
+                $admin_id = isset(AdminLog::getAdminInfo()->admin_user->id) ? AdminLog::getAdminInfo()->admin_user->id : 0;
+                //添加日志操作
+                AdminLog::insertAdminLog([
+                    'admin_id'       =>   $admin_id  ,
+                    'module_name'    =>  'Article' ,
+                    'route_url'      =>  'admin/Article/editStatus' ,
+                    'operate_method' =>  'update' ,
+                    'content'        =>  '禁用'.json_encode($data) ,
+                    'ip'             =>  $_SERVER["REMOTE_ADDR"] ,
+                    'create_at'      =>  date('Y-m-d H:i:s')
+                ]);
                 return ['code' => 200 , 'msg' => '修改成功'];
             }else{
                 return ['code' => 201 , 'msg' => '修改失败'];
@@ -107,7 +129,18 @@ class Article extends Model {
         }
         $update = self::where(['id'=>$data['id']])->update(['is_del'=>0]);
         if($update){
-            //加操作日志
+            //获取后端的操作员id
+            $admin_id = isset(AdminLog::getAdminInfo()->admin_user->id) ? AdminLog::getAdminInfo()->admin_user->id : 0;
+            //添加日志操作
+            AdminLog::insertAdminLog([
+                'admin_id'       =>   $admin_id  ,
+                'module_name'    =>  'Article' ,
+                'route_url'      =>  'admin/Article/editDelToId' ,
+                'operate_method' =>  'delete' ,
+                'content'        =>  '软删除id为'.$data['id'],
+                'ip'             =>  $_SERVER["REMOTE_ADDR"] ,
+                'create_at'      =>  date('Y-m-d H:i:s')
+            ]);
             return ['code' => 200 , 'msg' => '删除成功'];
         }else{
             return ['code' => 201 , 'msg' => '删除失败'];
@@ -140,6 +173,18 @@ class Article extends Model {
         $data['update_at'] = date('Y-m-d H:i:s');
         $add = self::insert($data);
         if($add){
+            //获取后端的操作员id
+            $admin_id = isset(AdminLog::getAdminInfo()->admin_user->id) ? AdminLog::getAdminInfo()->admin_user->id : 0;
+            //添加日志操作
+            AdminLog::insertAdminLog([
+                'admin_id'       =>   $admin_id  ,
+                'module_name'    =>  'Article' ,
+                'route_url'      =>  'admin/Article/addArticle' ,
+                'operate_method' =>  'insert' ,
+                'content'        =>  '新增数据'.json_encode($data) ,
+                'ip'             =>  $_SERVER["REMOTE_ADDR"] ,
+                'create_at'      =>  date('Y-m-d H:i:s')
+            ]);
             return ['code' => 200 , 'msg' => '添加成功'];
         }else{
             return ['code' => 202 , 'msg' => '添加失败'];
@@ -208,6 +253,18 @@ class Article extends Model {
         $data['update_at'] = date('Y-m-d H:i:s');
         $res = self::where(['id'=>$id])->update($data);
         if($res){
+            //获取后端的操作员id
+            $admin_id = isset(AdminLog::getAdminInfo()->admin_user->id) ? AdminLog::getAdminInfo()->admin_user->id : 0;
+            //添加日志操作
+            AdminLog::insertAdminLog([
+                'admin_id'       =>   $admin_id  ,
+                'module_name'    =>  'Article' ,
+                'route_url'      =>  'admin/Article/exitForId' ,
+                'operate_method' =>  'update' ,
+                'content'        =>  '修改id'.$id.'的内容,'.json_encode($data),
+                'ip'             =>  $_SERVER["REMOTE_ADDR"] ,
+                'create_at'      =>  date('Y-m-d H:i:s')
+            ]);
             return ['code' => 200 , 'msg' => '更新成功'];
         }else{
             return ['code' => 202 , 'msg' => '更新失败'];
