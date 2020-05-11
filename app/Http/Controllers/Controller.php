@@ -18,10 +18,12 @@ class Controller extends BaseController {
      * return  string
      */
 
+
     public function __construct() {
         //self::$accept_data = app('rsa')->servicersadecrypt($request);
         //app('rsa')->Test();
         self::$accept_data = $_REQUEST;
+
     }
  
 

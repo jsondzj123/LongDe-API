@@ -134,30 +134,31 @@ class AdminUserController extends Controller {
      * @param ctime     2020-05-04
      */
 
-    public function getAdminUserUpdate(Request $request){
-        $data = $request->post();
+    public function getAdminUserUpdate(){
+        $data = self::$accept_data;
         if( !isset($data['id']) || empty($data['id']) ){
             return response()->json(['code'=>201,'msg'=>'缺少参数，参数为空']);
         }
-         $where['id']   = $data['id'];
+        $where['id']   = $data['id'];
         $adminUserArr = Adminuser::getUserOne($where);
         if($adminUserArr['code'] != 200){
             return response()->json(['code'=>202,'msg'=>'用户不存在']);    
         }
-        $adminUserArr['data']['school_name'] = School::getSchoolOne(['id'=>$adminUserArr['data']['school_id'],'is_forbid'=>1,'is_del'=>1],['name'])['data']['name'];
-        $roleAuthArr = Roleauth::getRoleAuthAlls(['school_id'=>$adminUserArr['data']['school_id'],'is_del'=>1],['id','r_name']);
-        $teacher_id_arr = explode(',', $adminUserArr['data']['teacher_id']);
-        $teacherArr = [
-                ['id'=>1,'teacher_name'=>'张老师','type'=>1],
-                ['id'=>2,'teacher_name'=>'王老师','type'=>1],
-                ['id'=>3,'teacher_name'=>'李老师','type'=>2],
-                ['id'=>4,'teacher_name'=>'徐老师','type'=>2]
-        ];
+
+        $adminUserArr['data']['school_name']  = School::getSchoolOne(['id'=>$adminUserArr['data']['school_id'],'is_forbid'=>1,'is_del'=>1],['name'])['data']['name'];
+    
+        $roleAuthArr = Roleauth::getRoleAuthAlls(['school_id'=>$adminUserArr['data']['school_id'],'is_del'=>1],['id','role_name']);
+       
+         $teacherArr = [];
+        if(!empty($adminUserArr['data']['teacher_id'])){
+            $teacher_id_arr = explode(',', $adminUserArr['data']['teacher_id']);
+             $teacherArr= Teacher::whereIn('id',$teacher_id_arr)->where('is_del','!=',1)->where('is_forbid','!=',1)->select('id','real_name','type')->get();
+        }
         $arr = [
-            'admin_user'=>$adminUserArr,
+            'admin_user'=>$adminUserArr['data'],
             'teacher' => $teacherArr,
             'role_auth' => $roleAuthArr,
-            'id'=>$data['id'],
+       
 
         ];
         return response()->json(['code'=>200,'msg'=>'获取信息成功','data'=>$arr]);
