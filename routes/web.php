@@ -122,7 +122,7 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use (
     */
     $router->get('lessonChild', 'LessonChildController@index');
     $router->get('lessonChild/{id}', 'LessonChildController@show');
-    $router->post('lessonChild/{lesson_id}', 'LessonChildController@store');
+    $router->post('lessonChild', 'LessonChildController@store');
     $router->post('lessonChild/{id}/update', 'LessonChildController@update');
     $router->get('lessonChild/{id}/delete', 'LessonChildController@destroy');
 
