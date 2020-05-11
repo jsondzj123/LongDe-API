@@ -26,13 +26,13 @@ class Article extends Model {
             ->leftJoin('ld_article_type','ld_article_type.id','=','ld_article.article_type_id')
             ->leftJoin('ld_admin','ld_admin.id','=','ld_article.user_id')
             ->where(function($query) use ($data) {
-                 if($data['school_id'] != ''){
+                 if(!empty($data['school_id']) && $data['school_id'] != ''){
                      $query->where('ld_article.school_id',$data['school_id']);
                  }
-                 if($data['type_id'] != ''){
+                 if(!empty($data['type_id']) && $data['type_id'] != '' ){
                      $query->where('ld_article.article_type_id',$data['type_id']);
                  }
-                 if($data['title'] != ''){
+                 if(!empty($data['title']) && $data['title'] != ''){
                      $query->where('ld_article.title','like','%'.$data['title'].'%')
                          ->orwhere('ld_article.id',$data['title']);
                  }
