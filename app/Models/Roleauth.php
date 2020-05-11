@@ -57,7 +57,7 @@ class Roleauth extends Model {
     public static function getRoleAuthAll($where=[],$page =1,$limit = 10){
         $return = self::where(function($query) use ($where){
                 if($where['search'] != ''){
-                    $query->where('r_name','like','%'.$where['search'].'%');
+                    $query->where('role_name','like','%'.$where['search'].'%');
                     $query->where('school_id','=',$where['school_id']);
                 }
             })->forPage($page,$limit)->get()->toArray();
