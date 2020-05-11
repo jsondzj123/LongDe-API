@@ -48,7 +48,6 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use (
 
     //系统用户管理模块（lys）
 
-    $router->group(['prefix' => 'adminuser' ], function () use ($router) {
 
         $router->group(['prefix' => 'adminuser','middleware'=> ['jwt.auth'] ], function () use ($router) {
             $router->post('getAdminUserList', 'AdminUserController@getAdminUserList'); //获取后台用户列表方法 √ 5.8
@@ -83,7 +82,7 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use (
             $router->post('getSchoolTeacherList', 'SchoolController@getSchoolTeacherList'); //获取分校讲师列表  √√√  5.11
 
         });
-    });
+
 });
 
 
