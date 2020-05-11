@@ -120,7 +120,7 @@ class School extends Model {
             return ['code'=>202,'msg'=>'更新失败'];
         }
     }
-
+    
         /*
          * @param  获取分校讲师列表
          * @param  author  lys

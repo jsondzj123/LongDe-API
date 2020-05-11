@@ -13,11 +13,8 @@ class CommonController extends BaseController {
      * @param ctime     2020-04-29
     */
     public function getInsertAdminUser(){
-            
             $adminId = CurrentAdmin::user()['id'];
-
             $adminId = 1;
-
             $data =  \App\Models\Admin::getUserOne(['id'=>$adminId]);
             if($data['code'] != 200){
                 return response()->json(['code' => $data['code'] , 'msg' => $data['msg']]);
@@ -46,10 +43,11 @@ class CommonController extends BaseController {
      * @param author    lys
      * @param ctime     2020-04-29
     */
-    public  function getRoleAuth(Request $request){
+    public  function getRoleAuth(){
          try{
-            $adminId = $request->input('id');
-            $data =  \App\Models\Adminuser::getUserOne(['id'=>$adminId]);
+            $adminId = CurrentAdmin::user()['id'];
+
+            $data =  \App\Models\Admin::getUserOne(['id'=>$adminId]);
             if($data['code'] != 200){
                 return response()->json(['code' => $data['code'] , 'msg' => $data['msg']]);
             } 
