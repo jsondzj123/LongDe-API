@@ -169,6 +169,7 @@ class Article extends Model {
         }
         //缓存查出用户id和分校id
         $admin = CurrentAdmin::user();
+        print_r($admin);die;
         $data['school_id'] = $admin['school_id'];
         $data['user_id'] = $admin['id'];
         $data['update_at'] = date('Y-m-d H:i:s');
