@@ -17,31 +17,13 @@ class Controller extends BaseController {
      * @param  ctime         2020-04-16
      * return  string
      */
-<<<<<<< HEAD
+
     public function __construct() {
         //self::$accept_data = app('rsa')->servicersadecrypt($request);
         //app('rsa')->Test();
         self::$accept_data = $_REQUEST;
-=======
-
-    // public function __construct(Request $request) {
-
-
-    //     self::$accept_data = app('rsa')->servicersadecrypt($request);
-
-    //     // self::$accept_data = app('rsa')->servicersadecrypt($request);
-
-    //     //self::$accept_data = app('rsa')->servicersadecrypt($request);
-
-    //     // app('rsa')->Test();
-    // }
-
-    public function __construct() {
-        //self::$accept_data = app('rsa')->servicersadecrypt($request);
-        // self::$accept_data = $request->toArray();
-       //app('rsa')->Test();
->>>>>>> liyinsheng
     }
+ 
 
 
      /*返回json串
