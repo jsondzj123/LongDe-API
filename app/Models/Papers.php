@@ -6,6 +6,7 @@ use App\Models\AdminLog;
 use App\Models\PapersExam;
 use App\Models\QuestionSubject;
 use Validator;
+use Illuminate\Support\Facades\Redis;
 
 class Papers extends Model {
     //指定别的表名
@@ -141,6 +142,22 @@ class Papers extends Model {
             return json_decode($validator->errors()->first() , true);
         }
         
+        //key赋值
+        $key = 'papers:update:'.$body['papers_id'];
+
+        //判断此试卷是否被请求过一次(防止重复请求,且数据信息不存在)
+        if(Redis::get($key)){
+            return ['code' => 204 , 'msg' => '此试卷不存在'];
+        } else {
+            //判断此试卷在试卷表中是否存在
+            $papers_count = self::where('id',$body['papers_id'])->count();
+            if($papers_count <= 0){
+                //存储试卷的id值并且保存60s
+                Redis::setex($key , 60 , $body['papers_id']);
+                return ['code' => 204 , 'msg' => '此试卷不存在'];
+            }
+        }
+        
         //获取后端的操作员id
         $admin_id = isset(AdminLog::getAdminInfo()->admin_user->id) ? AdminLog::getAdminInfo()->admin_user->id : 0;
 
@@ -194,6 +211,22 @@ class Papers extends Model {
         if ($validator->fails()) {
             return json_decode($validator->errors()->first() , true);
         }
+        
+        //key赋值
+        $key = 'papers:delete:'.$body['papers_id'];
+
+        //判断此试卷是否被请求过一次(防止重复请求,且数据信息不存在)
+        if(Redis::get($key)){
+            return ['code' => 204 , 'msg' => '此试卷不存在'];
+        } else {
+            //判断此试卷在试卷表中是否存在
+            $papers_count = self::where('id',$body['papers_id'])->count();
+            if($papers_count <= 0){
+                //存储试卷的id值并且保存60s
+                Redis::setex($key , 60 , $body['papers_id']);
+                return ['code' => 204 , 'msg' => '此试卷不存在'];
+            }
+        }
 
         //追加更新时间
         $data = [
@@ -246,6 +279,22 @@ class Papers extends Model {
         $validator = Validator::make($body , $rule , $message);
         if ($validator->fails()) {
             return json_decode($validator->errors()->first() , true);
+        }
+        
+        //key赋值
+        $key = 'papers:publish:'.$body['papers_id'];
+
+        //判断此试卷是否被请求过一次(防止重复请求,且数据信息不存在)
+        if(Redis::get($key)){
+            return ['code' => 204 , 'msg' => '此试卷不存在'];
+        } else {
+            //判断此试卷在试卷表中是否存在
+            $papers_count = self::where('id',$body['papers_id'])->count();
+            if($papers_count <= 0){
+                //存储试卷的id值并且保存60s
+                Redis::setex($key , 60 , $body['papers_id']);
+                return ['code' => 204 , 'msg' => '此试卷不存在'];
+            }
         }
         
         //根据试卷的id获取试卷的状态
@@ -303,6 +352,22 @@ class Papers extends Model {
         $validator = Validator::make($body , $rule , $message);
         if ($validator->fails()) {
             return json_decode($validator->errors()->first() , true);
+        }
+        
+        //key赋值
+        $key = 'papers:papersinfo:'.$body['papers_id'];
+
+        //判断此试卷是否被请求过一次(防止重复请求,且数据信息不存在)
+        if(Redis::get($key)){
+            return ['code' => 204 , 'msg' => '此试卷不存在'];
+        } else {
+            //判断此试卷在试卷表中是否存在
+            $papers_count = self::where('id',$body['papers_id'])->count();
+            if($papers_count <= 0){
+                //存储试卷的id值并且保存60s
+                Redis::setex($key , 60 , $body['papers_id']);
+                return ['code' => 204 , 'msg' => '此试卷不存在'];
+            }
         }
 
         //根据id获取试卷详细信息

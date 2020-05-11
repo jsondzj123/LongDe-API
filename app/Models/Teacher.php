@@ -3,6 +3,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use App\Models\AdminLog;
+use Illuminate\Support\Facades\Redis;
 
 class Teacher extends Model {
     //指定别的表名
@@ -45,6 +46,22 @@ class Teacher extends Model {
         //判断讲师或教务id是否合法
         if(!isset($body['teacher_id']) || empty($body['teacher_id']) || $body['teacher_id'] <= 0){
             return ['code' => 202 , 'msg' => '老师id不合法'];
+        }
+        
+        //key赋值
+        $key = 'teacher:teacherinfo:'.$body['teacher_id'];
+
+        //判断此老师是否被请求过一次(防止重复请求,且数据信息不存在)
+        if(Redis::get($key)){
+            return ['code' => 204 , 'msg' => '此讲师教务不存在'];
+        } else {
+            //判断此讲师教务在讲师教务表中是否存在
+            $teacher_count = self::where('id',$body['teacher_id'])->count();
+            if($teacher_count <= 0){
+                //存储讲师教务的id值并且保存60s
+                Redis::setex($key , 60 , $body['teacher_id']);
+                return ['code' => 204 , 'msg' => '此讲师教务不存在'];
+            }
         }
 
         //根据id获取讲师或教务详细信息
@@ -213,6 +230,22 @@ class Teacher extends Model {
         //获取老师id
         $teacher_id = $body['teacher_id'];
         
+        //key赋值
+        $key = 'teacher:update:'.$teacher_id;
+
+        //判断此老师是否被请求过一次(防止重复请求,且数据信息不存在)
+        if(Redis::get($key)){
+            return ['code' => 204 , 'msg' => '此讲师教务不存在'];
+        } else {
+            //判断此讲师教务在讲师教务表中是否存在
+            $teacher_count = self::where('id',$teacher_id)->count();
+            if($teacher_count <= 0){
+                //存储讲师教务的id值并且保存60s
+                Redis::setex($key , 60 , $teacher_id);
+                return ['code' => 204 , 'msg' => '此讲师教务不存在'];
+            }
+        }
+        
         //将更新时间追加
         $body['update_at'] = date('Y-m-d H:i:s');
         unset($body['teacher_id']);
@@ -359,6 +392,22 @@ class Teacher extends Model {
         if(!isset($body['teacher_id']) || empty($body['teacher_id']) || $body['teacher_id'] <= 0){
             return ['code' => 202 , 'msg' => '老师id不合法'];
         }
+        
+        //key赋值
+        $key = 'teacher:delete:'.$body['teacher_id'];
+
+        //判断此老师是否被请求过一次(防止重复请求,且数据信息不存在)
+        if(Redis::get($key)){
+            return ['code' => 204 , 'msg' => '此讲师教务不存在'];
+        } else {
+            //判断此讲师教务在讲师教务表中是否存在
+            $teacher_count = self::where('id',$body['teacher_id'])->count();
+            if($teacher_count <= 0){
+                //存储讲师教务的id值并且保存60s
+                Redis::setex($key , 60 , $body['teacher_id']);
+                return ['code' => 204 , 'msg' => '此讲师教务不存在'];
+            }
+        }
 
         //追加更新时间
         $data = [
@@ -407,6 +456,22 @@ class Teacher extends Model {
         //判断讲师或教务id是否合法
         if(!isset($body['teacher_id']) || empty($body['teacher_id']) || $body['teacher_id'] <= 0){
             return ['code' => 202 , 'msg' => '老师id不合法'];
+        }
+        
+        //key赋值
+        $key = 'teacher:recommend:'.$body['teacher_id'];
+
+        //判断此老师是否被请求过一次(防止重复请求,且数据信息不存在)
+        if(Redis::get($key)){
+            return ['code' => 204 , 'msg' => '此讲师教务不存在'];
+        } else {
+            //判断此讲师教务在讲师教务表中是否存在
+            $teacher_count = self::where('id',$body['teacher_id'])->count();
+            if($teacher_count <= 0){
+                //存储讲师教务的id值并且保存60s
+                Redis::setex($key , 60 , $body['teacher_id']);
+                return ['code' => 204 , 'msg' => '此讲师教务不存在'];
+            }
         }
 
         //追加更新时间

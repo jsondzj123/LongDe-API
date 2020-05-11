@@ -5,6 +5,7 @@ use Illuminate\Database\Eloquent\Model;
 use App\Models\AdminLog;
 use App\Models\ExamOption;
 use App\Models\QuestionSubject;
+use Illuminate\Support\Facades\Redis;
 
 class Exam extends Model {
     //指定别的表名
@@ -208,7 +209,26 @@ class Exam extends Model {
         if(!isset($body['exam_id']) || empty($body['exam_id'])){
             return ['code' => 202 , 'msg' => '试题id不合法'];
         }
+        
+        //key赋值
+        $key = 'exam:delete:'.$body['exam_id'];
 
+        //判断此试题是否被请求过一次(防止重复请求,且数据信息不存在)
+        if(Redis::get($key)){
+            return ['code' => 204 , 'msg' => '此试题不存在'];
+        } else {
+            //试题id赋值(多个会以逗号分隔【例如:1,2,3】)
+            $exam_id  = explode(',',$body['exam_id']);
+            
+            //判断此试题在试题表中是否存在
+            $exam_count = self::whereIn('id',$exam_id)->count();
+            if($exam_count <= 0){
+                //存储试题的id值并且保存60s
+                Redis::setex($key , 60 , $body['exam_id']);
+                return ['code' => 204 , 'msg' => '此试题不存在'];
+            }
+        }
+        
         //追加更新时间
         $data = [
             'is_del'     => 1 ,
@@ -217,7 +237,6 @@ class Exam extends Model {
         
         //获取后端的操作员id
         $admin_id = isset(AdminLog::getAdminInfo()->admin_user->id) ? AdminLog::getAdminInfo()->admin_user->id : 0;
-        $exam_id  = explode(',',$body['exam_id']);
 
         //根据试题id更新删除状态
         if(false !== self::whereIn('id',$exam_id)->update($data)){
@@ -256,6 +275,25 @@ class Exam extends Model {
         //判断试题id是否合法
         if(!isset($body['exam_id']) || empty($body['exam_id'])){
             return ['code' => 202 , 'msg' => '试题id不合法'];
+        }
+        
+        //key赋值
+        $key = 'exam:publish:'.$body['exam_id'];
+
+        //判断此试题是否被请求过一次(防止重复请求,且数据信息不存在)
+        if(Redis::get($key)){
+            return ['code' => 204 , 'msg' => '此试题不存在'];
+        } else {
+            //试题id赋值(多个会以逗号分隔【例如:1,2,3】)
+            $exam_id  = explode(',',$body['exam_id']);
+            
+            //判断此试题在试题表中是否存在
+            $exam_count = self::whereIn('id',$exam_id)->count();
+            if($exam_count <= 0){
+                //存储试题的id值并且保存60s
+                Redis::setex($key , 60 , $body['exam_id']);
+                return ['code' => 204 , 'msg' => '此试题不存在'];
+            }
         }
 
         //追加更新时间

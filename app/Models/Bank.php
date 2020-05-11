@@ -90,6 +90,22 @@ class Bank extends Model {
         if ($validator->fails()) {
             return json_decode($validator->errors()->first() , true);
         }
+        
+        //key赋值
+        $key = 'bank:bankinfo:'.$body['bank_id'];
+
+        //判断此题库是否被请求过一次(防止重复请求,且数据信息不存在)
+        if(Redis::get($key)){
+            return ['code' => 204 , 'msg' => '此题库不存在'];
+        } else {
+            //判断此题库在题库表中是否存在
+            $bank_count = self::where('id',$body['bank_id'])->count();
+            if($bank_count <= 0){
+                //存储题库的id值并且保存60s
+                Redis::setex($key , 60 , $body['bank_id']);
+                return ['code' => 204 , 'msg' => '此题库不存在'];
+            }
+        }
 
         //根据id获取题库详细信息
         $bank_info = self::where('id',$body['bank_id'])->select('topic_name','parent_id','child_id','describe','subject_id')->first()->toArray();
@@ -288,6 +304,22 @@ class Bank extends Model {
             return json_decode($validator->errors()->first() , true);
         }
         
+        //key赋值
+        $key = 'bank:update:'.$body['bank_id'];
+
+        //判断此题库是否被请求过一次(防止重复请求,且数据信息不存在)
+        if(Redis::get($key)){
+            return ['code' => 204 , 'msg' => '此题库不存在'];
+        } else {
+            //判断此题库在题库表中是否存在
+            $bank_count = self::where('id',$body['bank_id'])->count();
+            if($bank_count <= 0){
+                //存储题库的id值并且保存60s
+                Redis::setex($key , 60 , $body['bank_id']);
+                return ['code' => 204 , 'msg' => '此题库不存在'];
+            }
+        }
+        
         //获取后端的操作员id
         $admin_id = isset(AdminLog::getAdminInfo()->admin_user->id) ? AdminLog::getAdminInfo()->admin_user->id : 0;
 
@@ -413,6 +445,22 @@ class Bank extends Model {
         if ($validator->fails()) {
             return json_decode($validator->errors()->first() , true);
         }
+        
+        //key赋值
+        $key = 'bank:delete:'.$body['bank_id'];
+
+        //判断此题库是否被请求过一次(防止重复请求,且数据信息不存在)
+        if(Redis::get($key)){
+            return ['code' => 204 , 'msg' => '此题库不存在'];
+        } else {
+            //判断此题库在题库表中是否存在
+            $bank_count = self::where('id',$body['bank_id'])->count();
+            if($bank_count <= 0){
+                //存储题库的id值并且保存60s
+                Redis::setex($key , 60 , $body['bank_id']);
+                return ['code' => 204 , 'msg' => '此题库不存在'];
+            }
+        }
 
         //追加更新时间
         $data = [
@@ -465,6 +513,22 @@ class Bank extends Model {
         $validator = Validator::make($body , $rule , $message);
         if ($validator->fails()) {
             return json_decode($validator->errors()->first() , true);
+        }
+        
+        //key赋值
+        $key = 'bank:open:'.$body['bank_id'];
+
+        //判断此题库是否被请求过一次(防止重复请求,且数据信息不存在)
+        if(Redis::get($key)){
+            return ['code' => 204 , 'msg' => '此题库不存在'];
+        } else {
+            //判断此题库在题库表中是否存在
+            $bank_count = self::where('id',$body['bank_id'])->count();
+            if($bank_count <= 0){
+                //存储题库的id值并且保存60s
+                Redis::setex($key , 60 , $body['bank_id']);
+                return ['code' => 204 , 'msg' => '此题库不存在'];
+            }
         }
         
         //根据题库的id获取题库的状态
