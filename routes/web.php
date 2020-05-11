@@ -80,7 +80,6 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use (
             $router->post('getAdminById', 'SchoolController@getAdminById'); //获取分校超级管理用户信息（编辑） √√
             $router->post('doAdminUpdate', 'SchoolController@doAdminUpdate'); //编辑分校超级管理用户信息   √√
             $router->post('getSchoolTeacherList', 'SchoolController@getSchoolTeacherList'); //获取分校讲师列表  √√√  5.11
-
         });
 
 });
