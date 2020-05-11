@@ -17,7 +17,7 @@ use App\Http\Controllers\Admin\AdminUserController as AdminUser;
 
 
 class AuthenticateController extends Controller {
-  
+
 
     public function postLogin(Request $request) {
 
@@ -28,10 +28,10 @@ class AuthenticateController extends Controller {
         if ($validator->fails()) {
             return $this->response($validator->errors()->first(), 422);
         }
-        
+
         $credentials = $request->only('username', 'password');
 
-        return $this->login($credentials); 
+        return $this->login($credentials);
     }
 
     public function register(Request $request) {
@@ -61,8 +61,8 @@ class AuthenticateController extends Controller {
         } catch (JWTException $e) {
             Log::error('创建token失败' . $e->getMessage());
             return response('创建token失败', 500);
-        }   
-        
+        }
+
         $user = JWTAuth::user();
         $user['token'] = $token;
         $this->setTokenToRedis($user->id, $token);
@@ -74,7 +74,7 @@ class AuthenticateController extends Controller {
         }
         $user['auth'] = $admin_user['data'];
         return $this->response($user);
-    } 
+    }
     /**
      * Get a validator for an incoming registration request.
      *
