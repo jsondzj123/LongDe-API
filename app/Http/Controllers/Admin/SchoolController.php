@@ -24,39 +24,40 @@ class SchoolController extends Controller {
      * @param author    lys
      * @param ctime     2020-05-05
      */
-    public function getSchoolList(Request $request){
-            $limit = isset($body['limit']) && $body['limit'] > 0 ? $body['limit'] : 15;
-            $page     = isset($body['page']) && $body['page'] > 0 ? $body['page'] : 1;
+    public function getSchoolList(){
+            $data = self::$accept_data;
+            $pagesize = isset($data['pagesize']) && $data['pagesize'] > 0 ? $data['pagesize'] : 15;
+            $page     = isset($data['page']) && $data['page'] > 0 ? $data['page'] : 1;
             $offset   = ($page - 1) * $pagesize;
-            $data = $request->all();
-    
-            $validator = Validator::make($data, 
-                ['page' => 'required|integer',
-                'limit' => 'required|integer'
-                ],
-                School::message());
-            if ($validator->fails()) {
-                return response()->json(json_decode($validator->errors()->first(),1));
-            }
-            //$where['name'] = empty($data['school_name']) || !isset($data['school_name']) ?'':$data['school_name'];
-            //$where['dns'] = empty($data['school_dns']) || !isset($data['school_dns']) ?'':$data['school_dns'];
-            //$where['is_del'] = 1;
-            $offset  = ($data['page']-1)*$data['limit'];
-             
-            $school_count = School::where('is_del','=',1)->count();
-            if($school_count > 0){
-                $schoolArr = School::where(function($query) use ($request){
-                    if($request['name'] != ''){
-                        $query->where('name','like','%'.$request['name'].'%');
+
+            $where['name'] = empty($data['school_name']) || !isset($data['school_name']) ?'':$data['school_name'];
+            $where['dns'] = empty($data['school_dns']) || !isset($data['school_dns']) ?'':$data['school_dns'];
+     
+            $offset  = ($page -1)*$pagesize;
+            $school_count = School::where(function($query) use ($where){
+                    if($where['name'] != ''){
+                        $query->where('name','like','%'.$where['name'].'%');
                     }
-                    if($request['dns'] != ''){
-                        $query->where('dns','like','%'.$request['dns'].'%');
+                    if($where['dns'] != ''){
+                        $query->where('dns','like','%'.$where['dns'].'%');
                     }
                     $query->where('is_del','=',1);
-                })->select('id','name','logo_url','dns','is_forbid','logo_url')->offset($offset)->limit($data['limit'])->get();
-                return response()->json(['code'=>200,'msg'=>'Success','data'=>['school_list' => $schoolArr , 'total' => $school_count , 'pagesize' => $request['limit'] , 'page' => $request['page']]]);           
+                })->count();
+            $sum_page = ceil($school_count/$pagesize);
+            if($school_count > 0){
+               
+                $schoolArr = School::where(function($query) use ($where){
+                    if($where['name'] != ''){
+                        $query->where('name','like','%'.$where['name'].'%');
+                    }
+                    if($where['dns'] != ''){
+                        $query->where('dns','like','%'.$where['dns'].'%');
+                    }
+                    $query->where('is_del','=',1);
+                })->select('id','name','logo_url','dns','is_forbid','logo_url')->offset($offset)->limit($pagesize)->get();
+                return response()->json(['code'=>200,'msg'=>'Success','data'=>['school_list' => $schoolArr , 'total' => $school_count , 'pagesize' => $pagesize , 'page' => $page,'sum_page'=>$sum_page]]);           
             }
-            return response()->json(['code'=>200,'msg'=>'Success','data'=>['school_list' => [] , 'total' => 0 , 'pagesize' => $request['limit'] , 'page' => $request['page']]]);           
+            return response()->json(['code'=>200,'msg'=>'Success','data'=>['school_list' => [] , 'total' => 0 , 'pagesize' => $pagesize , 'page' => $page,'sum_page'=>$sum_page]]);           
     }
     /*
      * @param  description 修改分校状态 
