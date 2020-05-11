@@ -173,14 +173,8 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use (
         $router->get('getStudentList', 'StudentController@getStudentList');           //获取学员列表
         $router->get('getStudentCommonList', 'StudentController@getStudentCommonList');  //学员公共参数列表
     });
+    
     //讲师教务相关模块(dzj)
-
-
-
-
-
-    //讲师教务相关模块
-
     $router->group(['prefix' => 'teacher'], function () use ($router) {
         $router->post('doInsertTeacher', 'TeacherController@doInsertTeacher');        //添加讲师教务的方法
         $router->post('doUpdateTeacher', 'TeacherController@doUpdateTeacher');        //更改讲师教务的方法
@@ -190,6 +184,7 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use (
         $router->get('getTeacherList', 'TeacherController@getTeacherList');           //获取老师列表
         $router->get('getTeacherSearchList', 'TeacherController@getTeacherSearchList'); //讲师或教务搜索列表
     });
+    
     //题库相关模块(dzj)
     $router->group(['prefix' => 'question'], function () use ($router) {
         /****************题库科目部分  start****************/
@@ -229,6 +224,8 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use (
         
         /****************试题部分  start****************/
         $router->post('doInsertExam', 'ExamController@doInsertExam');                    //添加试题的方法
+        $router->post('doDeleteExam', 'ExamController@doDeleteExam');                    //删除试题的方法
+        $router->post('doPublishExam', 'ExamController@doPublishExam');                  //发布试题的方法
         $router->get('getExamList', 'ExamController@getExamList');                       //试题列表的方法
         $router->get('getExamCommonList', 'ExamController@getExamCommonList');           //试题公共参数列表
         /****************试题部分  end****************/

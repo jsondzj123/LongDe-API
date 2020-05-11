@@ -37,6 +37,52 @@ class ExamController extends Controller {
     }
     
     /*
+     * @param  descriptsion    删除试题的方法
+     * @param  参数说明         body包含以下参数[
+     *      exam_id    试题id
+     * ]
+     * @param  author          dzj
+     * @param  ctime           2020-05-11
+     * return  array
+     */
+    public function doDeleteExam(){
+        //获取提交的参数
+        try{
+            $data = Exam::doDeleteExam(self::$accept_data);
+            if($data['code'] == 200){
+                return response()->json(['code' => 200 , 'msg' => '删除成功']);
+            } else {
+                return response()->json(['code' => $data['code'] , 'msg' => $data['msg']]);
+            }
+        } catch (Exception $ex) {
+            return response()->json(['code' => 500 , 'msg' => $ex->getMessage()]);
+        }
+    }
+    
+    /*
+     * @param  descriptsion    发布试题的方法
+     * @param  参数说明         body包含以下参数[
+     *      exam_id    试题id
+     * ]
+     * @param  author          dzj
+     * @param  ctime           2020-05-11
+     * return  array
+     */
+    public function doPublishExam(){
+        //获取提交的参数
+        try{
+            $data = Exam::doPublishExam(self::$accept_data);
+            if($data['code'] == 200){
+                return response()->json(['code' => 200 , 'msg' => '操作成功']);
+            } else {
+                return response()->json(['code' => $data['code'] , 'msg' => $data['msg']]);
+            }
+        } catch (Exception $ex) {
+            return response()->json(['code' => 500 , 'msg' => $ex->getMessage()]);
+        }
+    }
+    
+    /*
      * @param  descriptsion    获取试题列表
      * @param  参数说明         body包含以下参数[
      *     bank_id         题库id(必传)

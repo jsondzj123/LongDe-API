@@ -34,6 +34,7 @@ class Exam extends Model {
      *     joint_id        节id
      *     point_id        考点id
      *     item_diffculty  试题难度(1代表简单,2代表一般,3代表困难)
+     *     is_publish      是否发布(1代表发布,0代表未发布)
      * ]
      * @param author    dzj
      * @param ctime     2020-05-08
@@ -129,6 +130,7 @@ class Exam extends Model {
                 'point_id'      =>  $body['type'] < 7 ? $body['point_id'] : 0 ,
                 'type'          =>  $body['type'] ,
                 'item_diffculty'=>  $body['type'] < 7 ? $body['item_diffculty'] : 0,
+                'is_publish'    =>  isset($body['is_publish']) && $body['is_publish'] > 0 ? 1 : 0,
                 'create_at'     =>  date('Y-m-d H:i:s')
             ];
         } else {
@@ -147,6 +149,7 @@ class Exam extends Model {
                 'point_id'      =>  $body['type'] < 7 ? $body['point_id'] : 0 ,
                 'type'          =>  $body['type'] ,
                 'item_diffculty'=>  $body['type'] < 7 ? $body['item_diffculty'] : 0,
+                'is_publish'    =>  isset($body['is_publish']) && $body['is_publish'] > 0 ? 1 : 0,
                 'create_at'     =>  date('Y-m-d H:i:s')
             ];
         }
@@ -186,6 +189,102 @@ class Exam extends Model {
         }
     }
     
+    /*
+     * @param  descriptsion    删除试题的方法
+     * @param  参数说明         body包含以下参数[
+     *      exam_id    试题id
+     * ]
+     * @param  author          dzj
+     * @param  ctime           2020-05-11
+     * return  array
+     */
+    public static function doDeleteExam($body=[]) {
+        //判断传过来的数组数据是否为空
+        if(!$body || !is_array($body)){
+            return ['code' => 202 , 'msg' => '传递数据不合法'];
+        }
+        
+        //判断试题id是否合法
+        if(!isset($body['exam_id']) || empty($body['exam_id'])){
+            return ['code' => 202 , 'msg' => '试题id不合法'];
+        }
+
+        //追加更新时间
+        $data = [
+            'is_del'     => 1 ,
+            'update_at'  => date('Y-m-d H:i:s')
+        ];
+        
+        //获取后端的操作员id
+        $admin_id = isset(AdminLog::getAdminInfo()->admin_user->id) ? AdminLog::getAdminInfo()->admin_user->id : 0;
+        $exam_id  = explode(',',$body['exam_id']);
+
+        //根据试题id更新删除状态
+        if(false !== self::whereIn('id',$exam_id)->update($data)){
+            //添加日志操作
+            AdminLog::insertAdminLog([
+                'admin_id'       =>   $admin_id  ,
+                'module_name'    =>  'Question' ,
+                'route_url'      =>  'admin/question/doDeleteExam' , 
+                'operate_method' =>  'delete' ,
+                'content'        =>  json_encode($body) ,
+                'ip'             =>  $_SERVER["REMOTE_ADDR"] ,
+                'create_at'      =>  date('Y-m-d H:i:s')
+            ]);
+            return ['code' => 200 , 'msg' => '删除成功'];
+        } else {
+            return ['code' => 203 , 'msg' => '删除失败'];
+        }
+    }
+    
+    
+    /*
+     * @param  descriptsion    发布试题的方法
+     * @param  参数说明         body包含以下参数[
+     *      exam_id    试题id
+     * ]
+     * @param  author          dzj
+     * @param  ctime           2020-05-11
+     * return  array
+     */
+    public static function doPublishExam($body=[]) {
+        //判断传过来的数组数据是否为空
+        if(!$body || !is_array($body)){
+            return ['code' => 202 , 'msg' => '传递数据不合法'];
+        }
+        
+        //判断试题id是否合法
+        if(!isset($body['exam_id']) || empty($body['exam_id'])){
+            return ['code' => 202 , 'msg' => '试题id不合法'];
+        }
+
+        //追加更新时间
+        $data = [
+            'is_publish' => 1 ,
+            'update_at'  => date('Y-m-d H:i:s')
+        ];
+        
+        //获取后端的操作员id
+        $admin_id = isset(AdminLog::getAdminInfo()->admin_user->id) ? AdminLog::getAdminInfo()->admin_user->id : 0;
+        $exam_id  = explode(',',$body['exam_id']);
+
+        //根据试题id更新删除状态
+        if(false !== self::whereIn('id',$exam_id)->update($data)){
+            //添加日志操作
+            AdminLog::insertAdminLog([
+                'admin_id'       =>   $admin_id  ,
+                'module_name'    =>  'Question' ,
+                'route_url'      =>  'admin/question/doPublishExam' , 
+                'operate_method' =>  'delete' ,
+                'content'        =>  json_encode($body) ,
+                'ip'             =>  $_SERVER["REMOTE_ADDR"] ,
+                'create_at'      =>  date('Y-m-d H:i:s')
+            ]);
+            return ['code' => 200 , 'msg' => '操作成功'];
+        } else {
+            return ['code' => 203 , 'msg' => '操作失败'];
+        }
+    }
     
     /*
      * @param  descriptsion    获取试题列表
