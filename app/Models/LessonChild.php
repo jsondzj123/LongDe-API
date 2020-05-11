@@ -29,8 +29,8 @@ class LessonChild extends Model {
         'is_forbid'
     ];
 
-    public function childs() {
-        return $this->id;
+    public function videos() {
+        return $this->belongsToMany('App\Models\Video', 'lesson_videos', 'child_id');
     }
 }
 
