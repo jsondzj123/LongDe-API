@@ -117,7 +117,7 @@ class AdminUserController extends Controller {
         unset($data['pwd']);
         $data['password'] = password_hash($data['password'], PASSWORD_DEFAULT);
         // $data['admin_id'] = CurrentAdmin::user()['id'];
-         $data['admin_id'] = 1;
+        $data['admin_id'] = CurrentAdmin::user()['id'];
         $result = Adminuser::insertAdminUser($data);
         if($result>0){
             return   response()->json(['code'=>200,'msg'=>'添加成功']); 
@@ -172,21 +172,38 @@ class AdminUserController extends Controller {
      * @param ctime     2020-05-04
      */
 
-    public function doAdminUserUpdate(Request $request){
-         $data = $request->post();
-        if( !isset($data['school_id']) || !isset($data['account']) || !isset($data['real_name']) || !isset($data['phone'])  || !isset($data['sex']) || !isset($data['password']) || !isset($data['pwd'])  || !isset($data['role_id']) || !isset($data['teacher_id']) || !isset($data['id'])  ){
-            return response()->json(['code'=>201,'msg'=>'缺少参数']);
+    public function doAdminUserUpdate(){
+        $data = self::$accept_data;
+        $validator = Validator::make($data, 
+                [
+                'id' => 'required|integer',
+                'school_id' => 'required|integer',
+                'username' => 'required',
+                'realname' => 'required',
+                'mobile' => 'required|regex:/^1[3456789][0-9]{9}$/',
+                'sex' => 'required|integer',
+                'password' => 'required',
+                'pwd' => 'required',
+                'role_id' => 'required|integer',
+                ],
+                Adminuser::message());
+        if($validator->fails()) {
+            return response()->json(['code'=>422,'msg'=>$validator->errors()->first()]);
+        }
+        if( !isset($data['teacher_id'])){
+            return response()->json(['code'=>422,'msg'=>'缺少教师id']);
         }
         if($data['password'] != $data['pwd']){
             return response()->json(['code'=>202,'msg'=>'登录密码不一致']);
         }
         $where['school_id'] = $data['school_id'];
-        $where['account']   = $data['account'];
+        $where['username']   = $data['username'];
         $where['is_del'] = 1;
         $count = Adminuser::where($where)->where('id','!=',$data['id'])->count();
         if($count >=1 ){
              return response()->json(['code'=>203,'msg'=>'用户名已存在']);    
         }
+        $data['password'] = password_hash($data['password'], PASSWORD_DEFAULT);
         unset($data['pwd']);
         $result = Adminuser::where('id','=',$data['id'])->update($data);
         return   response()->json(['code'=>200,'msg'=>'更改成功']); 
@@ -201,19 +218,18 @@ class AdminUserController extends Controller {
      */
 
     public function getAdminUserLoginAuth($admin_role_id){
-        $admin_role_id = 1;
         if(empty($admin_role_id) || !intval($admin_role_id)){
-            return response()->json(['code'=>204,'msg'=>'参数值为空或参数类型错误']);
+            return ['code'=>204,'msg'=>'参数值为空或参数类型错误'];
         }
-        $adminRole =  Roleauth::getRoleOne(['id'=>$admin_role_id,'is_forbid'=>1,'is_del'=>1],['id','role_name','auth_id']);
+        $adminRole =  Roleauth::getRoleOne(['id'=>$admin_role_id,'is_del'=>1],['id','role_name','auth_id']);
         if($adminRole['code'] != 200){
-            return response()->json(['code'=>$adminRole['code'],'msg'=>$adminRole['msg']]);
+            return ['code'=>$adminRole['code'],'msg'=>$adminRole['msg']];
         }
         $adminRuths = Authrules::getAdminAuthAll($adminRole['data']['auth_id']);
         if($adminRuths['code'] != 200){
-            return response()->json(['code'=>$adminRuths['code'],'msg'=>$adminRuths['msg']]);
+            return ['code'=>$adminRuths['code'],'msg'=>$adminRuths['msg']];
         }
-        return $adminRuths['data'];
+        return ['code'=>200,'msg'=>'success','data'=>$adminRuths['data']];
 
 
 
