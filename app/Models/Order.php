@@ -224,6 +224,9 @@ class Order extends Model {
          * return  array
          */
     public static function findOrderForId($data){
+        if(empty($data['order_id']) ||!is_int($data['order_id'])){
+            return ['code' => 201 , 'msg' => '订单id错误'];
+        }
         $list = self::select('ld_order.order_number','ld_order.create_at','ld_order.price','ld_order.order_type','ld_order.status','ld_order.pay_time','ld_student.real_name','ld_student.phone','ld_school.name','lessons.title','lessons.price as lessprice','lesson_teachers.real_name')
             ->leftJoin('ld_student','ld_student.id','=','ld_order.student_id')
             ->leftJoin('ld_school','ld_school.id','=','ld_student.school_id')
@@ -235,7 +238,7 @@ class Order extends Model {
         if($list){
             return ['code' => 200 , 'msg' => '查询成功','data'=>$list];
         }else{
-            return ['code' => 201 , 'msg' => '查询失败'];
+            return ['code' => 202 , 'msg' => '查询失败'];
         }
     }
     /*
@@ -248,7 +251,13 @@ class Order extends Model {
          */
     public static function orderUpOaForId($data){
         if(!$data || empty($data)){
-            return ['code' => 201 , 'msg' => '参数错误'];
+            return ['code' => 201 , 'msg' => '参数为空或格式错误'];
+        }
+        if(empty($data['order_id']) ||!is_int($data['order_id'])){
+            return ['code' => 201 , 'msg' => '订单id错误'];
+        }
+        if(!strpos('0,1',$data['status'])){
+            return ['code' => 201 , 'msg' => '状态传输错误'];
         }
         $up = self::where(['id'=>$data['order_id'],'order_type'=>1])->update(['oa_status'=>$data['status'],'update_at'=>date('Y-m-d H:i:s')]);
         if($up){
@@ -257,6 +266,13 @@ class Order extends Model {
             return ['code' => 202 , 'msg' => '修改失败'];
         }
     }
+
+
+
+
+
+
+
     /*
          * @param  微信支付 订单回调，逻辑处理  修改订单状态  添加课程有效期
          * @param  author  苏振文

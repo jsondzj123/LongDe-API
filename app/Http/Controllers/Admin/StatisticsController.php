@@ -6,6 +6,8 @@ use App\Models\Lecturer;
 use App\Models\Lesson;
 use App\Models\LessonTeacher;
 use App\Models\Student;
+use App\Models\Subject;
+use App\Models\SubjectLesson;
 use Illuminate\Support\Facades\DB;
 
 class StatisticsController extends Controller {
@@ -72,17 +74,19 @@ class StatisticsController extends Controller {
        $offline = 0; //线下
        $mobile = 0; //手机端
        $count = 0;  //总人数
-       foreach ($studentList as $k=>$v){
-           if($v['reg_source'] == 0){
-               $website++;
+       if(!empty($studentList)){
+           foreach ($studentList as $k=>$v){
+               if($v['reg_source'] == 0){
+                   $website++;
+               }
+               if($v['reg_source'] == 1){
+                   $mobile++;
+               }
+               if($v['reg_source'] == 2){
+                   $offline++;
+               }
+               $count++;
            }
-           if($v['reg_source'] == 1){
-               $mobile++;
-           }
-           if($v['reg_source'] == 2){
-               $offline++;
-           }
-           $count++;
        }
        if($data['type'] == 2){
            //根据时间分组，查询出人数 ，时间列表
@@ -126,14 +130,21 @@ class StatisticsController extends Controller {
            //数组处理
            $xlen = [];
            $ylen = [];
-           foreach ($arr as $k=>&$v){
-               foreach ($lists as $ks=>$vs){
-                   if($v['time'] == $vs['time']){
-                       $v['num'] = $vs['num'];
+           if(!empty($lists)){
+               foreach ($arr as $k=>&$v){
+                   foreach ($lists as $ks=>$vs){
+                       if($v['time'] == $vs['time']){
+                           $v['num'] = $vs['num'];
+                       }
                    }
+                   $xlen[]=$v['time'];
+                   $ylen[]=$v['num'];
                }
-               $xlen[]=$v['time'];
-               $ylen[]=$v['num'];
+           }else{
+               foreach ($arr as $k=>&$v){
+                   $xlen[]=$v['time'];
+                   $ylen[]=$v['num'];
+               }
            }
            $studentList=[
                'xlen'=>$xlen,
@@ -198,12 +209,24 @@ class StatisticsController extends Controller {
         * return  array
         */
    public function TeacherClasshour(){
+        //讲师关联课程  lesson_teachers
+        //课程关联科目id  subject_lessons
+        //科目表  subject
+        //课程表  lessons
        $id = $_POST['id'];
        $lesson = LessonTeacher::where(['teacher_id'=>$id])->get()->toArray();
        foreach ($lesson as $k=>$v){
-
+          $lesson = Lesson::where('id',$v['lesson_id'])->first();
+          $subid = SubjectLesson ::where('subject_id',$v['lesson_id'])->first();
+          $subject = Subject::where('id',$subid['subject_id'])->first();
        }
    }
+
+
+
+
+
+
    /*
         * @param  直播统计
         * @param
