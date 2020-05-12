@@ -22,9 +22,9 @@ class LessonController extends Controller {
         $currentCount = $request->input('current_count') ?: 0;
         $count = $request->input('count') ?: 15;
         $subject_id = $request->input('subject_id') ?: [];
-        $subjectIds = json_decode($subject_id, true);
+        //$subjectIds = json_decode($subject_id, true);
         $total = Lesson::count();
-        $lesson = Lesson::with('teachers', 'subjects', 'childs')
+        $lesson = Lesson::with('teachers')
                 ->orderBy('status', 'desc')
                 ->skip($currentCount)->take($count)
                 ->get();
@@ -72,6 +72,9 @@ class LessonController extends Controller {
             'description' => 'required',
             'introduction' => 'required',
             'subject_id' => 'required',
+            'is_public' => 'required',
+            'buy_num' => 'required',
+            'ttl' => 'required',
         ]);
         if ($validator->fails()) {
             return $this->response($validator->errors()->first(), 422);
@@ -91,6 +94,9 @@ class LessonController extends Controller {
                     'method' => $request->input('method'),
                     'description' => $request->input('description'),
                     'introduction' => $request->input('introduction'),
+                    'is_public' => $request->input('is_public'),
+                    'buy_num' => $request->input('buy_num'),
+                    'ttl' => $request->input('ttl'),
                 ]);
             if(!empty($teacherIds)){
                 $lesson->teachers()->attach($teacherIds); 
@@ -124,6 +130,10 @@ class LessonController extends Controller {
             'teacher_id' => 'required',
             'description' => 'required',
             'introduction' => 'required',
+            'subject_id' => 'required',
+            'is_public' => 'required',
+            'buy_num' => 'required',
+            'ttl' => 'required',
         ]);
         if ($validator->fails()) {
             return $this->response($validator->errors()->first(), 422);
@@ -135,6 +145,9 @@ class LessonController extends Controller {
         $lesson->price = $request->input('price') ?: $lesson->price;
         $lesson->method = $request->input('method') ?: $lesson->method;
         $lesson->description = $request->input('description') ?: $lesson->description;
+        $lesson->is_public = $request->input('is_public') ?: $lesson->is_public;
+        $lesson->buy_num = $request->input('buy_num') ?: $lesson->buy_num;
+        $lesson->ttl = $request->input('ttl') ?: $lesson->ttl;
         try {
             $lesson->save();
             return $this->response("修改成功");
@@ -145,6 +158,31 @@ class LessonController extends Controller {
     }
 
 
+    
+    /**
+     * 添加/修改课程资料
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function edit($id, Request $request) {
+        $validator = Validator::make($request->all(), [
+            'url' => 'required|json',
+        ]);
+        if ($validator->fails()) {
+            return $this->response($validator->errors()->first(), 422);
+        }
+        $lesson = Lesson::findOrFail($id);;
+        $lesson->url = $request->input('url');
+        try {
+            $lesson->save();
+            return $this->response("修改成功");
+        } catch (Exception $e) {
+            Log::error('修改课程信息失败' . $e->getMessage());
+            return $this->response("修改成功");
+        }
+    }
     /**
      * 删除
      *
