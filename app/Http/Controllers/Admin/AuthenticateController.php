@@ -67,7 +67,6 @@ class AuthenticateController extends Controller {
         $user['token'] = $token;
         $this->setTokenToRedis($user->id, $token);
         $AdminUser = new AdminUser();
-
         $admin_user =  $AdminUser->getAdminUserLoginAuth($user['role_id']);  //获取后台用户菜单栏（lys 5.5）
         if($admin_user['code']!=200){
             return response()->json(['code'=>$admin_user['code'],'msg'=>$admin_user['msg']]);
