@@ -11,6 +11,7 @@ use App\Models\School;
 use Illuminate\Support\Facades\Redis;
 use App\Tools\CurrentAdmin;
 use Illuminate\Support\Facades\Validator;
+use App\Models\AdminLog;
 
 class AdminUserController extends Controller {
   
@@ -56,18 +57,38 @@ class AdminUserController extends Controller {
     	}	
     	$where['id'] = $data['id'];
     	if($data['type'] == 1){
-    			$updateArr['is_del'] = 0;	
+    			$updateArr['is_del'] = 0;
     	}else if($data['type'] == 2){
     		if($userInfo['data']['is_forbid'] == 1)  $updateArr['is_forbid'] = 0;  else  $updateArr['is_forbid'] = 1;	
     	}
     	$result = Adminuser::upUserStatus($where,$updateArr);
     	if($result){
+            //添加日志操作
+            AdminLog::insertAdminLog([
+                'admin_id'       =>   CurrentAdmin::user()['id'] ,
+                'module_name'    =>  'Adminuser' ,
+                'route_url'      =>  'admin/adminuser/upUserStatus' , 
+                'operate_method' =>  'update' ,
+                'content'        =>  json_encode($data),
+                'ip'             =>  $_SERVER["REMOTE_ADDR"] ,
+                'create_at'      =>  date('Y-m-d H:i:s')
+            ]);
     		return response()->json(['code'=>200,'msg'=>'Success']);    
     	}else{
     		return response()->json(['code'=>500,'msg'=>'网络超时，请重试']);    
     	}
     }
-
+      /*
+     * @param  description   获取角色列表
+     * @param  参数说明       body包含以下参数[
+     *     search       搜索条件 （非必填项）
+     *     page         当前页码 （不是必填项）
+     *     limit        每页显示条件 （不是必填项）
+     *  
+     * ]
+     * @param author    lys
+     * @param ctime     2020-04-29
+     */
     public function getAuthList(){
          $result =  Adminuser::getAuthList(self::$accept_data);
          return response()->json($result);
@@ -76,8 +97,8 @@ class AdminUserController extends Controller {
      * @param  description   添加后台账号
      * @param  参数说明       body包含以下参数[
      *     school_id       所属学校id
-     *     account         账号
-     *     real_name       姓名
+     *     username         账号
+     *     realname        姓名
      *     mobile          手机号
      *     sex             性别
      *     password        密码
@@ -86,23 +107,21 @@ class AdminUserController extends Controller {
      *     teacher_id      关联讲师id串
      * ]
      * @param author    lys
-     * @param ctime     2020-04-29
+     * @param ctime     2020-04-29   5.12修改账号唯一性验证
      */
 
     public function doInsertAdminUser(){
-
         $data = self::$accept_data;
-         
         $validator = Validator::make($data, 
                 [
-                'school_id' => 'required|integer',
-                'username' => 'required|unique:ld_admin',
-                'realname' => 'required',
-                'mobile' => 'required|regex:/^1[3456789][0-9]{9}$/',
-                'sex' => 'required|integer',
-                'password' => 'required',
-                'pwd' => 'required',
-                'role_id' => 'required|integer',
+                    'school_id' => 'required|integer',
+                    'username' => 'required',
+                    'realname' => 'required',
+                    'mobile' => 'required|regex:/^1[3456789][0-9]{9}$/',
+                    'sex' => 'required|integer',
+                    'password' => 'required',
+                    'pwd' => 'required',
+                    'role_id' => 'required|integer',
                 ],
                 Adminuser::message());
         if($validator->fails()) {
@@ -113,13 +132,26 @@ class AdminUserController extends Controller {
         }
         if($data['password'] != $data['pwd']){
             return response()->json(['code'=>422,'msg'=>'登录密码不一致']);
+        } 
+        $count  = Adminuser::where('username',$data['username'])->where('school_id',$data['school_id'])->where('is_del',1)->count();
+        if($count>0){
+            return response()->json(['code'=>422,'msg'=>'账号已存在']);
         }
         unset($data['pwd']);
         $data['password'] = password_hash($data['password'], PASSWORD_DEFAULT);
-        // $data['admin_id'] = CurrentAdmin::user()['id'];
         $data['admin_id'] = CurrentAdmin::user()['id'];
         $result = Adminuser::insertAdminUser($data);
         if($result>0){
+            //添加日志操作
+            AdminLog::insertAdminLog([
+                'admin_id'       =>   CurrentAdmin::user()['id'] ,
+                'module_name'    =>  'Adminuser' ,
+                'route_url'      =>  'admin/adminuser/doInsertAdminUser' , 
+                'operate_method' =>  'insert' ,
+                'content'        =>  json_encode($data),
+                'ip'             =>  $_SERVER["REMOTE_ADDR"] ,
+                'create_at'      =>  date('Y-m-d H:i:s')
+            ]);
             return   response()->json(['code'=>200,'msg'=>'添加成功']); 
         }else{
             return  response()->json(['code'=>500,'msg'=>'网络超时，请重试']); 
@@ -158,8 +190,6 @@ class AdminUserController extends Controller {
             'admin_user'=>$adminUserArr['data'],
             'teacher' => $teacherArr,
             'role_auth' => $roleAuthArr,
-       
-
         ];
         return response()->json(['code'=>200,'msg'=>'获取信息成功','data'=>$arr]);
     
@@ -167,7 +197,16 @@ class AdminUserController extends Controller {
     /*
      * @param  description   账号信息（编辑）
      * @param  参数说明       body包含以下参数[
-     *      id => 账号id  
+     *      id => 账号id 
+            school_id => 学校id  
+            username => 账号名称
+            realname => 真实姓名
+            mobile => 联系方式
+            sex => 性别
+            password => 登录密码 
+            pwd => 确认密码
+            role_id => 角色id
+            teacher_id => 老师id组
      * ]
      * @param author    lys
      * @param ctime     2020-05-04
@@ -207,7 +246,22 @@ class AdminUserController extends Controller {
         $data['password'] = password_hash($data['password'], PASSWORD_DEFAULT);
         unset($data['pwd']);
         $result = Adminuser::where('id','=',$data['id'])->update($data);
-        return   response()->json(['code'=>200,'msg'=>'更改成功']); 
+        if($result){
+             //添加日志操作
+            AdminLog::insertAdminLog([
+                'admin_id'       =>   CurrentAdmin::user()['id'] ,
+                'module_name'    =>  'Adminuser' ,
+                'route_url'      =>  'admin/adminuser/doAdminUserUpdate' , 
+                'operate_method' =>  'update' ,
+                'content'        =>  json_encode($data),
+                'ip'             =>  $_SERVER["REMOTE_ADDR"] ,
+                'create_at'      =>  date('Y-m-d H:i:s')
+            ]);
+            return   response()->json(['code'=>200,'msg'=>'更改成功']);
+        }else{
+            return   response()->json(['code'=>500,'msg'=>'网络超时，请重试']);    
+        }
+       
     }
     /*
      * @param  description   登录账号权限（菜单栏）

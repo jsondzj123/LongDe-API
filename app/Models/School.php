@@ -7,13 +7,14 @@ use Illuminate\Support\Facades\DB;
 
 use App\Models\Teacher;
 use App\Models\Admin;
+use App\Tools\CurrentAdmin;
 class School extends Model {
     //指定别的表名
     public $table = 'ld_school';
     //时间戳设置
     public $timestamps = false;
 
-
+    //错误信息
      public static function message()
     {
         return [
@@ -65,9 +66,6 @@ class School extends Model {
             return ['code'=>201,'msg'=>'学校信息不存在'];
         }
     }
-    // public static  function getSchoolAll(){
-
-    // }
         /*
          * @param  descriptsion 获取学校信息
          * @param  $field   字段列
@@ -115,18 +113,27 @@ class School extends Model {
         }
         $result = Admin::where('id',$data['user_id'])->update($update);
         if($result){
+            AdminLog::insertAdminLog([
+                'admin_id'       =>   CurrentAdmin::user()['id'] ,
+                'module_name'    =>  'School' ,
+                'route_url'      =>  'admin/school/doAdminUpdate' , 
+                'operate_method' =>  'update',
+                'content'        =>  json_encode($data),
+                'ip'             =>  $_SERVER["REMOTE_ADDR"] ,
+                'create_at'      =>  date('Y-m-d H:i:s')
+            ]); 
             return ['code'=>200,'msg'=>'更新成功'];
         }else{
             return ['code'=>202,'msg'=>'更新失败'];
         }
     }
     
-        /*
-         * @param  获取分校讲师列表
-         * @param  author  lys
-         * @param  ctime   2020/5/7
-         * return  array
-         */
+    /*
+     * @param  获取分校讲师列表
+     * @param  author  lys
+     * @param  ctime   2020/5/7
+     * return  array
+     */
     public static function getSchoolTeacherList($data){
             $school= School::find($data['school_id']);  //获取学校信息 
             $teacher = Teacher::where(['school_id'=>$data['school_id'],'is_del' =>0,'type'=>2])->select('id','head_icon','real_name','describe','school_id')->get()->toArray();//学校自己添加的讲师
@@ -162,9 +169,7 @@ class School extends Model {
                         ]
             ];
             return $arr;
-    }
-
-
+    }  
 }
 
 
