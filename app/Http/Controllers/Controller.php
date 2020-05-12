@@ -42,7 +42,7 @@ class Controller extends BaseController {
         } elseif (is_string($data)) {
             return response()->json(['code' => $statusCode, 'msg' => $data]);
         } else {
-            return response()->json($data, $statusCode);
+            return response()->json(['code' => $statusCode, 'msg' => 'success', 'data' => $data]);
         }
         return response()->json($data);
     }
