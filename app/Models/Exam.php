@@ -712,4 +712,74 @@ class Exam extends Model {
             return ['code' => 200 , 'msg' => '获取列表成功' , 'data' => ['child_list' => [] , 'total' => 0 , 'pagesize' => $pagesize , 'page' => $page]];
         }
     }
+    
+    
+    /*
+     * @param  description   随机生成试题的方法
+     * @param  参数说明       body包含以下参数[
+     *     chapter_id      章id
+     *     joint_id        节id
+     *     number          试题数量
+     *     simple_ratio    简单
+     *     kind_ratio      一般
+     *     hard_ratio      困难
+     * ]
+     * @param author    dzj
+     * @param ctime     2020-05-12
+     * return array
+     */
+    public static function getRandExamList($body=[]){
+        //判断传过来的数组数据是否为空
+        if(!$body || !is_array($body)){
+            return ['code' => 202 , 'msg' => '传递数据不合法'];
+        }
+        
+        //判断章是否合法
+        if(empty($body['chapter_id']) || !is_numeric($body['chapter_id']) || $body['chapter_id'] <= 0){
+            return ['code' => 202 , 'msg' => '章id不合法'];
+        }
+        
+        //判断节是否合法
+        if(empty($body['joint_id']) || !is_numeric($body['joint_id']) || $body['joint_id'] <= 0){
+            return ['code' => 202 , 'msg' => '节id不合法'];
+        }
+        
+        //判断试题数量是否为空
+        if(empty($body['number']) || $body['number'] <= 0 || !is_numeric($body['number'])){
+            return ['code' => 202 , 'msg' => '试题数量不合法'];
+        }
+        
+        //判断简单占比是否合法
+        if(empty($body['simple_ratio']) || $body['simple_ratio'] <= 0 || !is_numeric($body['simple_ratio'])){
+            return ['code' => 202 , 'msg' => '简单占比不合法'];
+        }
+        
+        //判断一般占比是否合法
+        if(empty($body['kind_ratio']) || $body['kind_ratio'] <= 0 || !is_numeric($body['kind_ratio'])){
+            return ['code' => 202 , 'msg' => '一般占比不合法'];
+        }
+        
+        //判断困难占比是否合法
+        if(empty($body['hard_ratio']) || $body['hard_ratio'] <= 0 || !is_numeric($body['hard_ratio'])){
+            return ['code' => 202 , 'msg' => '困难占比不合法'];
+        }
+        
+        //简单试题数量
+        $simple_number   =   $body['number'] * ($body['simple_ratio'] / 100);
+        //一般试题数量
+        $kind_number     =   $body['number'] * ($body['kind_ratio'] / 100);
+        //困难试题数量
+        $hard_number     =   $body['number'] * ($body['hard_ratio'] / 100);
+        
+        //简单试题随机
+        $simple_exam_list = self::select("id" , "exam_content")->where("is_del" , 0)->where("item_diffculty" , 1)->orderByRaw("RAND()")->limit($simple_number)->get();
+        
+        //一般试题随机
+        $kind_exam_list   = self::select("id" , "exam_content")->where("is_del" , 0)->where("item_diffculty" , 2)->orderByRaw("RAND()")->limit($kind_number)->get();
+        
+        //困难试题随机
+        $hard_exam_list   = self::select("id" , "exam_content")->where("is_del" , 0)->where("item_diffculty" , 3)->orderByRaw("RAND()")->limit($hard_number)->get();
+        
+        return ['code' => 200 , 'msg' => '获取列表成功' , 'data' => ['simple_exam_list' => $simple_exam_list , 'kind_exam_list' => $kind_exam_list , 'hard_exam_list' => $hard_exam_list]];
+    }
 }
