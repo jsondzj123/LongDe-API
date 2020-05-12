@@ -45,23 +45,23 @@ class StatisticsController extends Controller {
            ->where(['ld_student.is_forbid'=>1,'ld_school.is_del'=>1,'ld_school.is_forbid'=>1])
            ->where(function($query) use ($data) {
                //分校
-               if($data['school_id'] != ''){
+               if(!empty($data['school_id'])&&$data['school_id'] != ''){
                    $query->where('ld_student.school_id',$data['school_id']);
                }
                //来源
-               if($data['reg_source'] != ''){
+               if(!empty($data['reg_source'])&&$data['reg_source'] != ''){
                    $query->where('ld_student.reg_source',$data['reg_source']);
                }
                //用户类型
-               if($data['enroll_status'] != ''){
+               if(!empty($data['enroll_status'])&&$data['enroll_status'] != ''){
                    $query->where('ld_student.enrioll_status',$data['enroll_status']);
                }
                //用户姓名
-               if($data['real_name'] != ''){
+               if(!empty($data['real_name'])&&$data['real_name'] != ''){
                    $query->where('ld_student.real_name','like','%'.$data['real_name'].'%');
                }
                //用户手机号
-               if($data['phone'] != ''){
+               if(!empty($data['phone'])&&$data['phone'] != ''){
                    $query->where('ld_student.phone','like','%'.$data['phone'].'%');
                }
            })
@@ -91,23 +91,23 @@ class StatisticsController extends Controller {
                ->where(['ld_student.is_forbid'=>1])
                ->where(function($query) use ($data) {
                    //分校
-                   if($data['school_id'] != ''){
+                   if(!empty($data['school_id'])&&$data['school_id'] != ''){
                        $query->where('ld_student.school_id',$data['school_id']);
                    }
                    //来源
-                   if($data['reg_source'] != ''){
+                   if(!empty($data['reg_source'])&&$data['reg_source'] != ''){
                        $query->where('ld_student.reg_source',$data['reg_source']);
                    }
                    //用户类型
-                   if($data['enroll_status'] != ''){
+                   if(!empty($data['enroll_status'])&&$data['enroll_status'] != ''){
                        $query->where('ld_student.enrioll_status',$data['enroll_status']);
                    }
                    //用户姓名
-                   if($data['real_name'] != ''){
+                   if(!empty($data['real_name'])&&$data['real_name'] != ''){
                        $query->where('ld_student.real_name','like','%'.$data['real_name'].'%');
                    }
                    //用户手机号
-                   if($data['phone'] != ''){
+                   if(!empty($data['phone'])&&$data['phone'] != ''){
                        $query->where('ld_student.phone','like','%'.$data['phone'].'%');
                    }
                })
@@ -123,6 +123,7 @@ class StatisticsController extends Controller {
            for($i=0; $i<$days; $i++) {
                $arr[] =['time'=> date('Y-m-d', $stimestamp + (86400 * $i)),'num'=>0];
            }
+           //数组处理
            $xlen = [];
            $ylen = [];
            foreach ($arr as $k=>&$v){
@@ -169,15 +170,15 @@ class StatisticsController extends Controller {
             ->leftJoin('ld_school','ld_school.id','=','ld_lecturer_educationa.school_id')
             ->where(function($query) use ($data) {
                 //分校
-                if($data['school_id'] != ''){
+                if(!empty($data['school_id'])&&$data['school_id'] != ''){
                     $query->where('ld_lecturer_educationa.school_id',$data['school_id']);
                 }
                 //用户姓名
-                if($data['real_name'] != ''){
+                if(!empty($data['real_name'])&&$data['real_name'] != ''){
                     $query->where('ld_lecturer_educationa.real_name','like','%'.$data['real_name'].'%');
                 }
                 //用户手机号
-                if($data['phone'] != ''){
+                if(!empty($data['phone'])&&$data['phone'] != ''){
                     $query->where('ld_lecturer_educationa.phone','like','%'.$data['phone'].'%');
                 }
             })
