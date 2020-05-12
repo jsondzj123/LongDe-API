@@ -52,10 +52,10 @@ class RoleController extends Controller {
      * @param  author    lys
      * @param  ctime     2020-04-28 13:27
      */
-    public function upRoleStatus(){
+    public function upRoleDelStatus(){
         $id = self::$accept_data['id'];
-        if( !isset($id) || empty($id)){
-            return response()->json(['code'=>203,'msg'=>'参数为空或缺少参数']);
+        if( !isset($id) || empty($id) || is_int($id)){
+            return response()->json(['code'=>203,'msg'=>'角色标识为空或缺少或类型不合法']);
         }
         $role = Roleauth::findOrfail($id);
         $role->is_del = 0;

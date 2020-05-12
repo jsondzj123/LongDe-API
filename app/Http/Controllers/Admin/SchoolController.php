@@ -61,85 +61,87 @@ class SchoolController extends Controller {
             return response()->json(['code'=>200,'msg'=>'Success','data'=>['school_list' => [] , 'total' => 0 , 'pagesize' => $pagesize , 'page' => $page,'sum_page'=>$sum_page]]);           
     }
     /*
-     * @param  description 修改分校状态 
+     * @param  description 修改分校状态 (删除)
      * @param  参数说明       body包含以下参数[
      *     id      分校id
      * ]
      * @param author    lys
      * @param ctime     2020-05-06
      */
-    public function doUpdateSchoolStatus(){
+    public function doSchoolDel(){
         $data = self::$accept_data;
         $validator = Validator::make($data, 
-                ['type' => 'required|integer',
-                'school_id' => 'required|integer'],
+                ['school_id' => 'required|integer'],
                 School::message());
         if($validator->fails()) {
             return response()->json(json_decode($validator->errors()->first(),1));
         }
         try{
             $school = School::find($data['school_id']);
-            if($data['type'] == 1){
-                //删除
-                $school->is_del = 0; 
-                if( $school->save() &&Adminuser::upUserStatus(['school_id'=>$school['id']],['is_forbid'=>0])){
-                    AdminLog::insertAdminLog([
-                        'admin_id'       =>   CurrentAdmin::user()['id'] ,
-                        'module_name'    =>  'School' ,
-                        'route_url'      =>  'admin/school/doUpdateSchoolStatus' , 
-                        'operate_method' =>  'update' ,
-                        'content'        =>  json_encode($data),
-                        'ip'             =>  $_SERVER["REMOTE_ADDR"] ,
-                        'create_at'      =>  date('Y-m-d H:i:s')
-                    ]);
-                    return response()->json(['code' => 200 , 'msg' => '更新成功']);
-                } else {
-                    return response()->json(['code' => 201 , 'msg' => '更新失败']);
-                }
-            }else if($data['type']  == 2){
-                //禁用启用
-                if($school['is_forbid'] == 1){
-                    //禁用
-                    $school->is_forbid = 0; 
-                    if($school->save() && Adminuser::upUserStatus(['school_id'=>$school['id']],['is_forbid'=>0])){
-                        AdminLog::insertAdminLog([
-                            'admin_id'       =>   CurrentAdmin::user()['id'] ,
-                            'module_name'    =>  'School' ,
-                            'route_url'      =>  'admin/school/doUpdateSchoolStatus' , 
-                            'operate_method' =>  'update' ,
-                            'content'        =>  json_encode($data),
-                            'ip'             =>  $_SERVER["REMOTE_ADDR"] ,
-                            'create_at'      =>  date('Y-m-d H:i:s')
-                        ]);
-                        return response()->json(['code' => 200 , 'msg' => '禁用成功']);
-                    } else {
-                        return response()->json(['code' => 201 , 'msg' => '禁用失败']);
-                    }
-                }else{
-                    //启用
-                     $school->is_forbid = 1; 
-                     if($school->save() && Adminuser::upUserStatus(['school_id'=>$school['id']],['is_forbid'=>1])){
-                        AdminLog::insertAdminLog([
-                            'admin_id'       =>   CurrentAdmin::user()['id'] ,
-                            'module_name'    =>  'School' ,
-                            'route_url'      =>  'admin/school/doUpdateSchoolStatus' , 
-                            'operate_method' =>  'update' ,
-                            'content'        =>  json_encode($data),
-                            'ip'             =>  $_SERVER["REMOTE_ADDR"] ,
-                            'create_at'      =>  date('Y-m-d H:i:s')
-                        ]);
-                        return response()->json(['code' => 200 , 'msg' => '启用成功']);
-                    } else {
-                        return response()->json(['code' => 201 , 'msg' => '启用失败']);
-                    }
-                }
+            $school->is_del = 0; 
+            if( $school->save() &&Adminuser::upUserStatus(['school_id'=>$school['id']],['is_del'=>0])){
+                AdminLog::insertAdminLog([
+                    'admin_id'       =>   CurrentAdmin::user()['id'] ,
+                    'module_name'    =>  'School' ,
+                    'route_url'      =>  'admin/school/doSchoolForbid' , 
+                    'operate_method' =>  'update' ,
+                    'content'        =>  json_encode($data),
+                    'ip'             =>  $_SERVER["REMOTE_ADDR"] ,
+                    'create_at'      =>  date('Y-m-d H:i:s')
+                ]);
+                return response()->json(['code' => 200 , 'msg' => '删除成功']);
+            } else {
+                return response()->json(['code' => 201 , 'msg' => '删除失败']);
             }
         } catch (Exception $ex) {
             return response()->json(['code' => 500 , 'msg' => $ex->getMessage()]);
         }
-        return response()->json(['code' => 200 , 'msg' => 'Success']);
     }
-      /*
+
+    /*
+     * @param  description 修改分校状态 (启禁)
+     * @param  参数说明       body包含以下参数[
+     *     id      分校id
+     * ]
+     * @param author    lys
+     * @param ctime     2020-05-06
+     */
+    public function doSchoolForbid(){
+        $data = self::$accept_data;
+        $validator = Validator::make($data, 
+                ['school_id' => 'required|integer'],
+                School::message());
+        if($validator->fails()) {
+            return response()->json(json_decode($validator->errors()->first(),1));
+        }
+        try{
+            $school = School::find($data['school_id']);
+            if($school['is_forbid'] != 1){
+                $school->is_forbid = 1; 
+                $is_forbid = 1;
+            }else{
+                $school->is_forbid = 0; 
+                $is_forbid = 0;
+            }   
+            if( $school->save() &&Adminuser::upUserStatus(['school_id'=>$school['id']],['is_forbid'=>$is_forbid])){
+                AdminLog::insertAdminLog([
+                    'admin_id'       =>   CurrentAdmin::user()['id'] ,
+                    'module_name'    =>  'School' ,
+                    'route_url'      =>  'admin/school/doSchoolDel' , 
+                    'operate_method' =>  'update' ,
+                    'content'        =>  json_encode($data),
+                    'ip'             =>  $_SERVER["REMOTE_ADDR"] ,
+                    'create_at'      =>  date('Y-m-d H:i:s')
+                ]);
+                return response()->json(['code' => 200 , 'msg' => '更新成功']);
+            } else {
+                return response()->json(['code' => 201 , 'msg' => '更新失败']);
+            }
+        } catch (Exception $ex) {
+            return response()->json(['code' => 500 , 'msg' => $ex->getMessage()]);
+        }
+    }
+    /*
      * @param  description 学校添加 
      * @param  参数说明       body包含以下参数[
      *  'name' =>分校名称
