@@ -115,6 +115,7 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use (
     $router->get('lesson/{id}', 'LessonController@show');
     $router->post('lesson', 'LessonController@store');
     $router->post('lesson/{id}/update', 'LessonController@update');
+    $router->post('lesson/{id}/edit', 'LessonController@edit');
     $router->get('lesson/{id}/delete', 'LessonController@destroy');
 
     /*
