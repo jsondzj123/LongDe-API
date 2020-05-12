@@ -217,9 +217,12 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use (
         
         /****************试题部分  start****************/
         $router->post('doInsertExam', 'ExamController@doInsertExam');                    //添加试题的方法
+        $router->post('doUpdateExam', 'ExamController@doUpdateExam');                    //修改试题的方法
         $router->post('doDeleteExam', 'ExamController@doDeleteExam');                    //删除试题的方法
         $router->post('doPublishExam', 'ExamController@doPublishExam');                  //发布试题的方法
+        $router->get('getExamInfoById', 'ExamController@getExamInfoById');               //试题详情的方法
         $router->get('getExamList', 'ExamController@getExamList');                       //试题列表的方法
+        $router->get('getMaterialList', 'ExamController@getMaterialList');               //查看材料题的方法
         $router->get('getExamCommonList', 'ExamController@getExamCommonList');           //试题公共参数列表
         /****************试题部分  end****************/
         

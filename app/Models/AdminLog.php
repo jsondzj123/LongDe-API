@@ -8,6 +8,7 @@ class AdminLog extends Model {
     public $table      = 'ld_admin_operate_log';
     //时间戳设置
     public $timestamps = false;
+    public static $admin_user;
     
     /*
      * @param  description   获取后端用户基本信息
@@ -17,7 +18,8 @@ class AdminLog extends Model {
      * return  int
      */
     public static function getAdminInfo(){
-        return \App\Tools\CurrentAdmin::user();
+        self::$admin_user['admin_user'] = \App\Tools\CurrentAdmin::user();
+        return (object)self::$admin_user;
     }
 
     /*
