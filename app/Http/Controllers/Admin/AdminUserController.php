@@ -36,49 +36,77 @@ class AdminUserController extends Controller {
     }
     
     /*
-     * @param  description  更改用户状态（删除/启用、禁用）
+     * @param  description  更改用户状态（启用、禁用）
      * @param  参数说明       body包含以下参数[
-     *     type         类型(1 删除 2 启用\禁用)
      *     id           用户id
      * ]
      * @param author    lys
      * @param ctime     2020-04-29
      */
-    public function upUserStatus(){
-    	$data =  self::$accept_data;
-    	$where = [];
-    	$updateArr = [];
-    	if( !isset($data['id']) || !isset($data['type']) ){
-    		return response()->json(['code'=>201,'msg'=>'缺少参数']);
-    	}
-      	$userInfo = Adminuser::getUserOne(['id'=>$data['id']]);
-    	if(!$userInfo){
-    			return response()->json(['code'=>$userInfo['code'],'msg'=>$userInfo['msg']]); 
-    	}	
-    	$where['id'] = $data['id'];
-    	if($data['type'] == 1){
-    			$updateArr['is_del'] = 0;
-    	}else if($data['type'] == 2){
-    		if($userInfo['data']['is_forbid'] == 1)  $updateArr['is_forbid'] = 0;  else  $updateArr['is_forbid'] = 1;	
-    	}
-    	$result = Adminuser::upUserStatus($where,$updateArr);
-    	if($result){
+    public function upUserForbidStatus(){
+        $data =  self::$accept_data;
+        $where = [];
+        $updateArr = [];
+        if( !isset($data['id']) || empty($data['id']) || is_int($data['id']) ){
+            return response()->json(['code'=>201,'msg'=>'账号id为空或缺少或类型不合法']);
+        }
+        $userInfo = Adminuser::getUserOne(['id'=>$data['id']]);
+        if(!$userInfo){
+            return response()->json(['code'=>$userInfo['code'],'msg'=>$userInfo['msg']]); 
+        }   
+        if($userInfo['data']['is_forbid'] == 1)  $updateArr['is_forbid'] = 0;  else  $updateArr['is_forbid'] = 1; 
+        $result = Adminuser::upUserStatus($data,$updateArr);
+        if($result){
             //添加日志操作
             AdminLog::insertAdminLog([
                 'admin_id'       =>   CurrentAdmin::user()['id'] ,
                 'module_name'    =>  'Adminuser' ,
-                'route_url'      =>  'admin/adminuser/upUserStatus' , 
+                'route_url'      =>  'admin/adminuser/upUserForbidStatus' , 
                 'operate_method' =>  'update' ,
                 'content'        =>  json_encode($data),
                 'ip'             =>  $_SERVER["REMOTE_ADDR"] ,
                 'create_at'      =>  date('Y-m-d H:i:s')
             ]);
-    		return response()->json(['code'=>200,'msg'=>'Success']);    
-    	}else{
-    		return response()->json(['code'=>500,'msg'=>'网络超时，请重试']);    
-    	}
+            return response()->json(['code'=>200,'msg'=>'Success']);    
+        }else{
+            return response()->json(['code'=>500,'msg'=>'网络超时，请重试']);    
+        }
     }
-      /*
+    /*
+     * @param  description  更改用户状态（删除）
+     * @param  参数说明       body包含以下参数[
+     *     id           用户id
+     * ]
+     * @param author    lys
+     * @param ctime     2020-04-29
+     */
+    public function upUserDelStatus(){
+        $data =  self::$accept_data;
+        $where = [];
+        $updateArr = [];
+        if( !isset($data['id']) || empty($data['id']) || is_int($data['id']) ){
+            return response()->json(['code'=>201,'msg'=>'账号id为空或缺少或类型不合法']);
+        }
+        $userInfo = Adminuser::findOrFail($data['id']);
+        $userInfo->is_del = 0;
+        $result = Adminuser::upUserStatus($data,$updateArr);
+        if($userInfo->save()){
+            //添加日志操作
+            AdminLog::insertAdminLog([
+                'admin_id'       =>   CurrentAdmin::user()['id'] ,
+                'module_name'    =>  'Adminuser' ,
+                'route_url'      =>  'admin/adminuser/upUserDelStatus' , 
+                'operate_method' =>  'update' ,
+                'content'        =>  json_encode($data),
+                'ip'             =>  $_SERVER["REMOTE_ADDR"] ,
+                'create_at'      =>  date('Y-m-d H:i:s')
+            ]);
+            return response()->json(['code'=>200,'msg'=>'Success']);    
+        }else{
+            return response()->json(['code'=>500,'msg'=>'网络超时，请重试']);    
+        }
+    }
+    /*
      * @param  description   获取角色列表
      * @param  参数说明       body包含以下参数[
      *     search       搜索条件 （非必填项）
