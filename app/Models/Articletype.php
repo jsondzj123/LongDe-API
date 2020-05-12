@@ -19,7 +19,7 @@ class Articletype extends Model {
          */
     public static function getArticleList($data){
         $where['ld_article_type.is_del'] = 1;
-       if($data['school_id'] != ''){
+       if(!empty($data['school_id']) && $data['school_id'] != ''){
            $where['ld_article_type.school_id'] = $data['school_id'];
        }
        $page = (!empty($data['page']))?$data['page']:20;
@@ -64,7 +64,18 @@ class Articletype extends Model {
             }
             $up = self::where(['id'=>$data['id']])->update(['status'=>1]);
             if($up){
-                //加日志
+                //获取后端的操作员id
+                $admin_id = isset(AdminLog::getAdminInfo()->admin_user->id) ? AdminLog::getAdminInfo()->admin_user->id : 0;
+                //添加日志操作
+                AdminLog::insertAdminLog([
+                    'admin_id'       =>   $admin_id  ,
+                    'module_name'    =>  'Articletype' ,
+                    'route_url'      =>  'admin/Articletype/editStatusToId' ,
+                    'operate_method' =>  'update' ,
+                    'content'        =>  '启用文章分类'.json_encode($data) ,
+                    'ip'             =>  $_SERVER["REMOTE_ADDR"] ,
+                    'create_at'      =>  date('Y-m-d H:i:s')
+                ]);
                 return ['code' => 200 , 'msg' => '修改成功'];
             }else{
                 return ['code' => 202 , 'msg' => '修改失败'];
@@ -75,7 +86,18 @@ class Articletype extends Model {
             }
             $up = self::where(['id'=>$data['id']])->update(['status'=>0]);
             if($up){
-                //加日志
+                //获取后端的操作员id
+                $admin_id = isset(AdminLog::getAdminInfo()->admin_user->id) ? AdminLog::getAdminInfo()->admin_user->id : 0;
+                //添加日志操作
+                AdminLog::insertAdminLog([
+                    'admin_id'       =>   $admin_id  ,
+                    'module_name'    =>  'Articletype' ,
+                    'route_url'      =>  'admin/Articletype/editStatusToId' ,
+                    'operate_method' =>  'update' ,
+                    'content'        =>  '禁用文章分类'.json_encode($data) ,
+                    'ip'             =>  $_SERVER["REMOTE_ADDR"] ,
+                    'create_at'      =>  date('Y-m-d H:i:s')
+                ]);
                 return ['code' => 200 , 'msg' => '修改成功'];
             }else{
                 return ['code' => 202 , 'msg' => '修改失败'];
@@ -99,7 +121,18 @@ class Articletype extends Model {
         }
         $update = self::where(['id'=>$data['id']])->update(['is_del'=>0]);
         if($update){
-            //加操作日志
+            //获取后端的操作员id
+            $admin_id = isset(AdminLog::getAdminInfo()->admin_user->id) ? AdminLog::getAdminInfo()->admin_user->id : 0;
+            //添加日志操作
+            AdminLog::insertAdminLog([
+                'admin_id'       =>   $admin_id  ,
+                'module_name'    =>  'Articletype' ,
+                'route_url'      =>  'admin/Articletype/editDelToId' ,
+                'operate_method' =>  'update' ,
+                'content'        =>  '软删除文章分类'.json_encode($data) ,
+                'ip'             =>  $_SERVER["REMOTE_ADDR"] ,
+                'create_at'      =>  date('Y-m-d H:i:s')
+            ]);
             return ['code' => 200 , 'msg' => '删除成功'];
         }else{
             return ['code' => 202 , 'msg' => '删除失败'];
@@ -128,7 +161,18 @@ class Articletype extends Model {
         }else {
             $add = self::insert($data);
             if($add){
-                //加日志
+                //获取后端的操作员id
+                $admin_id = isset(AdminLog::getAdminInfo()->admin_user->id) ? AdminLog::getAdminInfo()->admin_user->id : 0;
+                //添加日志操作
+                AdminLog::insertAdminLog([
+                    'admin_id'       =>   $admin_id  ,
+                    'module_name'    =>  'Articletype' ,
+                    'route_url'      =>  'admin/Articletype/addType' ,
+                    'operate_method' =>  'delete' ,
+                    'content'        =>  '添加文章分类'.json_encode($data) ,
+                    'ip'             =>  $_SERVER["REMOTE_ADDR"] ,
+                    'create_at'      =>  date('Y-m-d H:i:s')
+                ]);
                 return ['code' => 200 , 'msg' => '添加成功'];
             }else{
                 return ['code' => 203 , 'msg' => '添加失败'];
@@ -150,12 +194,24 @@ class Articletype extends Model {
         unset($data['id']);
         $update = self::where(['id'=>$id])->update($data);
         if($update){
-            //加日志
+            //获取后端的操作员id
+            $admin_id = isset(AdminLog::getAdminInfo()->admin_user->id) ? AdminLog::getAdminInfo()->admin_user->id : 0;
+            //添加日志操作
+            AdminLog::insertAdminLog([
+                'admin_id'       =>   $admin_id  ,
+                'module_name'    =>  'Articletype' ,
+                'route_url'      =>  'admin/Articletype/editForId' ,
+                'operate_method' =>  'update' ,
+                'content'        =>  '文章分类修改id为'.$id.json_encode($data) ,
+                'ip'             =>  $_SERVER["REMOTE_ADDR"] ,
+                'create_at'      =>  date('Y-m-d H:i:s')
+            ]);
             return ['code' => 200 , 'msg' => '修改成功'];
         }else{
             return ['code' => 202 , 'msg' => '修改失败'];
         }
     }
+    
     /*
          * @param  单条查询
          * @param  $id
@@ -168,7 +224,6 @@ class Articletype extends Model {
             ->leftJoin('ld_school','ld_school.id','=','ld_article_type.school_id')
             ->where(['ld_article_type.id'=>$data['id'],'ld_article_type.is_del'=>1])
             ->first();
-        
         return ['code' => 200 , 'msg' => '获取成功','data'=>$find];
     }
 }

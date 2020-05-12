@@ -46,6 +46,7 @@ class CommonController extends BaseController {
     public  function getRoleAuth(){
          try{
             $adminId = CurrentAdmin::user()['id'];
+            print_r(CurrentAdmin::user());die;
 
             $data =  \App\Models\Admin::getUserOne(['id'=>$adminId]);
             if($data['code'] != 200){

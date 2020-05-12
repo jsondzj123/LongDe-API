@@ -11,6 +11,7 @@ use App\Models\School;
 use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\Validator;
 use App\Tools\CurrentAdmin;
+use App\Models\AdminLog;
 class SchoolController extends Controller {
   
      /*
@@ -18,7 +19,7 @@ class SchoolController extends Controller {
      * @param  参数说明       body包含以下参数[
      *     name       搜索条件
      *     dns        分校域名
-     *     page         当前页码  必填项
+     *     page         当前页码  
      *     limit        每页显示条数
      * ]
      * @param author    lys
@@ -82,6 +83,15 @@ class SchoolController extends Controller {
                 //删除
                 $school->is_del = 0; 
                 if( $school->save() &&Adminuser::upUserStatus(['school_id'=>$school['id']],['is_forbid'=>0])){
+                    AdminLog::insertAdminLog([
+                        'admin_id'       =>   CurrentAdmin::user()['id'] ,
+                        'module_name'    =>  'School' ,
+                        'route_url'      =>  'admin/school/doUpdateSchoolStatus' , 
+                        'operate_method' =>  'update' ,
+                        'content'        =>  json_encode($data),
+                        'ip'             =>  $_SERVER["REMOTE_ADDR"] ,
+                        'create_at'      =>  date('Y-m-d H:i:s')
+                    ]);
                     return response()->json(['code' => 200 , 'msg' => '更新成功']);
                 } else {
                     return response()->json(['code' => 201 , 'msg' => '更新失败']);
@@ -92,6 +102,15 @@ class SchoolController extends Controller {
                     //禁用
                     $school->is_forbid = 0; 
                     if($school->save() && Adminuser::upUserStatus(['school_id'=>$school['id']],['is_forbid'=>0])){
+                        AdminLog::insertAdminLog([
+                            'admin_id'       =>   CurrentAdmin::user()['id'] ,
+                            'module_name'    =>  'School' ,
+                            'route_url'      =>  'admin/school/doUpdateSchoolStatus' , 
+                            'operate_method' =>  'update' ,
+                            'content'        =>  json_encode($data),
+                            'ip'             =>  $_SERVER["REMOTE_ADDR"] ,
+                            'create_at'      =>  date('Y-m-d H:i:s')
+                        ]);
                         return response()->json(['code' => 200 , 'msg' => '禁用成功']);
                     } else {
                         return response()->json(['code' => 201 , 'msg' => '禁用失败']);
@@ -100,6 +119,15 @@ class SchoolController extends Controller {
                     //启用
                      $school->is_forbid = 1; 
                      if($school->save() && Adminuser::upUserStatus(['school_id'=>$school['id']],['is_forbid'=>1])){
+                        AdminLog::insertAdminLog([
+                            'admin_id'       =>   CurrentAdmin::user()['id'] ,
+                            'module_name'    =>  'School' ,
+                            'route_url'      =>  'admin/school/doUpdateSchoolStatus' , 
+                            'operate_method' =>  'update' ,
+                            'content'        =>  json_encode($data),
+                            'ip'             =>  $_SERVER["REMOTE_ADDR"] ,
+                            'create_at'      =>  date('Y-m-d H:i:s')
+                        ]);
                         return response()->json(['code' => 200 , 'msg' => '启用成功']);
                     } else {
                         return response()->json(['code' => 201 , 'msg' => '启用失败']);
@@ -121,7 +149,7 @@ class SchoolController extends Controller {
         'username' =>登录账号
         'password' =>登录密码
         'pwd' =>确认密码
-        'realname' =>联系人
+        'realname' =>联系人(真实姓名)
         'mobile' =>联系方式
      * ]
      * @param author    lys
@@ -142,6 +170,7 @@ class SchoolController extends Controller {
                  'mobile'=>'required|regex:/^1[3456789][0-9]{9}$/',
                 ],
                 School::message());
+
         if($validator->fails()) {
             return response()->json(json_decode($validator->errors()->first(),1));
         }
@@ -149,7 +178,6 @@ class SchoolController extends Controller {
             return response()->json(['code'=>2001,'msg'=>'两次密码不一致']);
         }
         try{
-          
             $school = [
                 'name' =>$data['name'],
                 'dns'  =>$data['dns'],
@@ -171,7 +199,16 @@ class SchoolController extends Controller {
                 'school_id' =>$school_id,
                 'school_status' => 0,
             ];
-            if(Admin::insertGetId($admin)>0){
+            if(Adminuser::insertGetId($admin)>0){
+                AdminLog::insertAdminLog([
+                    'admin_id'       =>   CurrentAdmin::user()['id'] ,
+                    'module_name'    =>  'School' ,
+                    'route_url'      =>  'admin/school/doInsertSchool' , 
+                    'operate_method' =>  'insert',
+                    'content'        =>  json_encode($data),
+                    'ip'             =>  $_SERVER["REMOTE_ADDR"] ,
+                    'create_at'      =>  date('Y-m-d H:i:s')
+                ]);
                 return response()->json(['code' => 200 , 'msg' => '创建成功']);
             } else {
                 return response()->json(['code' => 201 , 'msg' => '创建账号未成功']);
@@ -230,6 +267,15 @@ class SchoolController extends Controller {
             return response()->json(json_decode($validator->errors()->first(),1));
         }
         if(School::where('id',$data['id'])->update($data)){
+                AdminLog::insertAdminLog([
+                    'admin_id'       =>   CurrentAdmin::user()['id'] ,
+                    'module_name'    =>  'School' ,
+                    'route_url'      =>  'admin/school/doSchoolUpdate' , 
+                    'operate_method' =>  'update',
+                    'content'        =>  json_encode($data),
+                    'ip'             =>  $_SERVER["REMOTE_ADDR"] ,
+                    'create_at'      =>  date('Y-m-d H:i:s')
+                ]);
             return response()->json(['code' => 200 , 'msg' => '更新成功']);
         }else{
              return response()->json(['code' => 500 , 'msg' => '更新失败']);
@@ -321,6 +367,24 @@ class SchoolController extends Controller {
                 return response()->json(json_decode($validator->errors()->first(),1));
             }
             $result = School::getSchoolTeacherList(self::$accept_data);
+            return response()->json($result);
+    }
+    /*
+     * @param  description 获取分校课程列表
+     * @param  参数说明       body包含以下参数[
+     *      'school_id'=>学校id
+     * ]
+     * @param author    lys
+     * @param ctime     2020-05-11
+     */
+    public function getSchoolLessonList(){
+            $validator = Validator::make(self::$accept_data, 
+                ['school_id' => 'required|integer'],
+                School::message());
+            if ($validator->fails()) {
+                return response()->json(json_decode($validator->errors()->first(),1));
+            }
+            $result = School::getSchoolLessonList(self::$accept_data);
             return response()->json($result);
     }
 
