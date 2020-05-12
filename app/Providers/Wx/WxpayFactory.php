@@ -39,6 +39,42 @@ class WxpayFactory{
         }
         return $arr;
     }
+    //pc扫码支付
+    public function getPcPayOrder($order_number,$total_fee){
+        //获取商品名称
+        $shopname = "聚合e家-购买";
+        $url = "https://api.mch.weixin.qq.com/pay/unifiedorder";
+        $notify_url = 'https://'.$_SERVER['HTTP_HOST'].'/Admin/order/wxnotify_url';
+        $out_trade_no = $order_number;
+        $onoce_str = $this->getRandChar(32);
+        $data["appid"] = 'wx7663a456bb43d30b';
+        $data["body"] = $shopname;
+        $data["mch_id"] = '1553512891';
+        $data["nonce_str"] = $onoce_str;
+        $data["notify_url"] = $notify_url;
+        $data["out_trade_no"] = $out_trade_no;
+        $data["spbill_create_ip"] = "127.0.0.1";
+        $data["total_fee"] = $total_fee*100;
+        $data["trade_type"] = "NATIVE";
+        $s = $this->getSign($data, false);
+        $data["sign"] = $s;
+        $xml = $this->arrayToXml($data);
+        $response = $this->postXmlCurl($xml, $url);
+        //将微信返回的结果xml转成数组
+        $res = $this->xmlstr_to_array($response);
+        print_r($res);die;
+        file_put_contents('wxpay.txt', '时间:' . date('Y-m-d H:i:s') . print_r($res, true), FILE_APPEND);
+//        Storage::disk('logs')->append('wxpay.txt', 'time:'.date('Y-m-d H:i:s')."\nresponse:".$res);
+        $sign2 = $this->getOrder($res['prepay_id']["@cdata"]);
+        if(!empty($sign2)){
+            $arr = array('code'=>200,'list'=>$sign2);
+        }else{
+            $arr = array('code'=>1001,'list'=>"请确保参数合法性！");
+        }
+        return $arr;
+    }
+
+
     /*
         生成签名
     */

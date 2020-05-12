@@ -56,6 +56,7 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use (
             $router->post('getAdminUserUpdate', 'AdminUserController@getAdminUserUpdate');  //获取账号信息（编辑） √√√
             $router->post('doAdminUserUpdate', 'AdminUserController@doAdminUserUpdate');//编辑账号信息  √√  5.9  +1
         }); 
+
         //系统角色管理模块 
         $router->group(['prefix' => 'role','middleware'=> ['jwt.auth']], function () use ($router) {
             $router->post('getAuthList', 'RoleController@getAuthList'); //获取后台角色列表方法    xxx
@@ -70,6 +71,7 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use (
         $router->group(['prefix' => 'user','middleware'=> ['jwt.auth']], function () use ($router) { //用户学员相关模块方法
             $router->get('getUserList', 'UserController@getUserList'); //获取学员列表方法
         });
+
 
         /*begin 网校系统  lys*/
         $router->group(['prefix' => 'school','middleware'=> ['jwt.auth']], function () use ($router) { 
@@ -97,7 +99,7 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use (
         //用户详情
         $router->get('{id}', 'AdminController@show');
         $router->post('info', 'AdminController@info');
-        
+
         //获取学员列表
         //$router->get('getUserList', 'UserController@getUserList');
     });
@@ -116,7 +118,7 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use (
     */
     $router->get('lessonChild', 'LessonChildController@index');
     $router->get('lessonChild/{id}', 'LessonChildController@show');
-    $router->post('lessonChild/{lesson_id}', 'LessonChildController@store');
+    $router->post('lessonChild', 'LessonChildController@store');
     $router->post('lessonChild/{id}/update', 'LessonChildController@update');
     $router->get('lessonChild/{id}/delete', 'LessonChildController@destroy');
 
@@ -160,7 +162,7 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use (
         $router->get('getStudentList', 'StudentController@getStudentList');           //获取学员列表
         $router->get('getStudentCommonList', 'StudentController@getStudentCommonList');  //学员公共参数列表
     });
-    
+
     //讲师教务相关模块(dzj)
     $router->group(['prefix' => 'teacher'], function () use ($router) {
         $router->post('doInsertTeacher', 'TeacherController@doInsertTeacher');        //添加讲师教务的方法
@@ -171,7 +173,7 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use (
         $router->get('getTeacherList', 'TeacherController@getTeacherList');           //获取老师列表
         $router->get('getTeacherSearchList', 'TeacherController@getTeacherSearchList'); //讲师或教务搜索列表
     });
-    
+
     //题库相关模块(dzj)
     $router->group(['prefix' => 'question'], function () use ($router) {
         /****************题库科目部分  start****************/
@@ -208,7 +210,7 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use (
         $router->get('getPapersInfoById', 'PapersController@getPapersInfoById');         //获取试卷详情信息
         $router->get('getPapersList', 'PapersController@getPapersList');                 //获取题库列表
         /****************试卷部分  end****************/
-        
+
         /****************试题部分  start****************/
         $router->post('doInsertExam', 'ExamController@doInsertExam');                    //添加试题的方法
         $router->post('doDeleteExam', 'ExamController@doDeleteExam');                    //删除试题的方法
@@ -216,7 +218,7 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use (
         $router->get('getExamList', 'ExamController@getExamList');                       //试题列表的方法
         $router->get('getExamCommonList', 'ExamController@getExamCommonList');           //试题公共参数列表
         /****************试题部分  end****************/
-        
+
         $router->get('export', 'CommonController@doExportExamLog'); //导入导出demo
     });
     //运营模块(szw)
@@ -245,6 +247,7 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use (
         $router->post('orderUpOaForId', 'OrderController@orderUpOaForId');//订单修改oa状态
         $router->post('wxnotify_url', 'OrderController@wxnotify_url');//微信回调
         $router->post('alinotify_url', 'OrderController@alinotify_url');//ali回调
+        $router->post('Pcpay', 'OrderController@Pcpay');//pc支付
     });
     //数据模块（szw）
     $router->group(['prefix' => 'statistics'], function () use ($router) {

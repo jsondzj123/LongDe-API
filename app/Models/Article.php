@@ -20,24 +20,26 @@ class Article extends Model {
          */
     public static function getArticleList($data){
         //获取用户网校id
-        $data['num'] = isset($data['num'])?$data['num']:1;
+        $data['num'] = isset($data['num'])?$data['num']:20;
         $list = self::select('ld_article.id','ld_article.title','ld_article.create_at','ld_school.name','ld_article_type.typename','ld_admin.username')
             ->leftJoin('ld_school','ld_school.id','=','ld_article.school_id')
             ->leftJoin('ld_article_type','ld_article_type.id','=','ld_article.article_type_id')
             ->leftJoin('ld_admin','ld_admin.id','=','ld_article.user_id')
             ->where(function($query) use ($data) {
-                 if($data['school_id'] != ''){
+                 if(!empty($data['school_id']) && $data['school_id'] != ''){
                      $query->where('ld_article.school_id',$data['school_id']);
                  }
-                 if($data['type_id'] != ''){
+                 if(!empty($data['type_id']) && $data['type_id'] != '' ){
                      $query->where('ld_article.article_type_id',$data['type_id']);
                  }
-                 if($data['title'] != ''){
+
+                 if(!empty($data['title']) && $data['title'] != ''){
                      $query->where('ld_article.title','like','%'.$data['title'].'%')
                          ->orwhere('ld_article.id',$data['title']);
                  }
             })
-            ->orderBy('id','desc')
+            ->where(['ld_article.is_del'=>1,'ld_article_type.is_del'=>1,'ld_admin.is_del'=>1,'ld_admin.is_forbid'=>1,'ld_school.is_del'=>1,'ld_school.is_forbid'=>1])
+            ->orderBy('ld_article.id','desc')
             ->paginate($data['num']);
 //            ->simplePaginate($data['num']);
 //        //分类列表
@@ -60,7 +62,7 @@ class Article extends Model {
          * return  array
          */
     public static function editStatus($data){
-        $articleOnes = self::where(['id'=>$data['id'],'is_del'=>1])->first();
+        $articleOnes = self::where(['id'=>$data['id']])->first();
         if(!$articleOnes){
             return ['code' => 204 , 'msg' => '参数不对'];
         }
@@ -71,7 +73,18 @@ class Article extends Model {
             }
             $update = self::where(['id'=>$data['id']])->update(['status'=>1]);
             if($update){
-                //加操作日志
+                //获取后端的操作员id
+                $admin_id = isset(AdminLog::getAdminInfo()->admin_user->id) ? AdminLog::getAdminInfo()->admin_user->id : 0;
+                //添加日志操作
+                AdminLog::insertAdminLog([
+                    'admin_id'       =>   $admin_id  ,
+                    'module_name'    =>  'Article' ,
+                    'route_url'      =>  'admin/Article/editStatus' ,
+                    'operate_method' =>  'update' ,
+                    'content'        =>  '启用'.json_encode($data) ,
+                    'ip'             =>  $_SERVER["REMOTE_ADDR"] ,
+                    'create_at'      =>  date('Y-m-d H:i:s')
+                ]);
                 return ['code' => 200 , 'msg' => '修改成功'];
             }else{
                 return ['code' => 201 , 'msg' => '修改失败'];
@@ -83,7 +96,18 @@ class Article extends Model {
             }
             $update = self::where(['id'=>$data['id']])->update(['status'=>0]);
             if($update){
-                //加操作日志
+                //获取后端的操作员id
+                $admin_id = isset(AdminLog::getAdminInfo()->admin_user->id) ? AdminLog::getAdminInfo()->admin_user->id : 0;
+                //添加日志操作
+                AdminLog::insertAdminLog([
+                    'admin_id'       =>   $admin_id  ,
+                    'module_name'    =>  'Article' ,
+                    'route_url'      =>  'admin/Article/editStatus' ,
+                    'operate_method' =>  'update' ,
+                    'content'        =>  '禁用'.json_encode($data) ,
+                    'ip'             =>  $_SERVER["REMOTE_ADDR"] ,
+                    'create_at'      =>  date('Y-m-d H:i:s')
+                ]);
                 return ['code' => 200 , 'msg' => '修改成功'];
             }else{
                 return ['code' => 201 , 'msg' => '修改失败'];
@@ -107,7 +131,18 @@ class Article extends Model {
         }
         $update = self::where(['id'=>$data['id']])->update(['is_del'=>0]);
         if($update){
-            //加操作日志
+            //获取后端的操作员id
+            $admin_id = isset(AdminLog::getAdminInfo()->admin_user->id) ? AdminLog::getAdminInfo()->admin_user->id : 0;
+            //添加日志操作
+            AdminLog::insertAdminLog([
+                'admin_id'       =>   $admin_id  ,
+                'module_name'    =>  'Article' ,
+                'route_url'      =>  'admin/Article/editDelToId' ,
+                'operate_method' =>  'delete' ,
+                'content'        =>  '软删除id为'.$data['id'],
+                'ip'             =>  $_SERVER["REMOTE_ADDR"] ,
+                'create_at'      =>  date('Y-m-d H:i:s')
+            ]);
             return ['code' => 200 , 'msg' => '删除成功'];
         }else{
             return ['code' => 201 , 'msg' => '删除失败'];
@@ -134,12 +169,28 @@ class Article extends Model {
             return ['code' => 201 , 'msg' => '内容为空'];
         }
         //缓存查出用户id和分校id
-        $admin = CurrentAdmin::user();
-        $data['school_id'] = $admin['school_id'];
-        $data['user_id'] = $admin['id'];
+        $admin_id  = isset(CurrentAdmin::user()->id) ? CurrentAdmin::user()->id : 0;
+        $school_id = isset(CurrentAdmin::user()->school_id) ? CurrentAdmin::user()->school_id : 0;
+        if($admin_id == 0 || $school_id ==0){
+            return ['code' => 203 , 'msg' => 'token有问题'];
+        }
+        $data['school_id'] = $school_id;
+        $data['user_id']   = $admin_id;
         $data['update_at'] = date('Y-m-d H:i:s');
         $add = self::insert($data);
         if($add){
+            //获取后端的操作员id
+            $admin_id = isset(AdminLog::getAdminInfo()->admin_user->id) ? AdminLog::getAdminInfo()->admin_user->id : 0;
+            //添加日志操作
+            AdminLog::insertAdminLog([
+                'admin_id'       =>   $admin_id  ,
+                'module_name'    =>  'Article' ,
+                'route_url'      =>  'admin/Article/addArticle' ,
+                'operate_method' =>  'insert' ,
+                'content'        =>  '新增数据'.json_encode($data) ,
+                'ip'             =>  $_SERVER["REMOTE_ADDR"] ,
+                'create_at'      =>  date('Y-m-d H:i:s')
+            ]);
             return ['code' => 200 , 'msg' => '添加成功'];
         }else{
             return ['code' => 202 , 'msg' => '添加失败'];
@@ -202,12 +253,24 @@ class Article extends Model {
             $data['accessory'] = '';
         }
         //判断是否为空
-        if(empty($data['title']) || empty($data['key_word']) || empty($data['sources'])|| empty($data['accessory'])|| empty($data['description'])|| empty($data['text'])){
-            return ['code' => 201 , 'msg' => '参数不能为空'];
-        }
+//        if(empty($data['title']) || empty($data['key_word']) || empty($data['sources'])|| empty($data['accessory'])|| empty($data['description'])|| empty($data['text'])){
+//            return ['code' => 201 , 'msg' => '参数不能为空'];
+//        }
         $data['update_at'] = date('Y-m-d H:i:s');
         $res = self::where(['id'=>$id])->update($data);
         if($res){
+            //获取后端的操作员id
+            $admin_id = isset(AdminLog::getAdminInfo()->admin_user->id) ? AdminLog::getAdminInfo()->admin_user->id : 0;
+            //添加日志操作
+            AdminLog::insertAdminLog([
+                'admin_id'       =>   $admin_id  ,
+                'module_name'    =>  'Article' ,
+                'route_url'      =>  'admin/Article/exitForId' ,
+                'operate_method' =>  'update' ,
+                'content'        =>  '修改id'.$id.'的内容,'.json_encode($data),
+                'ip'             =>  $_SERVER["REMOTE_ADDR"] ,
+                'create_at'      =>  date('Y-m-d H:i:s')
+            ]);
             return ['code' => 200 , 'msg' => '更新成功'];
         }else{
             return ['code' => 202 , 'msg' => '更新失败'];

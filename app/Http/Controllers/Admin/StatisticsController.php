@@ -161,8 +161,10 @@ class StatisticsController extends Controller {
            'end_time'=>isset($_POST['end_time'])?$_POST['end_time']:'',
            'num'=>isset($_POST['num'])?$_POST['num']:20
        ];
-       $statetime = (!empty($data['state_time']))?$data['state_time']:"1999-01-01 12:12:12";
-       $endtime = (!empty($data['end_time']))?$data['end_time']:"2999-01-01 12:12:12";
+       $stime = (!empty($data['state_time']))?$data['state_time']:date('Y-m-d');
+       $etime = ((!empty($data['end_time']))?$data['end_time']:date('Y-m-d'));
+       $statetime = $stime." 00:00:00";
+       $endtime = $etime." 23:59:59";
        $teacher = Lecturer::select('ld_lecturer_educationa.id','ld_lecturer_educationa.real_name','ld_lecturer_educationa.phone','ld_lecturer_educationa.number','ld_school.name')
             ->leftJoin('ld_school','ld_school.id','=','ld_lecturer_educationa.school_id')
             ->where(function($query) use ($data) {

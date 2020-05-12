@@ -22,13 +22,22 @@ class LessonChildController extends Controller {
         $currentCount = $request->input('current_count') ?: 0;
         $count = $request->input('count') ?: 15;
         $lesson_id = $request->input('lesson_id');
-        $total = LessonChild::where(['is_del' => 0, 'is_forbid' => 0, 'lesson_id' => $lesson_id])->count();
-        $lesson = LessonChild::where(['is_del' => 0, 'is_forbid' => 0, 'lesson_id' => $lesson_id])
-                ->skip($currentCount)->take($count)
-                ->get();
-        foreach ($lesson as $k => $value) {
-            $lesson[$k]['childs'] = LessonChild::where('pid', $value->id)->get();
+        $pid = $request->input('pid') ?: 0;
+        $total = LessonChild::where([
+                'is_del' => 0,
+                'is_forbid' => 0,
+                'lesson_id' => $lesson_id,
+                'pid' => $pid
+            ])->count();
+        $lesson = LessonChild::where(['is_del' => 0, 'is_forbid' => 0, 'lesson_id' => $lesson_id, 'pid' => $pid])
+            ->skip($currentCount)->take($count)
+            ->get();
+        if($pid == 0){
+            foreach ($lesson as $k => $value) {
+                $lesson[$k]['childs'] = LessonChild::where('pid', $value->id)->get();
+            }
         }
+    
         $data = [
             'page_data' => $lesson,
             'total' => $total,
@@ -38,15 +47,15 @@ class LessonChildController extends Controller {
 
 
     /*
-     * @param  课程详情
+     * @param  章节详情
      * @param  课程id
      * @param  author  孙晓丽
      * @param  ctime   2020/5/1 
      * return  array
      */
     public function show($id) {
-        $lesson = LessonChild::find($id);
-        $lesson['childs'] = LessonChild::where('pid', $id)->get();
+        $lesson = LessonChild::select('id', 'name', 'description')->find($id);
+        $lesson['childs'] = LessonChild::select('id', 'name', 'category', 'description' ,'url', 'is_free')->where('pid', $id)->get();
         if(empty($lesson)){
             return $this->response('课程不存在', 404);
         }
@@ -55,29 +64,32 @@ class LessonChildController extends Controller {
 
 
     /**
-     * 添加课程.
+     * 添加章节.
      *
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store($lesson_id, Request $request)
+    public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
+            'lesson_id' => 'required',
             'name'      => 'required',
             'pid'       => 'required',
-            'category'  => 'required_unless:pid,0', 
-            'url'       => 'required_unless:pid,0',
+            'category'  => 'required_unless:pid,0',
+            'url'       => 'required_unless:pid,0|json',
             'size'      => 'required_unless:pid,0',
             'is_free'   => 'required_unless:pid,0',
+            'video_id'  => 'json'
         ]);
         if ($validator->fails()) {
             return $this->response($validator->errors()->first(), 422);
         }
+        $videoIds = json_decode($request->input('video_id'), true);
         $user = CurrentAdmin::user();
         try {
             $lesson = LessonChild::create([
                     'admin_id' => intval($user->id),
-                    'lesson_id' => $lesson_id,
+                    'lesson_id' => $request->input('lesson_id'),
                     'name'      => $request->input('name'),
                     'pid'       => $request->input('pid'),
                     'category'  => $request->input('category') ?: 0, 
@@ -85,6 +97,10 @@ class LessonChildController extends Controller {
                     'size'      => $request->input('size') ?: 0,
                     'is_free'   => $request->input('is_free') ?: 0,
                 ]);
+            if(!empty($videoIds)){
+                $lesson->videos()->attach($videoIds); 
+            }
+
         } catch (Exception $e) {
             Log::error('创建失败:'.$e->getMessage());
             return $this->response($e->getMessage(), 500);
@@ -102,26 +118,24 @@ class LessonChildController extends Controller {
      */
     public function update($id, Request $request) {
         $validator = Validator::make($request->all(), [
-            'title' => 'required',
-            'keyword' => 'required',
-            'cover' => 'required',
-            'price' => 'required',
-            'favorable_price' => 'required',
-            'method' => 'required',
-            'teacher_id' => 'required',
-            'description' => 'required',
-            'introduction' => 'required',
+            'name'      => 'required',
+            'pid'       => 'required',
+            'category'  => 'required_unless:pid,0',
+            'url'       => 'required_unless:pid,0',
+            'size'      => 'required_unless:pid,0',
+            'is_free'   => 'required_unless:pid,0',
         ]);
         if ($validator->fails()) {
             return $this->response($validator->errors()->first(), 422);
         }
-        $lesson = LessonChild::findOrFail($id);;
-        $lesson->title = $request->input('title') ?: $lesson->title;
-        $lesson->keyword = $request->input('keyword') ?: $lesson->keyword;
-        $lesson->cover = $request->input('cover') ?: $lesson->cover;
-        $lesson->price = $request->input('price') ?: $lesson->price;
-        $lesson->method = $request->input('method') ?: $lesson->method;
-        $lesson->description = $request->input('description') ?: $lesson->description;
+
+        $lesson = LessonChild::findOrFail($id);
+        $lesson->name = $request->input('name') ?: $lesson->name;
+        $lesson->pid = $request->input('pid') ?: $lesson->pid;
+        $lesson->category = $request->input('category') ?: $lesson->category;
+        $lesson->url = $request->input('url') ?: $lesson->url;
+        $lesson->size = $request->input('size') ?: $lesson->size;
+        $lesson->is_free = $request->input('is_free') ?: $lesson->is_free;
         try {
             $lesson->save();
             return $this->response("修改成功");

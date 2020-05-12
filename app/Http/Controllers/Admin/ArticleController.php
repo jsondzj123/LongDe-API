@@ -3,7 +3,6 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Article;
-use Illuminate\Http\Request;
 
 class ArticleController extends Controller {
     /*
@@ -13,7 +12,7 @@ class ArticleController extends Controller {
          * @param  ctime   2020/4/28 17:35
          * return  array
          */
-    public function addArticle(Request $request){
+    public function addArticle(){
         //获取提交的参数
         try{
             $data = Article::addArticle(self::$accept_data);
