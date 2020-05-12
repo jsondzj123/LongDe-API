@@ -211,6 +211,7 @@ class Articletype extends Model {
             return ['code' => 202 , 'msg' => '修改失败'];
         }
     }
+    
     /*
          * @param  单条查询
          * @param  $id
