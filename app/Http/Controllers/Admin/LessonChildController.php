@@ -11,12 +11,12 @@ use App\Models\Teacher;
 
 class LessonChildController extends Controller {
 
-    /*
+    /**
      * @param  章节列表
      * @param  current_count   count
      * @param  author  孙晓丽
      * @param  ctime   2020/5/8 
-     * return  array
+     * @return  array
      */
     public function index(Request $request){
         $currentCount = $request->input('current_count') ?: 0;
@@ -46,12 +46,12 @@ class LessonChildController extends Controller {
     }
 
 
-    /*
+    /**
      * @param  章节详情
      * @param  课程id
      * @param  author  孙晓丽
      * @param  ctime   2020/5/1 
-     * return  array
+     * @return  \Illuminate\Http\Response
      */
     public function show($id) {
         $lesson = LessonChild::select('id', 'name', 'description')->find($id);
@@ -110,7 +110,7 @@ class LessonChildController extends Controller {
 
 
     /**
-     * Update the specified resource in storage.
+     * 修改章节.
      *
      * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
@@ -121,7 +121,7 @@ class LessonChildController extends Controller {
             'name'      => 'required',
             'pid'       => 'required',
             'category'  => 'required_unless:pid,0',
-            'url'       => 'required_unless:pid,0',
+            'url'       => 'required_unless:pid,0|json',
             'size'      => 'required_unless:pid,0',
             'is_free'   => 'required_unless:pid,0',
         ]);
