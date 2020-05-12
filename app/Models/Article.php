@@ -164,7 +164,7 @@ class Article extends Model {
          * return  array
          */
     public static function addArticle($data){
-        if(empty($data['article_type_id']) ||empty($data['title'])||empty($data['image'])||empty($data['key_word'])||empty($data['sources'])||empty($data['accessory'])||empty($data['description'])||empty($data['text'])){
+        if(empty($data['article_type_id']) ||empty($data['title'])||empty($data['image'])||empty($data['description'])||empty($data['text'])){
             //内容为空
             return ['code' => 201 , 'msg' => '内容为空'];
         }

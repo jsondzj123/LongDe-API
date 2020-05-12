@@ -128,7 +128,7 @@ class Articletype extends Model {
                 'admin_id'       =>   $admin_id  ,
                 'module_name'    =>  'Articletype' ,
                 'route_url'      =>  'admin/Articletype/editDelToId' ,
-                'operate_method' =>  'update' ,
+                'operate_method' =>  'delete' ,
                 'content'        =>  '软删除文章分类'.json_encode($data) ,
                 'ip'             =>  $_SERVER["REMOTE_ADDR"] ,
                 'create_at'      =>  date('Y-m-d H:i:s')
@@ -152,12 +152,12 @@ class Articletype extends Model {
         $data['school_id'] = $admin['school_id'];
         $data['user_id'] = $admin['id'];
         $data['update_at'] = date('Y-m-d H:i:s');
-        if($data['typename'] == '' || $data['description']==''){
-            return ['code' => 201 , 'msg' => '参数不能为空'];
+        if($data['typename'] == ''){
+            return ['code' => 201 , 'msg' => '名称不能为空'];
         }
         $ones = self::where($data)->first();
         if($ones){
-            return ['code' => 202 , 'msg' => '参数已存在'];
+            return ['code' => 202 , 'msg' => '数据已存在'];
         }else {
             $add = self::insert($data);
             if($add){
@@ -168,7 +168,7 @@ class Articletype extends Model {
                     'admin_id'       =>   $admin_id  ,
                     'module_name'    =>  'Articletype' ,
                     'route_url'      =>  'admin/Articletype/addType' ,
-                    'operate_method' =>  'delete' ,
+                    'operate_method' =>  'insert' ,
                     'content'        =>  '添加文章分类'.json_encode($data) ,
                     'ip'             =>  $_SERVER["REMOTE_ADDR"] ,
                     'create_at'      =>  date('Y-m-d H:i:s')
@@ -188,8 +188,8 @@ class Articletype extends Model {
          */
     public static function editForId($data){
         $id = $data['id'];
-        if($data['typename'] =='' || $data['description']==''){
-            return ['code' => 201 , 'msg' => '参数不能为空'];
+        if($data['typename'] ==''){
+            return ['code' => 201 , 'msg' => '名称不能为空'];
         }
         unset($data['id']);
         $update = self::where(['id'=>$id])->update($data);
@@ -211,7 +211,7 @@ class Articletype extends Model {
             return ['code' => 202 , 'msg' => '修改失败'];
         }
     }
-    
+
     /*
          * @param  单条查询
          * @param  $id
