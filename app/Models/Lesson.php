@@ -15,7 +15,11 @@ class Lesson extends Model {
         'method', 
         'teacher_id',
         'description',
-        'introduction'
+        'introduction',
+        'buy_num',
+        'ttl',
+        'status'
+
     ];
 
     protected $hidden = [
