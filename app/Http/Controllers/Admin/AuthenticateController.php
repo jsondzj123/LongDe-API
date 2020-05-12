@@ -65,7 +65,7 @@ class AuthenticateController extends Controller {
 
         $user = JWTAuth::user();
         $user['token'] = $token;
-//        $this->setTokenToRedis($user->id, $token);
+        $this->setTokenToRedis($user->id, $token);
         $AdminUser = new AdminUser();
 
         $admin_user =  $AdminUser->getAdminUserLoginAuth($user['role_id']);  //获取后台用户菜单栏（lys 5.5）
