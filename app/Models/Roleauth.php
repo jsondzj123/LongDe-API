@@ -21,7 +21,7 @@ class Roleauth extends Model {
      * return  array
      */
     public static function getRoleOne($where=[],$field = ['*']){
-        
+
         $return = self::where(function($query) use ($where){
                     if( isset($where['id'] ) && $where['id'] != ''){
                         $query->where('id','=',$where['id']);
@@ -37,7 +37,7 @@ class Roleauth extends Model {
                     }
                     if( isset($where['is_super'] ) && $where['is_super'] != ''){
                         $query->where('is_super','=',$where['is_super']);
-                    } 
+                    }
         })->select($field)->first();
          if($return){
             return ['code'=>200,'msg'=>'获取角色信息成功','data'=>$return];
@@ -46,7 +46,7 @@ class Roleauth extends Model {
         }
     }
     /*
-     * @param  descriptsion  获取角色列表       
+     * @param  descriptsion  获取角色列表
      * @param  $where  查询条件
      * @param  $page   页码
      * @param  $limit  显示条件

@@ -19,7 +19,7 @@ class Articletype extends Model {
          */
     public static function getArticleList($data){
         $where['ld_article_type.is_del'] = 1;
-       if($data['school_id'] != ''){
+       if(!empty($data['school_id']) && $data['school_id'] != ''){
            $where['ld_article_type.school_id'] = $data['school_id'];
        }
        $page = (!empty($data['page']))?$data['page']:20;
@@ -72,7 +72,7 @@ class Articletype extends Model {
                     'module_name'    =>  'Articletype' ,
                     'route_url'      =>  'admin/Articletype/editStatusToId' ,
                     'operate_method' =>  'update' ,
-                    'content'        =>  '启用'.json_encode($data) ,
+                    'content'        =>  '启用文章分类'.json_encode($data) ,
                     'ip'             =>  $_SERVER["REMOTE_ADDR"] ,
                     'create_at'      =>  date('Y-m-d H:i:s')
                 ]);
@@ -94,7 +94,7 @@ class Articletype extends Model {
                     'module_name'    =>  'Articletype' ,
                     'route_url'      =>  'admin/Articletype/editStatusToId' ,
                     'operate_method' =>  'update' ,
-                    'content'        =>  '启用'.json_encode($data) ,
+                    'content'        =>  '禁用文章分类'.json_encode($data) ,
                     'ip'             =>  $_SERVER["REMOTE_ADDR"] ,
                     'create_at'      =>  date('Y-m-d H:i:s')
                 ]);
@@ -129,7 +129,7 @@ class Articletype extends Model {
                 'module_name'    =>  'Articletype' ,
                 'route_url'      =>  'admin/Articletype/editDelToId' ,
                 'operate_method' =>  'update' ,
-                'content'        =>  '软删除'.json_encode($data) ,
+                'content'        =>  '软删除文章分类'.json_encode($data) ,
                 'ip'             =>  $_SERVER["REMOTE_ADDR"] ,
                 'create_at'      =>  date('Y-m-d H:i:s')
             ]);
@@ -169,7 +169,7 @@ class Articletype extends Model {
                     'module_name'    =>  'Articletype' ,
                     'route_url'      =>  'admin/Articletype/addType' ,
                     'operate_method' =>  'delete' ,
-                    'content'        =>  '添加'.json_encode($data) ,
+                    'content'        =>  '添加文章分类'.json_encode($data) ,
                     'ip'             =>  $_SERVER["REMOTE_ADDR"] ,
                     'create_at'      =>  date('Y-m-d H:i:s')
                 ]);
@@ -202,7 +202,7 @@ class Articletype extends Model {
                 'module_name'    =>  'Articletype' ,
                 'route_url'      =>  'admin/Articletype/editForId' ,
                 'operate_method' =>  'update' ,
-                'content'        =>  '修改id为'.$id.json_encode($data) ,
+                'content'        =>  '文章分类修改id为'.$id.json_encode($data) ,
                 'ip'             =>  $_SERVER["REMOTE_ADDR"] ,
                 'create_at'      =>  date('Y-m-d H:i:s')
             ]);

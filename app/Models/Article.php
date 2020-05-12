@@ -20,7 +20,7 @@ class Article extends Model {
          */
     public static function getArticleList($data){
         //获取用户网校id
-        $data['num'] = isset($data['num'])?$data['num']:1;
+        $data['num'] = isset($data['num'])?$data['num']:20;
         $list = self::select('ld_article.id','ld_article.title','ld_article.create_at','ld_school.name','ld_article_type.typename','ld_admin.username')
             ->leftJoin('ld_school','ld_school.id','=','ld_article.school_id')
             ->leftJoin('ld_article_type','ld_article_type.id','=','ld_article.article_type_id')
@@ -38,7 +38,8 @@ class Article extends Model {
                          ->orwhere('ld_article.id',$data['title']);
                  }
             })
-            ->orderBy('id','desc')
+            ->where(['ld_article.is_del'=>1,'ld_article_type.is_del'=>1,'ld_admin.is_del'=>1,'ld_admin.is_forbid'=>1,'ld_school.is_del'=>1,'ld_school.is_forbid'=>1])
+            ->orderBy('ld_article.id','desc')
             ->paginate($data['num']);
 //            ->simplePaginate($data['num']);
 //        //分类列表
@@ -61,7 +62,7 @@ class Article extends Model {
          * return  array
          */
     public static function editStatus($data){
-        $articleOnes = self::where(['id'=>$data['id'],'is_del'=>1])->first();
+        $articleOnes = self::where(['id'=>$data['id']])->first();
         if(!$articleOnes){
             return ['code' => 204 , 'msg' => '参数不对'];
         }
@@ -168,10 +169,13 @@ class Article extends Model {
             return ['code' => 201 , 'msg' => '内容为空'];
         }
         //缓存查出用户id和分校id
-        $admin = CurrentAdmin::user();
-        print_r($admin);die;
-        $data['school_id'] = $admin['school_id'];
-        $data['user_id'] = $admin['id'];
+        $admin_id  = isset(CurrentAdmin::user()->id) ? CurrentAdmin::user()->id : 0;
+        $school_id = isset(CurrentAdmin::user()->school_id) ? CurrentAdmin::user()->school_id : 0;
+        if($admin_id == 0 || $school_id ==0){
+            return ['code' => 203 , 'msg' => 'token有问题'];
+        }
+        $data['school_id'] = $school_id;
+        $data['user_id']   = $admin_id;
         $data['update_at'] = date('Y-m-d H:i:s');
         $add = self::insert($data);
         if($add){
@@ -249,9 +253,9 @@ class Article extends Model {
             $data['accessory'] = '';
         }
         //判断是否为空
-        if(empty($data['title']) || empty($data['key_word']) || empty($data['sources'])|| empty($data['accessory'])|| empty($data['description'])|| empty($data['text'])){
-            return ['code' => 201 , 'msg' => '参数不能为空'];
-        }
+//        if(empty($data['title']) || empty($data['key_word']) || empty($data['sources'])|| empty($data['accessory'])|| empty($data['description'])|| empty($data['text'])){
+//            return ['code' => 201 , 'msg' => '参数不能为空'];
+//        }
         $data['update_at'] = date('Y-m-d H:i:s');
         $res = self::where(['id'=>$id])->update($data);
         if($res){
