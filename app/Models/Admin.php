@@ -21,7 +21,7 @@ class Admin extends Model implements AuthenticatableContract, AuthorizableContra
      * @var array
      */
     protected $fillable = [
-        'username', 'password', 'email', 'mobile', 'realname', 'sex', 'admin_id','teacher_id','school_status','school_id','is_forbid','is_del'
+        'username', 'password', 'email', 'mobile', 'realname', 'sex', 'admin_id','teacher_id','school_status','school_id','is_forbid','is_del','role_id'
     ];
     
     /**
@@ -175,13 +175,12 @@ class Admin extends Model implements AuthenticatableContract, AuthorizableContra
         if(!$body || !is_array($body)){
             return ['code' => 202 , 'msg' => '传递数据不合法'];
         }
-         // $adminUserInfo  = CurrentAdmin::user();  //当前登录用户所有信息
-        $adminUserInfo['school_status'] = 0; //学校状态
-        $adminUserInfo['school_id'] = 2; //学校id
-        if($adminUserInfo['school_status'] == 1){
+        $adminUserInfo  = CurrentAdmin::user();  //当前登录用户所有信息
+        // $adminUserInfo['school_status']=0;
+        if($adminUserInfo['school_status'] == 1){ //总校
             //判断学校id是否合法
-            if(!isset($body['school_id']) ||  $body['school_id'] <= 0){
-                return ['code' => 202 , 'msg' => '学校id不合法'];
+            if(!isset($body['school_id']) || is_int($body['school_id'])){
+                return ['code' => 202 , 'msg' => '学校id缺少或不合法'];
             }
         }
         //判断搜索条件是否合法
@@ -197,12 +196,13 @@ class Admin extends Model implements AuthenticatableContract, AuthorizableContra
         $page     = isset($body['page']) && $body['page'] > 0 ? $body['page'] : 1;
         $offset   = ($page - 1) * $pagesize;
         if($adminUserInfo['school_status'] == 1){       //
-            $SchoolInfo = School::where('id','!=',$adminUserInfo['school_id'])->where('is_del',1)->get(); //获取分校列表
+            $SchoolInfo = School::where('is_del',1)->get(); //获取分校列表
         }else{
             $SchoolInfo = [];
         }
         $admin_count = self::where(['is_del'=>1,'school_id'=>$school_id])->count();
         $sum_page = ceil($admin_count/$pagesize);
+        $adminUserData = [];
         if($admin_count >0){
             $adminUserData =  self::leftjoin('ld_role_auth','ld_role_auth.id', '=', 'ld_admin.role_id')
                 ->where(function($query) use ($body,$school_id){
@@ -214,9 +214,13 @@ class Admin extends Model implements AuthenticatableContract, AuthorizableContra
                     $query->where('ld_admin.is_del',1);
                     $query->where('ld_admin.school_id',$school_id);
                 })->offset($offset)->limit($pagesize)->get();
-            return ['code'=>200,'msg'=>'Success','data'=>['admin_list' => $adminUserData ,'school_list'=>$SchoolInfo, 'total' => $admin_count , 'pagesize' => $pagesize , 'page' => $page,'search'=>$body['search'],'sum_page'=>$sum_page]];
+               
         }
-        return ['code'=>200,'msg'=>'Success','data'=>['admin_list' => [] ,'school_list'=>$SchoolInfo, 'total' => 0 , 'pagesize' => $pagesize , 'page' => $page,'search'=>$body['search'],'sum_page'=>$sum_page]];
+        $arr['code']= 200;
+        $arr['msg'] = 'Success';
+
+        $arr['data'] = ['admin_list' => $adminUserData ,'school_list'=>$SchoolInfo, 'total' => $admin_count , 'pagesize' =>$pagesize , 'page' => $page,'search'=>$body['search'],'sum_page'=>$sum_page,'school_id'=>$school_id];
+        return $arr;
     }
 
 
@@ -239,12 +243,13 @@ class Admin extends Model implements AuthenticatableContract, AuthorizableContra
          $adminUserInfo  = CurrentAdmin::user();  //当前登录用户所有信息
         //判断搜索条件是否合法
         if(!isset($body['search']) ){
-            return ['code' => 202 , 'msg' => '缺少参数'];
+            return ['code' => 202 , 'msg' => '搜索参数缺少'];
         }
         $pagesize = isset($body['pagesize']) && $body['pagesize'] > 0 ? $body['pagesize'] : 15;
         $page     = isset($body['page']) && $body['page'] > 0 ? $body['page'] : 1;
         $offset   = ($page - 1) * $pagesize;
         $role_auth_count = Roleauth::where(['is_del'=>1,'school_id'=> $adminUserInfo['school_id']])->count();
+      
         $sum_page = ceil($role_auth_count/$pagesize);
         if($role_auth_count >0){
             $roleRuthData =  self::rightjoin('ld_role_auth','ld_role_auth.admin_id', '=', 'ld_admin.id')
@@ -252,11 +257,12 @@ class Admin extends Model implements AuthenticatableContract, AuthorizableContra
                 if(!empty($body['search'])){
                     $query->where('ld_role_auth.role_name','like','%'.$body['search'].'%');
                 }
-                    $query->where('ld_admin.is_del',1);
+                    // $query->where('ld_admin.is_del',1);
                     $query->where('ld_role_auth.school_id',$adminUserInfo['school_id']);
                 })
                 ->select('ld_role_auth.role_name','ld_admin.username','ld_role_auth.auth_desc','ld_role_auth.create_time','ld_role_auth.id')
                 ->offset($offset)->limit($pagesize)->get();
+
             return ['code'=>200,'msg'=>'Success','data'=>['role_auth_list' => $roleRuthData , 'total' => $role_auth_count , 'pagesize' => $pagesize , 'page' => $page,'search'=>$body['search'],'sum_page'=>$sum_page]];
         }
         return ['code'=>200,'msg'=>'Success','data'=>['role_auth_list' => [] , 'total' => 0 , 'pagesize' => $pagesize , 'page' => $page,'search'=>$body['search'],'sum_page'=>$sum_page]];

@@ -27,6 +27,7 @@ class AdminUserController extends Controller {
      * @param ctime     2020-04-29
      */
     public function getAdminUserList(){
+
         $result     = Adminuser::getAdminUserList(self::$accept_data);
         if($result['code'] == 200){
             return response()->json($result);
@@ -53,9 +54,10 @@ class AdminUserController extends Controller {
             return response()->json(['code'=>201,'msg'=>'账号id为空或缺少或类型不合法']);
         }
         $userInfo = Adminuser::getUserOne(['id'=>$data['id']]);
-        if(!$userInfo){
+        if($userInfo['code'] !=200){
             return response()->json(['code'=>$userInfo['code'],'msg'=>$userInfo['msg']]); 
         }   
+     
         if($userInfo['data']['is_forbid'] == 1)  $updateArr['is_forbid'] = 0;  else  $updateArr['is_forbid'] = 1; 
         $result = Adminuser::upUserStatus($data,$updateArr);
         if($result){
@@ -166,7 +168,7 @@ class AdminUserController extends Controller {
         } 
         $count  = Adminuser::where('username',$data['username'])->where('school_id',$data['school_id'])->where('is_del',1)->count();
         if($count>0){
-            return response()->json(['code'=>422,'msg'=>'账号已存在']);
+            return response()->json(['code'=>422,'msg'=>'用户名已存在']);
         }
         unset($data['pwd']);
         $data['password'] = password_hash($data['password'], PASSWORD_DEFAULT);
@@ -201,27 +203,24 @@ class AdminUserController extends Controller {
     public function getAdminUserUpdate(){
         $data = self::$accept_data;
         if( !isset($data['id']) || empty($data['id']) ){
-            return response()->json(['code'=>201,'msg'=>'缺少参数，参数为空']);
+            return response()->json(['code'=>201,'msg'=>'用户表示缺少或为空']);
         }
-        $where['id']   = $data['id'];
-        $adminUserArr = Adminuser::getUserOne($where);
+        $adminUserArr = Adminuser::getUserOne($data);
         if($adminUserArr['code'] != 200){
             return response()->json(['code'=>202,'msg'=>'用户不存在']);
         }
-
         $adminUserArr['data']['school_name']  = School::getSchoolOne(['id'=>$adminUserArr['data']['school_id'],'is_forbid'=>1,'is_del'=>1],['name'])['data']['name'];
-
         $roleAuthArr = Roleauth::getRoleAuthAlls(['school_id'=>$adminUserArr['data']['school_id'],'is_del'=>1],['id','role_name']);
+        $teacherArr = [];
 
-         $teacherArr = [];
         if(!empty($adminUserArr['data']['teacher_id'])){
             $teacher_id_arr = explode(',', $adminUserArr['data']['teacher_id']);
              $teacherArr= Teacher::whereIn('id',$teacher_id_arr)->where('is_del','!=',1)->where('is_forbid','!=',1)->select('id','real_name','type')->get();
         }
         $arr = [
-            'admin_user'=>$adminUserArr['data'],
-            'teacher' => $teacherArr,
-            'role_auth' => $roleAuthArr,
+            'admin_user'=> $adminUserArr['data'],
+            'teacher' =>   $teacherArr,  //讲师组
+            'role_auth' => $roleAuthArr, //权限组
         ];
         return response()->json(['code'=>200,'msg'=>'获取信息成功','data'=>$arr]);
 
