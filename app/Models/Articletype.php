@@ -24,13 +24,14 @@ class Articletype extends Model {
            $where['ld_article_type.school_id'] = $data['school_id'];
        }
        $page = (!empty($data['page']))?$data['page']:20;
-            $typelist = self::select('ld_article_type.id','ld_article_type.typename','ld_article_type.status','ld_school.name','ld_admin.username')
-                ->leftJoin('ld_school','ld_school.id','=','ld_article_type.school_id')
-                ->leftJoin('ld_admin','ld_admin.id','=','ld_article_type.user_id')
-                ->where($where)
-                ->orderBy('ld_article_type.id','desc')
-                ->paginate($page);
-            return ['code' => 200 , 'msg' => '获取成功','data'=>$typelist];
+
+        $typelist = self::select('ld_article_type.id','ld_article_type.typename','ld_article_type.status','ld_school.name','ld_admin.username')
+            ->leftJoin('ld_school','ld_school.id','=','ld_article_type.school_id')
+            ->leftJoin('ld_admin','ld_admin.id','=','ld_article_type.user_id')
+            ->where($where)
+            ->orderBy('ld_article_type.id','desc')
+            ->paginate($page);
+        return ['code' => 200 , 'msg' => '获取成功','data'=>$typelist];
     }
     /*
          * @param  修改状态
@@ -82,18 +83,19 @@ class Articletype extends Model {
         if(!$articleOnes){
             return ['code' => 201 , 'msg' => '参数错误'];
         }
-        if(Redis::get('article_editDelToId'.$data['id'])){
-            return Redis::get('article_editDelToId'.$data['id']);
+        $key = 'article_editDelToId'.$data['id'];
+        if(Redis::get($key)){
+            return json_decode(Redis::get('article_editDelToId'.$data['id']),true);
         }else{
             //判断分类下是否有文章
             $article = Article::getArticleList(['type_id'=>$data['id']]);
             $array = $article['data']->toArray();
             if(!empty($array['data'])){
-                Redis::set('article_editDelToId'.$data['id'],'60',['code' => 203 , 'msg' => '此分类下有文章，无法删除']);
+                Redis::setex($key,'60',json_encode(['code' => 203 , 'msg' => '此分类下有文章，无法删除']));
                 return ['code' => 203 , 'msg' => '此分类下有文章，无法删除'];
             }else{
                 if($articleOnes['is_del'] == 0){
-                    Redis::set('article_editDelToId'.$data['id'],'60',['code' => 200 , 'msg' => '删除成功']);
+                    Redis::setex($key,'60',json_encode(['code' => 200 , 'msg' => '删除成功']));
                     return ['code' => 200 , 'msg' => '删除成功'];
                 }
                 $update = self::where(['id'=>$data['id']])->update(['is_del'=>0,'update_at'=>date('Y-m-d H:i:s')]);
@@ -110,7 +112,7 @@ class Articletype extends Model {
                         'ip'             =>  $_SERVER["REMOTE_ADDR"] ,
                         'create_at'      =>  date('Y-m-d H:i:s')
                     ]);
-                    Redis::set('article_editDelToId'.$data['id'],'60',['code' => 200 , 'msg' => '删除成功']);
+                    Redis::setex($key,'60',json_encode(['code' => 200 , 'msg' => '删除成功']));
                     return ['code' => 200 , 'msg' => '删除成功'];
                 }else{
                     return ['code' => 202 , 'msg' => '删除失败'];
@@ -166,7 +168,7 @@ class Articletype extends Model {
          */
     public static function editForId($data){
         //判断id
-        if(empty($data['id'])){
+        if(empty($data['id']  )){
             return ['code' => 201 , 'msg' => '参数id为空或格式不正确'];
         }
         if(empty($data['typename'] =='')){
@@ -208,14 +210,15 @@ class Articletype extends Model {
             return ['code' => 201 , 'msg' => '参数id为空或格式不正确'];
         }
         //缓存
-        if(Redis::get('ld_articletype_'.$data['id'])) {
-            return ['code' => 200 , 'msg' => '获取成功','data'=>Redis::get('ld_article_'.$data['id'])];
+        $key = 'articletype_oneFind_'.$data['id'];
+        if(Redis::get($key)) {
+            return ['code' => 200 , 'msg' => '获取成功','data'=>json_decode(Redis::get($key),true)];
         }else{
             $find = self::select('ld_article_type.id','ld_article_type.typename','ld_article_type.description','ld_school.name')
                 ->leftJoin('ld_school','ld_school.id','=','ld_article_type.school_id')
                 ->where(['ld_article_type.id'=>$data['id'],'ld_article_type.is_del'=>1])
                 ->first();
-            Redis::set('ld_articletype_'.$data['id'],60,$find);
+            Redis::setex($key,60,json_encode($find));
             return ['code' => 200 , 'msg' => '获取成功','data'=>$find];
         }
     }
