@@ -864,9 +864,9 @@ class Exam extends Model {
                     'answer'         =>  $exam_type == 4 ? $v[2] == '正确' ?  1  : 0  : $v[2]  ,   //试题答案
                     'text_analysis'  =>  !empty($v[11]) ? $v[11] : '' ,                            //文字解析
                     'item_diffculty' =>  !empty($v[12]) ? $diffculty_array[trim($v[12])] : 0 ,     //试题难度
-                    'chapter_id'     =>  $v[13] && !empty($v[13]) ? $chapter_info->id : 0,         //章id
-                    'joint_id'       =>  $v[14] && !empty($v[14]) ? $joint_info->id : 0,           //节id
-                    'point_id'       =>  $v[15] && !empty($v[15]) ? $point_info->id : 0,           //考点id
+                    'chapter_id'     =>  $v[13] && !empty($v[13]) ? !empty($chapter_info) ? $chapter_info->id : 0 : 0,         //章id
+                    'joint_id'       =>  $v[14] && !empty($v[14]) ? !empty($joint_info) ? $joint_info->id : 0 : 0,             //节id
+                    'point_id'       =>  $v[15] && !empty($v[15]) ? !empty($point_info) ? $point_info->id : 0 : 0,             //考点id
                     'type'           =>  $exam_type,                                               //试题类型
                     'create_at'      =>  date('Y-m-d H:i:s')                                       //创建时间
                 ]);
@@ -888,9 +888,9 @@ class Exam extends Model {
                     'answer'        =>  $exam_type == 4 ? $v[2] == '正确' ?  1  : 0  : $v[2]  ,   //试题答案
                     'text_analysis' =>  !empty($v[11]) ? $v[11] : '' ,                            //文字解析
                     'item_diffculty'=>  !empty($v[12]) ? $diffculty_array[trim($v[12])] : 0 ,     //试题难度
-                    'chapter_id'    =>  $v[13] && !empty($v[13]) ? $chapter_info->id : 0,         //章id
-                    'joint_id'      =>  $v[14] && !empty($v[14]) ? $joint_info->id : 0,           //节id
-                    'point_id'      =>  $v[15] && !empty($v[15]) ? $point_info->id : 0,           //考点id
+                    'chapter_id'     =>  $v[13] && !empty($v[13]) ? !empty($chapter_info) ? $chapter_info->id : 0 : 0,         //章id
+                    'joint_id'       =>  $v[14] && !empty($v[14]) ? !empty($joint_info) ? $joint_info->id : 0 : 0,             //节id
+                    'point_id'       =>  $v[15] && !empty($v[15]) ? !empty($point_info) ? $point_info->id : 0 : 0,             //考点id
                     'option_list'   =>  $option_list ? $option_list : []                          //试题选项
                 ];
                 
