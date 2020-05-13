@@ -193,9 +193,9 @@ class Article extends Model {
             return ['code' => 201 , 'msg' => '参数为空'];
         }
         //缓存
-        if(Redis::get('ld_article_'.$data['id'])) {
-            echo "aaaa";
-            return ['code' => 200 , 'msg' => '获取成功','data'=>json_decode(Redis::get('ld_article_'.$data['id']),true)];
+        $key = 'article_findOne_'.$data['id'];
+        if(Redis::get($key)) {
+            return ['code' => 200 , 'msg' => '获取成功','data'=>json_decode(Redis::get($key),true)];
         }else{
             $find = self::select('ld_article.*','ld_school.name','ld_article_type.typename')
                 ->leftJoin('ld_school','ld_school.id','=','ld_article.school_id')
@@ -203,9 +203,8 @@ class Article extends Model {
                 ->where(['ld_article.id'=>$data['id'],'ld_article.is_del'=>1,'ld_school.is_del'=>1])
                 ->first();
             if($find){
-                echo "bbb";
                 unset($find['user_id'],$find['share'],$find['status'],$find['is_del'],$find['create_at'],$find['update_at']);
-                Redis::setex('ld_article_'.$data['id'],60,json_encode($find));
+                Redis::setex($key,60,json_encode($find));
                 return ['code' => 200 , 'msg' => '获取成功','data'=>$find];
             }else{
                 return ['code' => 202 , 'msg' => '获取失败'];
