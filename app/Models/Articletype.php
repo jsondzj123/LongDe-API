@@ -208,14 +208,14 @@ class Articletype extends Model {
             return ['code' => 201 , 'msg' => '参数id为空或格式不正确'];
         }
         //缓存
-        if(Redis::get('ld_articletype_'.$data['id'])) {
-            return ['code' => 200 , 'msg' => '获取成功','data'=>Redis::get('ld_article_'.$data['id'])];
+        if(Redis::get('articletype_oneFind'.$data['id'])) {
+            return ['code' => 200 , 'msg' => '获取成功','data'=>Redis::get('articletype_oneFind'.$data['id'])];
         }else{
             $find = self::select('ld_article_type.id','ld_article_type.typename','ld_article_type.description','ld_school.name')
                 ->leftJoin('ld_school','ld_school.id','=','ld_article_type.school_id')
                 ->where(['ld_article_type.id'=>$data['id'],'ld_article_type.is_del'=>1])
                 ->first();
-            Redis::set('ld_articletype_'.$data['id'],60,$find);
+            Redis::set('articletype_oneFind'.$data['id'],60,$find);
             return ['code' => 200 , 'msg' => '获取成功','data'=>$find];
         }
     }
