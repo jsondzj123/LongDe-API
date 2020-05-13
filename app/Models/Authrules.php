@@ -16,7 +16,8 @@ class Authrules extends Model {
          * return  array
          */
     public static function getAuthOne($name){
-        $return = self::where(['name'=>$name])->first()->toArray();
+
+        $return = self::where(['name'=>$name])->first();
         return $return;
     }
     /*
@@ -45,11 +46,12 @@ class Authrules extends Model {
                     if($v['parent_id'] == $value['id']){
                         unset($v['id']);
                         
-                        $arr[$key]['child_array'] = $v;
+                        $arr[$key]['child_array'][] = $v;
                     }
                 }
             }
         }
+     
         if($arr){
             return ['code'=>200,'msg'=>'获取权限信息成功','data'=>$arr];
         }else{
