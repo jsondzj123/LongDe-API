@@ -3,7 +3,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Exam;
-
+use App\MOdels\PapersExam;
 class ExamController extends Controller {
     /*
      * @param  description   增加试题的方法
@@ -45,7 +45,7 @@ class ExamController extends Controller {
             return response()->json(['code' => 500 , 'msg' => $ex->getMessage()]);
         }
     }
-    
+
     /*
      * @param  description   更改试题的方法
      * @param  参数说明       body包含以下参数[
@@ -84,7 +84,7 @@ class ExamController extends Controller {
             return response()->json(['code' => 500 , 'msg' => $ex->getMessage()]);
         }
     }
-    
+
     /*
      * @param  descriptsion    删除试题的方法
      * @param  参数说明         body包含以下参数[
@@ -107,7 +107,7 @@ class ExamController extends Controller {
             return response()->json(['code' => 500 , 'msg' => $ex->getMessage()]);
         }
     }
-    
+
     /*
      * @param  descriptsion    发布试题的方法
      * @param  参数说明         body包含以下参数[
@@ -130,7 +130,7 @@ class ExamController extends Controller {
             return response()->json(['code' => 500 , 'msg' => $ex->getMessage()]);
         }
     }
-    
+
     /*
      * @param  descriptsion    获取试题列表
      * @param  参数说明         body包含以下参数[
@@ -161,7 +161,7 @@ class ExamController extends Controller {
             return response()->json(['code' => 500 , 'msg' => $ex->getMessage()]);
         }
     }
-    
+
     /*
      * @param  descriptsion    根据试题id获取试题详情信息
      * @param  参数说明         body包含以下参数[
@@ -184,7 +184,7 @@ class ExamController extends Controller {
             return response()->json(['code' => 500 , 'msg' => $ex->getMessage()]);
         }
     }
-    
+
     /*
      * @param  descriptsion    查看材料题方法
      * @param  参数说明         body包含以下参数[
@@ -207,7 +207,130 @@ class ExamController extends Controller {
             return response()->json(['code' => 500 , 'msg' => $ex->getMessage()]);
         }
     }
-    
+    /*
+     * @param  description   保存所选试题生成试卷
+     * @param  参数说明       body包含以下参数[
+     *     type            试题类型(1代表单选题2代表多选题3代表不定项4代表判断题5填空题6简答题7材料题)
+     *     papers_id       试卷id
+     * ]
+     * @param  author        zzk
+     * @param  ctime         2020-05-13
+     */
+    public function InsertTestPaperSelection(){
+        //获取提交的参数
+        try{
+            $data = PapersExam::GetTestPaperSelection(self::$accept_data);
+            if($data['code'] == 200){
+                return response()->json(['code' => 200 , 'msg' => '获取试题列表成功' , 'data' => $data['data']]);
+            } else {
+                return response()->json(['code' => $data['code'] , 'msg' => $data['msg']]);
+            }
+        } catch (Exception $ex) {
+            return response()->json(['code' => 500 , 'msg' => $ex->getMessage()]);
+        }
+
+    }
+    /*
+     * @param  description   试题检测重复
+     * @param  参数说明       body包含以下参数[
+     *     type            试题类型(1代表单选题2代表多选题3代表不定项4代表判断题5填空题6简答题7材料题)
+     *     papers_id       试卷id
+     * ]
+     * @param  author        zzk
+     * @param  ctime         2020-05-11
+     */
+    public function RepetitionTestPaperSelection(){
+        try{
+            $data = PapersExam::GetRepetitionExam(self::$accept_data);
+            if($data['code'] == 200){
+                return response()->json(['code' => 200 , 'msg' => '获取试题列表成功' , 'data' => $data['data']]);
+            } else {
+                return response()->json(['code' => $data['code'] , 'msg' => $data['msg']]);
+            }
+        } catch (Exception $ex) {
+            return response()->json(['code' => 500 , 'msg' => $ex->getMessage()]);
+        }
+    }
+    /*
+     * @param  description   手动添加接口
+     * @param  参数说明       body包含以下参数[
+     *     type            试题类型(1代表单选题2代表多选题3代表不定项4代表判断题5填空题6简答题7材料题)
+     *     papers_id       试卷id
+     *     chapter_id      章id
+     *     chapter_id      节id
+     *     exam_name       题目名称
+     *     page            页码
+     * ]
+     * @param  author        zzk
+     * @param  ctime         2020-05-11
+     */
+    public function ListTestPaperSelection(){
+        try{
+            $data = PapersExam::GetExam(self::$accept_data);
+            if($data['code'] == 200){
+                return response()->json(['code' => 200 , 'msg' => '获取试题列表成功' , 'data' => $data['data']]);
+            } else {
+                return response()->json(['code' => $data['code'] , 'msg' => $data['msg']]);
+            }
+        } catch (Exception $ex) {
+            return response()->json(['code' => 500 , 'msg' => $ex->getMessage()]);
+        }
+    }
+    /*
+     * @param  description   选择试题接口
+     * @param  参数说明       body包含以下参数[
+     *     type            试题类型(1代表单选题2代表多选题3代表不定项4代表判断题5填空题6简答题7材料题)
+     *     papers_id       试卷id
+     * ]
+     * @param  author        zzk
+     * @param  ctime         2020-05-11
+     */
+    public function doTestPaperSelection(){
+        try{
+            $data = PapersExam::GetTestPaperSelection(self::$accept_data);
+            if($data['code'] == 200){
+                return response()->json(['code' => 200 , 'msg' => '获取试题列表成功' , 'data' => $data['data']]);
+            } else {
+                return response()->json(['code' => $data['code'] , 'msg' => $data['msg']]);
+            }
+        } catch (Exception $ex) {
+            return response()->json(['code' => 500 , 'msg' => $ex->getMessage()]);
+        }
+    }
+    /*
+     * @param  description   试卷删除试题
+     * @param  author        zzk
+     * @param  ctime         2020-05-011
+     */
+    public function deleteTestPaperSelection(){
+        try{
+            $data = PapersExam::DeleteTestPaperSelection(self::$accept_data);
+            if($data['code'] == 200){
+                return response()->json($data);
+            } else {
+                return response()->json(['code' => $data['code'] , 'msg' => $data['msg']]);
+            }
+        } catch (Exception $ex) {
+            return response()->json(['code' => 500 , 'msg' => $ex->getMessage()]);
+        }
+    }
+    /*
+     * @param  description   试卷试题详情
+     * @param  author        zzk
+     * @param  ctime         2020-05-011
+     */
+    public function oneTestPaperSelection(){
+        try{
+            $data = PapersExam::oneTestPaperSelection(self::$accept_data);
+            if($data['code'] == 200){
+                return response()->json(['code' => 200 , 'msg' => '获取试题详情成功' , 'data' => $data['data']]);
+            } else {
+                return response()->json(['code' => $data['code'] , 'msg' => $data['msg']]);
+            }
+        } catch (Exception $ex) {
+            return response()->json(['code' => 500 , 'msg' => $ex->getMessage()]);
+        }
+    }
     /*
      * @param  description   试题公共参数列表
      * @param  author        dzj
@@ -245,7 +368,7 @@ class ExamController extends Controller {
                 'name'=> '材料题'
             ]
         ];
-        
+
         //试题难度
         $diffculty_array = [
             [
@@ -259,7 +382,7 @@ class ExamController extends Controller {
             [
                 'id'  =>  3 ,
                 'name'=> '困难'
-            ] 
+            ]
         ];
         return response()->json(['code' => 200 , 'msg' => '返回数据成功' , 'data' => ['diffculty_array' => $diffculty_array , 'exam_array' => $exam_array]]);
     }

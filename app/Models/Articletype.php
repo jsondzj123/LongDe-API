@@ -3,6 +3,7 @@ namespace App\Models;
 
 use App\Tools\CurrentAdmin;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Redis;
 
 class Articletype extends Model {
     //指定别的表名
@@ -23,85 +24,48 @@ class Articletype extends Model {
            $where['ld_article_type.school_id'] = $data['school_id'];
        }
        $page = (!empty($data['page']))?$data['page']:20;
-       $typelist = self::select('ld_article_type.id','ld_article_type.typename','ld_article_type.status','ld_school.name','ld_admin.username')
-           ->leftJoin('ld_school','ld_school.id','=','ld_article_type.school_id')
-           ->leftJoin('ld_admin','ld_admin.id','=','ld_article_type.user_id')
-           ->where($where)
-           ->orderBy('ld_article_type.id','desc')
-           ->paginate($page);
-       return ['code' => 200 , 'msg' => '获取成功','data'=>$typelist];
-    }
-    /*
-         * @param  分类简单查询
-         * @param  author  苏振文
-         * @param  ctime   2020/4/27 16:48
-         * return  array
-         */
-    public static function Typelist(){
-        $typelist = self::where(['is_del'=>1])->select('id','typename')->get()->toArray();
-        return $typelist;
+
+        $typelist = self::select('ld_article_type.id','ld_article_type.typename','ld_article_type.status','ld_school.name','ld_admin.username')
+            ->leftJoin('ld_school','ld_school.id','=','ld_article_type.school_id')
+            ->leftJoin('ld_admin','ld_admin.id','=','ld_article_type.user_id')
+            ->where($where)
+            ->orderBy('ld_article_type.id','desc')
+            ->paginate($page);
+        return ['code' => 200 , 'msg' => '获取成功','data'=>$typelist];
     }
     /*
          * @param  修改状态
          * @param  $id 分类id
-         * @param  $type 1启用2禁用
          * @param  author  苏振文
          * @param  ctime   2020/4/30 14:22
          * return  array
          */
     public static function editStatusToId($data){
-        if($data['id'] == ''){
-            return false;
+        if(empty($data['id']) || !is_int($data['id'])){
+            return ['code' => 201 , 'msg' => '参数为空或格式错误'];
         }
         $find = self::where(['id'=>$data['id'],'is_del'=>1])->first();
         if(!$find){
             return ['code' => 201 , 'msg' => '参数错误'];
         }
-        //启用
-        if($data['type'] == 1){
-            if($find['status'] ==1){
-              return ['code' => 200 , 'msg' => '修改成功'];
-            }
-            $up = self::where(['id'=>$data['id']])->update(['status'=>1]);
-            if($up){
-                //获取后端的操作员id
-                $admin_id = isset(AdminLog::getAdminInfo()->admin_user->id) ? AdminLog::getAdminInfo()->admin_user->id : 0;
-                //添加日志操作
-                AdminLog::insertAdminLog([
-                    'admin_id'       =>   $admin_id  ,
-                    'module_name'    =>  'Articletype' ,
-                    'route_url'      =>  'admin/Articletype/editStatusToId' ,
-                    'operate_method' =>  'update' ,
-                    'content'        =>  '启用文章分类'.json_encode($data) ,
-                    'ip'             =>  $_SERVER["REMOTE_ADDR"] ,
-                    'create_at'      =>  date('Y-m-d H:i:s')
-                ]);
-                return ['code' => 200 , 'msg' => '修改成功'];
-            }else{
-                return ['code' => 202 , 'msg' => '修改失败'];
-            }
+        $status = ($find['status']==1)?0:1;
+        $up = self::where(['id'=>$data['id']])->update(['status'=>$status,'update_at'=>date('Y-m-d H:i:s')]);
+        if($up){
+            //获取后端的操作员id
+            $admin_id = isset(AdminLog::getAdminInfo()->admin_user->id) ? AdminLog::getAdminInfo()->admin_user->id : 0;
+            //添加日志操作
+            AdminLog::insertAdminLog([
+                'admin_id'       =>   $admin_id  ,
+                'module_name'    =>  'Articletype' ,
+                'route_url'      =>  'admin/Articletype/editStatusToId' ,
+                'operate_method' =>  'update' ,
+                'content'        =>  '文章分类状态'.json_encode($data) ,
+                'ip'             =>  $_SERVER["REMOTE_ADDR"] ,
+                'create_at'      =>  date('Y-m-d H:i:s')
+            ]);
+            return ['code' => 200 , 'msg' => '修改成功'];
         }else{
-            if($find['status'] ==0){
-                return ['code' => 200 , 'msg' => '修改成功'];
-            }
-            $up = self::where(['id'=>$data['id']])->update(['status'=>0]);
-            if($up){
-                //获取后端的操作员id
-                $admin_id = isset(AdminLog::getAdminInfo()->admin_user->id) ? AdminLog::getAdminInfo()->admin_user->id : 0;
-                //添加日志操作
-                AdminLog::insertAdminLog([
-                    'admin_id'       =>   $admin_id  ,
-                    'module_name'    =>  'Articletype' ,
-                    'route_url'      =>  'admin/Articletype/editStatusToId' ,
-                    'operate_method' =>  'update' ,
-                    'content'        =>  '禁用文章分类'.json_encode($data) ,
-                    'ip'             =>  $_SERVER["REMOTE_ADDR"] ,
-                    'create_at'      =>  date('Y-m-d H:i:s')
-                ]);
-                return ['code' => 200 , 'msg' => '修改成功'];
-            }else{
-                return ['code' => 202 , 'msg' => '修改失败'];
-            }
+            return ['code' => 202 , 'msg' => '修改失败'];
         }
     }
     /*
@@ -112,30 +76,48 @@ class Articletype extends Model {
          * return  array
          */
     public static function editDelToId($data){
+        if(empty($data['id'])){
+            return ['code' => 201 , 'msg' => '参数为空或格式错误'];
+        }
         $articleOnes = self::where(['id'=>$data['id']])->first();
         if(!$articleOnes){
             return ['code' => 201 , 'msg' => '参数错误'];
         }
-        if($articleOnes['is_del'] == 0){
-            return ['code' => 200 , 'msg' => '删除成功'];
-        }
-        $update = self::where(['id'=>$data['id']])->update(['is_del'=>0]);
-        if($update){
-            //获取后端的操作员id
-            $admin_id = isset(AdminLog::getAdminInfo()->admin_user->id) ? AdminLog::getAdminInfo()->admin_user->id : 0;
-            //添加日志操作
-            AdminLog::insertAdminLog([
-                'admin_id'       =>   $admin_id  ,
-                'module_name'    =>  'Articletype' ,
-                'route_url'      =>  'admin/Articletype/editDelToId' ,
-                'operate_method' =>  'update' ,
-                'content'        =>  '软删除文章分类'.json_encode($data) ,
-                'ip'             =>  $_SERVER["REMOTE_ADDR"] ,
-                'create_at'      =>  date('Y-m-d H:i:s')
-            ]);
-            return ['code' => 200 , 'msg' => '删除成功'];
+        $key = 'article_editDelToId'.$data['id'];
+        if(Redis::get($key)){
+            return json_decode(Redis::get('article_editDelToId'.$data['id']),true);
         }else{
-            return ['code' => 202 , 'msg' => '删除失败'];
+            //判断分类下是否有文章
+            $article = Article::getArticleList(['type_id'=>$data['id']]);
+            $array = $article['data']->toArray();
+            if(!empty($array['data'])){
+                Redis::setex($key,'60',json_encode(['code' => 203 , 'msg' => '此分类下有文章，无法删除']));
+                return ['code' => 203 , 'msg' => '此分类下有文章，无法删除'];
+            }else{
+                if($articleOnes['is_del'] == 0){
+                    Redis::setex($key,'60',json_encode(['code' => 200 , 'msg' => '删除成功']));
+                    return ['code' => 200 , 'msg' => '删除成功'];
+                }
+                $update = self::where(['id'=>$data['id']])->update(['is_del'=>0,'update_at'=>date('Y-m-d H:i:s')]);
+                if($update){
+                    //获取后端的操作员id
+                    $admin_id = isset(AdminLog::getAdminInfo()->admin_user->id) ? AdminLog::getAdminInfo()->admin_user->id : 0;
+                    //添加日志操作
+                    AdminLog::insertAdminLog([
+                        'admin_id'       =>   $admin_id  ,
+                        'module_name'    =>  'Articletype' ,
+                        'route_url'      =>  'admin/Articletype/editDelToId' ,
+                        'operate_method' =>  'delete' ,
+                        'content'        =>  '软删除文章分类'.json_encode($data) ,
+                        'ip'             =>  $_SERVER["REMOTE_ADDR"] ,
+                        'create_at'      =>  date('Y-m-d H:i:s')
+                    ]);
+                    Redis::setex($key,'60',json_encode(['code' => 200 , 'msg' => '删除成功']));
+                    return ['code' => 200 , 'msg' => '删除成功'];
+                }else{
+                    return ['code' => 202 , 'msg' => '删除失败'];
+                }
+            }
         }
     }
     /*
@@ -148,16 +130,14 @@ class Articletype extends Model {
          */
     public static function addType($data){
         //获取用户信息
-        $admin = CurrentAdmin::user();
-        $data['school_id'] = $admin['school_id'];
-        $data['user_id'] = $admin['id'];
-        $data['update_at'] = date('Y-m-d H:i:s');
-        if($data['typename'] == '' || $data['description']==''){
-            return ['code' => 201 , 'msg' => '参数不能为空'];
+        $data['user_id']  = isset(CurrentAdmin::user()->id) ? CurrentAdmin::user()->id : 0;
+        $data['school_id'] = isset(CurrentAdmin::user()->school_id) ? CurrentAdmin::user()->school_id : 0;
+        if($data['typename'] == ''){
+            return ['code' => 201 , 'msg' => '名称不能为空'];
         }
         $ones = self::where($data)->first();
         if($ones){
-            return ['code' => 202 , 'msg' => '参数已存在'];
+            return ['code' => 202 , 'msg' => '数据已存在'];
         }else {
             $add = self::insert($data);
             if($add){
@@ -168,7 +148,7 @@ class Articletype extends Model {
                     'admin_id'       =>   $admin_id  ,
                     'module_name'    =>  'Articletype' ,
                     'route_url'      =>  'admin/Articletype/addType' ,
-                    'operate_method' =>  'delete' ,
+                    'operate_method' =>  'insert' ,
                     'content'        =>  '添加文章分类'.json_encode($data) ,
                     'ip'             =>  $_SERVER["REMOTE_ADDR"] ,
                     'create_at'      =>  date('Y-m-d H:i:s')
@@ -187,11 +167,16 @@ class Articletype extends Model {
          * return  array
          */
     public static function editForId($data){
-        $id = $data['id'];
-        if($data['typename'] =='' || $data['description']==''){
-            return ['code' => 201 , 'msg' => '参数不能为空'];
+        //判断id
+        if(empty($data['id']  )){
+            return ['code' => 201 , 'msg' => '参数id为空或格式不正确'];
         }
+        if(empty($data['typename'] =='')){
+            return ['code' => 201 , 'msg' => '参数名称为空或格式不正确'];
+        }
+        $id = $data['id'];
         unset($data['id']);
+        $data['update_at'] = date('Y-m-d H:i:s');
         $update = self::where(['id'=>$id])->update($data);
         if($update){
             //获取后端的操作员id
@@ -211,7 +196,7 @@ class Articletype extends Model {
             return ['code' => 202 , 'msg' => '修改失败'];
         }
     }
-    
+
     /*
          * @param  单条查询
          * @param  $id
@@ -220,10 +205,21 @@ class Articletype extends Model {
          * return  array
          */
     public static function oneFind($data){
-        $find = self::select('ld_article_type.id','ld_article_type.typename','ld_article_type.description','ld_school.name')
-            ->leftJoin('ld_school','ld_school.id','=','ld_article_type.school_id')
-            ->where(['ld_article_type.id'=>$data['id'],'ld_article_type.is_del'=>1])
-            ->first();
-        return ['code' => 200 , 'msg' => '获取成功','data'=>$find];
+        //判断id
+        if(empty($data['id']) || !is_int($data['id'])){
+            return ['code' => 201 , 'msg' => '参数id为空或格式不正确'];
+        }
+        //缓存
+        $key = 'articletype_oneFind_'.$data['id'];
+        if(Redis::get($key)) {
+            return ['code' => 200 , 'msg' => '获取成功','data'=>json_decode(Redis::get($key),true)];
+        }else{
+            $find = self::select('ld_article_type.id','ld_article_type.typename','ld_article_type.description','ld_school.name')
+                ->leftJoin('ld_school','ld_school.id','=','ld_article_type.school_id')
+                ->where(['ld_article_type.id'=>$data['id'],'ld_article_type.is_del'=>1])
+                ->first();
+            Redis::setex($key,60,json_encode($find));
+            return ['code' => 200 , 'msg' => '获取成功','data'=>$find];
+        }
     }
 }

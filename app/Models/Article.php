@@ -3,6 +3,7 @@ namespace App\Models;
 
 use App\Tools\CurrentAdmin;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Redis;
 
 class Article extends Model {
     //指定别的表名
@@ -38,80 +39,44 @@ class Article extends Model {
                          ->orwhere('ld_article.id',$data['title']);
                  }
             })
-            ->where(['ld_article.is_del'=>1,'ld_article_type.is_del'=>1,'ld_admin.is_del'=>1,'ld_admin.is_forbid'=>1,'ld_school.is_del'=>1,'ld_school.is_forbid'=>1])
+            ->where(['ld_article.is_del'=>1,'ld_article_type.is_del'=>1,'ld_article_type.status'=>1,'ld_admin.is_del'=>1,'ld_admin.is_forbid'=>1,'ld_school.is_del'=>1,'ld_school.is_forbid'=>1])
             ->orderBy('ld_article.id','desc')
             ->paginate($data['num']);
-//            ->simplePaginate($data['num']);
-//        //分类列表
-//        $typelist = Articletype::Typelist();
-        //分校列表
-//        $school = School::SchoolAll();
-//        $newlist['list'] = $list; //数据
-//        $newlist['condition'] = $data; //条件
-//        $newlist['typelist'] = $typelist; //类型
-//        $newlist['school'] = $school; //学校
         return ['code' => 200 , 'msg' => '查询成功','data'=>$list];
     }
     /*
          * @param 修改文章状态
          * @param  $id 文章id
-         * @param  $type 1启用0禁用
-         * @param  $adminid 操作员id
          * @param  author  苏振文
          * @param  ctime   2020/4/28 15:43
          * return  array
          */
     public static function editStatus($data){
+        if(empty($data['id']) || !is_int($data['id'])){
+            return ['code' => 201 , 'msg' => '参数为空或格式错误'];
+        }
         $articleOnes = self::where(['id'=>$data['id']])->first();
         if(!$articleOnes){
             return ['code' => 204 , 'msg' => '参数不对'];
         }
-        //启用
-        if($data['type'] == 1){
-            if($articleOnes['status'] == 1){
-                return ['code' => 200 , 'msg' => '修改成功'];
-            }
-            $update = self::where(['id'=>$data['id']])->update(['status'=>1]);
-            if($update){
-                //获取后端的操作员id
-                $admin_id = isset(AdminLog::getAdminInfo()->admin_user->id) ? AdminLog::getAdminInfo()->admin_user->id : 0;
-                //添加日志操作
-                AdminLog::insertAdminLog([
-                    'admin_id'       =>   $admin_id  ,
-                    'module_name'    =>  'Article' ,
-                    'route_url'      =>  'admin/Article/editStatus' ,
-                    'operate_method' =>  'update' ,
-                    'content'        =>  '启用'.json_encode($data) ,
-                    'ip'             =>  $_SERVER["REMOTE_ADDR"] ,
-                    'create_at'      =>  date('Y-m-d H:i:s')
-                ]);
-                return ['code' => 200 , 'msg' => '修改成功'];
-            }else{
-                return ['code' => 201 , 'msg' => '修改失败'];
-            }
+        $status = ($articleOnes['status']==1)?0:1;
+        $update = self::where(['id'=>$data['id']])->update(['status'=>$status,'update_at'=>date('Y-m-d H:i:s')]);
+        if($update){
+            //获取后端的操作员id
+            $admin_id = isset(AdminLog::getAdminInfo()->admin_user->id) ? AdminLog::getAdminInfo()->admin_user->id : 0;
+            //添加日志操作
+            AdminLog::insertAdminLog([
+                'admin_id'       =>   $admin_id  ,
+                'module_name'    =>  'Article' ,
+                'route_url'      =>  'admin/Article/editStatus' ,
+                'operate_method' =>  'update' ,
+                'content'        =>  '操作'.json_encode($data) ,
+                'ip'             =>  $_SERVER["REMOTE_ADDR"] ,
+                'create_at'      =>  date('Y-m-d H:i:s')
+            ]);
+            return ['code' => 200 , 'msg' => '修改成功'];
         }else{
-            //禁用
-            if($articleOnes['status'] == 0){
-                return ['code' => 200 , 'msg' => '修改成功'];
-            }
-            $update = self::where(['id'=>$data['id']])->update(['status'=>0]);
-            if($update){
-                //获取后端的操作员id
-                $admin_id = isset(AdminLog::getAdminInfo()->admin_user->id) ? AdminLog::getAdminInfo()->admin_user->id : 0;
-                //添加日志操作
-                AdminLog::insertAdminLog([
-                    'admin_id'       =>   $admin_id  ,
-                    'module_name'    =>  'Article' ,
-                    'route_url'      =>  'admin/Article/editStatus' ,
-                    'operate_method' =>  'update' ,
-                    'content'        =>  '禁用'.json_encode($data) ,
-                    'ip'             =>  $_SERVER["REMOTE_ADDR"] ,
-                    'create_at'      =>  date('Y-m-d H:i:s')
-                ]);
-                return ['code' => 200 , 'msg' => '修改成功'];
-            }else{
-                return ['code' => 201 , 'msg' => '修改失败'];
-            }
+            return ['code' => 201 , 'msg' => '修改失败'];
         }
     }
     /*
@@ -122,14 +87,18 @@ class Article extends Model {
          * return  array
          */
     public static function editDelToId($data){
+        //判断分类id
+        if(empty($data['id']) || !is_int($data['id'])){
+            return ['code' => 201 , 'msg' => '参数为空或格式错误'];
+        }
         $articleOnes = self::where(['id'=>$data['id']])->first();
         if(!$articleOnes){
-            return ['code' => 204 , 'msg' => '参数不对'];
+            return ['code' => 204 , 'msg' => '参数不正确'];
         }
         if($articleOnes['is_del'] == 0){
             return ['code' => 200 , 'msg' => '删除成功'];
         }
-        $update = self::where(['id'=>$data['id']])->update(['is_del'=>0]);
+        $update = self::where(['id'=>$data['id']])->update(['is_del'=>0,'update_at'=>date('Y-m-d H:i:s')]);
         if($update){
             //获取后端的操作员id
             $admin_id = isset(AdminLog::getAdminInfo()->admin_user->id) ? AdminLog::getAdminInfo()->admin_user->id : 0;
@@ -164,9 +133,25 @@ class Article extends Model {
          * return  array
          */
     public static function addArticle($data){
-        if(empty($data['article_type_id']) ||empty($data['title'])||empty($data['image'])||empty($data['key_word'])||empty($data['sources'])||empty($data['accessory'])||empty($data['description'])||empty($data['text'])){
-            //内容为空
-            return ['code' => 201 , 'msg' => '内容为空'];
+        //判断分类id
+        if(empty($data['article_type_id']) || !is_int($data['article_type_id'])){
+            return ['code' => 201 , 'msg' => '请正确选择分类'];
+        }
+        //判断标题
+        if(empty($data['title']) || !is_string($data['title'])){
+            return ['code' => 201 , 'msg' => '标题不能为空'];
+        }
+        //判断图片
+        if(empty($data['image']) || !is_string($data['image'])){
+            return ['code' => 201 , 'msg' => '图片不能为空'];
+        }
+        //判断摘要
+        if(empty($data['description']) || !is_string($data['description'])){
+            return ['code' => 201 , 'msg' => '摘要不能为空'];
+        }
+        //判断正文
+        if(empty($data['text']) || !is_string($data['text'])){
+            return ['code' => 201 , 'msg' => '正文不能为空'];
         }
         //缓存查出用户id和分校id
         $admin_id  = isset(CurrentAdmin::user()->id) ? CurrentAdmin::user()->id : 0;
@@ -207,21 +192,23 @@ class Article extends Model {
         if(empty($data['id'])){
             return ['code' => 201 , 'msg' => '参数为空'];
         }
-        $find = self::select('ld_article.*','ld_school.name','ld_article_type.typename')
+        //缓存
+        $key = 'article_findOne_'.$data['id'];
+        if(Redis::get($key)) {
+            return ['code' => 200 , 'msg' => '获取成功','data'=>json_decode(Redis::get($key),true)];
+        }else{
+            $find = self::select('ld_article.*','ld_school.name','ld_article_type.typename')
                 ->leftJoin('ld_school','ld_school.id','=','ld_article.school_id')
                 ->leftJoin('ld_article_type','ld_article_type.id','=','ld_article.article_type_id')
-                ->where(['ld_article.id'=>$data['id'],'ld_article.is_del'=>1])
+                ->where(['ld_article.id'=>$data['id'],'ld_article.is_del'=>1,'ld_school.is_del'=>1])
                 ->first();
-        if($find){
-            unset($find['user_id']);
-            unset($find['share']);
-            unset($find['status']);
-            unset($find['is_del']);
-            unset($find['create_at']);
-            unset($find['update_at']);
-            return ['code' => 200 , 'msg' => '获取成功','data'=>$find];
-        }else{
-            return ['code' => 202 , 'msg' => '获取失败'];
+            if($find){
+                unset($find['user_id'],$find['share'],$find['status'],$find['is_del'],$find['create_at'],$find['update_at']);
+                Redis::setex($key,60,json_encode($find));
+                return ['code' => 200 , 'msg' => '获取成功','data'=>$find];
+            }else{
+                return ['code' => 202 , 'msg' => '获取失败'];
+            }
         }
     }
     /*
@@ -240,23 +227,32 @@ class Article extends Model {
          * return  array
          */
     public static function exitForId($data){
+        if(empty($data['id']) || !is_int($data['id'])){
+            return ['code' => 201 , 'msg' => 'id为空或格式不正确'];
+        }
+        //判断分类id
+        if(empty($data['article_type_id']) || !is_int($data['article_type_id'])){
+            return ['code' => 201 , 'msg' => '分类为空或格式不正确'];
+        }
+        //判断标题
+        if(empty($data['title']) || !is_string($data['title'])){
+            return ['code' => 201 , 'msg' => '标题为空或格式不正确'];
+        }
+        //判断图片
+        if(empty($data['image']) || !is_string($data['image'])){
+            return ['code' => 201 , 'msg' => '图片为空或格式不正确'];
+        }
+        //判断摘要
+        if(empty($data['description']) || !is_string($data['description'])){
+            return ['code' => 201 , 'msg' => '摘要为空或格式不正确'];
+        }
+        //判断正文
+        if(empty($data['text']) || !is_string($data['text'])){
+            return ['code' => 201 , 'msg' => '正文为空或格式不正确'];
+        }
+        $data['update_at'] = date('Y-m-d H:i:s');
         $id = $data['id'];
         unset($data['id']);
-        //判断封面是否有更新
-        if(!empty($data['image'])){
-            //进行封面上传
-            $data['image'] = '';
-        }
-        //判断封面是否有更新
-        if(!empty($data['accessory'])){
-            //进行封面上传
-            $data['accessory'] = '';
-        }
-        //判断是否为空
-//        if(empty($data['title']) || empty($data['key_word']) || empty($data['sources'])|| empty($data['accessory'])|| empty($data['description'])|| empty($data['text'])){
-//            return ['code' => 201 , 'msg' => '参数不能为空'];
-//        }
-        $data['update_at'] = date('Y-m-d H:i:s');
         $res = self::where(['id'=>$id])->update($data);
         if($res){
             //获取后端的操作员id

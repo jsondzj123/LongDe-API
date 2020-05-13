@@ -41,7 +41,6 @@ class ArticleController extends Controller {
     /*
          * @param  文章表禁用或启用
          * @param  $id    文章id
-         * @param  $type   1启用0禁用
          * @param  author  苏振文
          * @param  ctime   2020/4/28 15:4  1
          * return  array
@@ -69,7 +68,6 @@ class ArticleController extends Controller {
         } catch (Exception $ex) {
             return response()->json(['code' => 500 , 'msg' => $ex->getMessage()]);
         }
-
     }
     /*
          * @param  单条查询
