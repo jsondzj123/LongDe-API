@@ -22,6 +22,10 @@ class Article extends Model {
     public static function getArticleList($data){
         //获取用户网校id
         $data['num'] = isset($data['num'])?$data['num']:20;
+        //每页显示的条数
+//        $pagesize = isset($data['pagesize']) && $data['pagesize'] > 0 ? $data['pagesize'] : 15;
+//        $page     = isset($data['page']) && $data['page'] > 0 ? $data['page'] : 1;
+//        $offset   = ($page - 1) * $pagesize;
         $list = self::select('ld_article.id','ld_article.title','ld_article.create_at','ld_school.name','ld_article_type.typename','ld_admin.username')
             ->leftJoin('ld_school','ld_school.id','=','ld_article.school_id')
             ->leftJoin('ld_article_type','ld_article_type.id','=','ld_article.article_type_id')
@@ -33,7 +37,6 @@ class Article extends Model {
                  if(!empty($data['type_id']) && $data['type_id'] != '' ){
                      $query->where('ld_article.article_type_id',$data['type_id']);
                  }
-
                  if(!empty($data['title']) && $data['title'] != ''){
                      $query->where('ld_article.title','like','%'.$data['title'].'%')
                          ->orwhere('ld_article.id',$data['title']);
@@ -41,6 +44,8 @@ class Article extends Model {
             })
             ->where(['ld_article.is_del'=>1,'ld_article_type.is_del'=>1,'ld_article_type.status'=>1,'ld_admin.is_del'=>1,'ld_admin.is_forbid'=>1,'ld_school.is_del'=>1,'ld_school.is_forbid'=>1])
             ->orderBy('ld_article.id','desc')
+//            ->offset($offset)->limit($pagesize)
+//            ->get()->toArray();
             ->paginate($data['num']);
         return ['code' => 200 , 'msg' => '查询成功','data'=>$list];
     }

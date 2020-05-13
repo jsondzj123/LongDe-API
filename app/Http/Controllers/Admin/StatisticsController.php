@@ -27,17 +27,8 @@ class StatisticsController extends Controller {
         * return  array
         */
    public function StudentList(){
-       $data=[
-           'school_id'=>isset($_POST['school_id'])?$_POST['school_id']:'',
-           'reg_source'=>isset($_POST['reg_source'])?$_POST['reg_source']:'',
-           'enroll_status'=>isset($_POST['enroll_status'])?$_POST['enroll_status']:'',
-           'real_name'=>isset($_POST['real_name'])?$_POST['real_name']:'',
-           'phone'=>isset($_POST['phone'])?$_POST['phone']:'',
-           'state_time'=>isset($_POST['state_time'])?$_POST['state_time']:'',
-           'end_time'=>isset($_POST['end_time'])?$_POST['end_time']:'',
-           'type'=>isset($_POST['type'])?$_POST['type']:'',
-           'num'=>isset($_POST['num'])?$_POST['num']:20
-       ];
+       $data = self::$accept_data;
+       $data['num'] = isset($data['num'])?$data['num']:20;
        $stime = (!empty($data['state_time']))?$data['state_time']:date('Y-m-d');
        $etime = ((!empty($data['end_time']))?$data['end_time']:date('Y-m-d'));
        $statetime = $stime." 00:00:00";
@@ -165,14 +156,8 @@ class StatisticsController extends Controller {
         * return  array
         */
    public function TeacherList(){
-       $data=[
-           'school_id'=>isset($_POST['school_id'])?$_POST['school_id']:'',
-           'real_name'=>isset($_POST['real_name'])?$_POST['real_name']:'',
-           'phone'=>isset($_POST['phone'])?$_POST['phone']:'',
-           'state_time'=>isset($_POST['state_time'])?$_POST['state_time']:'',
-           'end_time'=>isset($_POST['end_time'])?$_POST['end_time']:'',
-           'num'=>isset($_POST['num'])?$_POST['num']:20
-       ];
+       $data = self::$accept_data;
+       $data['num'] = isset($data['num'])?$data['num']:20;
        $stime = (!empty($data['state_time']))?$data['state_time']:date('Y-m-d');
        $etime = ((!empty($data['end_time']))?$data['end_time']:date('Y-m-d'));
        $statetime = $stime." 00:00:00";
@@ -213,13 +198,23 @@ class StatisticsController extends Controller {
         //课程关联科目id  subject_lessons
         //科目表  subject
         //课程表  lessons
+       //根据讲师 查询所有的课程  根据课程 查询科目
        $id = $_POST['id'];
        $lesson = LessonTeacher::where(['teacher_id'=>$id])->get()->toArray();
-       foreach ($lesson as $k=>$v){
-          $lesson = Lesson::where('id',$v['lesson_id'])->first();
-          $subid = SubjectLesson ::where('subject_id',$v['lesson_id'])->first();
-          $subject = Subject::where('id',$subid['subject_id'])->first();
+       foreach ($lesson as $k=>&$v){
+           //课程信息
+          $lessons = Lesson::where('id',$v['lesson_id'])->first()->toArray();
+          $subid = SubjectLesson::where('lesson_id',$v['lesson_id'])->first()->toArray();
+          //学科信息
+          $subject = Subject::where('id',$subid['subject_id'])->first()->toArray();
+          if($subject['pid'] != 0){
+              $subjectOne = Subject::where('id',$subject['pid'])->first()->toArray();
+          }
+          $v['lesson_name'] = $lessons['title'];
+          $v['subject_name'] = $subjectOne['name'];
+          $v['subject_to_name'] = $subject['name'];
        }
+       print_r($lesson);die;
    }
 
 
