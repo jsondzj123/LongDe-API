@@ -398,7 +398,7 @@ class ExamController extends Controller {
             //获取excel表格中试题列表
             $exam_list = self::doImportExcel(new \App\Imports\UsersImport , app()->basePath().'/invoices.xlsx' , 1 , 1000);
             self::$accept_data['data'] = $exam_list['data'];
-            $is_insert = isset($body['is_insert']) ? 0 : 1;
+            $is_insert = isset(self::$accept_data['is_insert']) ? 0 : 1;
             $exam_list = Exam::doImportExam(self::$accept_data,$is_insert);
             if($exam_list['code'] == 200){
                 return response()->json(['code' => 200 , 'msg' => '导入试题列表成功' , 'data' => $exam_list['data']]);
