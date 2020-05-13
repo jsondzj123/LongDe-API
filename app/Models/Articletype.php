@@ -40,7 +40,7 @@ class Articletype extends Model {
          * return  array
          */
     public static function editStatusToId($data){
-        if(empty($data['id']) || !is_int($data['id'])){
+        if(empty($data['id'])){
             return ['code' => 201 , 'msg' => '参数为空或格式错误'];
         }
         $find = self::where(['id'=>$data['id'],'is_del'=>1])->first();
@@ -166,10 +166,10 @@ class Articletype extends Model {
          */
     public static function editForId($data){
         //判断id
-        if(empty($data['id']) || !is_int($data['id'])){
+        if(empty($data['id'])){
             return ['code' => 201 , 'msg' => '参数id为空或格式不正确'];
         }
-        if(empty($data['typename'] =='' ||!is_string($data['typename']))){
+        if(empty($data['typename'] =='')){
             return ['code' => 201 , 'msg' => '参数名称为空或格式不正确'];
         }
         $id = $data['id'];
@@ -204,7 +204,7 @@ class Articletype extends Model {
          */
     public static function oneFind($data){
         //判断id
-        if(empty($data['id']) || !is_int($data['id'])){
+        if(empty($data['id'])){
             return ['code' => 201 , 'msg' => '参数id为空或格式不正确'];
         }
         //缓存

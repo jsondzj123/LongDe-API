@@ -52,7 +52,7 @@ class Article extends Model {
          * return  array
          */
     public static function editStatus($data){
-        if(empty($data['id']) || !is_int($data['id'])){
+        if(empty($data['id'])){
             return ['code' => 201 , 'msg' => '参数为空或格式错误'];
         }
         $articleOnes = self::where(['id'=>$data['id']])->first();
@@ -88,7 +88,7 @@ class Article extends Model {
          */
     public static function editDelToId($data){
         //判断分类id
-        if(empty($data['id']) || !is_int($data['id'])){
+        if(empty($data['id'])){
             return ['code' => 201 , 'msg' => '参数为空或格式错误'];
         }
         $articleOnes = self::where(['id'=>$data['id']])->first();
@@ -134,23 +134,23 @@ class Article extends Model {
          */
     public static function addArticle($data){
         //判断分类id
-        if(empty($data['article_type_id']) || !is_int($data['article_type_id'])){
+        if(empty($data['article_type_id'])){
             return ['code' => 201 , 'msg' => '请正确选择分类'];
         }
         //判断标题
-        if(empty($data['title']) || !is_string($data['title'])){
+        if(empty($data['title'])){
             return ['code' => 201 , 'msg' => '标题不能为空'];
         }
         //判断图片
-        if(empty($data['image']) || !is_string($data['image'])){
+        if(empty($data['image'])){
             return ['code' => 201 , 'msg' => '图片不能为空'];
         }
         //判断摘要
-        if(empty($data['description']) || !is_string($data['description'])){
+        if(empty($data['description'])){
             return ['code' => 201 , 'msg' => '摘要不能为空'];
         }
         //判断正文
-        if(empty($data['text']) || !is_string($data['text'])){
+        if(empty($data['text'])){
             return ['code' => 201 , 'msg' => '正文不能为空'];
         }
         //缓存查出用户id和分校id
@@ -189,7 +189,7 @@ class Article extends Model {
          * return  array
          */
     public static function findOne($data){
-        if(empty($data['id']) || !is_int($data['id'])){
+        if(empty($data['id'])){
             return ['code' => 201 , 'msg' => '参数为空'];
         }
         //缓存
@@ -226,27 +226,27 @@ class Article extends Model {
          * return  array
          */
     public static function exitForId($data){
-        if(empty($data['id']) || !is_int($data['id'])){
+        if(empty($data['id'])){
             return ['code' => 201 , 'msg' => 'id为空或格式不正确'];
         }
         //判断分类id
-        if(empty($data['article_type_id']) || !is_int($data['article_type_id'])){
+        if(empty($data['article_type_id'])){
             return ['code' => 201 , 'msg' => '分类为空或格式不正确'];
         }
         //判断标题
-        if(empty($data['title']) || !is_string($data['title'])){
+        if(empty($data['title'])){
             return ['code' => 201 , 'msg' => '标题为空或格式不正确'];
         }
         //判断图片
-        if(empty($data['image']) || !is_string($data['image'])){
+        if(empty($data['image'])){
             return ['code' => 201 , 'msg' => '图片为空或格式不正确'];
         }
         //判断摘要
-        if(empty($data['description']) || !is_string($data['description'])){
+        if(empty($data['description'])){
             return ['code' => 201 , 'msg' => '摘要为空或格式不正确'];
         }
         //判断正文
-        if(empty($data['text']) || !is_string($data['text'])){
+        if(empty($data['text'])){
             return ['code' => 201 , 'msg' => '正文为空或格式不正确'];
         }
         $data['update_at'] = date('Y-m-d H:i:s');

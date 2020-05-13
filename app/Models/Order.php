@@ -24,9 +24,7 @@ class Order extends Model {
          * return  array
          */
     public static function getList($data){
-        if(empty($data['num'])){
-            $data['num'] = 20;
-        }
+        $data['num'] = empty($data['num'])?20:$data['num'];
         $statetime = (!empty($data['state_time']))?$data['state_time']:"1999-01-01 12:12:12";
         $endtime = (!empty($data['end_time']))?$data['end_time']:"2999-01-01 12:12:12";
         $order = self::select('ld_order.id','ld_order.order_number','ld_order.order_type','ld_order.price','ld_order.pay_status','ld_order.pay_type','ld_order.status','ld_order.create_at','ld_order.oa_status','ld_order.student_id','ld_student.phone','ld_student.real_name')
@@ -65,11 +63,32 @@ class Order extends Model {
         if(!$arr || !is_array($arr)){
             return ['code' => 202 , 'msg' => '传递数据不合法'];
         }
-        //判断数据是否为空
-        if(empty($arr['student_id']) || empty($arr['class_id'])|| empty($arr['lession_price'])|| empty($arr['student_price'])|| empty($arr['payment_type'])|| empty($arr['payment_method'])|| empty($arr['payment_time'])){
-            return ['code' => 201 , 'msg' => '数据不能为空'];
+        //判断学生id
+        if(!isset($arr['student_id']) || empty($arr['student_id'])){
+            return ['code' => 201 , 'msg' => '报名学生为空或格式不对'];
         }
-        $data['admin_id'] = 1;  //操作员id
+        //判断学科id
+        if(!isset($arr['class_id']) || empty($arr['class_id'])){
+            return ['code' => 201 , 'msg' => '学科为空或格式不对'];
+        }
+        //判断原价
+        if(!isset($arr['lession_price']) || empty($arr['lession_price'])){
+            return ['code' => 201 , 'msg' => '原价为空或格式不对'];
+        }
+        //判断付款类型
+        if(!isset($arr['payment_type']) || empty($arr['payment_type']) || !in_array($arr['payment_type'],[1,2,3,4])){
+            return ['code' => 201 , 'msg' => '付款类型为空或格式不对'];
+        }
+        //判断原价
+        if(!isset($arr['payment_method']) || empty($arr['payment_method'])|| !in_array($arr['payment_method'],[1,2,3])){
+            return ['code' => 201 , 'msg' => '付款方式为空或格式不对'];
+        }
+        //判断支付时间
+        if(!isset($arr['payment_time'])|| empty($arr['payment_time'])){
+            return ['code' => 201 , 'msg' => '支付时间不能为空'];
+        }
+        //获取后端的操作员id
+        $data['admin_id'] = isset(AdminLog::getAdminInfo()->admin_user->id) ? AdminLog::getAdminInfo()->admin_user->id : 0;  //操作员id
         $data['order_number'] = date('YmdHis', time()) . rand(1111, 9999); //订单号  随机生成
         $data['order_type'] = 1;        //1线下支付 2 线上支付
         $data['student_id'] = $arr['student_id'];
@@ -83,6 +102,16 @@ class Order extends Model {
         $data['class_id'] = $arr['lession_id'];
         $add = self::insert($data);
         if($add){
+            //添加日志操作
+            AdminLog::insertAdminLog([
+                'admin_id'       =>   $data['admin_id']  ,
+                'module_name'    =>  'Order' ,
+                'route_url'      =>  'admin/Order/offlineStudentSignup' ,
+                'operate_method' =>  'insert' ,
+                'content'        =>  '添加订单的内容,'.json_encode($data),
+                'ip'             =>  $_SERVER["REMOTE_ADDR"] ,
+                'create_at'      =>  date('Y-m-d H:i:s')
+            ]);
             return ['code' => 200 , 'msg' => '订单生成成功','data'=>$add];
         }else{
             return ['code' => 203 , 'msg' => '订单生成失败'];
@@ -105,8 +134,17 @@ class Order extends Model {
             if(!$arr || empty($arr)){
                 return ['code' => 201 , 'msg' => '参数错误'];
             }
-            if(empty($arr['student_id']) || empty($arr['pay_type']) || empty($arr['class_id'])){
-                return ['code' => 202 , 'msg' => '参数不能为空'];
+            //判断学生id
+            if(!isset($arr['student_id']) || empty($arr['student_id'])){
+                return ['code' => 201 , 'msg' => '学生id为空或格式不对'];
+            }
+            //判断支付方式
+            if(!isset($arr['pay_type']) || empty($arr['pay_type']) || !in_array($arr['pay_type'],[1,2])){
+                return ['code' => 201 , 'msg' => '选择正确的支付方式'];
+            }
+            //判断课程id
+            if(!isset($arr['class_id']) || empty($arr['class_id'])){
+                return ['code' => 201 , 'msg' => '课程id为空或格式不对'];
             }
             //根据课程id 查询价格
             $lesson = Lesson::select('price','favorable_price')->where(['id'=>$arr['class_id'],'is_del'=>0,'is_forbid'=>0,'status'=>1])->first();
@@ -224,7 +262,7 @@ class Order extends Model {
          * return  array
          */
     public static function findOrderForId($data){
-        if(empty($data['order_id']) ||!is_int($data['order_id'])){
+        if(empty($data['order_id'])){
             return ['code' => 201 , 'msg' => '订单id错误'];
         }
         $list = self::select('ld_order.order_number','ld_order.create_at','ld_order.price','ld_order.order_type','ld_order.status','ld_order.pay_time','ld_student.real_name','ld_student.phone','ld_school.name','lessons.title','lessons.price as lessprice','lesson_teachers.real_name')
@@ -253,10 +291,10 @@ class Order extends Model {
         if(!$data || empty($data)){
             return ['code' => 201 , 'msg' => '参数为空或格式错误'];
         }
-        if(empty($data['order_id']) ||!is_int($data['order_id'])){
+        if(empty($data['order_id'])){
             return ['code' => 201 , 'msg' => '订单id错误'];
         }
-        if(!strpos('0,1',$data['status'])){
+        if(!in_array($data['status'],['0,1'])){
             return ['code' => 201 , 'msg' => '状态传输错误'];
         }
         $up = self::where(['id'=>$data['order_id'],'order_type'=>1])->update(['oa_status'=>$data['status'],'update_at'=>date('Y-m-d H:i:s')]);
