@@ -14,7 +14,6 @@ class CommonController extends BaseController {
     */
     public function getInsertAdminUser(){
             $adminId = CurrentAdmin::user()['id'];
-            $adminId = 1;
             $data =  \App\Models\Admin::getUserOne(['id'=>$adminId]);
             if($data['code'] != 200){
                 return response()->json(['code' => $data['code'] , 'msg' => $data['msg']]);
@@ -22,17 +21,16 @@ class CommonController extends BaseController {
             $adminUserSchoolId = $data['data']['school_id'];
             $adminUserSchoolType = $data['data']['school_status']; 
 
-            if($adminUserSchoolType >0){
+            // if($adminUserSchoolType >0){
                 //总校
-                $schoolData = \App\Models\School::getSchoolAlls(['id','name']);
-            }else{
-                //分校
-                $schoolData = \App\Models\School::getSchoolOne(['id'=>$adminUserSchoolId],['id','name']);
-            }
-         
-            $rolAuthArr = \App\Models\Roleauth::getRoleAuthAlls(['school_id'=>$adminUserSchoolId],['id','role_name']);
+            // $schoolData = \App\Models\School::getSchoolAlls(['id','name']);
+            // }else{
+                // //分校
+            $schoolData = \App\Models\School::getSchoolOne(['id'=>$adminUserSchoolId],['id','name']);
+            //}
+            $rolAuthArr = \App\Models\Roleauth::getRoleAuthAlls(['school_id'=>$adminUserSchoolId,'is_del'=>1],['id','role_name']);
             $arr = [
-                'school'=>$schoolData,
+                'school'=>$schoolData['data'],
                 'role_auth'=>$rolAuthArr
             ];
             return response()->json(['code' => 200 , 'msg' => '获取信息成功' , 'data' => $arr]);
@@ -46,8 +44,7 @@ class CommonController extends BaseController {
     public  function getRoleAuth(){
          try{
             $adminId = CurrentAdmin::user()['id'];
-            print_r(CurrentAdmin::user());die;
-
+         
             $data =  \App\Models\Admin::getUserOne(['id'=>$adminId]);
             if($data['code'] != 200){
                 return response()->json(['code' => $data['code'] , 'msg' => $data['msg']]);

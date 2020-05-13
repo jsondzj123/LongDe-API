@@ -46,13 +46,13 @@ class RoleController extends Controller {
         return response()->json(['code'=>200,'msg'=>'Success','data'=>$arr]);    
     }
      /*
-     * @param  upRoleStatus   修改角色状态
+     * @param  upRoleStatus  角色删除
      * @param  id      角色id
      * @param  return  array  状态信息
      * @param  author    lys
      * @param  ctime     2020-04-28 13:27
      */
-    public function upRoleDelStatus(){
+    public function doRoleDel(){
         $id = self::$accept_data['id'];
         if( !isset($id) || empty($id) || is_int($id)){
             return response()->json(['code'=>203,'msg'=>'角色标识为空或缺少或类型不合法']);
@@ -88,8 +88,8 @@ class RoleController extends Controller {
      * @param  ctime     2020-04-30
      */
     //注：隐含问题 是不是超级管理员权限
-    public function doRoleInsert(Request $request){
-        $data = $request->all();
+    public function doRoleInsert(){
+        $data = self::$accept_data;
         if(!isset($data['role_name']) || empty($data['role_name'])){
            return response()->json(['code'=>422,'msg'=>'角色名称为空或缺少']);
         }
@@ -100,7 +100,6 @@ class RoleController extends Controller {
             return response()->json(['code'=>422,'msg'=>'权限描述为空或缺少']);
         }
         $data['admin_id'] = CurrentAdmin::user()['id'];
-
         $data['school_id'] = CurrentAdmin::user()['school_id'];
         $role = Roleauth::where(['role_name'=>$data['role_name'],'school_id'=>$data['school_id'],'is_del'=>1])->first();
         if($role){
@@ -169,10 +168,12 @@ class RoleController extends Controller {
         $arr = [
             'code'=>200,
             'msg'=>'获取角色成功',
-            'id' => $data['id'],
-            'role_auth_arr'=>$roleAuthArr,
-            'role_auth_data' =>$roleAuthData['data'],
-            'auth' =>$authArr
+            'data'=>[
+                    'id' => $data['id'], //角色id
+                    'role_auth_arr'=>$roleAuthArr,
+                    'role_auth_data' =>$roleAuthData['data'],
+                    'auth' =>$authArr
+                ]
         ]; 
         return  response()->json($arr);
     }   
