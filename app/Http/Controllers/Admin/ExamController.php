@@ -263,4 +263,43 @@ class ExamController extends Controller {
         ];
         return response()->json(['code' => 200 , 'msg' => '返回数据成功' , 'data' => ['diffculty_array' => $diffculty_array , 'exam_array' => $exam_array]]);
     }
+    
+    /*
+     * @param  description   导入试题功能方法
+     * @param  author        dzj
+     * @param  ctime         2020-04-30
+    */
+    public function doImportExam(){
+        //获取提交的参数
+        try{
+            //获取excel表格中试题列表
+            $exam_list = self::doImportExcel(new \App\Imports\UsersImport , app()->basePath().'/invoices.xlsx' , 1 , 1000);
+            self::$accept_data['data'] = $exam_list['data'];
+            $exam_list = Exam::doImportExam(self::$accept_data,1);
+            if($exam_list['code'] == 200){
+                return response()->json(['code' => 200 , 'msg' => '导入试题列表成功' , 'data' => $exam_list['data']]);
+            } else {
+                return response()->json(['code' => $exam_list['code'] , 'msg' => $exam_list['msg']]);
+            }
+        } catch (Exception $ex) {
+            return response()->json(['code' => 500 , 'msg' => $ex->getMessage()]);
+        }
+    }
+    
+    /*
+     * @param  description   导出做题记录功能方法
+     * @param  参数说明[
+     *     student_id     学员id(必传)
+     *     bank_id        题库id(非必传)
+     *     subject_id     科目id(非必传)
+     *     type           类型(非必传)
+     *     exam_date      做题日期(非必传)
+     * ]
+     * @param  author        dzj
+     * @param  ctime         2020-04-30
+    */
+    /*public function doExportExamLog(){
+        //获取提交的参数
+        return Excel::download(new \App\Exports\ExamExport, 'examlog.xlsx');
+    }*/
 }

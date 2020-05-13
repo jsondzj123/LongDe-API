@@ -4,6 +4,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\AdminLog;
 use App\Models\ExamOption;
+use App\Models\Chapters;
 use App\Models\QuestionSubject;
 use Illuminate\Support\Facades\Redis;
 
@@ -782,4 +783,120 @@ class Exam extends Model {
         
         return ['code' => 200 , 'msg' => '获取列表成功' , 'data' => ['simple_exam_list' => $simple_exam_list , 'kind_exam_list' => $kind_exam_list , 'hard_exam_list' => $hard_exam_list]];
     }
+    
+    /*
+     * @param  description   导入试题功能方法
+     * @param  参数说明       $body导入数据参数[
+     *     is_insert         是否执行插入操作(1表示是,0表示否)
+     * ]
+     * @param  author        dzj
+     * @param  ctime         2020-05-13
+    */
+    public static function doImportExam($body=[] , $is_insert = 0){
+        //判断传过来的数组数据是否为空
+        if(!$body || !is_array($body)){
+            return ['code' => 201 , 'msg' => '暂无导入的数据信息'];
+        }
+        
+        //判断题库id是否为空
+        if(empty($body['bank_id']) || !is_numeric($body['bank_id']) || $body['bank_id'] <= 0){
+            return ['code' => 202 , 'msg' => '题库id不合法'];
+        }
+        
+        //判断科目id是否为空
+        if(empty($body['subject_id']) || !is_numeric($body['subject_id']) || $body['subject_id'] <= 0){
+            return ['code' => 202 , 'msg' => '科目id不合法'];
+        }
+        
+        //获取后端的操作员id
+        $admin_id = isset(AdminLog::getAdminInfo()->admin_user->id) ? AdminLog::getAdminInfo()->admin_user->id : 0;
+        
+        //去掉试题模板中没有用的列和展示项
+        $exam_list = array_slice($body['data'] , 3);
+
+        //试题难度(1代表简单,2代表一般,3代表困难)
+        $diffculty_array = ['简单' => 1 , '一般' => 2 , '困难' => 3];
+
+        //空数组赋值
+        $arr = [];
+        foreach($exam_list as $k=>$v){
+            //试题类型赋值
+            $exam_type = $v[0];
+
+            //试题选项空数组赋值
+            $option_list = [];
+
+            //判断试题类型是单选题或多选题或不定项
+            if(in_array($exam_type , [1,2,3])){
+                //选项对应索引值
+                $option_index = [3=>'A',4=>'B',5=>'C',6=>'D',7=>'E',8=>'F',9=>'G',10=>'H'];
+
+                //判断A选项的值是否为空
+                for($i=3;$i<11;$i++){
+                    //对应的选项列是否为空
+                    if($v[$i] && !empty($v[$i])){
+                        $option_list[] = [
+                            'option_no'    => $option_index[$i] ,
+                            'option_name'  => $v[$i]  ,
+                            'correct_flag' => strpos($v[2] , $option_index[$i]) !== false ? 1 : 0
+                        ];
+                    }
+                }
+            }
+
+            //根据章的名称获取章的信息
+            $chapter_info  = Chapters::where("name" , trim($v[13]))->where("type" , 0)->first();
+
+            //根据节的名称获取节的信息
+            $joint_info    = Chapters::where("name" , trim($v[14]))->where("type" , 1)->first();
+
+            //根据考点的名称获取考点的信息
+            $point_info    = Chapters::where("name" , trim($v[15]))->where("type" , 2)->first();
+            
+            //判断是否执行插入操作
+            if($is_insert > 0){
+                //试题插入操作
+                $exam_id = self::insertGetId([
+                    'bank_id'        =>  $body['bank_id'] ,                                        //题库的id
+                    'subject_id'     =>  $body['subject_id'] ,                                     //科目的id
+                    'admin_id'       =>  $admin_id ,                                               //后端的操作员id
+                    'exam_content'   =>  $v[1] ,                                                   //试题内容
+                    'answer'         =>  $exam_type == 4 ? $v[2] == '正确' ?  1  : 0  : $v[2]  ,   //试题答案
+                    'text_analysis'  =>  !empty($v[11]) ? $v[11] : '' ,                            //文字解析
+                    'item_diffculty' =>  !empty($v[12]) ? $diffculty_array[trim($v[12])] : 0 ,     //试题难度
+                    'chapter_id'     =>  $v[13] && !empty($v[13]) ? $chapter_info->id : 0,         //章id
+                    'joint_id'       =>  $v[14] && !empty($v[14]) ? $joint_info->id : 0,           //节id
+                    'point_id'       =>  $v[15] && !empty($v[15]) ? $point_info->id : 0,           //考点id
+                    'type'           =>  $exam_type,                                               //试题类型
+                    'create_at'      =>  date('Y-m-d H:i:s')                                       //创建时间
+                ]);
+
+                //判断是否插入成功试题
+                if($exam_id > 0 && in_array($exam_type , [1,2,3])){
+                    //试题选项插入
+                    ExamOption::insertGetId([
+                        'admin_id'       =>  $admin_id ,                                           //后端的操作员id
+                        'exam_id'        =>  $exam_id ,                                            //试题的id
+                        'option_content' =>  $option_list ? json_encode($option_list) : [],        //试题选项
+                        'create_at'      =>  date('Y-m-d H:i:s')                                   //创建时间
+                    ]);
+                }
+            } else {
+                //数组信息赋值
+                $arr[$exam_type][] = [
+                    'exam_content'  =>  $v[1]  ,                                                  //试题内容
+                    'answer'        =>  $exam_type == 4 ? $v[2] == '正确' ?  1  : 0  : $v[2]  ,   //试题答案
+                    'text_analysis' =>  !empty($v[11]) ? $v[11] : '' ,                            //文字解析
+                    'item_diffculty'=>  !empty($v[12]) ? $diffculty_array[trim($v[12])] : 0 ,     //试题难度
+                    'chapter_id'    =>  $v[13] && !empty($v[13]) ? $chapter_info->id : 0,         //章id
+                    'joint_id'      =>  $v[14] && !empty($v[14]) ? $joint_info->id : 0,           //节id
+                    'point_id'      =>  $v[15] && !empty($v[15]) ? $point_info->id : 0,           //考点id
+                    'option_list'   =>  $option_list ? $option_list : []                          //试题选项
+                ];
+                
+            }
+        }
+        //返回信息数据
+        return ['code' => 200 , 'msg' => '导入试题列表成功' , 'data' => $arr];
+    } 
 }
