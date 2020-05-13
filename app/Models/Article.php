@@ -189,7 +189,7 @@ class Article extends Model {
          * return  array
          */
     public static function findOne($data){
-        if(empty($data['id']) || !is_int($data['id'])){
+        if(empty($data['id'])){
             return ['code' => 201 , 'msg' => '参数为空'];
         }
         //缓存
