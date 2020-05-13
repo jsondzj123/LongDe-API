@@ -175,6 +175,7 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use (
         $router->post('InsertTestPaperSelection', 'ExamController@InsertTestPaperSelection');           //添加试题到试卷
         $router->post('doTestPaperSelection', 'ExamController@doTestPaperSelection');                   //试卷已添加试题的列表
         $router->post('ListTestPaperSelection', 'ExamController@ListTestPaperSelection');               //添加试题到试卷的列表
+        $router->post('RepetitionTestPaperSelection', 'ExamController@RepetitionTestPaperSelection');   //检测试卷试题
         $router->post('oneTestPaperSelection', 'ExamController@oneTestPaperSelection');                 //获取试题详情
         $router->post('deleteTestPaperSelection', 'ExamController@deleteTestPaperSelection');           //删除试题
         /****************试卷选择试题部分  end****************/

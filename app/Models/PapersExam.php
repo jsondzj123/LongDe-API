@@ -123,7 +123,40 @@ class PapersExam extends Model {
         return ['code' => 200 , 'msg' => '获取成功','data'=>['exam_list' => $exam_list , 'total' => $exam_count , 'pagesize' => $pagesize , 'page' => $page]];
     }
     /*
-     * @param  description   试卷试题页面
+     * @param  description   检测试卷试题
+     * @param  参数说明       body包含以下参数[
+     *     type            试题类型(1代表单选题2代表多选题3代表不定项4代表判断题5填空题6简答题7材料题)
+     *     papers_id       试卷id
+     * ]
+     * @param author    zzk
+     * @param ctime     2020-05-11
+     * return string
+     */
+    public static function GetRepetitionExam($body=[]){
+        //获取后端的操作员id
+        $admin_id = isset(AdminLog::getAdminInfo()->id) ? AdminLog::getAdminInfo()->id : 0;
+        //获取试卷id
+        $papers_id = $body['papers_id'];
+        //获取分类
+        $type = $body['type'];
+        if(!empty($type)){
+            //通过试卷id获取该试卷下的所有试题按照分类进行搜索
+            $exam = self::where(['ld_question_papers_exam.papers_id'=>$papers_id,'ld_question_papers_exam.type'=>$type,'ld_question_papers_exam.is_del'=>0])
+            ->join('ld_question_exam', 'ld_question_papers_exam.exam_id', '=', 'ld_question_exam.id')
+            ->select('ld_question_papers_exam.id','ld_question_papers_exam.exam_id','ld_question_exam.exam_name')
+            ->get()
+            ->toArray();
+        }else{
+            $exam = self::where(['ld_question_papers_exam.papers_id'=>$papers_id,'ld_question_papers_exam.is_del'=>0])
+            ->join('ld_question_exam', 'ld_question_papers_exam.exam_id', '=', 'ld_question_exam.id')
+            ->select('ld_question_papers_exam.id','ld_question_papers_exam.exam_id','ld_question_exam.exam_name')
+            ->get()
+            ->toArray();
+        }
+        return ['code' => 200 , 'msg' => '获取成功','data'=>$exam];
+    }
+    /*
+     * @param  description   选择试题
      * @param  参数说明       body包含以下参数[
      *     type            试题类型(1代表单选题2代表多选题3代表不定项4代表判断题5填空题6简答题7材料题)
      *     papers_id       试卷id
@@ -154,7 +187,7 @@ class PapersExam extends Model {
      * @param  description   软删试卷试题
      * @param  参数说明       body包含以下参数
      * [
-     *     exam_id       试题id
+     *     papersexam_id       试卷内试题id
      * ]
      * @param author    zzk
      * @param ctime     2020-05-11
@@ -164,9 +197,9 @@ class PapersExam extends Model {
         //获取后端的操作员id
         $admin_id = isset(AdminLog::getAdminInfo()->id) ? AdminLog::getAdminInfo()->id : 0;
         //获取试题id
-        $exam_id = $body['exam_id'];
+        $papersexam_id = $body['papersexam_id'];
 
-        $examOne = self::where(['id'=>$exam_id])->first();
+        $examOne = self::where(['id'=>$papersexam_id])->first();
         if(!$examOne){
             return ['code' => 204 , 'msg' => '参数不对'];
         }
@@ -178,7 +211,7 @@ class PapersExam extends Model {
         ];
 
         //根据题库id更新删除状态
-        if(false !== self::where('exam_id',$body['exam_id'])->update($data)){
+        if(false !== self::where('id',$body['papersexam_id'])->update($data)){
             //添加日志操作
             AdminLog::insertAdminLog([
                 'admin_id'       =>   $admin_id  ,

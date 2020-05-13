@@ -208,24 +208,20 @@ class ExamController extends Controller {
         }
     }
     /*
-     * @param  description   试卷选择试题添加
+     * @param  description   保存所选试题生成试卷
      * @param  参数说明       body包含以下参数[
      *     type            试题类型(1代表单选题2代表多选题3代表不定项4代表判断题5填空题6简答题7材料题)
      *     papers_id       试卷id
-     *     chapter_id      章id
-     *     chapter_id      节id
-     *     exam_name       题目名称
-     *     page            页码
      * ]
      * @param  author        zzk
-     * @param  ctime         2020-05-11
+     * @param  ctime         2020-05-13
      */
     public function InsertTestPaperSelection(){
         //获取提交的参数
         try{
-            $data = PapersExam::InsertTestPaperSelection(self::$accept_data);
+            $data = PapersExam::GetTestPaperSelection(self::$accept_data);
             if($data['code'] == 200){
-                return response()->json(['code' => 200 , 'msg' => '添加成功']);
+                return response()->json(['code' => 200 , 'msg' => '获取试题列表成功' , 'data' => $data['data']]);
             } else {
                 return response()->json(['code' => $data['code'] , 'msg' => $data['msg']]);
             }
@@ -235,7 +231,28 @@ class ExamController extends Controller {
 
     }
     /*
-     * @param  description   试卷选择试题列表
+     * @param  description   试题检测重复
+     * @param  参数说明       body包含以下参数[
+     *     type            试题类型(1代表单选题2代表多选题3代表不定项4代表判断题5填空题6简答题7材料题)
+     *     papers_id       试卷id
+     * ]
+     * @param  author        zzk
+     * @param  ctime         2020-05-11
+     */
+    public function RepetitionTestPaperSelection(){
+        try{
+            $data = PapersExam::GetRepetitionExam(self::$accept_data);
+            if($data['code'] == 200){
+                return response()->json(['code' => 200 , 'msg' => '获取试题列表成功' , 'data' => $data['data']]);
+            } else {
+                return response()->json(['code' => $data['code'] , 'msg' => $data['msg']]);
+            }
+        } catch (Exception $ex) {
+            return response()->json(['code' => 500 , 'msg' => $ex->getMessage()]);
+        }
+    }
+    /*
+     * @param  description   手动添加接口
      * @param  参数说明       body包含以下参数[
      *     type            试题类型(1代表单选题2代表多选题3代表不定项4代表判断题5填空题6简答题7材料题)
      *     papers_id       试卷id
@@ -260,7 +277,7 @@ class ExamController extends Controller {
         }
     }
     /*
-     * @param  description   添加试题
+     * @param  description   选择试题接口
      * @param  参数说明       body包含以下参数[
      *     type            试题类型(1代表单选题2代表多选题3代表不定项4代表判断题5填空题6简答题7材料题)
      *     papers_id       试卷id
