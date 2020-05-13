@@ -203,7 +203,7 @@ class Article extends Model {
                 ->first();
             if($find){
                 unset($find['user_id'],$find['share'],$find['status'],$find['is_del'],$find['create_at'],$find['update_at']);
-                Redis::set('ld_article_'.$data['id'],60,$find);
+                Redis::setex('ld_article_'.$data['id'],60,$find);
                 return ['code' => 200 , 'msg' => '获取成功','data'=>$find];
             }else{
                 return ['code' => 202 , 'msg' => '获取失败'];
