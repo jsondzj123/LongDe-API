@@ -10,6 +10,7 @@ use App\Models\Authrules;
 use Illuminate\Support\Facades\Redis;
 use Validator;
 use App\Tools\CurrentAdmin;
+use App\Models\AdminLog;
 class RoleController extends Controller {
   
     /*
@@ -46,20 +47,29 @@ class RoleController extends Controller {
     }
      /*
      * @param  upRoleStatus   修改角色状态
-     * @param  data
+     * @param  id      角色id
      * @param  return  array  状态信息
      * @param  author    lys
      * @param  ctime     2020-04-28 13:27
      */
-    public function upRoleStatus(){
+    public function upRoleDelStatus(){
         $id = self::$accept_data['id'];
-        if( !isset($id) || empty($id)){
-            return response()->json(['code'=>203,'msg'=>'参数为空或缺少参数']);
+        if( !isset($id) || empty($id) || is_int($id)){
+            return response()->json(['code'=>203,'msg'=>'角色标识为空或缺少或类型不合法']);
         }
         $role = Roleauth::findOrfail($id);
         $role->is_del = 0;
         $result = adminUser::where('role_id',$id)->update(['is_forbid'=>0]); //角色软删后，属该角色账号全禁用
         if($role->save() && $result){
+            AdminLog::insertAdminLog([
+                'admin_id'       =>   CurrentAdmin::user()['id'] ,
+                'module_name'    =>  'Role' ,
+                'route_url'      =>  'admin/role/upRoleStatus' , 
+                'operate_method' =>  'update' ,
+                'content'        =>  json_encode(['id'=>$id]),
+                'ip'             =>  $_SERVER["REMOTE_ADDR"] ,
+                'create_at'      =>  date('Y-m-d H:i:s')
+            ]);
             return response()->json(['code'=>200,'msg'=>'更改成功']);
         }else{
             return response()->json(['code'=>201,'msg'=>'更改失败']);
@@ -89,7 +99,7 @@ class RoleController extends Controller {
         if(!isset($data['auth_desc']) || empty($data['auth_desc'])){
             return response()->json(['code'=>422,'msg'=>'权限描述为空或缺少']);
         }
-        $data['admin_id'] = CurrentAdmin::user()['admin_id'];
+        $data['admin_id'] = CurrentAdmin::user()['id'];
 
         $data['school_id'] = CurrentAdmin::user()['school_id'];
         $role = Roleauth::where(['role_name'=>$data['role_name'],'school_id'=>$data['school_id'],'is_del'=>1])->first();
@@ -100,6 +110,15 @@ class RoleController extends Controller {
         if($role){  $data['is_super'] = 0; }
         else{       $data['is_super'] = 1; }
         if(Roleauth::create($data)){
+             AdminLog::insertAdminLog([
+                'admin_id'       =>   CurrentAdmin::user()['id'] ,
+                'module_name'    =>  'Role' ,
+                'route_url'      =>  'admin/role/doRoleInsert' , 
+                'operate_method' =>  'insert' ,
+                'content'        =>  json_encode($data),
+                'ip'             =>  $_SERVER["REMOTE_ADDR"] ,
+                'create_at'      =>  date('Y-m-d H:i:s')
+            ]);
             return response()->json(['code'=>200,'msg'=>'添加成功']);
         }else{
             return response()->json(['code'=>201,'msg'=>'添加失败']);
@@ -161,7 +180,11 @@ class RoleController extends Controller {
      * @param  descriptsion   编辑角色信息（编辑）
      * @param  $data=[
                 'id'=> 角色id
-        ]                 查询条件
+                'role_name'=> 角色名称
+                'auth_desc'=> 权限描述
+                'auth_id'=> 权限id组
+
+        ]           
      * @param  author    lys
      * @param  ctime     2020-04-30
      */
@@ -186,7 +209,17 @@ class RoleController extends Controller {
         if($count>=1){
             return response()->json(['code'=>422,'msg'=>'角色名称已存在']); 
         }
+        AdminLog::insertAdminLog([
+            'admin_id'       =>   CurrentAdmin::user()['id'] ,
+            'module_name'    =>  'Role' ,
+            'route_url'      =>  'admin/role/doRoleAuthUpdate' , 
+            'operate_method' =>  'update' ,
+            'content'        =>  json_encode($data),
+            'ip'             =>  $_SERVER["REMOTE_ADDR"] ,
+            'create_at'      =>  date('Y-m-d H:i:s')
+        ]);
         if(Roleauth::where('id','=',$data['id'])->update($data)){
+          
             return response()->json(['code'=>200,'msg'=>'更改成功']); 
         }else{
             return response()->json(['code'=>200,'msg'=>'更改成功']); 

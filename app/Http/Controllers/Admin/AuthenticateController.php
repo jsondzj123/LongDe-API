@@ -56,11 +56,11 @@ class AuthenticateController extends Controller {
     {
         try {
             if (!$token = JWTAuth::attempt($data)) {
-                return response('用户名或密码不正确', 401);
+                return $this->response('用户名或密码不正确', 401);
             }
         } catch (JWTException $e) {
             Log::error('创建token失败' . $e->getMessage());
-            return response('创建token失败', 500);
+            return $this->response('创建token失败', 500);
         }
 
         $user = JWTAuth::user();

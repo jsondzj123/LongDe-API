@@ -3,6 +3,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use App\Models\AdminLog;
+use App\Models\Exam;
 use Illuminate\Support\Facades\Redis;
 
 class QuestionSubject extends Model {
@@ -210,6 +211,12 @@ class QuestionSubject extends Model {
                 Redis::setex($key , 60 , $body['subject_id']);
                 return ['code' => 204 , 'msg' => '此科目不存在'];
             }
+        }
+        
+        //判断此科目是否被试题正在使用
+        $exam_count = Exam::where("is_del" , 0)->where("subject_id" , $body['subject_id'])->count();
+        if($exam_count > 0){
+            return ['code' => 205 , 'msg' => '此科目被其他试题已使用,不能删除'];
         }
 
         //追加更新时间
