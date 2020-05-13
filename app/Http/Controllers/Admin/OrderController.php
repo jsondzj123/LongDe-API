@@ -31,10 +31,6 @@ class OrderController extends Controller {
     public function findOrderForId(){
         //获取提交的参数
         try{
-//            $data=[
-//                'order_id'=>$_POST['order_id']
-//            ];
-//            $data = Order::findOrderForId($data);
             $data = Order::findOrderForId(self::$accept_data);
             return response()->json($data);
         } catch (Exception $ex) {
@@ -51,11 +47,6 @@ class OrderController extends Controller {
     public function auditToId(){
         //获取提交的参数
         try{
-//            $data=[
-//                'order_id'=>$_POST['order_id'],
-//                'status'=>$_POST['status']
-//            ];
-//            $data = Order::exitForIdStatus($data);
             $data = Order::exitForIdStatus(self::$accept_data);
             if($data['code'] == 200){
                 return response()->json($data);
@@ -65,16 +56,6 @@ class OrderController extends Controller {
         } catch (Exception $ex) {
             return response()->json(['code' => 500 , 'msg' => $ex->getMessage()]);
         }
-    }
-    /*
-         * @param  订单导出 excel表格
-         * @param  $user_id     参数
-         * @param  author  苏振文
-         * @param  ctime   2020/5/6 14:12
-         * return  array
-         */
-    public function ExcelExport(){
-        $list = Order::getList(self::$accept_data);
     }
     /*
          * @param  OA修改状态
@@ -87,11 +68,6 @@ class OrderController extends Controller {
     public function orderUpOaForId(){
         //获取提交的参数
         try{
-//            $data=[
-//                'order_id'=>$_POST['order_id'],
-//                'status'=>$_POST['status']
-//            ];
-//            $data = Order::orderUpOaForId($data);
             $data = Order::orderUpOaForId(self::$accept_data);
             return response()->json($data);
         } catch (Exception $ex) {
@@ -101,6 +77,20 @@ class OrderController extends Controller {
 
 
 
+
+
+
+
+    /*
+         * @param  订单导出 excel表格
+         * @param  $user_id     参数
+         * @param  author  苏振文
+         * @param  ctime   2020/5/6 14:12
+         * return  array
+         */
+    public function ExcelExport(){
+        $list = Order::getList(self::$accept_data);
+    }
     /*
          * @param  app支付
          * @param
@@ -110,7 +100,6 @@ class OrderController extends Controller {
          */
     public function orderPay(){
         try{
-//            $orderlist = Order::orderPayList($_POST);
             $orderlist = Order::orderPayList(self::$accept_data);
             return response()->json($orderlist);
         } catch (Exception $ex) {

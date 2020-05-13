@@ -6,6 +6,8 @@ use App\Models\Lecturer;
 use App\Models\Lesson;
 use App\Models\LessonTeacher;
 use App\Models\Student;
+use App\Models\Subject;
+use App\Models\SubjectLesson;
 use Illuminate\Support\Facades\DB;
 
 class StatisticsController extends Controller {
@@ -45,23 +47,23 @@ class StatisticsController extends Controller {
            ->where(['ld_student.is_forbid'=>1,'ld_school.is_del'=>1,'ld_school.is_forbid'=>1])
            ->where(function($query) use ($data) {
                //分校
-               if($data['school_id'] != ''){
+               if(!empty($data['school_id'])&&$data['school_id'] != ''){
                    $query->where('ld_student.school_id',$data['school_id']);
                }
                //来源
-               if($data['reg_source'] != ''){
+               if(!empty($data['reg_source'])&&$data['reg_source'] != ''){
                    $query->where('ld_student.reg_source',$data['reg_source']);
                }
                //用户类型
-               if($data['enroll_status'] != ''){
+               if(!empty($data['enroll_status'])&&$data['enroll_status'] != ''){
                    $query->where('ld_student.enrioll_status',$data['enroll_status']);
                }
                //用户姓名
-               if($data['real_name'] != ''){
+               if(!empty($data['real_name'])&&$data['real_name'] != ''){
                    $query->where('ld_student.real_name','like','%'.$data['real_name'].'%');
                }
                //用户手机号
-               if($data['phone'] != ''){
+               if(!empty($data['phone'])&&$data['phone'] != ''){
                    $query->where('ld_student.phone','like','%'.$data['phone'].'%');
                }
            })
@@ -72,17 +74,19 @@ class StatisticsController extends Controller {
        $offline = 0; //线下
        $mobile = 0; //手机端
        $count = 0;  //总人数
-       foreach ($studentList as $k=>$v){
-           if($v['reg_source'] == 0){
-               $website++;
+       if(!empty($studentList)){
+           foreach ($studentList as $k=>$v){
+               if($v['reg_source'] == 0){
+                   $website++;
+               }
+               if($v['reg_source'] == 1){
+                   $mobile++;
+               }
+               if($v['reg_source'] == 2){
+                   $offline++;
+               }
+               $count++;
            }
-           if($v['reg_source'] == 1){
-               $mobile++;
-           }
-           if($v['reg_source'] == 2){
-               $offline++;
-           }
-           $count++;
        }
        if($data['type'] == 2){
            //根据时间分组，查询出人数 ，时间列表
@@ -91,23 +95,23 @@ class StatisticsController extends Controller {
                ->where(['ld_student.is_forbid'=>1])
                ->where(function($query) use ($data) {
                    //分校
-                   if($data['school_id'] != ''){
+                   if(!empty($data['school_id'])&&$data['school_id'] != ''){
                        $query->where('ld_student.school_id',$data['school_id']);
                    }
                    //来源
-                   if($data['reg_source'] != ''){
+                   if(!empty($data['reg_source'])&&$data['reg_source'] != ''){
                        $query->where('ld_student.reg_source',$data['reg_source']);
                    }
                    //用户类型
-                   if($data['enroll_status'] != ''){
+                   if(!empty($data['enroll_status'])&&$data['enroll_status'] != ''){
                        $query->where('ld_student.enrioll_status',$data['enroll_status']);
                    }
                    //用户姓名
-                   if($data['real_name'] != ''){
+                   if(!empty($data['real_name'])&&$data['real_name'] != ''){
                        $query->where('ld_student.real_name','like','%'.$data['real_name'].'%');
                    }
                    //用户手机号
-                   if($data['phone'] != ''){
+                   if(!empty($data['phone'])&&$data['phone'] != ''){
                        $query->where('ld_student.phone','like','%'.$data['phone'].'%');
                    }
                })
@@ -123,16 +127,24 @@ class StatisticsController extends Controller {
            for($i=0; $i<$days; $i++) {
                $arr[] =['time'=> date('Y-m-d', $stimestamp + (86400 * $i)),'num'=>0];
            }
+           //数组处理
            $xlen = [];
            $ylen = [];
-           foreach ($arr as $k=>&$v){
-               foreach ($lists as $ks=>$vs){
-                   if($v['time'] == $vs['time']){
-                       $v['num'] = $vs['num'];
+           if(!empty($lists)){
+               foreach ($arr as $k=>&$v){
+                   foreach ($lists as $ks=>$vs){
+                       if($v['time'] == $vs['time']){
+                           $v['num'] = $vs['num'];
+                       }
                    }
+                   $xlen[]=$v['time'];
+                   $ylen[]=$v['num'];
                }
-               $xlen[]=$v['time'];
-               $ylen[]=$v['num'];
+           }else{
+               foreach ($arr as $k=>&$v){
+                   $xlen[]=$v['time'];
+                   $ylen[]=$v['num'];
+               }
            }
            $studentList=[
                'xlen'=>$xlen,
@@ -169,15 +181,15 @@ class StatisticsController extends Controller {
             ->leftJoin('ld_school','ld_school.id','=','ld_lecturer_educationa.school_id')
             ->where(function($query) use ($data) {
                 //分校
-                if($data['school_id'] != ''){
+                if(!empty($data['school_id'])&&$data['school_id'] != ''){
                     $query->where('ld_lecturer_educationa.school_id',$data['school_id']);
                 }
                 //用户姓名
-                if($data['real_name'] != ''){
+                if(!empty($data['real_name'])&&$data['real_name'] != ''){
                     $query->where('ld_lecturer_educationa.real_name','like','%'.$data['real_name'].'%');
                 }
                 //用户手机号
-                if($data['phone'] != ''){
+                if(!empty($data['phone'])&&$data['phone'] != ''){
                     $query->where('ld_lecturer_educationa.phone','like','%'.$data['phone'].'%');
                 }
             })
@@ -197,12 +209,24 @@ class StatisticsController extends Controller {
         * return  array
         */
    public function TeacherClasshour(){
+        //讲师关联课程  lesson_teachers
+        //课程关联科目id  subject_lessons
+        //科目表  subject
+        //课程表  lessons
        $id = $_POST['id'];
        $lesson = LessonTeacher::where(['teacher_id'=>$id])->get()->toArray();
        foreach ($lesson as $k=>$v){
-
+          $lesson = Lesson::where('id',$v['lesson_id'])->first();
+          $subid = SubjectLesson ::where('subject_id',$v['lesson_id'])->first();
+          $subject = Subject::where('id',$subid['subject_id'])->first();
        }
    }
+
+
+
+
+
+
    /*
         * @param  直播统计
         * @param

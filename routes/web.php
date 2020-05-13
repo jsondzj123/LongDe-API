@@ -169,6 +169,18 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use (
         $router->get('getPapersList', 'PapersController@getPapersList');                 //获取题库列表
         /****************试卷部分  end****************/
 
+
+        //试题选择试卷（zzk）
+        /****************试卷选择试题部分  start****************/
+        $router->post('InsertTestPaperSelection', 'ExamController@InsertTestPaperSelection');           //添加试题到试卷
+        $router->post('doTestPaperSelection', 'ExamController@doTestPaperSelection');                   //试卷已添加试题的列表
+        $router->post('ListTestPaperSelection', 'ExamController@ListTestPaperSelection');               //添加试题到试卷的列表
+        $router->post('RepetitionTestPaperSelection', 'ExamController@RepetitionTestPaperSelection');   //检测试卷试题
+        $router->post('oneTestPaperSelection', 'ExamController@oneTestPaperSelection');                 //获取试题详情
+        $router->post('deleteTestPaperSelection', 'ExamController@deleteTestPaperSelection');           //删除试题
+        /****************试卷选择试题部分  end****************/
+
+
         /****************试题部分  start****************/
         $router->post('doInsertExam', 'ExamController@doInsertExam');                    //添加试题的方法
         $router->post('doUpdateExam', 'ExamController@doUpdateExam');                    //修改试题的方法
@@ -178,6 +190,7 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use (
         $router->get('getExamList', 'ExamController@getExamList');                       //试题列表的方法
         $router->get('getMaterialList', 'ExamController@getMaterialList');               //查看材料题的方法
         $router->get('getExamCommonList', 'ExamController@getExamCommonList');           //试题公共参数列表
+        $router->post('importExam', 'ExamController@doImportExam');                      //导入试题excel功能
         /****************试题部分  end****************/
 
         $router->get('export', 'CommonController@doExportExamLog'); //导入导出demo
@@ -215,8 +228,8 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use (
         $router->post('StudentList', 'StatisticsController@StudentList');//学员统计
         $router->post('TeacherList', 'StatisticsController@TeacherList');//教师统计
         $router->post('TeacherClasshour', 'StatisticsController@TeacherClasshour');//教师课时详情
-        $router->post('LiveList', 'StatisticsrController@LiveList');//直播统计
-        $router->post('LiveDetails', 'StatisticsrController@LiveDetails');//直播详情
+//        $router->post('LiveList', 'StatisticsrController@LiveList');//直播统计
+//        $router->post('LiveDetails', 'StatisticsrController@LiveDetails');//直播详情
     });
     /*begin 系统管理   lys   */
         //系统用户管理模块
@@ -229,9 +242,11 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use (
         $router->post('getAuthList', 'AdminUserController@getAuthList');                      //获取角色列表方法 √
         $router->post('getAdminUserUpdate', 'AdminUserController@getAdminUserUpdate');        //获取账号信息（编辑） √√√
         $router->post('doAdminUserUpdate', 'AdminUserController@doAdminUserUpdate');          //编辑账号信息  √√  5.9  +1
+
     }); 
-        //系统角色管理模块 
-    $router->group(['prefix' => 'role','middleware'=> ['jwt.auth','api']], function () use ($router) {
+        //系统角色管理模块
+    $router->group(['prefix' => 'role','middleware'=> ['jwt.auth']], function () use ($router) {
+
         $router->post('getAuthList', 'RoleController@getAuthList');                           //获取后台角色列表方法    xxx
         $router->post('doRoleDel', 'RoleController@doRoleDel');                                //修改状态码(删除) √   +1
         $router->post('getRoleAuthInsert', 'CommonController@getRoleAuth');                   //获取role_auth列表 √√
@@ -246,6 +261,7 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use (
     });
 
     /*begin 网校系统  lys*/
+
     $router->group(['prefix' => 'school','middleware'=> ['jwt.auth','api']], function () use ($router) { 
         $router->post('getSchoolList', 'SchoolController@getSchoolList');                    //获取网校列表方法 √√√  
         $router->post('doSchoolForbid', 'SchoolController@doSchoolForbid');                  //修改学校状态 （禁启)√√
@@ -258,7 +274,7 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use (
         $router->post('doAdminUpdate', 'SchoolController@doAdminUpdate');                    //编辑分校超级管理用户信息   √√  +1
         $router->post('getSchoolTeacherList', 'SchoolController@getSchoolTeacherList');      //获取分校讲师列表  √√√  5.11
     });
-    //end 网校系统     lys 
+    //end 网校系统     lys
 });
 
 

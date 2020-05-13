@@ -28,7 +28,7 @@ class QuestionController extends Controller {
             return response()->json(['code' => 500 , 'msg' => $ex->getMessage()]);
         }
     }
-    
+
     /*
      * @param  description   更改题库科目的方法
      * @param  参数说明       body包含以下参数[
@@ -51,7 +51,7 @@ class QuestionController extends Controller {
             return response()->json(['code' => 500 , 'msg' => $ex->getMessage()]);
         }
     }
-    
+
     /*
      * @param  descriptsion    删除题库科目的方法
      * @param  参数说明         body包含以下参数[
@@ -74,7 +74,7 @@ class QuestionController extends Controller {
             return response()->json(['code' => 500 , 'msg' => $ex->getMessage()]);
         }
     }
-    
+
     /*
      * @param  descriptsion    获取题库科目列表
      * @param  参数说明         body包含以下参数[
@@ -97,7 +97,7 @@ class QuestionController extends Controller {
             return response()->json(['code' => 500 , 'msg' => $ex->getMessage()]);
         }
     }
-    
+
     /*
      * @param  description   增加章节考点的方法
      * @param  参数说明       body包含以下参数[
@@ -124,7 +124,7 @@ class QuestionController extends Controller {
             return response()->json(['code' => 500 , 'msg' => $ex->getMessage()]);
         }
     }
-    
+
     /*
      * @param  description   更改章节考点的方法
      * @param  参数说明       body包含以下参数[
@@ -148,7 +148,7 @@ class QuestionController extends Controller {
             return response()->json(['code' => 500 , 'msg' => $ex->getMessage()]);
         }
     }
-    
+
     /*
      * @param  descriptsion    删除章节考点的方法
      * @param  参数说明         body包含以下参数[
@@ -171,7 +171,7 @@ class QuestionController extends Controller {
             return response()->json(['code' => 500 , 'msg' => $ex->getMessage()]);
         }
     }
-    
+
     /*
      * @param  descriptsion    获取章节考点列表
      * @param  参数说明         body包含以下参数[
@@ -195,7 +195,7 @@ class QuestionController extends Controller {
             return response()->json(['code' => 500 , 'msg' => $ex->getMessage()]);
         }
     }
-    
+
     /*
      * @param  descriptsion    获取章节考点选择列表
      * @param  参数说明         body包含以下参数[
