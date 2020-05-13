@@ -194,6 +194,7 @@ class Article extends Model {
         }
         //缓存
         if(Redis::get('ld_article_'.$data['id'])) {
+            echo "aaaa";
             return ['code' => 200 , 'msg' => '获取成功','data'=>Redis::get('ld_article_'.$data['id'])];
         }else{
             $find = self::select('ld_article.*','ld_school.name','ld_article_type.typename')
@@ -202,6 +203,7 @@ class Article extends Model {
                 ->where(['ld_article.id'=>$data['id'],'ld_article.is_del'=>1,'ld_school.is_del'=>1])
                 ->first();
             if($find){
+                echo "bbb";
                 unset($find['user_id'],$find['share'],$find['status'],$find['is_del'],$find['create_at'],$find['update_at']);
                 Redis::setex('ld_article_'.$data['id'],60,$find);
                 return ['code' => 200 , 'msg' => '获取成功','data'=>$find];
