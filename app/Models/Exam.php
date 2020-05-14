@@ -798,18 +798,13 @@ class Exam extends Model {
             return ['code' => 201 , 'msg' => '暂无导入的数据信息'];
         }
         
-        //判断题库id是否为空
-        if(empty($body['bank_id']) || !is_numeric($body['bank_id']) || $body['bank_id'] <= 0){
-            return ['code' => 202 , 'msg' => '题库id不合法'];
-        }
-        
-        //判断科目id是否为空
-        if(empty($body['subject_id']) || !is_numeric($body['subject_id']) || $body['subject_id'] <= 0){
-            return ['code' => 202 , 'msg' => '科目id不合法'];
-        }
-        
         //获取后端的操作员id
         $admin_id = isset(AdminLog::getAdminInfo()->admin_user->id) ? AdminLog::getAdminInfo()->admin_user->id : 0;
+        
+        //判断导入试题信息是否为空
+        if(!$body['data'] || empty($body['data'])){
+            return ['code' => 201 , 'msg' => '导入数据为空'];
+        }
         
         //去掉试题模板中没有用的列和展示项
         $exam_list = array_slice($body['data'] , 3);
