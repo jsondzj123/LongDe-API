@@ -51,7 +51,7 @@ class Article extends Model {
          * return  array
          */
     public static function editStatus($data){
-        if(empty($data['id'])){
+        if(empty($data['id']) || !isset($data['id'])){
             return ['code' => 201 , 'msg' => '参数为空或格式错误'];
         }
         $articleOnes = self::where(['id'=>$data['id']])->first();
@@ -87,7 +87,7 @@ class Article extends Model {
          */
     public static function editDelToId($data){
         //判断分类id
-        if(empty($data['id'])){
+        if(empty($data['id'])|| !isset($data['id'])){
             return ['code' => 201 , 'msg' => '参数为空或格式错误'];
         }
         $articleOnes = self::where(['id'=>$data['id']])->first();
@@ -133,23 +133,23 @@ class Article extends Model {
          */
     public static function addArticle($data){
         //判断分类id
-        if(empty($data['article_type_id'])){
+        if(empty($data['article_type_id']) || !isset($data['article_type_id'])){
             return ['code' => 201 , 'msg' => '请正确选择分类'];
         }
         //判断标题
-        if(empty($data['title'])){
+        if(empty($data['title']) || !isset($data['title'])){
             return ['code' => 201 , 'msg' => '标题不能为空'];
         }
         //判断图片
-        if(empty($data['image'])){
+        if(empty($data['image']) || !isset($data['image'])){
             return ['code' => 201 , 'msg' => '图片不能为空'];
         }
         //判断摘要
-        if(empty($data['description'])){
+        if(empty($data['description']) || !isset($data['description'])){
             return ['code' => 201 , 'msg' => '摘要不能为空'];
         }
         //判断正文
-        if(empty($data['text'])){
+        if(empty($data['text']) || !isset($data['text'])){
             return ['code' => 201 , 'msg' => '正文不能为空'];
         }
         //缓存查出用户id和分校id
@@ -181,7 +181,7 @@ class Article extends Model {
          * return  array
          */
     public static function findOne($data){
-        if(empty($data['id'])){
+        if(empty($data['id']) || !isset($data['id'])){
             return ['code' => 201 , 'msg' => '参数为空'];
         }
         //缓存
