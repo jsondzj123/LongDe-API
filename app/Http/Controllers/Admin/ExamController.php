@@ -426,7 +426,7 @@ class ExamController extends Controller {
             }
 
             //存放文件路径
-            $file_path= app()->basePath() . "/upload/".date('Y').date('m').date('d');
+            $file_path= app()->basePath() . "/public/upload/".date('Y').date('m').date('d');
 
             //重置文件名
             $filename = time() . rand(1,10000) . uniqid() . substr($file['name'], stripos($file['name'], '.'));
@@ -462,7 +462,7 @@ class ExamController extends Controller {
                 //判断是否导入成功
                 if($exam_list['code'] == 200){
                     //删除excel表格文件
-                    self::delDir(app()->basePath() . "/upload/" , true);
+                    self::delDir(app()->basePath() . "/public/upload/" , true);
                     return response()->json(['code' => 200 , 'msg' => '导入试题列表成功' , 'data' => $exam_list['data']]);
                 } else {
                     return response()->json(['code' => $exam_list['code'] , 'msg' => $exam_list['msg']]);
