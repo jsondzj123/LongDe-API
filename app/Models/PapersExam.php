@@ -23,6 +23,7 @@ class PapersExam extends Model {
      * 试题类型
      * 章id
      * 节id
+     * 每题得分
      * ]
      * @param  author        zzk
      * @param  ctime         2020-05-11
@@ -34,8 +35,9 @@ class PapersExam extends Model {
             'papers_id'    =>   'required|numeric' ,
             'exam_id'      =>   'required|numeric' ,
             'type'         =>   'required|numeric' ,
-            'chapter_id'   =>   'required|numeric' ,
             'joint_id'     =>   'required|numeric' ,
+            'chapter_id'   =>   'required|numeric' ,
+            'grade'        =>   'required|numeric' ,
         ];
 
         //信息提示
@@ -46,6 +48,7 @@ class PapersExam extends Model {
             'type.required'   =>  json_encode(['code'=>201,'msg'=>'试题类型为空']) ,
             'chapter_id.required'   =>  json_encode(['code'=>201,'msg'=>'章id为空']) ,
             'joint_id.required'   =>  json_encode(['code'=>201,'msg'=>'节id为空']) ,
+            'grade.required'   =>  json_encode(['code'=>201,'msg'=>'每题得分为空']) ,
 
         ];
 
@@ -74,9 +77,9 @@ class PapersExam extends Model {
                 'ip'             =>  $_SERVER["REMOTE_ADDR"] ,
                 'create_at'      =>  date('Y-m-d H:i:s')
             ]);
-            return ['code' => 200 , 'msg' => '添加成功'];
+            return ['code' => 200 , 'msg' => '添加试题到试卷成功'];
         } else {
-            return ['code' => 203 , 'msg' => '添加失败'];
+            return ['code' => 203 , 'msg' => '添加试题到试卷失败'];
         }
     }
     /*
