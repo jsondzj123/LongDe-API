@@ -317,7 +317,4 @@ class AdminUserController extends Controller {
         }
         return ['code'=>200,'msg'=>'success','data'=>$adminRuths['data']];
     }
-
-
-
 }
