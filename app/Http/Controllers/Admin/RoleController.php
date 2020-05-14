@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Teacher;
 use Illuminate\Http\Request;
-use App\Models\Admin as adminUser;
+use App\Models\Admin as AdminUser;
 use App\Models\Roleauth;
 use App\Models\Authrules;
 use Illuminate\Support\Facades\Redis;
@@ -53,14 +53,16 @@ class RoleController extends Controller {
      * @param  ctime     2020-04-28 13:27
      */
     public function doRoleDel(){
-        $id = self::$accept_data['id'];
-        if( !isset($id) || empty($id) || is_int($id)){
+        $data = self::$accept_data;
+        if( !isset($data['id']) || empty($data['id'])  || $data['id']<=0 ){
             return response()->json(['code'=>203,'msg'=>'角色标识为空或缺少或类型不合法']);
         }
-        $role = Roleauth::findOrfail($id);
+        if(AdminUser::where(['role_id'=>$data['id'],'is_del'=>1])->count()  >0){  //  角色使用中无法删除    5.14  
+            return response()->json(['code'=>203,'msg'=>'角色使用中,不能删除']);
+        }
+        $role = Roleauth::findOrfail($data['id']);
         $role->is_del = 0;
-        $result = adminUser::where('role_id',$id)->update(['is_forbid'=>0]); //角色软删后，属该角色账号全禁用
-        if($role->save() && $result){
+        if($role->save()){
             AdminLog::insertAdminLog([
                 'admin_id'       =>   CurrentAdmin::user()['id'] ,
                 'module_name'    =>  'Role' ,
