@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Order;
 use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
 
 class OrderController extends Controller {
     /*
@@ -74,13 +75,6 @@ class OrderController extends Controller {
             return response()->json(['code' => 500 , 'msg' => $ex->getMessage()]);
         }
     }
-
-
-
-
-
-
-
     /*
          * @param  订单导出 excel表格
          * @param  $user_id     参数
@@ -89,8 +83,21 @@ class OrderController extends Controller {
          * return  array
          */
     public function ExcelExport(){
-        $list = Order::getList(self::$accept_data);
+//        $list = Order::getList(self::$accept_data);download
+//        $list = Order::get()->toArray();
+        return Excel::download(new \App\Exports\ExamExport, 'ceshi.xlsx');
     }
+
+
+
+
+
+
+
+
+
+
+
     /*
          * @param  app支付
          * @param

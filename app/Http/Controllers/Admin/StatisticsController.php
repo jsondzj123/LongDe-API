@@ -214,7 +214,7 @@ class StatisticsController extends Controller {
           $v['subject_name'] = $subjectOne['name'];
           $v['subject_to_name'] = $subject['name'];
        }
-       print_r($lesson);die;
+       return response()->json(['code'=>200,'msg'=>'获取成功','data'=>$lesson]);
    }
 
 
