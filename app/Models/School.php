@@ -41,6 +41,7 @@ class School extends Model {
             'id.integer'  => json_encode(['code'=>'422','msg'=>'学校标识类型不合法']),
             'user_id.required' => json_encode(['code'=>'422','msg'=>'用户标识不能为空']),
             'user_id.integer'  => json_encode(['code'=>'422','msg'=>'用户标识类型不合法']),
+            'realname.required'=> json_encode(['code'=>'422','msg'=>'联系人不能为空']),
 
         ];
 
@@ -95,6 +96,9 @@ class School extends Model {
          * return  array
          */
     public static function doAdminUpdate($data){
+        if(!$data || !is_array($data)){
+             return ['code'=>422,'msg'=>'传参不合法'];
+        }
         $update = [];
         if(isset($data['password']) && isset($data['pwd'])){
             if(!empty($data['password'])|| !empty($data['pwd']) ){

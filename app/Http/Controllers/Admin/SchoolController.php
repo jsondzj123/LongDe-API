@@ -46,7 +46,6 @@ class SchoolController extends Controller {
                 })->count();
             $sum_page = ceil($school_count/$pagesize);
             if($school_count > 0){
-               
                 $schoolArr = School::where(function($query) use ($where){
                     if($where['name'] != ''){
                         $query->where('name','like','%'.$where['name'].'%');
@@ -56,9 +55,9 @@ class SchoolController extends Controller {
                     }
                     $query->where('is_del','=',1);
                 })->select('id','name','logo_url','dns','is_forbid','logo_url')->offset($offset)->limit($pagesize)->get();
-                return response()->json(['code'=>200,'msg'=>'Success','data'=>['school_list' => $schoolArr , 'total' => $school_count , 'pagesize' => $pagesize , 'page' => $page,'sum_page'=>$sum_page]]);           
+                return response()->json(['code'=>200,'msg'=>'Success','data'=>['school_list' => $schoolArr , 'total' => $school_count , 'pagesize' => $pagesize , 'page' => $page,'sum_page'=>$sum_page,'name'=>$where['name'],'dns'=>$where['dns']]]);           
             }
-            return response()->json(['code'=>200,'msg'=>'Success','data'=>['school_list' => [] , 'total' => 0 , 'pagesize' => $pagesize , 'page' => $page,'sum_page'=>$sum_page]]);           
+            return response()->json(['code'=>200,'msg'=>'Success','data'=>['school_list' => [] , 'total' => 0 , 'pagesize' => $pagesize , 'page' => $page,'sum_page'=>$sum_page,'name'=>$where['name'],'dns'=>$where['dns']]]);           
     }
     /*
      * @param  description 修改分校状态 (删除)
@@ -140,6 +139,7 @@ class SchoolController extends Controller {
         } catch (Exception $ex) {
             return response()->json(['code' => 500 , 'msg' => $ex->getMessage()]);
         }
+
     }
     /*
      * @param  description 学校添加 
@@ -259,7 +259,7 @@ class SchoolController extends Controller {
                 $data, 
                 [
                     'id' => 'required|integer',
-                    'name' => 'required|unique:ld_school',
+                    'name' => 'required',
                     'dns' => 'required',
                     'logo_url' => 'required',
                     'introduce' => 'required'
@@ -267,6 +267,9 @@ class SchoolController extends Controller {
                 School::message());
         if($validator->fails()) {
             return response()->json(json_decode($validator->errors()->first(),1));
+        }
+        if(School::where(['name'=>$data['name'],'is_del'=>1])->where('id','!=',$data['id'])->count()>0){
+             return response()->json(['code' => 422 , 'msg' => '学校已存在']);
         }
         if(School::where('id',$data['id'])->update($data)){
                 AdminLog::insertAdminLog([
@@ -280,7 +283,7 @@ class SchoolController extends Controller {
                 ]);
             return response()->json(['code' => 200 , 'msg' => '更新成功']);
         }else{
-             return response()->json(['code' => 500 , 'msg' => '更新失败']);
+            return response()->json(['code' => 200 , 'msg' => '更新成功']);
         }
     }
     /*
@@ -300,11 +303,16 @@ class SchoolController extends Controller {
         if($validator->fails()) {
             return response()->json(json_decode($validator->errors()->first(),1));
         }
-        $adminUser['school_name'] = School::select(['name'])->find($data['id']);
-        $roleAuthId = Roleauth::where(['school_id'=>$data['id'],'is_super'=>1])->select('id','auth_id')->first()->toArray();
-        $adminUser = Adminuser::where(['school_id'=>$data['id'],'role_id'=>$roleAuthId['id'],'is_del'=>1])->select('id','username','realname','mobile')->first()->toArray();
-        $adminUser['role_id'] = $roleAuthId['id'];
-        $adminUser['auth_id'] = $roleAuthId['auth_id'];
+        $schoolData = School::select(['name'])->find($data['id']);
+
+        $roleAuthId = Roleauth::where(['school_id'=>$data['id'],'is_super'=>1])->select('id','auth_id')->first(); //查询学校是否有超管人员信息
+        if(is_null($roleAuthId)){
+            return response()->json(['code'=>422,'msg'=>'请完善管理员信息']);
+        }
+        $adminUser = Adminuser::where(['school_id'=>$data['id'],'role_id'=>$roleAuthId['id'],'is_del'=>1])->select('id','username','realname','mobile')->first();
+        $adminUser['role_id'] = $roleAuthId['id'] > 0 ? $roleAuthId['id']  : 0;
+        $adminUser['auth_id'] = $roleAuthId['auth_id'] ? $roleAuthId['auth_id']  : '';
+        $adminUser['school_name'] =  !empty($schoolData['name']) ? $schoolData['name']  : '';
         $authRules = Authrules::getAuthAlls([],['id','name','title','parent_id']);
         $authRules = getParentsList($authRules);
         $arr = [
@@ -316,17 +324,21 @@ class SchoolController extends Controller {
     /*
      * @param  description 修改分校信息---权限管理-账号编辑（获取）
      * @param  参数说明       body包含以下参数[
-     *      'id'=>用户id
+     *      'user_id'=>用户id
      * ]
      * @param author    lys
      * @param ctime     2020-05-07
      */
     public function getAdminById(){
-        $id = self::$accept_data['id'];
-        if(!isset($id) && empty($id)){
-             return response()->json(['code'=>422,'msg'=>'用户id 为空或缺少']);
+        $data = self::$accept_data;
+        $validator = Validator::make(
+                $data, 
+                ['user_id' => 'required|integer'],
+                School::message());
+        if($validator->fails()) {
+            return response()->json(json_decode($validator->errors()->first(),1));
         }
-        $admin = Adminuser::where('id',$id)->select('id','realname','mobile')->get();
+        $admin = Adminuser::where('id',$data['user_id'])->select('id','realname','mobile')->get();
         return response()->json(['code'=>200,'msg'=>'success','data'=>$admin]);
     }
     /*
@@ -345,7 +357,6 @@ class SchoolController extends Controller {
                 [
                 'user_id' => 'required|integer',
                 'mobile' => 'regex:/^1[3456789][0-9]{9}$/',
-               
                 ],School::message());
         if($validator->fails()) {
             return response()->json(json_decode($validator->errors()->first(),1));

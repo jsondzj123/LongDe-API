@@ -208,24 +208,20 @@ class ExamController extends Controller {
         }
     }
     /*
-     * @param  description   试卷选择试题添加
+     * @param  description   保存所选试题生成试卷
      * @param  参数说明       body包含以下参数[
      *     type            试题类型(1代表单选题2代表多选题3代表不定项4代表判断题5填空题6简答题7材料题)
      *     papers_id       试卷id
-     *     chapter_id      章id
-     *     chapter_id      节id
-     *     exam_name       题目名称
-     *     page            页码
      * ]
      * @param  author        zzk
-     * @param  ctime         2020-05-11
+     * @param  ctime         2020-05-13
      */
     public function InsertTestPaperSelection(){
         //获取提交的参数
         try{
-            $data = PapersExam::InsertTestPaperSelection(self::$accept_data);
+            $data = PapersExam::GetTestPaperSelection(self::$accept_data);
             if($data['code'] == 200){
-                return response()->json(['code' => 200 , 'msg' => '添加成功']);
+                return response()->json(['code' => 200 , 'msg' => '获取试题列表成功' , 'data' => $data['data']]);
             } else {
                 return response()->json(['code' => $data['code'] , 'msg' => $data['msg']]);
             }
@@ -235,7 +231,28 @@ class ExamController extends Controller {
 
     }
     /*
-     * @param  description   试卷选择试题列表
+     * @param  description   试题检测重复
+     * @param  参数说明       body包含以下参数[
+     *     type            试题类型(1代表单选题2代表多选题3代表不定项4代表判断题5填空题6简答题7材料题)
+     *     papers_id       试卷id
+     * ]
+     * @param  author        zzk
+     * @param  ctime         2020-05-11
+     */
+    public function RepetitionTestPaperSelection(){
+        try{
+            $data = PapersExam::GetRepetitionExam(self::$accept_data);
+            if($data['code'] == 200){
+                return response()->json(['code' => 200 , 'msg' => '获取试题列表成功' , 'data' => $data['data']]);
+            } else {
+                return response()->json(['code' => $data['code'] , 'msg' => $data['msg']]);
+            }
+        } catch (Exception $ex) {
+            return response()->json(['code' => 500 , 'msg' => $ex->getMessage()]);
+        }
+    }
+    /*
+     * @param  description   手动添加接口
      * @param  参数说明       body包含以下参数[
      *     type            试题类型(1代表单选题2代表多选题3代表不定项4代表判断题5填空题6简答题7材料题)
      *     papers_id       试卷id
@@ -260,7 +277,7 @@ class ExamController extends Controller {
         }
     }
     /*
-     * @param  description   添加试题
+     * @param  description   选择试题接口
      * @param  参数说明       body包含以下参数[
      *     type            试题类型(1代表单选题2代表多选题3代表不定项4代表判断题5填空题6简答题7材料题)
      *     papers_id       试卷id
@@ -369,4 +386,44 @@ class ExamController extends Controller {
         ];
         return response()->json(['code' => 200 , 'msg' => '返回数据成功' , 'data' => ['diffculty_array' => $diffculty_array , 'exam_array' => $exam_array]]);
     }
+    
+    /*
+     * @param  description   导入试题功能方法
+     * @param  author        dzj
+     * @param  ctime         2020-04-30
+    */
+    public function doImportExam(){
+        //获取提交的参数
+        try{
+            //获取excel表格中试题列表
+            $exam_list = self::doImportExcel(new \App\Imports\UsersImport , app()->basePath().'/invoices.xlsx' , 1 , 1000);
+            self::$accept_data['data'] = $exam_list['data'];
+            $is_insert = isset(self::$accept_data['is_insert']) ? 0 : 1;
+            $exam_list = Exam::doImportExam(self::$accept_data,$is_insert);
+            if($exam_list['code'] == 200){
+                return response()->json(['code' => 200 , 'msg' => '导入试题列表成功' , 'data' => $exam_list['data']]);
+            } else {
+                return response()->json(['code' => $exam_list['code'] , 'msg' => $exam_list['msg']]);
+            }
+        } catch (Exception $ex) {
+            return response()->json(['code' => 500 , 'msg' => $ex->getMessage()]);
+        }
+    }
+    
+    /*
+     * @param  description   导出做题记录功能方法
+     * @param  参数说明[
+     *     student_id     学员id(必传)
+     *     bank_id        题库id(非必传)
+     *     subject_id     科目id(非必传)
+     *     type           类型(非必传)
+     *     exam_date      做题日期(非必传)
+     * ]
+     * @param  author        dzj
+     * @param  ctime         2020-04-30
+    */
+    /*public function doExportExamLog(){
+        //获取提交的参数
+        return Excel::download(new \App\Exports\ExamExport, 'examlog.xlsx');
+    }*/
 }
