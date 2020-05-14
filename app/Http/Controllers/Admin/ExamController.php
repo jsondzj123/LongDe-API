@@ -219,11 +219,11 @@ class ExamController extends Controller {
     public function InsertTestPaperSelection(){
         //获取提交的参数
         try{
-            $data = PapersExam::GetTestPaperSelection(self::$accept_data);
+            $data = PapersExam::InsertTestPaperSelection(self::$accept_data);
             if($data['code'] == 200){
-                return response()->json(['code' => 200 , 'msg' => '获取试题列表成功' , 'data' => $data['data']]);
+                return response()->json($data);
             } else {
-                return response()->json(['code' => $data['code'] , 'msg' => $data['msg']]);
+                return response()->json($data);
             }
         } catch (Exception $ex) {
             return response()->json(['code' => 500 , 'msg' => $ex->getMessage()]);
@@ -386,7 +386,7 @@ class ExamController extends Controller {
         ];
         return response()->json(['code' => 200 , 'msg' => '返回数据成功' , 'data' => ['diffculty_array' => $diffculty_array , 'exam_array' => $exam_array]]);
     }
-    
+
     /*
      * @param  description   导入试题功能方法
      * @param  author        dzj
@@ -398,7 +398,8 @@ class ExamController extends Controller {
             //获取excel表格中试题列表
             $exam_list = self::doImportExcel(new \App\Imports\UsersImport , app()->basePath().'/invoices.xlsx' , 1 , 1000);
             self::$accept_data['data'] = $exam_list['data'];
-            $exam_list = Exam::doImportExam(self::$accept_data,1);
+            $is_insert = isset(self::$accept_data['is_insert']) ? 0 : 1;
+            $exam_list = Exam::doImportExam(self::$accept_data,$is_insert);
             if($exam_list['code'] == 200){
                 return response()->json(['code' => 200 , 'msg' => '导入试题列表成功' , 'data' => $exam_list['data']]);
             } else {
@@ -408,7 +409,7 @@ class ExamController extends Controller {
             return response()->json(['code' => 500 , 'msg' => $ex->getMessage()]);
         }
     }
-    
+
     /*
      * @param  description   导出做题记录功能方法
      * @param  参数说明[
