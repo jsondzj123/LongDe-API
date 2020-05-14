@@ -11,20 +11,16 @@ class Controller extends BaseController {
     //接受数据参数
     public static $accept_data;
     /*
-
      * @param  description   基础底层数据加密部分
      * @param  $request      数据接收参数
      * @param  author        duzhijian
      * @param  ctime         2020-04-16
      * return  string
      */
-
-
     public function __construct() {
         //self::$accept_data = app('rsa')->servicersadecrypt($request);
         //app('rsa')->Test();
         self::$accept_data = $_REQUEST;
-
     }
  
 
@@ -93,6 +89,78 @@ class Controller extends BaseController {
             return ['code' => 200 , 'msg' => '获取数据成功' , 'data' => $array];
         } catch (Exception $ex) {
             return ['code' => 500 , 'msg' => $ex->getMessage()];
+        }
+    }
+    
+    /*
+     * @param  description   检测真实文件后缀格式的方法
+     * @param  参数说明[
+     *     $file             文件数组
+     *     $file["name"]     获取原文件名称
+     *     $file["tmp_name"] 临时文件名称
+     * ]
+     * @param  author        dzj
+     * @param  ctime         2020-05-14
+     * return  boolean($flag 1表示真实excel , 0表示伪造或者不是excel)
+    */
+    public static function detectUploadFileMIME($file){
+        $flag = 0;
+        $file_array = explode (".", $file["name"]);
+        $file_extension = strtolower (array_pop($file_array));
+        switch ($file_extension) {
+            case "xls" :
+                // 2003 excel
+                $fh  = fopen($file["tmp_name"], "rb");
+                $bin = fread($fh, 8);
+                fclose($fh);
+                $strinfo  = @unpack("C8chars", $bin);
+                $typecode = "";
+                foreach ($strinfo as $num) {
+                    $typecode .= dechex ($num);
+                }
+                if ($typecode == "d0cf11e0a1b11ae1") {
+                    $flag = 1;
+                }
+                break;
+            case "xlsx" :
+                // 2007 excel
+                $fh  = fopen($file["tmp_name"], "rb");
+                $bin = fread($fh, 4);
+                fclose($fh);
+                $strinfo = @unpack("C4chars", $bin);
+                $typecode = "";
+                foreach ($strinfo as $num) {
+                    $typecode .= dechex ($num);
+                }
+                if ($typecode == "504b34") {
+                    $flag = 1;
+                }
+                break;
+        }
+        return $flag;
+    }
+    
+   /** delDir()删除文件夹及文件夹内文件函数
+    * @param string $path   文件夹路径
+    * @param string $delDir 是否删除改
+    * @return boolean
+    */
+    public static function delDir($path, $del = false){
+        $handle = opendir($path);
+        if ($handle) {
+            while (false !== ($item = readdir($handle))) {
+                if (($item != ".") && ($item != "..")) {
+                    is_dir("$path/$item") ? self::delDir("$path/$item", $del) : unlink("$path/$item");
+                }
+            }
+            closedir($handle);
+            if ($del) {
+                return rmdir($path);
+            }
+        }elseif(file_exists($path)) {
+            return unlink($path);
+        }else {
+            return false;
         }
     }
 }
