@@ -202,14 +202,15 @@ class Order extends Model {
         if(!$find){
             return ['code' => 202 , 'msg' => '数据无效'];
         }
+        //获取后端的操作员id
+        $admin_id = isset(AdminLog::getAdminInfo()->admin_user->id) ? AdminLog::getAdminInfo()->admin_user->id : 0;
         if($data['status'] == 1){
             if($find['status'] == 2){
                 return ['code' => 200 , 'msg' => '审核已通过'];
             }else if($find['status'] == 1){
                 $update = self::where(['id'=>$data['order_id']])->update(['status'=>2]);
                 if($update){
-                    //获取后端的操作员id
-                    $admin_id = isset(AdminLog::getAdminInfo()->admin_user->id) ? AdminLog::getAdminInfo()->admin_user->id : 0;
+
                     //添加日志操作
                     AdminLog::insertAdminLog([
                         'admin_id'       =>   $admin_id  ,
@@ -233,8 +234,6 @@ class Order extends Model {
             }else if($find['status'] == 1 || $find['status'] == 2){
                 $update = self::where(['id'=>$data['order_id']])->update(['status'=>4]);
                 if($update){
-                    //获取后端的操作员id
-                    $admin_id = isset(AdminLog::getAdminInfo()->admin_user->id) ? AdminLog::getAdminInfo()->admin_user->id : 0;
                     //添加日志操作
                     AdminLog::insertAdminLog([
                         'admin_id'       =>   $admin_id  ,

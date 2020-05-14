@@ -159,8 +159,8 @@ class Article extends Model {
             return ['code' => 201 , 'msg' => '正文不能为空'];
         }
         //缓存查出用户id和分校id
-        $admin_id  = isset(CurrentAdmin::user()->id) ? CurrentAdmin::user()->id : 0;
-        $school_id = isset(CurrentAdmin::user()->school_id) ? CurrentAdmin::user()->school_id : 0;
+        $school_id = isset(AdminLog::getAdminInfo()->admin_user->school_id) ? AdminLog::getAdminInfo()->admin_user->school_id : 0;
+        $admin_id = isset(AdminLog::getAdminInfo()->admin_user->id) ? AdminLog::getAdminInfo()->admin_user->id : 0;
         if($admin_id == 0 || $school_id ==0){
             return ['code' => 203 , 'msg' => 'token有问题'];
         }
