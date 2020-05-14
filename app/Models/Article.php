@@ -22,10 +22,6 @@ class Article extends Model {
     public static function getArticleList($data){
         //获取用户网校id
         $data['num'] = isset($data['num'])?$data['num']:20;
-        //每页显示的条数
-//        $pagesize = isset($data['pagesize']) && $data['pagesize'] > 0 ? $data['pagesize'] : 15;
-//        $page     = isset($data['page']) && $data['page'] > 0 ? $data['page'] : 1;
-//        $offset   = ($page - 1) * $pagesize;
         $list = self::select('ld_article.id','ld_article.title','ld_article.create_at','ld_school.name','ld_article_type.typename','ld_admin.username')
             ->leftJoin('ld_school','ld_school.id','=','ld_article.school_id')
             ->leftJoin('ld_article_type','ld_article_type.id','=','ld_article.article_type_id')
@@ -44,8 +40,6 @@ class Article extends Model {
             })
             ->where(['ld_article.is_del'=>1,'ld_article_type.is_del'=>1,'ld_article_type.status'=>1,'ld_admin.is_del'=>1,'ld_admin.is_forbid'=>1,'ld_school.is_del'=>1,'ld_school.is_forbid'=>1])
             ->orderBy('ld_article.id','desc')
-//            ->offset($offset)->limit($pagesize)
-//            ->get()->toArray();
             ->paginate($data['num']);
         return ['code' => 200 , 'msg' => '查询成功','data'=>$list];
     }
@@ -159,21 +153,14 @@ class Article extends Model {
             return ['code' => 201 , 'msg' => '正文不能为空'];
         }
         //缓存查出用户id和分校id
-        $school_id = isset(AdminLog::getAdminInfo()->admin_user->school_id) ? AdminLog::getAdminInfo()->admin_user->school_id : 0;
-        $admin_id = isset(AdminLog::getAdminInfo()->admin_user->id) ? AdminLog::getAdminInfo()->admin_user->id : 0;
-        if($admin_id == 0 || $school_id ==0){
-            return ['code' => 203 , 'msg' => 'token有问题'];
-        }
-        $data['school_id'] = $school_id;
-        $data['user_id']   = $admin_id;
+        $data['school_id'] = isset(AdminLog::getAdminInfo()->admin_user->school_id) ? AdminLog::getAdminInfo()->admin_user->school_id : 0;
+        $data['user_id'] = isset(AdminLog::getAdminInfo()->admin_user->id) ? AdminLog::getAdminInfo()->admin_user->id : 0;
         $data['update_at'] = date('Y-m-d H:i:s');
         $add = self::insert($data);
         if($add){
-            //获取后端的操作员id
-            $admin_id = isset(AdminLog::getAdminInfo()->admin_user->id) ? AdminLog::getAdminInfo()->admin_user->id : 0;
             //添加日志操作
             AdminLog::insertAdminLog([
-                'admin_id'       =>   $admin_id  ,
+                'admin_id'       =>   $data['user_id']  ,
                 'module_name'    =>  'Article' ,
                 'route_url'      =>  'admin/Article/addArticle' ,
                 'operate_method' =>  'insert' ,
