@@ -11,7 +11,7 @@ use App\Models\Teacher;
 
 class LessonController extends Controller {
 
-    /*
+    /**
      * @param  课程列表
      * @param  current_count   count
      * @param  author  孙晓丽
@@ -21,7 +21,7 @@ class LessonController extends Controller {
     public function index(Request $request){
         $currentCount = $request->input('current_count') ?: 0;
         $count = $request->input('count') ?: 15;
-        $subject_id = $request->input('subject_id') ?: [];
+        //$subject_id = $request->input('subject_id') ?: [];
         //$subjectIds = json_decode($subject_id, true);
         $total = Lesson::count();
         $lesson = Lesson::with('teachers')
@@ -183,6 +183,9 @@ class LessonController extends Controller {
             return $this->response("修改成功");
         }
     }
+
+
+
     /**
      * 删除
      *
@@ -196,5 +199,64 @@ class LessonController extends Controller {
             return $this->response("删除失败", 500);
         }
         return $this->response("删除成功");
+    }
+
+
+    /**
+     * 添加课程.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function auth(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'title' => 'required',
+            'keyword' => 'required',
+            'cover' => 'required',
+            'price' => 'required',
+            'favorable_price' => 'required',
+            'method' => 'required',
+            'teacher_id' => 'required',
+            'description' => 'required',
+            'introduction' => 'required',
+            'subject_id' => 'required',
+            'is_public' => 'required',
+            'buy_num' => 'required',
+            'ttl' => 'required',
+        ]);
+        if ($validator->fails()) {
+            return $this->response($validator->errors()->first(), 422);
+        }
+        $subjectIds = json_decode($request->input('subject_id'), true);
+        $teacherIds = json_decode($request->input('teacher_id'), true);
+        $user = CurrentAdmin::user();
+
+        try {
+            $lesson = Lesson::create([
+                    'admin_id' => intval($user->id),
+                    'title' => $request->input('title'),
+                    'keyword' => $request->input('keyword'),
+                    'cover' => $request->input('cover'),
+                    'price' => $request->input('price'),
+                    'favorable_price' => $request->input('favorable_price'),
+                    'method' => $request->input('method'),
+                    'description' => $request->input('description'),
+                    'introduction' => $request->input('introduction'),
+                    'is_public' => $request->input('is_public'),
+                    'buy_num' => $request->input('buy_num'),
+                    'ttl' => $request->input('ttl'),
+                ]);
+            if(!empty($teacherIds)){
+                $lesson->teachers()->attach($teacherIds); 
+            }
+            if(!empty($subjectIds)){
+                $lesson->subjects()->attach($subjectIds); 
+            }
+        } catch (Exception $e) {
+            Log::error('创建失败:'.$e->getMessage());
+            return $this->response($e->getMessage(), 500);
+        }
+        return $this->response('创建成功');
     }
 }
