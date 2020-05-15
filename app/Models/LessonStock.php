@@ -17,7 +17,6 @@ class LessonStock extends Model {
     ];
 
     protected $hidden = [
-        'created_at',
         'updated_at',
         'is_del',
         'is_forbid'
