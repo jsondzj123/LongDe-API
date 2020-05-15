@@ -8,18 +8,20 @@ class LessonSchool extends Model {
 
     protected $fillable = [
         'admin_id',
-    	'title',
-        'keyword',
-        'cover',
-        'price',
-        'favorable_price',
-        'method', 
-        'description',
-        'introduction',
-        'buy_num',
-        'ttl',
-        'status',
-        'url'
+        'school_id',
+        'lesson_id',
+    	// 'title',
+     //    'keyword',
+     //    'cover',
+     //    'price',
+     //    'favorable_price',
+     //    'method', 
+     //    'description',
+     //    'introduction',
+     //    'buy_num',
+     //    'ttl',
+     //    'status',
+     //    'url'
     ];
 
     protected $hidden = [
