@@ -11,6 +11,27 @@ use App\Models\Teacher;
 
 class LessonStockController extends Controller {
 
+    /**
+     * @param  库存列表
+     * @param  current_count   count
+     * @param  author  孙晓丽
+     * @param  ctime   2020/5/15 
+     * return  array
+     */
+    public function index(Request $request){
+        $currentCount = $request->input('current_count') ?: 0;
+        $count = $request->input('count') ?: 15;
+        $lesson_id = $request->input('lesson_id');
+        $school_id = $request->input('school_id');
+        $data =  LessonStock::where(['lesson_id' => $lesson_id, 'school_id' => $school_id]);
+        $total = $data->count();
+        $stock = $data->orderBy('created_at', 'desc')->skip($currentCount)->take($count)->get();
+        $data = [
+            'page_data' => $stock,
+            'total' => $total,
+        ];
+        return $this->response($data);
+    }
 
     /**
      * 授权课程.
@@ -23,23 +44,22 @@ class LessonStockController extends Controller {
             'lesson_id' => 'required',
             'school_pid' => 'required',
             'school_id' => 'required',
-            'add_number' => 'required',
+            'type' => 'required',
+            'add_number' => 'required_if:type,2',
+
         ]);
         if ($validator->fails()) {
             return $this->response($validator->errors()->first(), 422);
         }
-        $user = CurrentAdmin::user();
-
+        $data = $request->all();
+        if($request->input('type') == 2){
+            $data['current_number'] = '10';
+        }else{
+            $data['current_number'] = '0';
+            $data['add_number'] = '0';
+        }
         try {
-            $lesson = LessonStock::create([
-                    'admin_id' => intval($user->id),
-                    'lesson_id' => $request->input('lesson_id'),
-                    'school_pid' => $request->input('school_pid'),
-                    'school_id' => $request->input('school_id'),
-                    'current_number' => 0,
-                    'add_number' => $request->input('add_number'),
-                ]);
-
+            $this->create($data);
         } catch (Exception $e) {
             Log::error('创建失败:'.$e->getMessage());
             return $this->response($e->getMessage(), 500);
@@ -48,53 +68,16 @@ class LessonStockController extends Controller {
     }
 
 
-    /**
-     * 添加库存
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update($id, Request $request) {
-        $validator = Validator::make($request->all(), [
-            'lesson_id' => 'required',
-            'school_pid' => 'required',
-            'school_id' => 'required',
-            'add_number' => 'required',
+    public function create($data)
+    {
+        $user = CurrentAdmin::user();
+        return LessonStock::create([
+            'admin_id' => intval($user->id),
+            'lesson_id' => $data['lesson_id'],
+            'school_pid' =>$data['school_pid'],
+            'school_id' => $data['school_id'],
+            'current_number' => $data['current_number'],
+            'add_number' => $data['add_number'],
         ]);
-        if ($validator->fails()) {
-            return $this->response($validator->errors()->first(), 422);
-        }
-        $lesson = LessonStock::findOrFail($id);
-        $lesson->admin_id => intval($user->id),
-        $lesson->lesson_id => $request->input('lesson_id') ?: $lesson->lesson_id,
-        $lesson->school_pid => $request->input('school_pid') ?: $lesson->school_pid,
-        $lesson->school_id => $request->input('school_id') ?: $lesson->school_id,
-        $lesson->current_number => 10,
-        $lesson->add_number => $request->input('add_number') ?: $lesson->add_number,
-        try {
-            $lesson->save();
-            return $this->response("修改成功");
-        } catch (Exception $e) {
-            Log::error('修改课程信息失败' . $e->getMessage());
-            return $this->response("修改成功");
-        }
-    }
-
-
-
-
-    /**
-     * 删除
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id) {
-        $lesson = LessonStock::findOrFail($id);
-        $lesson->is_forbid = 1;
-        if (!$lesson->save()) {
-            return $this->response("删除失败", 500);
-        }
-        return $this->response("删除成功");
     }
 }
