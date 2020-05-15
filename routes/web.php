@@ -191,6 +191,7 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use (
         $router->get('getMaterialList', 'ExamController@getMaterialList');               //查看材料题的方法
         $router->get('getExamCommonList', 'ExamController@getExamCommonList');           //试题公共参数列表
         $router->post('importExam', 'ExamController@doImportExam');                      //导入试题excel功能
+        $router->post('doExamineExcelData', 'ExamController@doExamineExcelData');        //校验excel表格接口
         /****************试题部分  end****************/
 
         $router->get('export', 'CommonController@doExportExamLog'); //导入导出demo
