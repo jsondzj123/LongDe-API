@@ -21,19 +21,41 @@ class LessonController extends Controller {
     public function index(Request $request){
         $currentCount = $request->input('current_count') ?: 0;
         $count = $request->input('count') ?: 15;
-        $subject_id = $request->input('subject_id') ?: '';
+        $subject_id = $request->input('subject_id') ?: 0;
         $method = $request->input('method') ?: 0;
         $status = $request->input('status') ?: 0;
         $auth = $request->input('auth') ?: 0;
+        $user = CurrentAdmin::user();
         $data =  Lesson::with('subjects')
+                ->select('id', 'admin_id', 'title', 'cover', 'price', 'favorable_price', 'buy_num', 'method', 'status')
+                ->where(['is_del' => 0, 'is_forbid' => 0])
                 ->whereHas('subjects', function ($query) use ($subject_id)
                     {
-                        isset($subject_id) && $query->where('subjects.id', $subject_id);
+                        if($subject_id != 0){
+                            $query->where('subjects.id', $subject_id);
+                        }
                     })
-                ->where(function($query) use ($method, $status){
-                    isset($method) && $query->where("method",$method);
-                    isset($status) && $query->where("status",$status);
+                ->where(function($query) use ($method, $status, $auth, $user){
+                    if($method == 0){
+                        $query->whereIn("method", [1, 2, 3]);
+                    }else{
+                        $query->where("method", $method);
+                    }
+                    if($status == 0){
+                        $query->whereIn("status", [0, 1, 2]);
+                    }else{
+                        $query->where("status", $status);
+                    }
+                    if($auth == 1){
+                        $query->where("admin_id",$user->id);
+                    }
                 });
+                ->whereHas('schools', function ($query) use ($auth)
+                    {
+                        if($auth == 2){
+                            $query->where('school_id', $user->school_id);
+                        }
+                    });
         $total = $data->count();
         $lesson = $data->orderBy('status', 'desc')->skip($currentCount)->take($count)->get();
         $data = [

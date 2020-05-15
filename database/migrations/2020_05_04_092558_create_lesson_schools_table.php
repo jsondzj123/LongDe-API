@@ -15,8 +15,9 @@ class CreateLessonSchoolsTable extends Migration
     {
         Schema::create('lesson_schools', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer('admin_id')->default(0)->comment('操作员ID');
-            $table->integer('lesson_id')->default(0)->comment('课程ID');
+            $table->integer('admin_id')->unsigned()->comment('操作员ID');
+            $table->integer('lesson_id')->unsigned()->comment('课程ID');
+            $table->integer('school_id')->unsigned()->comment('分校ID');
             $table->string('title')->comment('课程表题');
             $table->string('keyword')->comment('关键词');
             $table->string('cover')->comment('封面');
