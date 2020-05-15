@@ -502,14 +502,14 @@ class ExamController extends Controller {
             }
 
             //去掉试题模板中没有用的列和展示项
-            $exam_list = array_slice($exam_list['data'] , 3);
+            /*$exam_list = array_slice($exam_list['data'] , 3);
             
             //判断excel数据传输是否合法
             if(!$exam_list || empty($exam_list)){
                 //删除excel原始文件
                 unlink($path);
                 return ['code' => 202 , 'msg' => '请按照模板上格式导入'];
-            }
+            }*/
             
             //获取excel表格的后缀类型
             /*$excel_key = "excel_true_".$is_correct_extensiton;
