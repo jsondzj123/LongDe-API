@@ -21,14 +21,21 @@ class LessonController extends Controller {
     public function index(Request $request){
         $currentCount = $request->input('current_count') ?: 0;
         $count = $request->input('count') ?: 15;
-        //$subject_id = $request->input('subject_id') ?: [];
-        //$subjectIds = json_decode($subject_id, true);
-        $total = Lesson::count();
-        $lesson = Lesson::with('teachers')
-                ->orderBy('status', 'desc')
-                ->skip($currentCount)->take($count)
-                ->get();
-
+        $subject_id = $request->input('subject_id') ?: '';
+        $method = $request->input('method') ?: 0;
+        $status = $request->input('status') ?: 0;
+        $auth = $request->input('auth') ?: 0;
+        $data =  Lesson::with('subjects')
+                ->whereHas('subjects', function ($query) use ($subject_id)
+                    {
+                        isset($subject_id) && $query->where('subjects.id', $subject_id);
+                    })
+                ->where(function($query) use ($method, $status){
+                    isset($method) && $query->where("method",$method);
+                    isset($status) && $query->where("status",$status);
+                });
+        $total = $data->count();
+        $lesson = $data->orderBy('status', 'desc')->skip($currentCount)->take($count)->get();
         $data = [
             'page_data' => $lesson,
             'total' => $total,
@@ -36,6 +43,51 @@ class LessonController extends Controller {
         return $this->response($data);
     }
 
+    /**
+     * @param  分校课程列表
+     * @param  current_count   count
+     * @param  author  孙晓丽
+     * @param  ctime   2020/5/1 
+     * return  array
+     */
+    public function list()
+    {
+        $currentCount = $request->input('current_count') ?: 0;
+        $count = $request->input('count') ?: 15;
+        $subject_id = $request->input('subject_id');
+        $method = $request->input('method');
+        $status = $request->input('status');
+        $auth = $request->input('auth');
+        $user = CurrentAdmin::user();
+        //自增课程
+        $lesson_ids = Lesson::where('admin_id', $user->id)->pluck('id');
+        //授权课程
+        $school_lesson_ids = LessonStock::where([
+            'school_id' => $user->school_id,
+            'is_forbid' => 0])->pluck('lesson_id');
+        $ids = $lesson_ids->merge($school_lesson_ids);
+        $lesson = Lesson::with('subjects')->whereHas('subjects', function ($query) use ($subject_id)
+                        {
+                            $query->where('subjects.id', $subject_id);
+                        })
+                ->whereIn('id', $ids)
+                ->get();
+        $total = $lesson->count();
+        foreach ($lesson as $key=>$value) {
+            if(in_array($value->id, $school_lesson_ids->toArray())){
+                $lesson[$key]['is_auth'] = 1;
+            }else{
+                $lesson[$key]['is_auth'] = 0;
+            }
+        }
+        $data = [
+            'page_data' => $lesson,
+            'total' => $total,
+        ];
+        return $this->response($data);
+    }
+
+   
 
     /*
      * @param  课程详情
