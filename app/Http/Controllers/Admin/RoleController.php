@@ -240,6 +240,8 @@ class RoleController extends Controller {
                     }
                 }
             }
+            $data['update_time'] = date('Y-m-d H:i:s');
+            $data['auth_id'] = implode(',', $arr);
             AdminLog::insertAdminLog([
                 'admin_id'       =>   CurrentAdmin::user()['id'] ,
                 'module_name'    =>  'Role' ,
@@ -249,7 +251,7 @@ class RoleController extends Controller {
                 'ip'             =>  $_SERVER["REMOTE_ADDR"] ,
                 'create_at'      =>  date('Y-m-d H:i:s')
             ]);
-            $data['update_time'] = date('Y-m-d H:i:s');
+
             if(Roleauth::where('id','=',$data['id'])->update($data)){
                 return response()->json(['code'=>200,'msg'=>'更改成功']); 
             }else{
