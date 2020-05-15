@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Redis;
 use App\Tools\CurrentAdmin;
 use Illuminate\Support\Facades\Validator;
 use App\Models\AdminLog;
+use Illuminate\Support\Facades\DB;
 
 class AdminUserController extends Controller {
 
@@ -212,7 +213,6 @@ class AdminUserController extends Controller {
         $adminUserArr['data']['school_name']  = School::getSchoolOne(['id'=>$adminUserArr['data']['school_id'],'is_forbid'=>1,'is_del'=>1],['name'])['data']['name'];
         $roleAuthArr = Roleauth::getRoleAuthAlls(['school_id'=>$adminUserArr['data']['school_id'],'is_del'=>1],['id','role_name']);
         $teacherArr = [];
-
         if(!empty($adminUserArr['data']['teacher_id'])){
             $teacher_id_arr = explode(',', $adminUserArr['data']['teacher_id']);
              $teacherArr= Teacher::whereIn('id',$teacher_id_arr)->where('is_del','!=',1)->where('is_forbid','!=',1)->select('id','real_name','type')->get();
@@ -273,26 +273,51 @@ class AdminUserController extends Controller {
         $count = Adminuser::where($where)->where('id','!=',$data['id'])->count();
         if($count >=1 ){
              return response()->json(['code'=>203,'msg'=>'用户名已存在']);
-        }
+        }  
         $data['password'] = password_hash($data['password'], PASSWORD_DEFAULT);
         unset($data['pwd']);
-        $result = Adminuser::where('id','=',$data['id'])->update($data);
-        if($result){
+        $admin_id  = CurrentAdmin::user()['id'];
+        try {
+            DB::beginTransaction();
+            if(Adminuser::where(['school_id'=>$data['school_id'],'is_del'=>1])->count() == 1){  //判断该账号是不是分校超管 5.14
+                if(Roleauth::where(['school_id'=>$data['school_id'],'is_del'=>1])->count() <1){
+                    $roleAuthArr = Roleauth::where(['id'=>$data['role_id']])->select('auth_id')->first()->toArray();
+                    $roleAuthArr['role_name'] = '超级管理员';
+                    $roleAuthArr['auth_desc'] = '拥有所有权限';
+                    $roleAuthArr['is_super'] = 1;
+                    $roleAuthArr['school_id'] = $data['school_id'];
+                    $roleAuthArr['admin_id']  = $admin_id;
+                    $role_id = Roleauth::insertGetId($roleAuthArr);
+
+                    if($role_id<=0){
+                         return   response()->json(['code'=>500,'msg'=>'角色创建失败']);
+                    }
+                    $data['role_id'] = $role_id;
+                }
+            }
+            $result = Adminuser::where('id','=',$data['id'])->update($data);
+            if($result){
              //添加日志操作
-            AdminLog::insertAdminLog([
-                'admin_id'       =>   CurrentAdmin::user()['id'] ,
-                'module_name'    =>  'Adminuser' ,
-                'route_url'      =>  'admin/adminuser/doAdminUserUpdate' , 
-                'operate_method' =>  'update' ,
-                'content'        =>  json_encode($data),
-                'ip'             =>  $_SERVER["REMOTE_ADDR"] ,
-                'create_at'      =>  date('Y-m-d H:i:s')
-            ]);
-            return   response()->json(['code'=>200,'msg'=>'更改成功']);
-        }else{
-            return   response()->json(['code'=>500,'msg'=>'网络超时，请重试']);    
+                AdminLog::insertAdminLog([
+                    'admin_id'       =>   $admin_id ,
+                    'module_name'    =>  'Adminuser' ,
+                    'route_url'      =>  'admin/adminuser/doAdminUserUpdate' , 
+                    'operate_method' =>  'update' ,
+                    'content'        =>  json_encode($data),
+                    'ip'             =>  $_SERVER["REMOTE_ADDR"] ,
+                    'create_at'      =>  date('Y-m-d H:i:s')
+                ]);
+                return   response()->json(['code'=>200,'msg'=>'更改成功']);
+            }else{
+                return   response()->json(['code'=>500,'msg'=>'网络超时，请重试']);    
+            }
+           
+            DB::commit();
+        } catch (Exception $e) {
+            DB::rollBack();
+            return response()->json(['code'=>500,'msg'=>$e->getMessage()]);
         }
-    }
+    }  
     /*
      * @param  description   登录账号权限（菜单栏）
      * @param  参数说明       body包含以下参数[

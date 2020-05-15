@@ -22,6 +22,10 @@ class Article extends Model {
     public static function getArticleList($data){
         //获取用户网校id
         $data['num'] = isset($data['num'])?$data['num']:20;
+        //每页显示的条数
+//        $pagesize = isset($data['pagesize']) && $data['pagesize'] > 0 ? $data['pagesize'] : 15;
+//        $page     = isset($data['page']) && $data['page'] > 0 ? $data['page'] : 1;
+//        $offset   = ($page - 1) * $pagesize;
         $list = self::select('ld_article.id','ld_article.title','ld_article.create_at','ld_school.name','ld_article_type.typename','ld_admin.username')
             ->leftJoin('ld_school','ld_school.id','=','ld_article.school_id')
             ->leftJoin('ld_article_type','ld_article_type.id','=','ld_article.article_type_id')
@@ -33,7 +37,6 @@ class Article extends Model {
                  if(!empty($data['type_id']) && $data['type_id'] != '' ){
                      $query->where('ld_article.article_type_id',$data['type_id']);
                  }
-
                  if(!empty($data['title']) && $data['title'] != ''){
                      $query->where('ld_article.title','like','%'.$data['title'].'%')
                          ->orwhere('ld_article.id',$data['title']);
@@ -41,6 +44,8 @@ class Article extends Model {
             })
             ->where(['ld_article.is_del'=>1,'ld_article_type.is_del'=>1,'ld_article_type.status'=>1,'ld_admin.is_del'=>1,'ld_admin.is_forbid'=>1,'ld_school.is_del'=>1,'ld_school.is_forbid'=>1])
             ->orderBy('ld_article.id','desc')
+//            ->offset($offset)->limit($pagesize)
+//            ->get()->toArray();
             ->paginate($data['num']);
         return ['code' => 200 , 'msg' => '查询成功','data'=>$list];
     }
@@ -52,7 +57,7 @@ class Article extends Model {
          * return  array
          */
     public static function editStatus($data){
-        if(empty($data['id']) || !is_int($data['id'])){
+        if(empty($data['id'])){
             return ['code' => 201 , 'msg' => '参数为空或格式错误'];
         }
         $articleOnes = self::where(['id'=>$data['id']])->first();
@@ -88,7 +93,7 @@ class Article extends Model {
          */
     public static function editDelToId($data){
         //判断分类id
-        if(empty($data['id']) || !is_int($data['id'])){
+        if(empty($data['id'])){
             return ['code' => 201 , 'msg' => '参数为空或格式错误'];
         }
         $articleOnes = self::where(['id'=>$data['id']])->first();
@@ -134,28 +139,28 @@ class Article extends Model {
          */
     public static function addArticle($data){
         //判断分类id
-        if(empty($data['article_type_id']) || !is_int($data['article_type_id'])){
+        if(empty($data['article_type_id'])){
             return ['code' => 201 , 'msg' => '请正确选择分类'];
         }
         //判断标题
-        if(empty($data['title']) || !is_string($data['title'])){
+        if(empty($data['title'])){
             return ['code' => 201 , 'msg' => '标题不能为空'];
         }
         //判断图片
-        if(empty($data['image']) || !is_string($data['image'])){
+        if(empty($data['image'])){
             return ['code' => 201 , 'msg' => '图片不能为空'];
         }
         //判断摘要
-        if(empty($data['description']) || !is_string($data['description'])){
+        if(empty($data['description'])){
             return ['code' => 201 , 'msg' => '摘要不能为空'];
         }
         //判断正文
-        if(empty($data['text']) || !is_string($data['text'])){
+        if(empty($data['text'])){
             return ['code' => 201 , 'msg' => '正文不能为空'];
         }
         //缓存查出用户id和分校id
-        $admin_id  = isset(CurrentAdmin::user()->id) ? CurrentAdmin::user()->id : 0;
-        $school_id = isset(CurrentAdmin::user()->school_id) ? CurrentAdmin::user()->school_id : 0;
+        $school_id = isset(AdminLog::getAdminInfo()->admin_user->school_id) ? AdminLog::getAdminInfo()->admin_user->school_id : 0;
+        $admin_id = isset(AdminLog::getAdminInfo()->admin_user->id) ? AdminLog::getAdminInfo()->admin_user->id : 0;
         if($admin_id == 0 || $school_id ==0){
             return ['code' => 203 , 'msg' => 'token有问题'];
         }
@@ -227,27 +232,27 @@ class Article extends Model {
          * return  array
          */
     public static function exitForId($data){
-        if(empty($data['id']) || !is_int($data['id'])){
+        if(empty($data['id'])){
             return ['code' => 201 , 'msg' => 'id为空或格式不正确'];
         }
         //判断分类id
-        if(empty($data['article_type_id']) || !is_int($data['article_type_id'])){
+        if(empty($data['article_type_id'])){
             return ['code' => 201 , 'msg' => '分类为空或格式不正确'];
         }
         //判断标题
-        if(empty($data['title']) || !is_string($data['title'])){
+        if(empty($data['title'])){
             return ['code' => 201 , 'msg' => '标题为空或格式不正确'];
         }
         //判断图片
-        if(empty($data['image']) || !is_string($data['image'])){
+        if(empty($data['image'])){
             return ['code' => 201 , 'msg' => '图片为空或格式不正确'];
         }
         //判断摘要
-        if(empty($data['description']) || !is_string($data['description'])){
+        if(empty($data['description'])){
             return ['code' => 201 , 'msg' => '摘要为空或格式不正确'];
         }
         //判断正文
-        if(empty($data['text']) || !is_string($data['text'])){
+        if(empty($data['text'])){
             return ['code' => 201 , 'msg' => '正文为空或格式不正确'];
         }
         $data['update_at'] = date('Y-m-d H:i:s');

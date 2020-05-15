@@ -41,7 +41,7 @@ class Articletype extends Model {
          * return  array
          */
     public static function editStatusToId($data){
-        if(empty($data['id']) || !is_int($data['id'])){
+        if(empty($data['id'])){
             return ['code' => 201 , 'msg' => '参数为空或格式错误'];
         }
         $find = self::where(['id'=>$data['id'],'is_del'=>1])->first();
@@ -130,8 +130,9 @@ class Articletype extends Model {
          */
     public static function addType($data){
         //获取用户信息
-        $data['user_id']  = isset(CurrentAdmin::user()->id) ? CurrentAdmin::user()->id : 0;
-        $data['school_id'] = isset(CurrentAdmin::user()->school_id) ? CurrentAdmin::user()->school_id : 0;
+        //缓存查出用户id和分校id
+        $data['school_id'] = isset(AdminLog::getAdminInfo()->admin_user->school_id) ? AdminLog::getAdminInfo()->admin_user->school_id : 0;
+        $data['user_id'] = isset(AdminLog::getAdminInfo()->admin_user->id) ? AdminLog::getAdminInfo()->admin_user->id : 0;
         if($data['typename'] == ''){
             return ['code' => 201 , 'msg' => '名称不能为空'];
         }
@@ -141,11 +142,9 @@ class Articletype extends Model {
         }else {
             $add = self::insert($data);
             if($add){
-                //获取后端的操作员id
-                $admin_id = isset(AdminLog::getAdminInfo()->admin_user->id) ? AdminLog::getAdminInfo()->admin_user->id : 0;
                 //添加日志操作
                 AdminLog::insertAdminLog([
-                    'admin_id'       =>   $admin_id  ,
+                    'admin_id'       =>   $data['user_id']  ,
                     'module_name'    =>  'Articletype' ,
                     'route_url'      =>  'admin/Articletype/addType' ,
                     'operate_method' =>  'insert' ,
@@ -206,7 +205,7 @@ class Articletype extends Model {
          */
     public static function oneFind($data){
         //判断id
-        if(empty($data['id']) || !is_int($data['id'])){
+        if(empty($data['id'])){
             return ['code' => 201 , 'msg' => '参数id为空或格式不正确'];
         }
         //缓存

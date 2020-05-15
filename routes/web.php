@@ -215,13 +215,14 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use (
     //订单&支付模块(szw)
     $router->group(['prefix' => 'order'], function () use ($router) {
         $router->post('orderList', 'OrderController@orderList');//订单列表
-        $router->post('orderPay', 'OrderController@orderPay');//订单在线支付
         $router->post('findOrderForId', 'OrderController@findOrderForId');//订单详情
         $router->post('auditToId', 'OrderController@auditToId');//订单审核通过/不通过
         $router->post('orderUpOaForId', 'OrderController@orderUpOaForId');//订单修改oa状态
-        $router->post('wxnotify_url', 'OrderController@wxnotify_url');//微信回调
-        $router->post('alinotify_url', 'OrderController@alinotify_url');//ali回调
-        $router->post('Pcpay', 'OrderController@Pcpay');//pc支付
+        $router->get('ExcelExport', 'OrderController@ExcelExport');//订单导出
+//        $router->post('orderPay', 'OrderController@orderPay');//订单在线支付
+//        $router->post('wxnotify_url', 'OrderController@wxnotify_url');//微信回调
+//        $router->post('alinotify_url', 'OrderController@alinotify_url');//ali回调
+//        $router->post('Pcpay', 'OrderController@Pcpay');//pc支付
     });
     //数据模块（szw）
     $router->group(['prefix' => 'statistics'], function () use ($router) {
@@ -243,7 +244,7 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use (
         $router->post('getAdminUserUpdate', 'AdminUserController@getAdminUserUpdate');        //获取账号信息（编辑） √√√
         $router->post('doAdminUserUpdate', 'AdminUserController@doAdminUserUpdate');          //编辑账号信息  √√  5.9  +1
 
-    }); 
+    });
         //系统角色管理模块
     $router->group(['prefix' => 'role','middleware'=> ['jwt.auth']], function () use ($router) {
 
@@ -262,15 +263,15 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use (
 
     /*begin 网校系统  lys*/
 
-    $router->group(['prefix' => 'school','middleware'=> ['jwt.auth','api']], function () use ($router) { 
-        $router->post('getSchoolList', 'SchoolController@getSchoolList');                    //获取网校列表方法 √√√  
+    $router->group(['prefix' => 'school','middleware'=> ['jwt.auth','api']], function () use ($router) {
+        $router->post('getSchoolList', 'SchoolController@getSchoolList');                    //获取网校列表方法 √√√
         $router->post('doSchoolForbid', 'SchoolController@doSchoolForbid');                  //修改学校状态 （禁启)√√
         $router->post('doSchoolDel', 'SchoolController@doSchoolDel');                         //修改学校状态 （删除) √√
-        $router->post('doInsertSchool', 'SchoolController@doInsertSchool');                  //添加分校信息并创建分校管理员 √√  +1  
-        $router->post('getSchoolUpdate', 'SchoolController@getSchoolUpdate');                //获取分校信息（编辑）√√   
+        $router->post('doInsertSchool', 'SchoolController@doInsertSchool');                  //添加分校信息并创建分校管理员 √√  +1
+        $router->post('getSchoolUpdate', 'SchoolController@getSchoolUpdate');                //获取分校信息（编辑）√√
         $router->post('doSchoolUpdate', 'SchoolController@doSchoolUpdate');                  //编辑分校信息  √√   +1
         $router->post('getSchoolAdminById', 'SchoolController@getSchoolAdminById');          //查看分校超级管理角色信息 √√
-        $router->post('getAdminById', 'SchoolController@getAdminById');                      //获取分校超级管理用户信息（编辑） √√  
+        $router->post('getAdminById', 'SchoolController@getAdminById');                      //获取分校超级管理用户信息（编辑） √√
         $router->post('doAdminUpdate', 'SchoolController@doAdminUpdate');                    //编辑分校超级管理用户信息   √√  +1
         $router->post('getSchoolTeacherList', 'SchoolController@getSchoolTeacherList');      //获取分校讲师列表  √√√  5.11
     });

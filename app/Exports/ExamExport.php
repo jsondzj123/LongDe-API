@@ -8,8 +8,8 @@ class ExamExport implements FromCollection, WithHeadings {
     public function collection() {
         return Student::select('real_name','phone','age','family_phone')->get();
     }
-    
-    public function headings(): array    
+
+    public function headings(): array
     {
         return [
             '姓名',

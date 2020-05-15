@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Redis;
 use Validator;
 use App\Tools\CurrentAdmin;
 use App\Models\AdminLog;
+use Illuminate\Support\Facades\DB;
 class RoleController extends Controller {
   
     /*
@@ -207,27 +208,58 @@ class RoleController extends Controller {
         if( !isset($data['auth_id']) ||  empty($data['auth_id'])){
             return response()->json(['code'=>422,'msg'=>'权限组id为空或缺少']);
         }
-        $school_id = CurrentAdmin::user()['school_id'];
+        $admin=CurrentAdmin::user();
+        $school_id = $admin['school_id'];
+        $admin_id = $admin['id'];
         $count = Roleauth::where('role_name','=',$data['role_name'])->where('id','!=',$data['id'])->where('school_id','=',$school_id)->count();
         if($count>=1){
             return response()->json(['code'=>422,'msg'=>'角色名称已存在']); 
         }
-        AdminLog::insertAdminLog([
-            'admin_id'       =>   CurrentAdmin::user()['id'] ,
-            'module_name'    =>  'Role' ,
-            'route_url'      =>  'admin/role/doRoleAuthUpdate' , 
-            'operate_method' =>  'update' ,
-            'content'        =>  json_encode($data),
-            'ip'             =>  $_SERVER["REMOTE_ADDR"] ,
-            'create_at'      =>  date('Y-m-d H:i:s')
-        ]);
-        if(Roleauth::where('id','=',$data['id'])->update($data)){
-          
-            return response()->json(['code'=>200,'msg'=>'更改成功']); 
-        }else{
-            return response()->json(['code'=>200,'msg'=>'更改成功']); 
+        $auths_id = Authrules::where(['is_del'=>1,'is_show'=>1,'is_forbid'=>1])->pluck('id')->toarray();
+        $auth_id = explode(',', $data['auth_id']);
+        foreach ($auth_id as $v) {
+            if(in_array($v,$auths_id)){
+                $arr[]= $v;
+            }
         }
-
+        try {  //5.15  
+            DB::beginTransaction();
+            $RoleauthArr = Roleauth::where('id',$data['id'])->first();
+            if($RoleauthArr['is_super'] == 1){   
+                if($admin['school_status'] ==1 ){
+                   //总校超级   //判断是否为总校超管，如果删除权限判断分校超管是否在使用，如果存在就不能删除，如果强删联系技术
+                    $fen_role_auth_arr = Roleauth::where(['is_del'=>1,'is_super'=>1])->where('school_id','!=',$school_id)->select('auth_id')->get();
+                    foreach ($fen_role_auth_arr as $k => $v) {
+                        $fen_roles_id = explode(",", $v['auth_id']); 
+                        $new_arr = array_diff($fen_roles_id,$arr);
+                        foreach ($new_arr as $vv) {
+                            if(in_array($vv,$fen_roles_id)){
+                                  return response()->json(['code'=>422,'msg'=>'分校正在使用不能修改']);
+                            }
+                        }
+                    }
+                }
+            }
+            AdminLog::insertAdminLog([
+                'admin_id'       =>   CurrentAdmin::user()['id'] ,
+                'module_name'    =>  'Role' ,
+                'route_url'      =>  'admin/role/doRoleAuthUpdate' , 
+                'operate_method' =>  'update' ,
+                'content'        =>  json_encode($data),
+                'ip'             =>  $_SERVER["REMOTE_ADDR"] ,
+                'create_at'      =>  date('Y-m-d H:i:s')
+            ]);
+            $data['update_time'] = date('Y-m-d H:i:s');
+            if(Roleauth::where('id','=',$data['id'])->update($data)){
+                return response()->json(['code'=>200,'msg'=>'更改成功']); 
+            }else{
+                return response()->json(['code'=>200,'msg'=>'更改成功']); 
+            }
+            DB::commit();
+        } catch (Exception $e) {
+            DB::rollBack();
+            return response()->json(['code'=>500,'msg'=>$e->getMessage()]);
+        }
     }   
 
 
