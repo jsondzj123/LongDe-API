@@ -79,7 +79,7 @@ class Exam extends Model {
         //判断添加的是否为材料题
         if($body['type'] < 7){
             //判断是否为(1单选题2多选题3不定项)
-            if(in_array($body['type'] , [1,2,3]) && (!isset($body['option_list']) || empty($body['option_list']))){
+            if(in_array($body['type'] , [1,2,3,5]) && (!isset($body['option_list']) || empty($body['option_list']))){
                 return ['code' => 201 , 'msg' => '试题选项为空'];
             }
             
@@ -246,7 +246,7 @@ class Exam extends Model {
         //判断此试题是哪种类型的[试题类型(1代表单选题2代表多选题3代表不定项4代表判断题5填空题6简答题7材料题)]
         if(in_array($exam_info['type'] , [1,2,3,4,5,6])){
             //判断是否为(1单选题2多选题3不定项)
-            if(in_array($exam_info['type'] , [1,2,3]) && (!isset($body['option_list']) || empty($body['option_list']))){
+            if(in_array($exam_info['type'] , [1,2,3,5]) && (!isset($body['option_list']) || empty($body['option_list']))){
                 return ['code' => 201 , 'msg' => '试题选项为空'];
             }
             
@@ -302,8 +302,8 @@ class Exam extends Model {
         //根据试题的id更新试题内容
         $exam_info = self::where("id" , $body['exam_id'])->update($exam_arr);
         if($exam_info && !empty($exam_info)){
-            //判断是否为(1单选题2多选题3不定项)
-            if(in_array($exam_info['type'] , [1,2,3]) && !empty($body['option_list'])){
+            //判断是否为(1单选题2多选题3不定项5填空题)
+            if(in_array($exam_info['type'] , [1,2,3,5]) && !empty($body['option_list'])){
                 //更新试题的id更新试题选项
                 ExamOption::where("exam_id" , $body['exam_id'])->update(['option_content' => json_encode($body['option_list']) , 'update_at' => date('Y-m-d H:i:s')]);
             }
@@ -821,8 +821,8 @@ class Exam extends Model {
             //试题选项空数组赋值
             $option_list = [];
 
-            //判断试题类型是单选题或多选题或不定项
-            if(in_array($exam_type , [1,2,3])){
+            //判断试题类型是单选题或多选题或不定项或填空题
+            if(in_array($exam_type , [1,2,3,5])){
                 //选项对应索引值
                 $option_index = [3=>'A',4=>'B',5=>'C',6=>'D',7=>'E',8=>'F',9=>'G',10=>'H'];
 
@@ -833,20 +833,29 @@ class Exam extends Model {
                         $option_list[] = [
                             'option_no'    => $option_index[$i] ,
                             'option_name'  => $v[$i]  ,
-                            'correct_flag' => strpos($v[2] , $option_index[$i]) !== false ? 1 : 0
+                            'correct_flag' => $exam_type == 5 ? 1 : strpos($v[2] , $option_index[$i]) !== false ? 1 : 0
                         ];
                     }
                 }
             }
 
-            //根据章的名称获取章的信息
-            $chapter_info  = Chapters::where("name" , trim($v[13]))->where("type" , 0)->first();
-
-            //根据节的名称获取节的信息
-            $joint_info    = Chapters::where("name" , trim($v[14]))->where("type" , 1)->first();
-
-            //根据考点的名称获取考点的信息
-            $point_info    = Chapters::where("name" , trim($v[15]))->where("type" , 2)->first();
+            //判断excel表格中章的信息是否为空
+            if($v[13] && !empty($v[13])){
+                //根据章的名称获取章的信息
+                $chapter_info  = Chapters::where("name" , trim($v[13]))->where("type" , 0)->first();
+            }
+            
+            //判断excel表格中节的信息是否为空
+            if($v[14] && !empty($v[14])){
+                //根据节的名称获取节的信息
+                $joint_info    = Chapters::where("name" , trim($v[14]))->where("type" , 1)->first();
+            }
+            
+            //判断excel表格中考点的信息是否为空
+            if($v[15] && !empty($v[15])){
+                //根据考点的名称获取考点的信息
+                $point_info    = Chapters::where("name" , trim($v[15]))->where("type" , 2)->first();
+            }
             
             //判断是否执行插入操作
             if($is_insert > 0){
@@ -867,7 +876,7 @@ class Exam extends Model {
                 ]);
 
                 //判断是否插入成功试题
-                if($exam_id > 0 && in_array($exam_type , [1,2,3])){
+                if($exam_id > 0 && in_array($exam_type , [1,2,3,5])){
                     //试题选项插入
                     ExamOption::insertGetId([
                         'admin_id'       =>  $admin_id ,                                           //后端的操作员id
