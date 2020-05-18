@@ -50,12 +50,12 @@ class LessonController extends Controller {
                         $query->where("admin_id",$user->id);
                     }
                 });
-                ->whereHas('schools', function ($query) use ($auth)
-                    {
-                        if($auth == 2){
-                            $query->where('school_id', $user->school_id);
-                        }
-                    });
+                // ->whereHas('schools', function ($query) use ($auth)
+                //     {
+                //         if($auth == 2){
+                //             $query->where('school_id', $user->school_id);
+                //         }
+                //     });
         $total = $data->count();
         $lesson = $data->orderBy('status', 'desc')->skip($currentCount)->take($count)->get();
         $data = [
