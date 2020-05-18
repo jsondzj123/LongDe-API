@@ -37,7 +37,8 @@ class CreateLiveChildsTable extends Migration
             $table->integer('watch_num')->nullable()->default(0)->comment('观看人数');
             $table->integer('like_num')->nullable()->default(0)->comment('点赞人数');
             $table->integer('online_num')->nullable()->default(0)->comment('在线人数');
-            
+                
+            $table->integer('is_free')->nullable()->default(0)->comment('是否收费：0否1是');
             $table->integer('isPublic')->nullable()->default(0)->comment('是否公开课：0否1是');
             $table->integer('modetype')->nullable()->default(0)->comment('模式：1语音云3大班5小班6大班互动');
             $table->integer('barrage')->nullable()->default(0)->comment('是否开启弹幕：0关闭1开启');

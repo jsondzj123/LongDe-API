@@ -14,6 +14,38 @@ use App\Models\LiveTeacher;
 class LiveChildController extends Controller {
 
 
+     /**
+     * @param  课次列表
+     * @param  current_count   count
+     * @param  author  孙晓丽
+     * @param  ctime   2020/5/18 
+     * @return  array
+     */
+    public function index(Request $request){
+        $currentCount = $request->input('current_count') ?: 0;
+        $count = $request->input('count') ?: 15;
+        $live_id = $request->input('live_id');
+        $total = LiveChild::where([
+                'is_del' => 0,
+                'is_forbid' => 0,
+                'live_id' => $live_id,
+            ])->count();
+        $lesson = LiveChild::select('id', 'course_name', 'start_time', 'modetype')
+            ->where([
+                'is_del' => 0, 
+                'is_forbid' => 0, 
+                'live_id' => $live_id
+            ])
+            ->skip($currentCount)->take($count)
+            ->get();
+    
+        $data = [
+            'page_data' => $lesson,
+            'total' => $total,
+        ];
+        return $this->response($data);
+    }
+
     /**
      * 添加课次.
      *
@@ -89,57 +121,6 @@ class LiveChildController extends Controller {
     }
 
 
-    /**
-     * 直播批量关联课程.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function lesson($id, Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'lesson_id' => 'required|json',
-        ]);
-        if ($validator->fails()) {
-            return $this->response($validator->errors()->first(), 422);
-        }
-        $user = CurrentAdmin::user();
-        $lessonIds = json_decode($request->input('lesson_id'), true);
-        $live = Live::find($id);
-        try {
-                if(!empty($lessonIds)){
-                    $live->lessons()->attach($lessonIds); 
-                }
-        } catch (Exception $e) {
-            Log::error('创建失败:'.$e->getMessage());
-            return $this->response($e->getMessage(), 500);
-        }
-        return $this->response('创建成功');
-    }
-
-
-    /**
-     * 修改直播资源
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request) {
-        $user = CurrentAdmin::user();
-        $live = new Live();
-        $live->admin_id = $user->id;
-        $live->subject_id = $request->input('subject_id') ?: $live->subject_id;
-        $live->name = $request->input('name') ?: $live->name;
-        $live->description = $request->input('description') ?: $live->description;
-        try {
-            $live->save();
-            return $this->response("修改成功");
-        } catch (Exception $e) {
-            Log::error('修改课程信息失败' . $e->getMessage());
-            return $this->response("修改成功");
-        }
-    }
 
 
     /**
@@ -168,8 +149,8 @@ class LiveChildController extends Controller {
      * @return \Illuminate\Http\Response
      */
     public function destroy($id) {
-        $live = Live::findOrFail($id);
-        $live->id_del = 1;
+        $live = LiveChild::findOrFail($id);
+        $live->is_del = 1;
         if (!$live->save()) {
             return $this->response("删除失败", 500);
         }
