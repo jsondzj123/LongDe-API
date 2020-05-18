@@ -4,6 +4,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\AdminLog;
 use App\Models\Exam;
+use App\Models\Bank;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redis;
 
 class QuestionSubject extends Model {
@@ -250,7 +252,7 @@ class QuestionSubject extends Model {
      * @param  descriptsion    根据题库科目id批量更新题库id
      * @param  参数说明         body包含以下参数[
      *      bank_id       题库id
-     *      subject_ids   科目id[1,2,3,4]
+     *      subject_list  科目[科目1,科目2,科目3,科目4]
      * ]
      * @param  author          dzj
      * @param  ctime           2020-04-29
@@ -267,35 +269,35 @@ class QuestionSubject extends Model {
             return ['code' => 202 , 'msg' => '题库id不合法'];
         }
 
-        //判断题库科目id是否合法
-        if(!isset($body['subject_ids']) || empty($body['subject_ids'])){
-            return ['code' => 202 , 'msg' => '题库科目id不合法'];
-        }
-        
-        //key赋值
-        $key = 'subject:updateBankIds:'.$body['subject_ids'];
-
-        //判断此试题科目是否被请求过一次(防止重复请求,且数据信息不存在)
-        if(Redis::get($key)){
-            return ['code' => 204 , 'msg' => '此科目不存在'];
-        } else {
-            //题库科目id赋值
-            $subject_ids = explode(',',$body['subject_ids']);
-        
-            //判断此科目在科目表中是否存在
-            $subject_count = self::whereIn('id',$subject_ids)->count();
-            if($subject_count <= 0){
-                //存储科目的id值并且保存60s
-                Redis::setex($key , 60 , $body['subject_id']);
-                return ['code' => 204 , 'msg' => '此科目不存在'];
-            }
+        //判断题库科目是否合法
+        if(!isset($body['subject_list']) || empty($body['subject_list']) || !is_array($body['subject_list'])){
+            return ['code' => 202 , 'msg' => '题库科目为空'];
         }
         
         //获取后端的操作员id
         $admin_id = isset(AdminLog::getAdminInfo()->admin_user->id) ? AdminLog::getAdminInfo()->admin_user->id : 0;
+        
+        //开启事务
+        DB::beginTransaction();
+        
+        //循环科目入库
+        foreach($body['subject_list'] as $k=>$v){
+            //插入科目操作
+            $insert_subject = self::insertGetId([
+                'admin_id'     =>  $admin_id ,
+                'bank_id'      =>  $body['bank_id'] ,
+                'subject_name' =>  $v['name'] ,
+                'create_at'    =>  date('Y-m-d H:i:s')
+            ]);
+        }
 
         //更新科目信息
-        if(false !== self::whereIn('id',$subject_ids)->update(['bank_id' => $body['bank_id'] , 'update_at' => date('Y-m-d H:i:s')])){
+        if(false !== $insert_subject){
+            //根据题库id更新所属科目id
+            $subject_id_array = self::where("bank_id" , $body['bank_id'])->get()->toArray();
+            $subject_ids      = implode(',' , array_column($subject_id_array , 'id'));
+            Bank::where('id' , $body['bank_id'])->update(['subject_id' => $subject_ids]);
+            
             //添加日志操作
             AdminLog::insertAdminLog([
                 'admin_id'       =>   $admin_id  ,
@@ -306,8 +308,12 @@ class QuestionSubject extends Model {
                 'ip'             =>  $_SERVER["REMOTE_ADDR"] ,
                 'create_at'      =>  date('Y-m-d H:i:s')
             ]);
+            //事务提交
+            DB::commit();
             return true;
         } else {
+            //事务回滚
+            DB::rollBack();
             return false;
         }
     }
