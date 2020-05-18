@@ -31,6 +31,8 @@ class Order extends Model {
             $school_id = isset(AdminLog::getAdminInfo()->admin_user->school_id) ? AdminLog::getAdminInfo()->admin_user->school_id : 0;
             $data['school_id'] = $school_id;
         }
+        $state_time = !empty($data['state_time'])?$data['state_time']:"1999-01-01 12:12:12";
+        $end_time = !empty($data['end_time'])?$data['end_time']:"2999-01-01 12:12:12";
         $data['num'] = empty($data['num'])?20:$data['num'];
         $order = self::select('ld_order.id','ld_order.order_number','ld_order.order_type','ld_order.price','ld_order.pay_status','ld_order.pay_type','ld_order.status','ld_order.create_at','ld_order.oa_status','ld_order.student_id','ld_student.phone','ld_student.real_name')
             ->leftJoin('ld_student','ld_student.id','=','ld_order.student_id')
@@ -44,10 +46,8 @@ class Order extends Model {
                 if(isset($data['order_number'])&& !empty($data['order_number'])){
                     $query->where('ld_order.order_number',$data['order_number']);
                 }
-                if($state_time = (!empty($data['state_time'])?$data['state_time']:"1999-01-01 12:12:12") && $end_time = (!empty($data['end_time'])?$data['end_time']:"2999-01-01 12:12:12")){
-                    $query->whereBetween('ld_order.create_at', [$state_time, $end_time]);
-                }
             })
+            ->whereBetween('ld_order.create_at', [$state_time, $end_time])
             ->orderByDesc('ld_order.id')
             ->paginate($data['num']);
         return $order;
