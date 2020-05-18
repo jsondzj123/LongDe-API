@@ -81,6 +81,23 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use (
     $router->get('lessonChild/{id}/delete', 'LessonChildController@destroy');
 
     /*
+     * 分校课程
+    */
+    $router->get('lessonSchool', 'LessonSchoolController@index');
+    $router->get('lessonSchool/{id}', 'LessonSchoolController@show');
+    $router->post('lessonSchool', 'LessonSchoolController@store');
+    $router->post('lessonSchool/{id}/update', 'LessonSchoolController@update');
+    $router->get('lessonSchool/{id}/delete', 'LessonSchoolController@destroy');
+
+
+    /*
+     * 库存
+    */
+    $router->get('lessonStock', 'LessonStockController@index');
+    $router->post('lessonStock', 'LessonStockController@store');
+
+
+    /*
      * 科目模块
     */
     $router->get('subject', 'SubjectController@index');

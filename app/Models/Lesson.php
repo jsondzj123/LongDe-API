@@ -53,4 +53,8 @@ class Lesson extends Model {
     public function subjects() {
         return $this->belongsToMany('App\Models\Subject', 'subject_lessons');
     }
+
+    public function schools() {
+        return $this->belongsTo('App\Models\LessonSchool');
+    }
 }
