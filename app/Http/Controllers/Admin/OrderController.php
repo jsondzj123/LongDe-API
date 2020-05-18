@@ -2,6 +2,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\AdminLog;
 use App\Models\Order;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
@@ -83,9 +84,7 @@ class OrderController extends Controller {
          * return  array
          */
     public function ExcelExport(){
-//        $list = Order::getList(self::$accept_data);download
-//        $list = Order::get()->toArray();
-        return Excel::download(new \App\Exports\ExamExport, 'ceshi.xlsx');
+            return Excel::download(new \App\Exports\OrderExport(self::$accept_data), 'order.xlsx');
     }
 
 
