@@ -33,18 +33,18 @@ class CreateLiveChildsTable extends Migration
             $table->string('user_key')->nullable()->comment('回放地址');
             $table->integer('add_time')->nullable()->comment('课程创建时间');
 
-            $table->integer('watch_num')->default(0)->comment('观看人数');
-            $table->integer('like_num')->default(0)->comment('点赞人数');
-            $table->integer('online_num')->default(0)->comment('在线人数');
+            $table->integer('watch_num')->nullable()->default(0)->comment('观看人数');
+            $table->integer('like_num')->nullable()->default(0)->comment('点赞人数');
+            $table->integer('online_num')->nullable()->default(0)->comment('在线人数');
             
-            $table->integer('isPublic')->default(0)->comment('是否公开课：0否1是');
-            $table->integer('modetype')->default(0)->comment('模式：1语音云3大班5小班6大班互动');
-            $table->integer('barrage')->default(0)->comment('是否开启弹幕：0关闭1开启');
+            $table->integer('isPublic')->nullable()->default(0)->comment('是否公开课：0否1是');
+            $table->integer('modetype')->nullable()->default(0)->comment('模式：1语音云3大班5小班6大班互动');
+            $table->integer('barrage')->nullable()->default(0)->comment('是否开启弹幕：0关闭1开启');
             $table->string('robot')->nullable()->comment('虚拟用户数据');
 
-            $table->integer('status')->default(0)->comment('直播状态');
-            $table->integer('is_del')->default(0)->comment('是否删除：0否1是');
-            $table->integer('is_forbid')->default(0)->comment('是否禁用：0否1是');
+            $table->integer('status')->nullable()->default(0)->comment('直播状态');
+            $table->integer('is_del')->nullable()->default(0)->comment('是否删除：0否1是');
+            $table->integer('is_forbid')->nullable()->default(0)->comment('是否禁用：0否1是');
             $table->timestamps();
         });
     }

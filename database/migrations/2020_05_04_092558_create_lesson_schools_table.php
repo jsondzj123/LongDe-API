@@ -15,8 +15,9 @@ class CreateLessonSchoolsTable extends Migration
     {
         Schema::create('lesson_schools', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer('admin_id')->default(0)->comment('操作员ID');
-            $table->integer('lesson_id')->default(0)->comment('课程ID');
+            $table->integer('admin_id')->unsigned()->comment('操作员ID');
+            $table->integer('lesson_id')->unsigned()->comment('课程ID');
+            $table->integer('school_id')->unsigned()->comment('分校ID');
             $table->string('title')->comment('课程表题');
             $table->string('keyword')->comment('关键词');
             $table->string('cover')->comment('封面');
@@ -25,10 +26,10 @@ class CreateLessonSchoolsTable extends Migration
             $table->string('url')->comment('课程资料');
             $table->float('price', 12, 2)->comment('定价');
             $table->float('favorable_price', 12, 2)->comment('优惠价');
-            $table->integer('is_public')->default(0)->comment('是否公开:0否1是');
-            $table->integer('status')->default(0)->comment('课程状态:0未上架1已上架');
-            $table->integer('is_del')->default(0)->comment('是否删除：0否1是');
-            $table->integer('is_forbid')->default(0)->comment('是否禁用：0否1是');
+            $table->integer('is_public')->nullable()->default(0)->comment('是否公开:0否1是');
+            $table->integer('status')->nullable()->default(0)->comment('课程状态:0未上架1已上架');
+            $table->integer('is_del')->nullable()->default(0)->comment('是否删除：0否1是');
+            $table->integer('is_forbid')->nullable()->default(0)->comment('是否禁用：0否1是');
             $table->timestamps();
         });
     }
