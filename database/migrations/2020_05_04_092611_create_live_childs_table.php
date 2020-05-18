@@ -15,7 +15,8 @@ class CreateLiveChildsTable extends Migration
     {
         Schema::create('live_childs', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer('admin_id')->default(0)->comment('操作员ID');
+            $table->integer('live_id')->unsigned()->comment('直播ID');
+            $table->integer('admin_id')->unsigned()->comment('操作员ID');
             $table->string('course_name')->comment('课程名称');
             $table->integer('account')->comment('接入方主播账号或ID或手机号');
             $table->timestamp('start_time')->nullable()->comment('开始时间');
