@@ -126,6 +126,7 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use (
     $router->post('live/{id}/update', 'LiveController@update');
     $router->get('live/{id}/delete', 'LiveController@destroy');
     $router->get('live/{id}/edit', 'LiveController@edit');
+    $router->post('live/{id}/lesson', 'LiveController@lesson');
 
     //用户学员相关模块(dzj)
     $router->group(['prefix' => 'student' , 'middleware'=> ['jwt.auth']], function () use ($router) {

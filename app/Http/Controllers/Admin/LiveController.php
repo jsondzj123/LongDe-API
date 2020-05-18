@@ -8,14 +8,15 @@ use Illuminate\Http\Request;
 use  App\Tools\CurrentAdmin;
 use Validator;
 use App\Tools\MTCloud;
+use App\Models\LessonLive;
 
 class LiveController extends Controller {
 
     /*
-     * @param  录播列表
+     * @param  直播列表
      * @param  current_count   count
      * @param  author  孙晓丽
-     * @param  ctime   2020/5/1 
+     * @param  ctime   2020/5/18 
      * return  array
      */
     public function index(Request $request){
@@ -23,7 +24,7 @@ class LiveController extends Controller {
         $count = $request->input('count') ?: 15;
         $total = Live::where(['is_del'=> 0, 'is_forbid' => 0])->count();
         $live = Live::where(['is_del'=> 0, 'is_forbid' => 0])
-            ->orderBy('id', 'desc')
+            ->orderBy('created_at', 'desc')
             ->skip($currentCount)->take($count)
             ->get();
         foreach ($live as $value) {
@@ -38,10 +39,10 @@ class LiveController extends Controller {
 
 
     /*
-     * @param  录播详情
-     * @param  录播id
+     * @param  直播详情
+     * @param  直播id
      * @param  author  孙晓丽
-     * @param  ctime   2020/5/1 
+     * @param  ctime   2020/5/18 
      * return  array
      */
     public function show($id) {
@@ -51,7 +52,7 @@ class LiveController extends Controller {
 
 
     /**
-     * 添加资源.
+     * 添加直播资源.
      *
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
@@ -82,8 +83,38 @@ class LiveController extends Controller {
         return $this->response('创建成功');
     }
 
+
     /**
-     * Update the specified resource in storage.
+     * 直播批量关联课程.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function lesson($id, Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'lesson_id' => 'required|json',
+        ]);
+        if ($validator->fails()) {
+            return $this->response($validator->errors()->first(), 422);
+        }
+        $user = CurrentAdmin::user();
+        $lessonIds = json_decode($request->input('lesson_id'), true);
+        $live = Live::find($id);
+        try {
+                if(!empty($lessonIds)){
+                    $live->lessons()->attach($lessonIds); 
+                }
+        } catch (Exception $e) {
+            Log::error('创建失败:'.$e->getMessage());
+            return $this->response($e->getMessage(), 500);
+        }
+        return $this->response('创建成功');
+    }
+
+
+    /**
+     * 修改直播资源
      *
      * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
