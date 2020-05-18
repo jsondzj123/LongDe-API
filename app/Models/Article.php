@@ -22,7 +22,7 @@ class Article extends Model {
     public static function getArticleList($data){
         //获取用户网校id
         $data['num'] = isset($data['num'])?$data['num']:20;
-        $list = self::select('ld_article.id','ld_article.title','ld_article.create_at','ld_school.name','ld_article_type.typename','ld_admin.username')
+        $list = self::select('ld_article.id','ld_article.title','ld_article.create_at','ld_article.status','ld_school.name','ld_article_type.typename','ld_admin.username')
             ->leftJoin('ld_school','ld_school.id','=','ld_article.school_id')
             ->leftJoin('ld_article_type','ld_article_type.id','=','ld_article.article_type_id')
             ->leftJoin('ld_admin','ld_admin.id','=','ld_article.user_id')
