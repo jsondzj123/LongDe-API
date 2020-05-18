@@ -62,7 +62,7 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use (
     });
 
     /*
-     * 课程模块
+     * 课程模块(sxl)
     */
     $router->get('lesson', 'LessonController@index');
     $router->get('lesson/{id}', 'LessonController@show');
@@ -72,7 +72,7 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use (
     $router->get('lesson/{id}/delete', 'LessonController@destroy');
 
     /*
-     * 章节模块
+     * 章节模块(sxl)
     */
     $router->get('lessonChild', 'LessonChildController@index');
     $router->get('lessonChild/{id}', 'LessonChildController@show');
@@ -81,7 +81,7 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use (
     $router->get('lessonChild/{id}/delete', 'LessonChildController@destroy');
 
     /*
-     * 分校课程
+     * 分校课程(sxl)
     */
     $router->get('lessonSchool', 'LessonSchoolController@index');
     $router->get('lessonSchool/{id}', 'LessonSchoolController@show');
@@ -91,14 +91,14 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use (
 
 
     /*
-     * 库存
+     * 库存(sxl)
     */
     $router->get('lessonStock', 'LessonStockController@index');
     $router->post('lessonStock', 'LessonStockController@store');
 
 
     /*
-     * 科目模块
+     * 科目模块(sxl)
     */
     $router->get('subject', 'SubjectController@index');
     $router->get('subject/{id}', 'SubjectController@show');
@@ -107,7 +107,7 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use (
     $router->get('subject/{id}/delete', 'SubjectController@destroy');
 
     /*
-     * 录播模块
+     * 录播模块(sxl)
     */
     $router->get('video', 'VideoController@index');
     $router->get('video/{id}', 'VideoController@show');
@@ -118,7 +118,7 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use (
 
 
     /*
-     * 直播模块
+     * 直播模块(sxl)
     */
     $router->get('live', 'LiveController@index');
     $router->get('live/{id}', 'LiveController@show');
