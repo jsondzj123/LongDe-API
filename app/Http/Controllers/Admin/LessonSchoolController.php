@@ -73,13 +73,13 @@ class LessonSchoolController extends Controller {
         $lessonIds = json_decode($request->input('lesson_id'), true);
 
         try {
-                //foreach ($lessonIds as $value) {
+                foreach ($lessonIds as $value) {
                     LessonSchool::create([
                         'admin_id' => intval($user->id),
-                        'lesson_id' => 5,
+                        'lesson_id' => $value,
                         'school_id' => $request->input('school_id'),
                     ]);
-                //}
+                }
             
         } catch (Exception $e) {
             Log::error('创建失败:'.$e->getMessage());
