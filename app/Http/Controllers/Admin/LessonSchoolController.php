@@ -69,9 +69,7 @@ class LessonSchoolController extends Controller {
             return $this->response($validator->errors()->first(), 422);
         }
         $user = CurrentAdmin::user();
-
         $lessonIds = json_decode($request->input('lesson_id'), true);
-
         try {
                 foreach ($lessonIds as $value) {
                     LessonSchool::create([
@@ -80,7 +78,6 @@ class LessonSchoolController extends Controller {
                         'school_id' => $request->input('school_id'),
                     ]);
                 }
-            
         } catch (Exception $e) {
             Log::error('创建失败:'.$e->getMessage());
             return $this->response($e->getMessage(), 500);
