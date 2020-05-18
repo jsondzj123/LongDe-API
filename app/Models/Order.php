@@ -24,24 +24,31 @@ class Order extends Model {
          * return  array
          */
     public static function getList($data){
+        //用户权限
+        $role_id = isset(AdminLog::getAdminInfo()->admin_user->role_id) ? AdminLog::getAdminInfo()->admin_user->role_id : 0;
+        //如果不是总校管理员，只能查询当前关联的网校订单
+        if($role_id != 1){
+            $school_id = isset(AdminLog::getAdminInfo()->admin_user->school_id) ? AdminLog::getAdminInfo()->admin_user->school_id : 0;
+            $data['school_id'] = $school_id;
+        }
         $data['num'] = empty($data['num'])?20:$data['num'];
-        $statetime = (!empty($data['state_time']))?$data['state_time']:"1999-01-01 12:12:12";
-        $endtime = (!empty($data['end_time']))?$data['end_time']:"2999-01-01 12:12:12";
         $order = self::select('ld_order.id','ld_order.order_number','ld_order.order_type','ld_order.price','ld_order.pay_status','ld_order.pay_type','ld_order.status','ld_order.create_at','ld_order.oa_status','ld_order.student_id','ld_student.phone','ld_student.real_name')
             ->leftJoin('ld_student','ld_student.id','=','ld_order.student_id')
             ->where(function($query) use ($data) {
-                if(isset($data['school_id'])){
+                if(isset($data['school_id']) && !empty($data['school_id'])){
                     $query->where('ld_student.school_id',$data['school_id']);
                 }
-                if(isset($data['status'])){
+                if(isset($data['status'])&& !empty($data['status'])){
                     $query->where('ld_order.status',$data['status']);
                 }
-                if(isset($data['order_number'])){
+                if(isset($data['order_number'])&& !empty($data['order_number'])){
                     $query->where('ld_order.order_number',$data['order_number']);
                 }
+                if((!empty($data['state_time'])?$data['state_time']:"1999-01-01 12:12:12") && (!empty($data['end_time'])?$data['end_time']:"2999-01-01 12:12:12")){
+                    $query->whereBetween('ld_order.create_at', [$data['state_time'], $data['end_time']]);
+                }
             })
-            ->whereBetween('ld_order.create_at', [$statetime, $endtime])
-            ->orderBy('ld_order.id','desc')
+            ->orderByDesc('ld_order.id')
             ->paginate($data['num']);
         return $order;
     }
@@ -89,6 +96,8 @@ class Order extends Model {
         }
         //获取后端的操作员id
         $data['admin_id'] = isset(AdminLog::getAdminInfo()->admin_user->id) ? AdminLog::getAdminInfo()->admin_user->id : 0;  //操作员id
+        //根据用户id获得分校id
+        $school = Student::select('school_id')->where('id',$arr['student_id'])->first();
         $data['order_number'] = date('YmdHis', time()) . rand(1111, 9999); //订单号  随机生成
         $data['order_type'] = 1;        //1线下支付 2 线上支付
         $data['student_id'] = $arr['student_id'];
@@ -100,6 +109,7 @@ class Order extends Model {
         $data['pay_time'] = $arr['payment_time'];
         $data['oa_status'] = 0;              //OA状态
         $data['class_id'] = $arr['lession_id'];
+        $data['school_id'] = $school['school_id'];
         $add = self::insert($data);
         if($add){
             //添加日志操作
