@@ -11,7 +11,7 @@ use Validator;
 class LessonSchoolController extends Controller {
 
     /**
-     * @param  分校课程列表
+     * @param  分校授权课程列表
      * @param  current_count   count
      * @param  author  孙晓丽
      * @param  ctime   2020/5/1 
@@ -20,11 +20,10 @@ class LessonSchoolController extends Controller {
     public function index(Request $request){
         $currentCount = $request->input('current_count') ?: 0;
         $count = $request->input('count') ?: 15;
-        $subject_id = $request->input('subject_id') ?: [];
-        //$subjectIds = json_decode($subject_id, true);
-        $total = LessonSchool::count();
-        $lesson = LessonSchool::with('lesson')
-                ->orderBy('status', 'desc')
+        $school_id = $request->input('school_id');
+        $total = LessonSchool::where('school_id', $school_id)->count();
+        $lesson = LessonSchool::where('school_id', $school_id)
+                ->orderBy('created_at', 'desc')
                 ->skip($currentCount)->take($count)
                 ->get();
 
