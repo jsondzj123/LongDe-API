@@ -52,14 +52,14 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use (
 });
 //后端登录权限认证相关接口
 $router->group(['prefix' => 'admin' , 'namespace' => 'Admin' , 'middleware'=> ['jwt.auth','api']], function () use ($router) {
-    $router->group(['prefix' => 'admin', 'middleware'=> ['jwt.auth']], function () use ($router) {
+    /*$router->group(['prefix' => 'admin', 'middleware'=> ['jwt.auth']], function () use ($router) {
         //用户详情
         $router->get('{id}', 'AdminController@show');
         $router->post('info', 'AdminController@info');
 
         //获取学员列表
-        //$router->get('getUserList', 'UserController@getUserList');
-    });
+        $router->get('getUserList', 'UserController@getUserList');
+    });*/
 
     /*
      * 课程模块(sxl)
