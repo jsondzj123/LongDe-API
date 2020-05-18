@@ -44,25 +44,25 @@ $router->group(['prefix' => 'web'], function () use ($router) {
 });
 
 //后台端路由接口
-
+/*****************start**********************/
+//后端登录注册接口
 $router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use ($router) {
-
-    //后台管理系统接口(sxl)
     $router->post('register', 'AuthenticateController@register');
     $router->post('login', 'AuthenticateController@postLogin');
-
-
-    $router->group(['prefix' => 'admin', 'middleware'=> ['jwt.auth']], function () use ($router) {
+});
+//后端登录权限认证相关接口
+$router->group(['prefix' => 'admin' , 'namespace' => 'Admin' , 'middleware'=> ['jwt.auth','api']], function () use ($router) {
+    /*$router->group(['prefix' => 'admin', 'middleware'=> ['jwt.auth']], function () use ($router) {
         //用户详情
         $router->get('{id}', 'AdminController@show');
         $router->post('info', 'AdminController@info');
 
         //获取学员列表
-        //$router->get('getUserList', 'UserController@getUserList');
-    });
+        $router->get('getUserList', 'UserController@getUserList');
+    });*/
 
     /*
-     * 课程模块
+     * 课程模块(sxl)
     */
     $router->get('lesson', 'LessonController@index');
     $router->get('lesson/{id}', 'LessonController@show');
@@ -72,7 +72,7 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use (
     $router->get('lesson/{id}/delete', 'LessonController@destroy');
 
     /*
-     * 章节模块
+     * 章节模块(sxl)
     */
     $router->get('lessonChild', 'LessonChildController@index');
     $router->get('lessonChild/{id}', 'LessonChildController@show');
@@ -81,7 +81,24 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use (
     $router->get('lessonChild/{id}/delete', 'LessonChildController@destroy');
 
     /*
-     * 科目模块
+     * 分校课程(sxl)
+    */
+    $router->get('lessonSchool', 'LessonSchoolController@index');
+    $router->get('lessonSchool/{id}', 'LessonSchoolController@show');
+    $router->post('lessonSchool', 'LessonSchoolController@store');
+    $router->post('lessonSchool/{id}/update', 'LessonSchoolController@update');
+    $router->get('lessonSchool/{id}/delete', 'LessonSchoolController@destroy');
+
+
+    /*
+     * 库存(sxl)
+    */
+    $router->get('lessonStock', 'LessonStockController@index');
+    $router->post('lessonStock', 'LessonStockController@store');
+
+
+    /*
+     * 科目模块(sxl)
     */
     $router->get('subject', 'SubjectController@index');
     $router->get('subject/{id}', 'SubjectController@show');
@@ -90,7 +107,7 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use (
     $router->get('subject/{id}/delete', 'SubjectController@destroy');
 
     /*
-     * 录播模块
+     * 录播模块(sxl)
     */
     $router->get('video', 'VideoController@index');
     $router->get('video/{id}', 'VideoController@show');
@@ -101,7 +118,7 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use (
 
 
     /*
-     * 直播模块
+     * 直播模块(sxl)
     */
     $router->get('live', 'LiveController@index');
     $router->get('live/{id}', 'LiveController@show');
@@ -191,6 +208,7 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use (
         $router->get('getMaterialList', 'ExamController@getMaterialList');               //查看材料题的方法
         $router->get('getExamCommonList', 'ExamController@getExamCommonList');           //试题公共参数列表
         $router->post('importExam', 'ExamController@doImportExam');                      //导入试题excel功能
+        $router->post('doExamineExcelData', 'ExamController@doExamineExcelData');        //校验excel表格接口
         /****************试题部分  end****************/
 
         $router->get('export', 'CommonController@doExportExamLog'); //导入导出demo
@@ -234,7 +252,7 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use (
     });
     /*begin 系统管理   lys   */
         //系统用户管理模块
-    $router->group(['prefix' => 'adminuser','middleware'=> ['jwt.auth','api'] ], function () use ($router) {
+    $router->group(['prefix' => 'adminuser'], function () use ($router) {
         $router->post('getAdminUserList', 'AdminUserController@getAdminUserList');            //获取后台用户列表方法 √ 5.8
         $router->post('upUserForbidStatus', 'AdminUserController@upUserForbidStatus');        //更改账号状态方法（启用禁用） √√√ +1
         $router->post('upUserDelStatus', 'AdminUserController@upUserDelStatus');              //更改账号状态方法 (删除)  √√√  +1
@@ -246,7 +264,7 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use (
 
     });
         //系统角色管理模块
-    $router->group(['prefix' => 'role','middleware'=> ['jwt.auth']], function () use ($router) {
+    $router->group(['prefix' => 'role'], function () use ($router) {
 
         $router->post('getAuthList', 'RoleController@getAuthList');                           //获取后台角色列表方法    xxx
         $router->post('doRoleDel', 'RoleController@doRoleDel');                                //修改状态码(删除) √   +1
@@ -257,13 +275,13 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use (
     });
     /*end 系统管理  */
 
-    $router->group(['prefix' => 'user','middleware'=> ['jwt.auth','api']], function () use ($router) { //用户学员相关模块方法
+    $router->group(['prefix' => 'user'], function () use ($router) { //用户学员相关模块方法
         $router->get('getUserList', 'UserController@getUserList'); //获取学员列表方法
     });
 
     /*begin 网校系统  lys*/
 
-    $router->group(['prefix' => 'school','middleware'=> ['jwt.auth','api']], function () use ($router) {
+    $router->group(['prefix' => 'school'], function () use ($router) {
         $router->post('getSchoolList', 'SchoolController@getSchoolList');                    //获取网校列表方法 √√√
         $router->post('doSchoolForbid', 'SchoolController@doSchoolForbid');                  //修改学校状态 （禁启)√√
         $router->post('doSchoolDel', 'SchoolController@doSchoolDel');                         //修改学校状态 （删除) √√
@@ -271,11 +289,12 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use (
         $router->post('getSchoolUpdate', 'SchoolController@getSchoolUpdate');                //获取分校信息（编辑）√√
         $router->post('doSchoolUpdate', 'SchoolController@doSchoolUpdate');                  //编辑分校信息  √√   +1
         $router->post('getSchoolAdminById', 'SchoolController@getSchoolAdminById');          //查看分校超级管理角色信息 √√
+        $router->post('doSchoolAdminById', 'SchoolController@doSchoolAdminById');            //编辑分校超级管理角色信息（给分校超管赋权限） √√
         $router->post('getAdminById', 'SchoolController@getAdminById');                      //获取分校超级管理用户信息（编辑） √√
         $router->post('doAdminUpdate', 'SchoolController@doAdminUpdate');                    //编辑分校超级管理用户信息   √√  +1
         $router->post('getSchoolTeacherList', 'SchoolController@getSchoolTeacherList');      //获取分校讲师列表  √√√  5.11
     });
     //end 网校系统     lys
 });
-
+/*****************end**********************/
 

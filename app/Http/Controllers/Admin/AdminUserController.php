@@ -279,22 +279,22 @@ class AdminUserController extends Controller {
         $admin_id  = CurrentAdmin::user()['id'];
         try {
             DB::beginTransaction();
-            if(Adminuser::where(['school_id'=>$data['school_id'],'is_del'=>1])->count() == 1){  //判断该账号是不是分校超管 5.14
-                if(Roleauth::where(['school_id'=>$data['school_id'],'is_del'=>1])->count() <1){
-                    $roleAuthArr = Roleauth::where(['id'=>$data['role_id']])->select('auth_id')->first()->toArray();
-                    $roleAuthArr['role_name'] = '超级管理员';
-                    $roleAuthArr['auth_desc'] = '拥有所有权限';
-                    $roleAuthArr['is_super'] = 1;
-                    $roleAuthArr['school_id'] = $data['school_id'];
-                    $roleAuthArr['admin_id']  = $admin_id;
-                    $role_id = Roleauth::insertGetId($roleAuthArr);
-
-                    if($role_id<=0){
-                         return   response()->json(['code'=>500,'msg'=>'角色创建失败']);
-                    }
-                    $data['role_id'] = $role_id;
-                }
-            }
+            // if(Adminuser::where(['school_id'=>$data['school_id'],'is_del'=>1])->count() == 1){  //判断该账号是不是分校超管 5.14
+            //     if(Roleauth::where(['school_id'=>$data['school_id'],'is_del'=>1])->count() <1){
+            //         $roleAuthArr = Roleauth::where(['id'=>$data['role_id']])->select('auth_id')->first()->toArray();
+            //         $roleAuthArr['role_name'] = '超级管理员';
+            //         $roleAuthArr['auth_desc'] = '拥有所有权限';
+            //         $roleAuthArr['is_super'] = 1;
+            //         $roleAuthArr['school_id'] = $data['school_id'];
+            //         $roleAuthArr['admin_id']  = $admin_id;
+            //         $role_id = Roleauth::insertGetId($roleAuthArr);
+            //         if($role_id<=0){
+            //              return   response()->json(['code'=>500,'msg'=>'角色创建失败']);
+            //         }
+            //         $data['role_id'] = $role_id;
+            //     }
+            // }
+            
             $result = Adminuser::where('id','=',$data['id'])->update($data);
             if($result){
              //添加日志操作
@@ -341,7 +341,4 @@ class AdminUserController extends Controller {
         }
         return ['code'=>200,'msg'=>'success','data'=>$adminRuths['data']];
     }
-
-
-
 }

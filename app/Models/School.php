@@ -42,6 +42,8 @@ class School extends Model {
             'user_id.required' => json_encode(['code'=>'422','msg'=>'用户标识不能为空']),
             'user_id.integer'  => json_encode(['code'=>'422','msg'=>'用户标识类型不合法']),
             'realname.required'=> json_encode(['code'=>'422','msg'=>'联系人不能为空']),
+            'role_id.required' => json_encode(['code'=>'422','msg'=>'角色标识不能为空']),
+            'role_id.integer'  => json_encode(['code'=>'422','msg'=>'角色标识类型不合法']),  
 
         ];
 
