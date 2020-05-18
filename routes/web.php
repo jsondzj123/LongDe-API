@@ -128,7 +128,7 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use (
     $router->get('live/{id}/edit', 'LiveController@edit');
 
     //用户学员相关模块(dzj)
-    $router->group(['prefix' => 'student'], function () use ($router) {
+    $router->group(['prefix' => 'student' , 'middleware'=> ['jwt.auth']], function () use ($router) {
         $router->post('doInsertStudent', 'StudentController@doInsertStudent');        //添加学员的方法
         $router->post('doUpdateStudent', 'StudentController@doUpdateStudent');        //更改学员的方法
         $router->post('doForbidStudent', 'StudentController@doForbidStudent');        //启用/禁用学员的方法
@@ -139,7 +139,7 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use (
     });
 
     //讲师教务相关模块(dzj)
-    $router->group(['prefix' => 'teacher'], function () use ($router) {
+    $router->group(['prefix' => 'teacher' , 'middleware'=> ['jwt.auth']], function () use ($router) {
         $router->post('doInsertTeacher', 'TeacherController@doInsertTeacher');        //添加讲师教务的方法
         $router->post('doUpdateTeacher', 'TeacherController@doUpdateTeacher');        //更改讲师教务的方法
         $router->post('doDeleteTeacher', 'TeacherController@doDeleteTeacher');        //删除讲师教务的方法
@@ -150,7 +150,7 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use (
     });
 
     //题库相关模块(dzj)
-    $router->group(['prefix' => 'question'], function () use ($router) {
+    $router->group(['prefix' => 'question' , 'middleware'=> ['jwt.auth']], function () use ($router) {
         /****************题库科目部分  start****************/
         $router->post('doInsertSubject', 'QuestionController@doInsertSubject');        //添加题库科目的方法
         $router->post('doUpdateSubject', 'QuestionController@doUpdateSubject');        //更改题库科目的方法
