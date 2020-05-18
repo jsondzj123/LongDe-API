@@ -44,8 +44,8 @@ class Order extends Model {
                 if(isset($data['order_number'])&& !empty($data['order_number'])){
                     $query->where('ld_order.order_number',$data['order_number']);
                 }
-                if((!empty($data['state_time'])?$data['state_time']:"1999-01-01 12:12:12") && (!empty($data['end_time'])?$data['end_time']:"2999-01-01 12:12:12")){
-                    $query->whereBetween('ld_order.create_at', [$data['state_time'], $data['end_time']]);
+                if($state_time = (!empty($data['state_time'])?$data['state_time']:"1999-01-01 12:12:12") && $end_time = (!empty($data['end_time'])?$data['end_time']:"2999-01-01 12:12:12")){
+                    $query->whereBetween('ld_order.create_at', [$state_time, $end_time]);
                 }
             })
             ->orderByDesc('ld_order.id')
