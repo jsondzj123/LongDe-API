@@ -128,6 +128,16 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin' , 'middleware'=> ['
     $router->get('live/{id}/edit', 'LiveController@edit');
     $router->post('live/{id}/lesson', 'LiveController@lesson');
 
+    /*
+     * 直播课次模块(sxl)
+    */
+    $router->get('liveChild', 'LiveChildController@index');
+    $router->get('liveChild/{id}', 'LiveChildController@show');
+    $router->post('liveChild', 'LiveChildController@store');
+    $router->post('liveChild/{id}/update', 'LiveChildController@update');
+    $router->get('liveChild/{id}/delete', 'LiveChildController@destroy');
+
+
     //用户学员相关模块(dzj)
     $router->group(['prefix' => 'student'], function () use ($router) {
         $router->post('doInsertStudent', 'StudentController@doInsertStudent');        //添加学员的方法
