@@ -44,14 +44,14 @@ $router->group(['prefix' => 'web'], function () use ($router) {
 });
 
 //后台端路由接口
-
+/*****************start**********************/
+//后端登录注册接口
 $router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use ($router) {
-
-    //后台管理系统接口(sxl)
     $router->post('register', 'AuthenticateController@register');
     $router->post('login', 'AuthenticateController@postLogin');
-
-
+});
+//后端登录权限认证相关接口
+$router->group(['prefix' => 'admin' , 'namespace' => 'Admin' , 'middleware'=> ['jwt.auth','api']], function () use ($router) {
     $router->group(['prefix' => 'admin', 'middleware'=> ['jwt.auth']], function () use ($router) {
         //用户详情
         $router->get('{id}', 'AdminController@show');
@@ -128,7 +128,7 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use (
     $router->get('live/{id}/edit', 'LiveController@edit');
 
     //用户学员相关模块(dzj)
-    $router->group(['prefix' => 'student' , 'middleware'=> ['jwt.auth']], function () use ($router) {
+    $router->group(['prefix' => 'student'], function () use ($router) {
         $router->post('doInsertStudent', 'StudentController@doInsertStudent');        //添加学员的方法
         $router->post('doUpdateStudent', 'StudentController@doUpdateStudent');        //更改学员的方法
         $router->post('doForbidStudent', 'StudentController@doForbidStudent');        //启用/禁用学员的方法
@@ -139,7 +139,7 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use (
     });
 
     //讲师教务相关模块(dzj)
-    $router->group(['prefix' => 'teacher' , 'middleware'=> ['jwt.auth']], function () use ($router) {
+    $router->group(['prefix' => 'teacher'], function () use ($router) {
         $router->post('doInsertTeacher', 'TeacherController@doInsertTeacher');        //添加讲师教务的方法
         $router->post('doUpdateTeacher', 'TeacherController@doUpdateTeacher');        //更改讲师教务的方法
         $router->post('doDeleteTeacher', 'TeacherController@doDeleteTeacher');        //删除讲师教务的方法
@@ -150,7 +150,7 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use (
     });
 
     //题库相关模块(dzj)
-    $router->group(['prefix' => 'question' , 'middleware'=> ['jwt.auth']], function () use ($router) {
+    $router->group(['prefix' => 'question'], function () use ($router) {
         /****************题库科目部分  start****************/
         $router->post('doInsertSubject', 'QuestionController@doInsertSubject');        //添加题库科目的方法
         $router->post('doUpdateSubject', 'QuestionController@doUpdateSubject');        //更改题库科目的方法
@@ -252,7 +252,7 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use (
     });
     /*begin 系统管理   lys   */
         //系统用户管理模块
-    $router->group(['prefix' => 'adminuser','middleware'=> ['jwt.auth','api'] ], function () use ($router) {
+    $router->group(['prefix' => 'adminuser'], function () use ($router) {
         $router->post('getAdminUserList', 'AdminUserController@getAdminUserList');            //获取后台用户列表方法 √ 5.8
         $router->post('upUserForbidStatus', 'AdminUserController@upUserForbidStatus');        //更改账号状态方法（启用禁用） √√√ +1
         $router->post('upUserDelStatus', 'AdminUserController@upUserDelStatus');              //更改账号状态方法 (删除)  √√√  +1
@@ -264,7 +264,7 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use (
 
     });
         //系统角色管理模块
-    $router->group(['prefix' => 'role','middleware'=> ['jwt.auth']], function () use ($router) {
+    $router->group(['prefix' => 'role'], function () use ($router) {
 
         $router->post('getAuthList', 'RoleController@getAuthList');                           //获取后台角色列表方法    xxx
         $router->post('doRoleDel', 'RoleController@doRoleDel');                                //修改状态码(删除) √   +1
@@ -275,13 +275,13 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use (
     });
     /*end 系统管理  */
 
-    $router->group(['prefix' => 'user','middleware'=> ['jwt.auth','api']], function () use ($router) { //用户学员相关模块方法
+    $router->group(['prefix' => 'user'], function () use ($router) { //用户学员相关模块方法
         $router->get('getUserList', 'UserController@getUserList'); //获取学员列表方法
     });
 
     /*begin 网校系统  lys*/
 
-    $router->group(['prefix' => 'school','middleware'=> ['jwt.auth','api']], function () use ($router) {
+    $router->group(['prefix' => 'school'], function () use ($router) {
         $router->post('getSchoolList', 'SchoolController@getSchoolList');                    //获取网校列表方法 √√√
         $router->post('doSchoolForbid', 'SchoolController@doSchoolForbid');                  //修改学校状态 （禁启)√√
         $router->post('doSchoolDel', 'SchoolController@doSchoolDel');                         //修改学校状态 （删除) √√
@@ -296,5 +296,5 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use (
     });
     //end 网校系统     lys
 });
-
+/*****************end**********************/
 
