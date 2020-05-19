@@ -20,9 +20,9 @@ class OrderController extends Controller {
          * return  array
          */
     public function orderList(){
-        $list = Order::getList(self::$accept_data);
-        print_r($list);die;
-        return response()->json(['code' => 200 , 'msg' => '获取成功','data'=>$list]);
+//        $list = Order::getList(self::$accept_data);
+        $where = self::$accept_data;
+        return response()->json(['code' => 200 , 'msg' => '获取成功','data'=>$where]);
     }
     /*
          * @param  查看详情
