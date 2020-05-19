@@ -3,6 +3,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use App\Models\SubjectLesson;
+use App\Tools\CurrentAdmin;
 
 class Lesson extends Model {
 
@@ -32,6 +33,22 @@ class Lesson extends Model {
         'is_del',
         'is_forbid'
     ];
+
+    protected $appends = ['is_auth'];
+
+    public function getIsAuthAttribute($value) {
+        $user = CurrentAdmin::user();
+        $school = LessonSchool::where(['school_id' => $user->school_id, 'lesson_id' => $this->id])->count();
+        if($school > 0){
+            //授权
+            return 2;
+        }
+        if($user->id == $this->admin_id){
+            //自增
+            return  1;
+        }
+        return  0;
+    }
 
     public function getUrlAttribute($value) {
         if ($value) {
