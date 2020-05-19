@@ -62,7 +62,7 @@ class Article extends Model {
         }else{
             $type = Articletype::select('id as lable','typename as value')->where(['school_id'=>$data['school_id'],'status'=>1,'is_del'=>1])->get()->toArray();
         }
-        return ['code' => 200 , 'msg' => '查询成功','data'=>$list,'school'=>$school,'type'=>$type];
+        return ['code' => 200 , 'msg' => '查询成功','data'=>$list,'school'=>$school,'type'=>$type,'where'=>$data];
     }
     /*
          * @param 修改文章状态
