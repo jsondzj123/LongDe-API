@@ -75,12 +75,12 @@ class Article extends Model {
             ->offset($offset)->limit($pagesize)->get();
         //分校列表
         if($data['role_id'] == 1){
-            $school = School::select('id as lable','name as value')->where(['is_forbid'=>1,'is_del'=>1])->get()->toArray();
-            $type = Articletype::select('id as lable','typename as value')->where(['status'=>1,'is_del'=>1])->get()->toArray();
+            $school = School::select('id as value','name as label')->where(['is_forbid'=>1,'is_del'=>1])->get()->toArray();
+            $type = Articletype::select('id as value','typename as label')->where(['status'=>1,'is_del'=>1])->get()->toArray();
         }else{
             $data['school_id'] = $school_id;
-            $school = School::select('id as lable','name as value')->where(['id'=>$data['school_id'],'is_forbid'=>1,'is_del'=>1])->get()->toArray();
-            $type = Articletype::select('id as lable','typename as value')->where(['school_id'=>$data['school_id'],'status'=>1,'is_del'=>1])->get()->toArray();
+            $school = School::select('id as value','name as label')->where(['id'=>$data['school_id'],'is_forbid'=>1,'is_del'=>1])->get()->toArray();
+            $type = Articletype::select('id as value','typename as label')->where(['school_id'=>$data['school_id'],'status'=>1,'is_del'=>1])->get()->toArray();
         }
         $page=[
             'pageSize'=>$pagesize,
