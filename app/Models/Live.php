@@ -27,9 +27,11 @@ class Live extends Model {
     }
 
     public function getIsUseAttribute($value) {
-        $use = LessonLive::where('live_id', $this->id)->count();
-        //dd($use);
-        return  $use;
+        $num = LessonLive::where('live_id', $this->id)->count();
+        if($num > 0){
+            return 1;
+        }
+        return  0;
     }
 
     public function lessons() {

@@ -51,7 +51,7 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use (
     $router->post('login', 'AuthenticateController@postLogin');
 });
 //后端登录权限认证相关接口
-$router->group(['prefix' => 'admin' , 'namespace' => 'Admin' , 'middleware'=> ['jwt.auth','api']], function () use ($router) {
+$router->group(['prefix' => 'admin' , 'namespace' => 'Admin' , 'middleware'=> ['jwt.auth']], function () use ($router) {
     /*$router->group(['prefix' => 'admin', 'middleware'=> ['jwt.auth']], function () use ($router) {
         //用户详情
         $router->get('{id}', 'AdminController@show');
@@ -127,6 +127,16 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin' , 'middleware'=> ['
     $router->get('live/{id}/delete', 'LiveController@destroy');
     $router->get('live/{id}/edit', 'LiveController@edit');
     $router->post('live/{id}/lesson', 'LiveController@lesson');
+
+    /*
+     * 直播课次模块(sxl)
+    */
+    $router->get('liveChild', 'LiveChildController@index');
+    $router->get('liveChild/{id}', 'LiveChildController@show');
+    $router->post('liveChild', 'LiveChildController@store');
+    $router->post('liveChild/{id}/update', 'LiveChildController@update');
+    $router->get('liveChild/{id}/delete', 'LiveChildController@destroy');
+
 
     //用户学员相关模块(dzj)
     $router->group(['prefix' => 'student'], function () use ($router) {

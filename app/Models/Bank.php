@@ -4,7 +4,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\AdminLog;
 use Validator;
-use DB;
+use Illuminate\Support\Facades\DB;
 use App\Models\QuestionSubject as Subject;
 use Illuminate\Support\Facades\Redis;
 
@@ -280,7 +280,6 @@ class Bank extends Model {
         $rule = [
             'bank_id'      =>   'bail|required|numeric|min:1' ,
             'topic_name'   =>   'bail|required' ,
-            'subject_id'   =>   'bail|required' ,
             'parent_id'    =>   'bail|required|numeric|min:1' ,
             'child_id'     =>   'bail|required|numeric|min:1' ,
             'describe'     =>   'bail|required'
@@ -291,7 +290,6 @@ class Bank extends Model {
             'bank_id.required'      =>  json_encode(['code'=>201,'msg'=>'题库id为空']) ,
             'bank_id.min'           =>  json_encode(['code'=>202,'msg'=>'题库id不合法']) ,
             'topic_name.required'   =>  json_encode(['code'=>201,'msg'=>'请输入题库名称']) ,
-            'subject_id.required'   =>  json_encode(['code'=>201,'msg'=>'请添加科目']) ,
             'parent_id.required'    =>  json_encode(['code'=>201,'msg'=>'请选择一级分类']) ,
             'parent_id.min'         =>  json_encode(['code'=>202,'msg'=>'一级分类id不合法']) ,
             'child_id.required'     =>  json_encode(['code'=>201,'msg'=>'请选择二级分类']) ,
@@ -322,18 +320,29 @@ class Bank extends Model {
         
         //获取后端的操作员id
         $admin_id = isset(AdminLog::getAdminInfo()->admin_user->id) ? AdminLog::getAdminInfo()->admin_user->id : 0;
-
-        //获取题库id
-        $bank_id = $body['bank_id'];
         
-        //将更新时间追加
-        $body['update_at'] = date('Y-m-d H:i:s');
-        unset($body['bank_id']);
+        //数据数组组装
+        $array_bank = [
+            'topic_name'   =>  $body['topic_name'] ,
+            'parent_id'    =>  $body['parent_id'] ,
+            'child_id'     =>  $body['child_id'] ,
+            'describe'     =>  $body['describe'] ,
+            'update_at'    =>  date('Y-m-d H:i:s')
+        ];
+        
+        //开启事务
+        DB::beginTransaction();
 
         //根据题库id更新信息
-        if(false !== self::where('id',$bank_id)->update($body)){
-            //更新题库科目的所属题库id
-            Subject::doUpdateBankIds(['bank_id' => $bank_id , 'subject_ids' => $body['subject_id'] , 'update_at' => date('Y-m-d H:i:s')]);
+        if(false !== self::where('id',$body['bank_id'])->update($array_bank)){
+            //判断是否传递科目列表
+            if(isset($body['subject_list']) && is_array($body['subject_list']) && !empty($body['subject_list'])){
+                $array_bank['bank_id']       = $body['bank_id'];
+                $array_bank['subject_list']  = $body['subject_list'];
+                
+                //更新题库科目的所属题库id
+                Subject::doUpdateBankIds($array_bank);
+            }
             
             //添加日志操作
             AdminLog::insertAdminLog([
@@ -345,8 +354,12 @@ class Bank extends Model {
                 'ip'             =>  $_SERVER["REMOTE_ADDR"] ,
                 'create_at'      =>  date('Y-m-d H:i:s')
             ]);
+            //事务提交
+            DB::commit();
             return ['code' => 200 , 'msg' => '更新成功'];
         } else {
+            //事务回滚
+            DB::rollBack();
             return ['code' => 203 , 'msg' => '更新失败'];
         }
     }
@@ -369,7 +382,7 @@ class Bank extends Model {
         //规则结构
         $rule = [
             'topic_name'   =>   'bail|required' ,
-            'subject_id'   =>   'bail|required' ,
+            'subject_list' =>   'bail|required' ,
             'parent_id'    =>   'bail|required|numeric|min:1' ,
             'child_id'     =>   'bail|required|numeric|min:1' ,
             'describe'     =>   'bail|required'
@@ -378,7 +391,7 @@ class Bank extends Model {
         //信息提示
         $message = [
             'topic_name.required'   =>  json_encode(['code'=>201,'msg'=>'请输入题库名称']) ,
-            'subject_id.required'   =>  json_encode(['code'=>201,'msg'=>'请添加科目']) ,
+            'subject_list.required' =>  json_encode(['code'=>201,'msg'=>'请添加科目']) ,
             'parent_id.required'    =>  json_encode(['code'=>201,'msg'=>'请选择一级分类']) ,
             'parent_id.min'         =>  json_encode(['code'=>202,'msg'=>'一级分类id不合法']) ,
             'child_id.required'     =>  json_encode(['code'=>201,'msg'=>'请选择二级分类']) ,
@@ -393,16 +406,26 @@ class Bank extends Model {
         
         //获取后端的操作员id
         $admin_id = isset(AdminLog::getAdminInfo()->admin_user->id) ? AdminLog::getAdminInfo()->admin_user->id : 0;
-
-        //将后台人员id追加
-        $body['admin_id']   = $admin_id;
-        $body['create_at']  = date('Y-m-d H:i:s');
+        
+        //数据数组组装
+        $array_bank = [
+            'topic_name'   =>  $body['topic_name'] ,
+            'parent_id'    =>  $body['parent_id'] ,
+            'child_id'     =>  $body['child_id'] ,
+            'describe'     =>  $body['describe'] ,
+            'admin_id'     =>  $admin_id ,
+            'create_at'    =>  date('Y-m-d H:i:s')
+        ]; 
+        
+        //开启事务
+        DB::beginTransaction();
 
         //将数据插入到表中
-        $bank_id = self::insertBank($body);
+        $bank_id = self::insertGetId($array_bank);
         if($bank_id && $bank_id > 0){
             //更新题库科目的所属题库id
-            Subject::doUpdateBankIds(['bank_id' => $bank_id , 'subject_ids' => $body['subject_id']]);
+            $body['bank_id'] = $bank_id;
+            Subject::doUpdateBankIds($body);
             
             //添加日志操作
             AdminLog::insertAdminLog([
@@ -414,8 +437,12 @@ class Bank extends Model {
                 'ip'             =>  $_SERVER["REMOTE_ADDR"] ,
                 'create_at'      =>  date('Y-m-d H:i:s')
             ]);
+            //事务提交
+            DB::commit();
             return ['code' => 200 , 'msg' => '添加成功'];
         } else {
+            //事务回滚
+            DB::rollBack();
             return ['code' => 203 , 'msg' => '添加失败'];
         }
     }
@@ -470,6 +497,9 @@ class Bank extends Model {
         
         //获取后端的操作员id
         $admin_id = isset(AdminLog::getAdminInfo()->admin_user->id) ? AdminLog::getAdminInfo()->admin_user->id : 0;
+        
+        //开启事务
+        DB::beginTransaction();
 
         //根据题库id更新删除状态
         if(false !== self::where('id',$body['bank_id'])->update($data)){
@@ -483,8 +513,12 @@ class Bank extends Model {
                 'ip'             =>  $_SERVER["REMOTE_ADDR"] ,
                 'create_at'      =>  date('Y-m-d H:i:s')
             ]);
+            //事务提交
+            DB::commit();
             return ['code' => 200 , 'msg' => '删除成功'];
         } else {
+            //事务回滚
+            DB::rollBack();
             return ['code' => 203 , 'msg' => '删除失败'];
         }
     }
@@ -542,6 +576,9 @@ class Bank extends Model {
         
         //获取后端的操作员id
         $admin_id = isset(AdminLog::getAdminInfo()->admin_user->id) ? AdminLog::getAdminInfo()->admin_user->id : 0;
+        
+        //开启事务
+        DB::beginTransaction();
 
         //根据题库id更新题库状态
         if(false !== self::where('id',$body['bank_id'])->update($data)){
@@ -555,8 +592,12 @@ class Bank extends Model {
                 'ip'             =>  $_SERVER["REMOTE_ADDR"] ,
                 'create_at'      =>  date('Y-m-d H:i:s')
             ]);
+            //事务提交
+            DB::commit();
             return ['code' => 200 , 'msg' => '操作成功'];
         } else {
+            //事务回滚
+            DB::rollBack();
             return ['code' => 203 , 'msg' => '操作失败'];
         }
     }
