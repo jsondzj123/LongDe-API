@@ -176,18 +176,14 @@ class Admin extends Model implements AuthenticatableContract, AuthorizableContra
             return ['code' => 202 , 'msg' => '传递数据不合法'];
         }
         $adminUserInfo  = CurrentAdmin::user();  //当前登录用户所有信息
-        // $adminUserInfo['school_status']=0;
+        $school_id = $adminUserInfo['school_id'];//学校
         if($adminUserInfo['school_status'] == 1){ //总校
             //判断学校id是否合法
-            if(!isset($body['school_id']) || is_int($body['school_id'])){
-                return ['code' => 202 , 'msg' => '学校id缺少或不合法'];
-            }
+            $school_id = !isset($body['school_id']) && empty($body['school_id']) ?'':$body['school_id'];
         }
-        //判断搜索条件是否合法
-        if(!isset($body['search']) ){
-            return ['code' => 202 , 'msg' => '缺少参数'];
-        }
-        $school_id = $adminUserInfo['school_id'];//学校
+        //判断搜索条件是否合法、
+        $body['search'] = !isset($body['search']) && empty($body['search']) ?'':$body['search'];  
+       
         if(!empty($body['school_id'])){
             $school_id = $body['school_id'];//根据搜索条件查询
         }
@@ -247,8 +243,7 @@ class Admin extends Model implements AuthenticatableContract, AuthorizableContra
         $pagesize = isset($body['pagesize']) && $body['pagesize'] > 0 ? $body['pagesize'] : 15;
         $page     = isset($body['page']) && $body['page'] > 0 ? $body['page'] : 1;
         $offset   = ($page - 1) * $pagesize;
-        $role_auth_count = Roleauth::where(['is_del'=>1,'school_id'=> $adminUserInfo['school_id']])->count();
-      
+        $role_auth_count = Roleauth::where(['is_del'=>1,'school_id'=> $adminUserInfo['school_id']])->where('ld_role_auth.role_name','like','%'.$body['search'].'%')->count();
         $sum_page = ceil($role_auth_count/$pagesize);
         if($role_auth_count >0){
             $roleRuthData =  self::rightjoin('ld_role_auth','ld_role_auth.admin_id', '=', 'ld_admin.id')
@@ -256,7 +251,7 @@ class Admin extends Model implements AuthenticatableContract, AuthorizableContra
                 if(!empty($body['search'])){
                     $query->where('ld_role_auth.role_name','like','%'.$body['search'].'%');
                 }
-                    // $query->where('ld_admin.is_del',1);
+                    $query->where('ld_role_auth.is_del',1);
                     $query->where('ld_role_auth.school_id',$adminUserInfo['school_id']);
                 })
                 ->select('ld_role_auth.role_name','ld_admin.username','ld_role_auth.auth_desc','ld_role_auth.create_time','ld_role_auth.id')
