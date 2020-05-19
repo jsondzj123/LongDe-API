@@ -88,7 +88,6 @@ class Article extends Model {
             'page' =>$page,
             'total'=>$total
         ];
-        print_r($data);die;
         return ['code' => 200 , 'msg' => '查询成功','data'=>$list,'school'=>$school,'type'=>$type,'where'=>$data,'page'=>$page];
     }
     /*
