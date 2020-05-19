@@ -97,22 +97,21 @@ class QuestionSubject extends Model {
                 return ['code' => 204 , 'msg' => '此科目不存在'];
             }
         }
-
-        //获取科目id
-        $subject_id = $body['subject_id'];
         
-        //将更新时间追加
-        $body['update_at'] = date('Y-m-d H:i:s');
-        unset($body['subject_id']);
+        //科目数组信息追加
+        $create_data  = [
+            'subject_name' =>  $body['subject_name'] ,
+            'update_at'    =>  date('Y-m-d H:i:s')
+        ];
         
-        //获取后端的操作员id
-        $admin_id = isset(AdminLog::getAdminInfo()->admin_user->id) ? AdminLog::getAdminInfo()->admin_user->id : 0;
+        //开启事务
+        DB::beginTransaction();
 
-        //根据讲师或教务id更新信息
-        if(false !== self::where('id',$subject_id)->update($body)){
+        //根据科目id更新信息
+        if(false !== self::where('id',$body['subject_id'])->update($create_data)){
             //添加日志操作
             AdminLog::insertAdminLog([
-                'admin_id'       =>   $admin_id  ,
+                'admin_id'       =>   isset(AdminLog::getAdminInfo()->admin_user->id) ? AdminLog::getAdminInfo()->admin_user->id : 0  ,
                 'module_name'    =>  'Question' ,
                 'route_url'      =>  'admin/question/doUpdateSubject' , 
                 'operate_method' =>  'update' ,
@@ -120,8 +119,12 @@ class QuestionSubject extends Model {
                 'ip'             =>  $_SERVER["REMOTE_ADDR"] ,
                 'create_at'      =>  date('Y-m-d H:i:s')
             ]);
+            //事务提交
+            DB::commit();
             return ['code' => 200 , 'msg' => '更新成功'];
         } else {
+            //事务回滚
+            DB::rollBack();
             return ['code' => 203 , 'msg' => '更新失败'];
         }
     }
@@ -144,7 +147,7 @@ class QuestionSubject extends Model {
         }
         
         //判断题库id是否合法
-        if(isset($body['bank_id']) && $body['bank_id'] <= 0){
+        if(!isset($body['bank_id']) || $body['bank_id'] <= 0){
             return ['code' => 202 , 'msg' => '题库id不合法'];
         }
 
@@ -156,12 +159,19 @@ class QuestionSubject extends Model {
         //获取后端的操作员id
         $admin_id = isset(AdminLog::getAdminInfo()->admin_user->id) ? AdminLog::getAdminInfo()->admin_user->id : 0;
 
-        //将后台人员id追加
-        $body['admin_id']   = $admin_id;
-        $body['create_at']  = date('Y-m-d H:i:s');
+        //科目数组信息追加
+        $create_data  = [
+            'bank_id'      =>  $body['bank_id'] ,
+            'subject_name' =>  $body['subject_name'] ,
+            'admin_id'     =>  $admin_id ,
+            'create_at'    =>  date('Y-m-d H:i:s')
+        ];
+        
+        //开启事务
+        DB::beginTransaction();
 
         //将数据插入到表中
-        $subject_id = self::insertSubject($body);
+        $subject_id = self::insertSubject($create_data);
         if($subject_id && $subject_id > 0){
             //添加日志操作
             AdminLog::insertAdminLog([
@@ -173,8 +183,12 @@ class QuestionSubject extends Model {
                 'ip'             =>  $_SERVER["REMOTE_ADDR"] ,
                 'create_at'      =>  date('Y-m-d H:i:s')
             ]);
+            //事务提交
+            DB::commit();
             return ['code' => 200 , 'msg' => '添加成功' , 'data' => $subject_id];
         } else {
+            //事务回滚
+            DB::rollBack();
             return ['code' => 203 , 'msg' => '添加失败'];
         }
     }
@@ -229,6 +243,9 @@ class QuestionSubject extends Model {
         
         //获取后端的操作员id
         $admin_id = isset(AdminLog::getAdminInfo()->admin_user->id) ? AdminLog::getAdminInfo()->admin_user->id : 0;
+        
+        //开启事务
+        DB::beginTransaction();
 
         //根据题库科目id更新删除状态
         if(false !== self::where('id',$body['subject_id'])->update($data)){
@@ -242,8 +259,12 @@ class QuestionSubject extends Model {
                 'ip'             =>  $_SERVER["REMOTE_ADDR"] ,
                 'create_at'      =>  date('Y-m-d H:i:s')
             ]);
+            //事务提交
+            DB::commit();
             return ['code' => 200 , 'msg' => '删除成功'];
         } else {
+            //事务回滚
+            DB::rollBack();
             return ['code' => 203 , 'msg' => '删除失败'];
         }
     }
@@ -270,7 +291,7 @@ class QuestionSubject extends Model {
         }
 
         //判断题库科目是否合法
-        if(!isset($body['subject_list']) || empty($body['subject_list']) || !is_array($body['subject_list'])){
+        if(!isset($body['subject_list']) || empty($body['subject_list'])){
             return ['code' => 202 , 'msg' => '题库科目为空'];
         }
         
@@ -281,7 +302,8 @@ class QuestionSubject extends Model {
         DB::beginTransaction();
         
         //循环科目入库
-        foreach($body['subject_list'] as $k=>$v){
+        $subject_list = json_decode($body['subject_list'] , true);
+        foreach($subject_list as $k=>$v){
             //插入科目操作
             $insert_subject = self::insertGetId([
                 'admin_id'     =>  $admin_id ,

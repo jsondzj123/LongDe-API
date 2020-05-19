@@ -4,6 +4,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\AdminLog;
 use Illuminate\Support\Facades\Redis;
+use Illuminate\Support\Facades\DB;
 
 class Student extends Model {
     //指定别的表名
@@ -201,15 +202,37 @@ class Student extends Model {
             }
         }
         
-        //将更新时间追加
-        $body['update_at'] = date('Y-m-d H:i:s');
-        unset($body['student_id']);
+        //组装学员数组信息
+        $student_array = [
+            'phone'         =>   $body['phone'] ,
+            'real_name'     =>   $body['real_name'] ,
+            'sex'           =>   isset($body['sex']) && $body['sex'] == 1 ? 1 : 2 ,
+            'papers_type'   =>   isset($body['papers_type']) && in_array($body['papers_type'] , [1,2,3,4,5,6,7]) ? $body['papers_type'] : 0 ,
+            'papers_num'    =>   isset($body['papers_num']) && !empty($body['papers_num']) ? $body['papers_num'] : '' ,
+            'birthday'      =>   isset($body['birthday']) && !empty($body['birthday']) ? $body['birthday'] : '' ,
+            'address_locus' =>   isset($body['address_locus']) && !empty($body['address_locus']) ? $body['address_locus'] : '' ,
+            'age'           =>   isset($body['age']) && $body['age'] > 0 ? $body['age'] : 0 ,
+            'educational'   =>   isset($body['educational']) && in_array($body['educational'] , [1,2,3,4,5,6,7,8]) ? $body['educational'] : 0 ,
+            'family_phone'  =>   isset($body['family_phone']) && !empty($body['family_phone']) ? $body['family_phone'] : '' ,
+            'office_phone'  =>   isset($body['office_phone']) && !empty($body['office_phone']) ? $body['office_phone'] : '' ,
+            'contact_people'=>   isset($body['contact_people']) && !empty($body['contact_people']) ? $body['contact_people'] : '' ,
+            'contact_phone' =>   isset($body['contact_phone']) && !empty($body['contact_phone']) ? $body['contact_phone'] : '' ,
+            'email'         =>   isset($body['email']) && !empty($body['email']) ? $body['email'] : '' ,
+            'qq'            =>   isset($body['qq']) && !empty($body['qq']) ? $body['qq'] : '' ,
+            'wechat'        =>   isset($body['wechat']) && !empty($body['wechat']) ? $body['wechat'] : '' ,
+            'address'       =>   isset($body['address']) && !empty($body['address']) ? $body['address'] : '' ,
+            'remark'        =>   isset($body['remark']) && !empty($body['remark']) ? $body['remark'] : '' ,
+            'update_at'     =>   date('Y-m-d H:i:s')
+        ];
         
         //获取后端的操作员id
         $admin_id = isset(AdminLog::getAdminInfo()->admin_user->id) ? AdminLog::getAdminInfo()->admin_user->id : 0;
+        
+        //开启事务
+        DB::beginTransaction();
 
         //根据学员id更新信息
-        if(false !== self::where('id',$student_id)->update($body)){
+        if(false !== self::where('id',$student_id)->update($student_array)){
             //添加日志操作
             AdminLog::insertAdminLog([
                 'admin_id'       =>   $admin_id  ,
@@ -220,8 +243,12 @@ class Student extends Model {
                 'ip'             =>  $_SERVER["REMOTE_ADDR"] ,
                 'create_at'      =>  date('Y-m-d H:i:s')
             ]);
+            //事务提交
+            DB::commit();
             return ['code' => 200 , 'msg' => '更新成功'];
         } else {
+            //事务回滚
+            DB::rollBack();
             return ['code' => 203 , 'msg' => '更新失败'];
         }
     }
@@ -294,15 +321,38 @@ class Student extends Model {
         //获取后端的操作员id
         $admin_id = isset(AdminLog::getAdminInfo()->admin_user->id) ? AdminLog::getAdminInfo()->admin_user->id : 0;
         $school_id= isset(AdminLog::getAdminInfo()->admin_user->school_id) ? AdminLog::getAdminInfo()->admin_user->school_id : 0;
-
-        //将所属网校id和后台人员id追加
-        $body['admin_id']   = $admin_id;
-        $body['school_id']  = $school_id;
-        $body['reg_source'] = 2;
-        $body['create_at']  = date('Y-m-d H:i:s');
+        
+        //组装学员数组信息
+        $student_array = [
+            'phone'         =>   $body['phone'] ,
+            'real_name'     =>   $body['real_name'] ,
+            'sex'           =>   isset($body['sex']) && $body['sex'] == 1 ? 1 : 2 ,
+            'papers_type'   =>   isset($body['papers_type']) && in_array($body['papers_type'] , [1,2,3,4,5,6,7]) ? $body['papers_type'] : 0 ,
+            'papers_num'    =>   isset($body['papers_num']) && !empty($body['papers_num']) ? $body['papers_num'] : '' ,
+            'birthday'      =>   isset($body['birthday']) && !empty($body['birthday']) ? $body['birthday'] : '' ,
+            'address_locus' =>   isset($body['address_locus']) && !empty($body['address_locus']) ? $body['address_locus'] : '' ,
+            'age'           =>   isset($body['age']) && $body['age'] > 0 ? $body['age'] : 0 ,
+            'educational'   =>   isset($body['educational']) && in_array($body['educational'] , [1,2,3,4,5,6,7,8]) ? $body['educational'] : 0 ,
+            'family_phone'  =>   isset($body['family_phone']) && !empty($body['family_phone']) ? $body['family_phone'] : '' ,
+            'office_phone'  =>   isset($body['office_phone']) && !empty($body['office_phone']) ? $body['office_phone'] : '' ,
+            'contact_people'=>   isset($body['contact_people']) && !empty($body['contact_people']) ? $body['contact_people'] : '' ,
+            'contact_phone' =>   isset($body['contact_phone']) && !empty($body['contact_phone']) ? $body['contact_phone'] : '' ,
+            'email'         =>   isset($body['email']) && !empty($body['email']) ? $body['email'] : '' ,
+            'qq'            =>   isset($body['qq']) && !empty($body['qq']) ? $body['qq'] : '' ,
+            'wechat'        =>   isset($body['wechat']) && !empty($body['wechat']) ? $body['wechat'] : '' ,
+            'address'       =>   isset($body['address']) && !empty($body['address']) ? $body['address'] : '' ,
+            'remark'        =>   isset($body['remark']) && !empty($body['remark']) ? $body['remark'] : '' ,
+            'admin_id'      =>   $admin_id ,
+            'school_id'     =>   $school_id ,
+            'reg_source'    =>   2 ,
+            'create_at'     =>   date('Y-m-d H:i:s')
+        ];
+        
+        //开启事务
+        DB::beginTransaction();
 
         //将数据插入到表中
-        if(false !== self::insertStudent($body)){
+        if(false !== self::insertStudent($student_array)){
             //添加日志操作
             AdminLog::insertAdminLog([
                 'admin_id'       =>   $admin_id  ,
@@ -313,8 +363,12 @@ class Student extends Model {
                 'ip'             =>  $_SERVER["REMOTE_ADDR"] ,
                 'create_at'      =>  date('Y-m-d H:i:s')
             ]);
+            //事务提交
+            DB::commit();
             return ['code' => 200 , 'msg' => '添加成功'];
         } else {
+            //事务回滚
+            DB::rollBack();
             return ['code' => 203 , 'msg' => '添加失败'];
         }
     }
@@ -367,6 +421,9 @@ class Student extends Model {
         
         //获取后端的操作员id
         $admin_id = isset(AdminLog::getAdminInfo()->admin_user->id) ? AdminLog::getAdminInfo()->admin_user->id : 0;
+        
+        //开启事务
+        DB::beginTransaction();
 
         //根据学员id更新账号状态
         if(false !== self::where('id',$body['student_id'])->update($data)){
@@ -380,8 +437,12 @@ class Student extends Model {
                 'ip'             =>  $_SERVER["REMOTE_ADDR"] ,
                 'create_at'      =>  date('Y-m-d H:i:s')
             ]);
+            //事务提交
+            DB::commit();
             return ['code' => 200 , 'msg' => '操作成功'];
         } else {
+            //事务回滚
+            DB::rollBack();
             return ['code' => 203 , 'msg' => '操作失败'];
         }
     }

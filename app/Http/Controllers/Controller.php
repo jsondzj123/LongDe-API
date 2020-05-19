@@ -35,7 +35,7 @@ class Controller extends BaseController {
     protected function response($data, $statusCode = 200)
     {
         if ($statusCode == 200 && is_string($data)) {
-            return response()->json(['msg' => $data]);
+            return response()->json(['code' => $statusCode, 'msg' => $data]);
         } elseif (is_string($data)) {
             return response()->json(['code' => $statusCode, 'msg' => $data]);
         } else {
