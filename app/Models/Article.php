@@ -52,15 +52,15 @@ class Article extends Model {
             ->paginate($data['num']);
         //分校列表
         if($data['role_id'] == 1){
-            $school = School::select('id as value','name as lable')->where(['is_forbid'=>1,'is_del'=>1])->get()->toArray();
+            $school = School::select('id as lable','name as value')->where(['is_forbid'=>1,'is_del'=>1])->get()->toArray();
         }else{
-            $school = School::select('id as value','name as lable')->where(['id'=>$data['school_id'],'is_forbid'=>1,'is_del'=>1])->get()->toArray();
+            $school = School::select('id as lable','name as value')->where(['id'=>$data['school_id'],'is_forbid'=>1,'is_del'=>1])->get()->toArray();
         }
         //文章分类
         if($data['role_id'] == 1){
             $type = Articletype::select('id as lable','typename as value')->where(['status'=>1,'is_del'=>1])->get()->toArray();
         }else{
-            $type = Articletype::select('id as value','typename as lable')->where(['school_id'=>$data['school_id'],'status'=>1,'is_del'=>1])->get()->toArray();
+            $type = Articletype::select('id as lable','typename as value')->where(['school_id'=>$data['school_id'],'status'=>1,'is_del'=>1])->get()->toArray();
         }
         return ['code' => 200 , 'msg' => '查询成功','data'=>$list,'school'=>$school,'type'=>$type];
     }
