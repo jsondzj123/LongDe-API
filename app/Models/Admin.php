@@ -256,7 +256,7 @@ class Admin extends Model implements AuthenticatableContract, AuthorizableContra
                 if(!empty($body['search'])){
                     $query->where('ld_role_auth.role_name','like','%'.$body['search'].'%');
                 }
-                    // $query->where('ld_admin.is_del',1);
+                    $query->where('ld_role_auth.is_del',1);
                     $query->where('ld_role_auth.school_id',$adminUserInfo['school_id']);
                 })
                 ->select('ld_role_auth.role_name','ld_admin.username','ld_role_auth.auth_desc','ld_role_auth.create_time','ld_role_auth.id')
