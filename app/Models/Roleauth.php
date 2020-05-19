@@ -42,7 +42,7 @@ class Roleauth extends Model {
          if($return){
             return ['code'=>200,'msg'=>'获取角色信息成功','data'=>$return];
         }else{
-            return ['code'=>201,'msg'=>'角色信息不存在'];
+            return ['code'=>204,'msg'=>'角色信息不存在'];
         }
     }
     /*

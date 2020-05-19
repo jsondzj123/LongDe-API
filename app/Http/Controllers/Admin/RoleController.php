@@ -56,10 +56,10 @@ class RoleController extends Controller {
     public function doRoleDel(){
         $data = self::$accept_data;
         if( !isset($data['id']) || empty($data['id'])  || $data['id']<=0 ){
-            return response()->json(['code'=>203,'msg'=>'角色标识为空或缺少或类型不合法']);
+            return response()->json(['code'=>201,'msg'=>'角色标识为空或缺少或类型不合法']);
         }
         if(AdminUser::where(['role_id'=>$data['id'],'is_del'=>1])->count()  >0){  //  角色使用中无法删除    5.14  
-            return response()->json(['code'=>203,'msg'=>'角色使用中,不能删除']);
+            return response()->json(['code'=>205,'msg'=>'角色使用中,不能删除']);
         }
         $role = Roleauth::findOrfail($data['id']);
         $role->is_del = 0;
@@ -75,7 +75,7 @@ class RoleController extends Controller {
             ]);
             return response()->json(['code'=>200,'msg'=>'更改成功']);
         }else{
-            return response()->json(['code'=>201,'msg'=>'更改失败']);
+            return response()->json(['code'=>203,'msg'=>'更改失败']);
         }
     }   
     /*
@@ -94,19 +94,19 @@ class RoleController extends Controller {
     public function doRoleInsert(){
         $data = self::$accept_data;
         if(!isset($data['role_name']) || empty($data['role_name'])){
-           return response()->json(['code'=>422,'msg'=>'角色名称为空或缺少']);
+           return response()->json(['code'=>201,'msg'=>'角色名称为空或缺少']);
         }
         if(!isset($data['auth_id']) || empty($data['auth_id'])){
-          return response()->json(['code'=>422,'msg'=>'权限组id为空或缺少']);
+          return response()->json(['code'=>201,'msg'=>'权限组id为空或缺少']);
         }
         if(!isset($data['auth_desc']) || empty($data['auth_desc'])){
-            return response()->json(['code'=>422,'msg'=>'权限描述为空或缺少']);
+            return response()->json(['code'=>201,'msg'=>'权限描述为空或缺少']);
         }
         $data['admin_id'] = CurrentAdmin::user()['id'];
         $data['school_id'] = CurrentAdmin::user()['school_id'];
         $role = Roleauth::where(['role_name'=>$data['role_name'],'school_id'=>$data['school_id'],'is_del'=>1])->first();
         if($role){
-             return response()->json(['code'=>422,'msg'=>'角色已存在']);
+             return response()->json(['code'=>205,'msg'=>'角色已存在']);
         }
         $role = Roleauth::where(['school_id'=> $data['school_id'],'is_super'=>'1'])->first();
         if($role){  $data['is_super'] = 0; }
@@ -197,23 +197,23 @@ class RoleController extends Controller {
         $where = [];
         $updateArr = [];
         if( !isset($data['id']) ||  empty($data['id'])){
-            return response()->json(['code'=>422,'msg'=>'角色id为空或缺少']);
+            return response()->json(['code'=>201,'msg'=>'角色id为空或缺少']);
         }
         if( !isset($data['role_name']) ||  empty($data['role_name'])){
-            return response()->json(['code'=>422,'msg'=>'角色名称为空或缺少']);
+            return response()->json(['code'=>201,'msg'=>'角色名称为空或缺少']);
         }
         if( !isset($data['auth_desc']) ||  empty($data['auth_desc'])){
-            return response()->json(['code'=>422,'msg'=>'角色权限描述为空或缺少']);
+            return response()->json(['code'=>201,'msg'=>'角色权限描述为空或缺少']);
         }
         if( !isset($data['auth_id']) ||  empty($data['auth_id'])){
-            return response()->json(['code'=>422,'msg'=>'权限组id为空或缺少']);
+            return response()->json(['code'=>201,'msg'=>'权限组id为空或缺少']);
         }
         $admin=CurrentAdmin::user();
         $school_id = $admin['school_id'];
         $admin_id = $admin['id'];
         $count = Roleauth::where('role_name','=',$data['role_name'])->where('id','!=',$data['id'])->where('school_id','=',$school_id)->count();
         if($count>=1){
-            return response()->json(['code'=>422,'msg'=>'角色名称已存在']); 
+            return response()->json(['code'=>205,'msg'=>'角色名称已存在']); 
         }
         $auths_id = Authrules::where(['is_del'=>1,'is_show'=>1,'is_forbid'=>1])->pluck('id')->toarray();
         $auth_id = explode(',', $data['auth_id']);
@@ -234,7 +234,7 @@ class RoleController extends Controller {
                         $new_arr = array_diff($fen_roles_id,$arr);
                         foreach ($new_arr as $vv) {
                             if(in_array($vv,$fen_roles_id)){
-                                  return response()->json(['code'=>422,'msg'=>'分校正在使用不能修改']);
+                                  return response()->json(['code'=>205,'msg'=>'分校正在使用不能修改']);
                             }
                         }
                     }
