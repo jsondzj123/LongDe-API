@@ -7,6 +7,7 @@ use App\Models\ExamOption;
 use App\Models\Chapters;
 use App\Models\QuestionSubject;
 use Illuminate\Support\Facades\Redis;
+use Illuminate\Support\Facades\DB;
 
 class Exam extends Model {
     //指定别的表名
@@ -156,6 +157,8 @@ class Exam extends Model {
             ];
         }
         
+        //开启事务
+        DB::beginTransaction();
         
         //将数据插入到表中
         $exam_id = self::insertGetId($exam_arr);
@@ -181,8 +184,12 @@ class Exam extends Model {
                 'ip'             =>  $_SERVER["REMOTE_ADDR"] ,
                 'create_at'      =>  date('Y-m-d H:i:s')
             ]);
+            //事务提交
+            DB::commit();
             return ['code' => 200 , 'msg' => '添加成功'];
         } else {
+            //事务回滚
+            DB::rollBack();
             return ['code' => 203 , 'msg' => '添加失败'];
         }
     }
@@ -298,6 +305,9 @@ class Exam extends Model {
             'is_publish'    =>  isset($body['is_publish']) && $body['is_publish'] > 0 ? 1 : 0,
             'update_at'     =>  date('Y-m-d H:i:s')
         ];
+        
+        //开启事务
+        DB::beginTransaction();
 
         //根据试题的id更新试题内容
         $exam_info = self::where("id" , $body['exam_id'])->update($exam_arr);
@@ -318,8 +328,12 @@ class Exam extends Model {
                 'ip'             =>  $_SERVER["REMOTE_ADDR"] ,
                 'create_at'      =>  date('Y-m-d H:i:s')
             ]);
+            //事务提交
+            DB::commit();
             return ['code' => 200 , 'msg' => '更新成功'];
         } else {
+            //事务回滚
+            DB::rollBack();
             return ['code' => 203 , 'msg' => '更新失败'];
         }
     }
@@ -371,6 +385,9 @@ class Exam extends Model {
         
         //获取后端的操作员id
         $admin_id = isset(AdminLog::getAdminInfo()->admin_user->id) ? AdminLog::getAdminInfo()->admin_user->id : 0;
+        
+        //开启事务
+        DB::beginTransaction();
 
         //根据试题id更新删除状态
         if(false !== self::whereIn('id',$exam_id)->update($data)){
@@ -384,8 +401,12 @@ class Exam extends Model {
                 'ip'             =>  $_SERVER["REMOTE_ADDR"] ,
                 'create_at'      =>  date('Y-m-d H:i:s')
             ]);
+            //事务提交
+            DB::commit();
             return ['code' => 200 , 'msg' => '删除成功'];
         } else {
+            //事务回滚
+            DB::rollBack();
             return ['code' => 203 , 'msg' => '删除失败'];
         }
     }
@@ -439,6 +460,9 @@ class Exam extends Model {
         //获取后端的操作员id
         $admin_id = isset(AdminLog::getAdminInfo()->admin_user->id) ? AdminLog::getAdminInfo()->admin_user->id : 0;
         $exam_id  = explode(',',$body['exam_id']);
+        
+        //开启事务
+        DB::beginTransaction();
 
         //根据试题id更新删除状态
         if(false !== self::whereIn('id',$exam_id)->update($data)){
@@ -452,8 +476,12 @@ class Exam extends Model {
                 'ip'             =>  $_SERVER["REMOTE_ADDR"] ,
                 'create_at'      =>  date('Y-m-d H:i:s')
             ]);
+            //事务提交
+            DB::commit();
             return ['code' => 200 , 'msg' => '操作成功'];
         } else {
+            //事务回滚
+            DB::rollBack();
             return ['code' => 203 , 'msg' => '操作失败'];
         }
     }
