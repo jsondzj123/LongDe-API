@@ -154,7 +154,7 @@ class Articletype extends Model {
                 ]);
                 return ['code' => 200 , 'msg' => '添加成功'];
             }else{
-                return ['code' => 203 , 'msg' => '添加失败'];
+                return ['code' => 202 , 'msg' => '添加失败'];
             }
         }
     }

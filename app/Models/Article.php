@@ -57,7 +57,7 @@ class Article extends Model {
         }
         $articleOnes = self::where(['id'=>$data['id']])->first();
         if(!$articleOnes){
-            return ['code' => 204 , 'msg' => '参数不对'];
+            return ['code' => 201 , 'msg' => '参数不对'];
         }
         $status = ($articleOnes['status']==1)?0:1;
         $update = self::where(['id'=>$data['id']])->update(['status'=>$status,'update_at'=>date('Y-m-d H:i:s')]);
@@ -76,7 +76,7 @@ class Article extends Model {
             ]);
             return ['code' => 200 , 'msg' => '修改成功'];
         }else{
-            return ['code' => 201 , 'msg' => '修改失败'];
+            return ['code' => 202 , 'msg' => '修改失败'];
         }
     }
     /*
@@ -114,7 +114,7 @@ class Article extends Model {
             ]);
             return ['code' => 200 , 'msg' => '删除成功'];
         }else{
-            return ['code' => 201 , 'msg' => '删除失败'];
+            return ['code' => 202 , 'msg' => '删除失败'];
         }
     }
     /*
