@@ -7,6 +7,7 @@ use App\Models\PapersExam;
 use App\Models\QuestionSubject;
 use Validator;
 use Illuminate\Support\Facades\Redis;
+use Illuminate\Support\Facades\DB;
 
 class Papers extends Model {
     //指定别的表名
@@ -42,7 +43,7 @@ class Papers extends Model {
             'area'           =>   'bail|required|numeric|min:1' ,
             'cover_img'      =>   'bail|required' ,
             'content'        =>   'bail|required' ,
-            'type'           =>   'bail|required'
+            'type'           =>   'bail|required|between:1,7'
         ];
         
         //信息提示
@@ -59,7 +60,8 @@ class Papers extends Model {
             'area.min'              =>  json_encode(['code'=>202,'msg'=>'所属区域不合法']) ,
             'cover_img.required'    =>  json_encode(['code'=>201,'msg'=>'请上传封面图片']) ,
             'content.required'      =>  json_encode(['code'=>201,'msg'=>'请输入试卷描述']) ,
-            'type.required'         =>  json_encode(['code'=>201,'msg'=>'请选择题型'])
+            'type.required'         =>  json_encode(['code'=>201,'msg'=>'请选择题型']) ,
+            'type.between'          =>  json_encode(['code'=>202,'msg'=>'选择题型不合法'])
         ];
         
         $validator = Validator::make($body , $rule , $message);
@@ -70,12 +72,26 @@ class Papers extends Model {
         //获取后端的操作员id
         $admin_id = isset(AdminLog::getAdminInfo()->admin_user->id) ? AdminLog::getAdminInfo()->admin_user->id : 0;
 
-        //将后台人员id追加
-        $body['admin_id']   = $admin_id;
-        $body['create_at']  = date('Y-m-d H:i:s');
+        //试卷数组信息组装
+        $papers_array = [
+            'subject_id'    =>   $body['subject_id'] ,
+            'bank_id'       =>   $body['bank_id'] ,
+            'papers_name'   =>   $body['papers_name'] ,
+            'diffculty'     =>   $body['diffculty'] ,
+            'papers_time'   =>   $body['papers_time'] ,
+            'area'          =>   $body['area'] ,
+            'cover_img'     =>   $body['cover_img'] ,
+            'content'       =>   $body['content'] ,
+            'type'          =>   $body['type'] ,
+            'admin_id'      =>   $admin_id ,
+            'create_at'     =>   date('Y-m-d H:i:s')
+        ];
+        
+        //开启事务
+        DB::beginTransaction();
 
         //将数据插入到表中
-        $papers_id = self::insertGetId($body);
+        $papers_id = self::insertGetId($papers_array);
         if($papers_id && $papers_id > 0){
             //添加日志操作
             AdminLog::insertAdminLog([
@@ -87,8 +103,12 @@ class Papers extends Model {
                 'ip'             =>  $_SERVER["REMOTE_ADDR"] ,
                 'create_at'      =>  date('Y-m-d H:i:s')
             ]);
+            //事务提交
+            DB::commit();
             return ['code' => 200 , 'msg' => '添加成功'];
         } else {
+            //事务回滚
+            DB::rollBack();
             return ['code' => 203 , 'msg' => '添加失败'];
         }
     }
@@ -119,7 +139,7 @@ class Papers extends Model {
             'area'           =>   'bail|required|numeric|min:1' ,
             'cover_img'      =>   'bail|required' ,
             'content'        =>   'bail|required' ,
-            'type'           =>   'bail|required'
+            'type'           =>   'bail|required|between:1,7'
         ];
         
         //信息提示
@@ -134,7 +154,8 @@ class Papers extends Model {
             'area.min'              =>  json_encode(['code'=>202,'msg'=>'所属区域不合法']) ,
             'cover_img.required'    =>  json_encode(['code'=>201,'msg'=>'请上传封面图片']) ,
             'content.required'      =>  json_encode(['code'=>201,'msg'=>'请输入试卷描述']) ,
-            'type.required'         =>  json_encode(['code'=>201,'msg'=>'请选择题型'])
+            'type.required'         =>  json_encode(['code'=>201,'msg'=>'请选择题型']) ,
+            'type.between'          =>  json_encode(['code'=>202,'msg'=>'选择题型不合法'])
         ];
         
         $validator = Validator::make($body , $rule , $message);
@@ -164,12 +185,23 @@ class Papers extends Model {
         //获取试卷id
         $papers_id = $body['papers_id'];
         
-        //将更新时间追加
-        $body['update_at'] = date('Y-m-d H:i:s');
-        unset($body['papers_id']);
+        //试卷数组信息组装
+        $papers_array = [
+            'papers_name'   =>   $body['papers_name'] ,
+            'diffculty'     =>   $body['diffculty'] ,
+            'papers_time'   =>   $body['papers_time'] ,
+            'area'          =>   $body['area'] ,
+            'cover_img'     =>   $body['cover_img'] ,
+            'content'       =>   $body['content'] ,
+            'type'          =>   $body['type'] ,
+            'update_at'     =>   date('Y-m-d H:i:s')
+        ];
+        
+        //开启事务
+        DB::beginTransaction();
 
         //根据试卷id更新信息
-        if(false !== self::where('id',$papers_id)->update($body)){
+        if(false !== self::where('id',$papers_id)->update($papers_array)){
             //添加日志操作
             AdminLog::insertAdminLog([
                 'admin_id'       =>   $admin_id  ,
@@ -180,8 +212,12 @@ class Papers extends Model {
                 'ip'             =>  $_SERVER["REMOTE_ADDR"] ,
                 'create_at'      =>  date('Y-m-d H:i:s')
             ]);
+            //事务提交
+            DB::commit();
             return ['code' => 200 , 'msg' => '更新成功'];
         } else {
+            //事务回滚
+            DB::rollBack();
             return ['code' => 203 , 'msg' => '更新失败'];
         }
     }
@@ -236,6 +272,9 @@ class Papers extends Model {
         
         //获取后端的操作员id
         $admin_id = isset(AdminLog::getAdminInfo()->admin_user->id) ? AdminLog::getAdminInfo()->admin_user->id : 0;
+        
+        //开启事务
+        DB::beginTransaction();
 
         //根据试卷id更新删除状态
         if(false !== self::where('id',$body['papers_id'])->update($data)){
@@ -249,8 +288,12 @@ class Papers extends Model {
                 'ip'             =>  $_SERVER["REMOTE_ADDR"] ,
                 'create_at'      =>  date('Y-m-d H:i:s')
             ]);
+            //事务提交
+            DB::commit();
             return ['code' => 200 , 'msg' => '删除成功'];
         } else {
+            //事务回滚
+            DB::rollBack();
             return ['code' => 203 , 'msg' => '删除失败'];
         }
     }
@@ -308,6 +351,9 @@ class Papers extends Model {
         
         //获取后端的操作员id
         $admin_id = isset(AdminLog::getAdminInfo()->admin_user->id) ? AdminLog::getAdminInfo()->admin_user->id : 0;
+        
+        //开启事务
+        DB::beginTransaction();
 
         //根据试卷id更新试卷状态
         if(false !== self::where('id',$body['papers_id'])->update($data)){
@@ -321,8 +367,12 @@ class Papers extends Model {
                 'ip'             =>  $_SERVER["REMOTE_ADDR"] ,
                 'create_at'      =>  date('Y-m-d H:i:s')
             ]);
+            //事务提交
+            DB::commit();
             return ['code' => 200 , 'msg' => '操作成功'];
         } else {
+            //事务回滚
+            DB::rollBack();
             return ['code' => 203 , 'msg' => '操作失败'];
         }
     }
