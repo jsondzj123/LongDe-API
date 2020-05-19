@@ -92,16 +92,27 @@ class Enrolment extends Model {
         //获取后端的操作员id
         $admin_id = isset(AdminLog::getAdminInfo()->admin_user->id) ? AdminLog::getAdminInfo()->admin_user->id : 0;
 
-        //将所属网校id和后台人员id追加
-        $body['admin_id']   = $admin_id;
-        $body['status']     = 1;
-        $body['create_at']  = date('Y-m-d H:i:s');
+        //报名数据信息追加
+        $enroll_array = [
+            'student_id'     =>   $body['student_id'] ,
+            'parent_id'      =>   $body['parent_id'] ,
+            'lession_id'     =>   $body['lession_id'] ,
+            'lession_price'  =>   $body['lession_price'] ,
+            'student_price'  =>   $body['student_price'] ,
+            'payment_type'   =>   $body['payment_type'] ,
+            'payment_method' =>   $body['payment_method'] ,
+            'payment_fee'    =>   $body['payment_fee'] ,
+            'payment_time'   =>   $body['payment_time'] ,
+            'admin_id'       =>   $admin_id ,
+            'status'         =>   1 ,
+            'create_at'      =>   date('Y-m-d H:i:s')
+        ];
 
         //开启事务
         DB::beginTransaction();
 
         //将数据插入到表中
-        if(false !== self::insertEnrolment($body)){
+        if(false !== self::insertEnrolment($enroll_array)){
             //订单表插入逻辑
             
             //添加日志操作

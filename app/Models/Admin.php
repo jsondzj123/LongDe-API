@@ -49,22 +49,22 @@ class Admin extends Model implements AuthenticatableContract, AuthorizableContra
 
     public static function message()
     {
-        return [
-            'id.required'  => '账号id不能为空',
-            'id.integer'   =>'账号id不合法',
-            'school_id.required'  => '学校id不能为空',
-            'school_id.integer'   =>'学校id类型不合法',
-            'username.required' => '账号不能为空',
-            'username.unique'  => '账号已存在',
-            'realname.required' => '真实姓名不能为空',
-            'mobile.required'  => '手机号不能为空',
-            'mobile.regex' => '手机号不合法',
-            'sex.integer'  => '性别标识不合法',
-            'sex.required' => '性别标识不能为空',
-            'password.required'  => '密码不能为空',
-            'pwd.required' => '确认密码不能为空',
-            'role_id.required' => '角色id不能为空',
-            'role_id.integer' => '角色id不合法',
+        return [ 
+            'id.required'  => json_encode(['code'=>'201','msg'=>'账号id不能为空']),
+            'id.integer'   => json_encode(['code'=>'202','msg'=>'账号id不合法']),
+            'school_id.required'  =>  json_encode(['code'=>'201','msg'=>'学校id不能为空']),
+            'school_id.integer'   => json_encode(['code'=>'202','msg'=>'学校id类型不合法']),
+            'username.required' => json_encode(['code'=>'201','msg'=>'账号不能为空']),
+            'username.unique'  => json_encode(['code'=>'205','msg'=>'账号已存在']),
+            'realname.required' => json_encode(['code'=>'201','msg'=>'真实姓名不能为空']),
+            'mobile.required'  =>  json_encode(['code'=>'201','msg'=>'手机号不能为空']),
+            'mobile.regex' => json_encode(['code'=>'202','msg'=>'手机号不合法']) ,
+            'sex.integer'  => json_encode(['code'=>'202','msg'=>'性别标识不合法']),
+            'sex.required' => json_encode(['code'=>'201','msg'=>'性别标识不能为空']),
+            'password.required'  => json_encode(['code'=>'201','msg'=>'密码不能为空']),
+            'pwd.required' => json_encode(['code'=>'201','msg'=>'确认密码不能为空']),
+            'role_id.required' => json_encode(['code'=>'201','msg'=>'角色id不能为空']),
+            'role_id.integer' => json_encode(['code'=>'202','msg'=>'角色id不合法']),
         ];
 
     }
@@ -98,7 +98,7 @@ class Admin extends Model implements AuthenticatableContract, AuthorizableContra
         if($userInfo){
             return ['code'=>200,'msg'=>'获取后台用户信息成功','data'=>$userInfo];
         }else{
-            return ['code'=>201,'msg'=>'后台用户信息不存在'];
+            return ['code'=>204,'msg'=>'后台用户信息不存在'];
         }
     }
     /*
@@ -242,9 +242,8 @@ class Admin extends Model implements AuthenticatableContract, AuthorizableContra
         }
          $adminUserInfo  = CurrentAdmin::user();  //当前登录用户所有信息
         //判断搜索条件是否合法
-        if(!isset($body['search']) ){
-            return ['code' => 202 , 'msg' => '搜索参数缺少'];
-        }
+        $body['search'] = !isset($body['search']) && empty($body['search']) ?'':$body['search'];
+        
         $pagesize = isset($body['pagesize']) && $body['pagesize'] > 0 ? $body['pagesize'] : 15;
         $page     = isset($body['page']) && $body['page'] > 0 ? $body['page'] : 1;
         $offset   = ($page - 1) * $pagesize;
