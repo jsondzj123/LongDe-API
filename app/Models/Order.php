@@ -67,7 +67,7 @@ class Order extends Model {
     public static function offlineStudentSignup($arr){
         //判断传过来的数组数据是否为空
         if(!$arr || !is_array($arr)){
-            return ['code' => 202 , 'msg' => '传递数据不合法'];
+            return ['code' => 201 , 'msg' => '传递数据不合法'];
         }
         //判断学生id
         if(!isset($arr['student_id']) || empty($arr['student_id'])){
@@ -123,7 +123,7 @@ class Order extends Model {
             ]);
             return ['code' => 200 , 'msg' => '订单生成成功','data'=>$add];
         }else{
-            return ['code' => 203 , 'msg' => '订单生成失败'];
+            return ['code' => 202 , 'msg' => '订单生成失败'];
         }
     }
     /*
@@ -158,7 +158,7 @@ class Order extends Model {
             //根据课程id 查询价格
             $lesson = Lesson::select('price','favorable_price')->where(['id'=>$arr['class_id'],'is_del'=>0,'is_forbid'=>0,'status'=>1])->first();
             if(!$lesson){
-                return ['code' => 203 , 'msg' => '此课程选择无效'];
+                return ['code' => 201 , 'msg' => '此课程选择无效'];
             }
             //数据入库，生成订单
             $data['order_number'] = date('YmdHis', time()) . rand(1111, 9999);
@@ -191,7 +191,7 @@ class Order extends Model {
             DB::commit();
         } catch (Exception $ex) {
             DB::rollback();
-            return ['code' => 201 , 'msg' => $ex->getMessage()];
+            return ['code' => 202 , 'msg' => $ex->getMessage()];
         }
 
     }
@@ -209,7 +209,7 @@ class Order extends Model {
         }
         $find = self::where(['id'=>$data['order_id']])->first();
         if(!$find){
-            return ['code' => 202 , 'msg' => '数据无效'];
+            return ['code' => 201 , 'msg' => '数据无效'];
         }
         //获取后端的操作员id
         $admin_id = isset(AdminLog::getAdminInfo()->admin_user->id) ? AdminLog::getAdminInfo()->admin_user->id : 0;
@@ -232,10 +232,10 @@ class Order extends Model {
                     ]);
                     return ['code' => 200 , 'msg' => '审核通过'];
                 }else{
-                    return ['code' => 203 , 'msg' => '操作失败'];
+                    return ['code' => 202 , 'msg' => '操作失败'];
                 }
             }else{
-                return ['code' => 204 , 'msg' => '此订单无法进行此操作'];
+                return ['code' => 203 , 'msg' => '此订单无法进行此操作'];
             }
         }else{
             if($find['status'] == 4){
@@ -255,10 +255,10 @@ class Order extends Model {
                     ]);
                     return ['code' => 200 , 'msg' => '回审通过'];
                 }else{
-                    return ['code' => 203 , 'msg' => '操作失败'];
+                    return ['code' => 202 , 'msg' => '操作失败'];
                 }
             }else{
-                return ['code' => 204 , 'msg' => '此订单无法进行此操作'];
+                return ['code' => 203 , 'msg' => '此订单无法进行此操作'];
             }
         }
     }
