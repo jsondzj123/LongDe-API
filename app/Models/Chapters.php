@@ -5,6 +5,7 @@ use Illuminate\Database\Eloquent\Model;
 use App\Models\AdminLog;
 use App\Models\Exam;
 use Illuminate\Support\Facades\Redis;
+use Illuminate\Support\Facades\DB;
 
 class Chapters extends Model {
     //指定别的表名
@@ -128,15 +129,20 @@ class Chapters extends Model {
             }
         }
         
-        //将更新时间追加
-        $body['update_at'] = date('Y-m-d H:i:s');
-        unset($body['chapters_id']);
+        //数组信息封装
+        $chapters_array = [
+            'name'      =>   $body['name'] ,
+            'update_at' =>   date('Y-m-d H:i:s')
+        ];
         
         //获取后端的操作员id
         $admin_id = isset(AdminLog::getAdminInfo()->admin_user->id) ? AdminLog::getAdminInfo()->admin_user->id : 0;
+        
+        //开启事务
+        DB::beginTransaction();
 
         //根据id更新信息
-        if(false !== self::where('id',$chapters_id)->update($body)){
+        if(false !== self::where('id',$chapters_id)->update($chapters_array)){
             //添加日志操作
             AdminLog::insertAdminLog([
                 'admin_id'       =>   $admin_id  ,
@@ -147,8 +153,12 @@ class Chapters extends Model {
                 'ip'             =>  $_SERVER["REMOTE_ADDR"] ,
                 'create_at'      =>  date('Y-m-d H:i:s')
             ]);
+            //事务提交
+            DB::commit();
             return ['code' => 200 , 'msg' => '更新成功'];
         } else {
+            //事务回滚
+            DB::rollBack();
             return ['code' => 203 , 'msg' => '更新失败'];
         }
     }
@@ -179,12 +189,12 @@ class Chapters extends Model {
         }
         
         //判断题库id是否合法
-        if(isset($body['bank_id']) && $body['bank_id'] <= 0){
+        if(!isset($body['bank_id']) || $body['bank_id'] <= 0){
             return ['code' => 202 , 'msg' => '题库id不合法'];
         }
         
         //判断科目id是否合法
-        if(isset($body['subject_id']) && $body['subject_id'] <= 0){
+        if(!isset($body['subject_id']) || $body['subject_id'] <= 0){
             return ['code' => 202 , 'msg' => '科目id不合法'];
         }
         
@@ -203,12 +213,22 @@ class Chapters extends Model {
         //获取后端的操作员id
         $admin_id = isset(AdminLog::getAdminInfo()->admin_user->id) ? AdminLog::getAdminInfo()->admin_user->id : 0;
 
-        //将后台人员id追加
-        $body['admin_id']   = $admin_id;
-        $body['create_at']  = date('Y-m-d H:i:s');
+        //数组信息封装
+        $chapters_array = [
+            'bank_id'   =>   $body['bank_id'] ,
+            'parent_id' =>   $body['type'] > 0 ? $body['parent_id'] : 0,
+            'subject_id'=>   $body['subject_id'] ,
+            'admin_id'  =>   $admin_id ,
+            'name'      =>   $body['name'] ,
+            'type'      =>   $body['type'] ,
+            'create_at' =>   date('Y-m-d H:i:s')
+        ];
+        
+        //开启事务
+        DB::beginTransaction();
 
         //将数据插入到表中
-        $chapters_id = self::insertChapters($body);
+        $chapters_id = self::insertChapters($chapters_array);
         if($chapters_id && $chapters_id > 0){
             //添加日志操作
             AdminLog::insertAdminLog([
@@ -220,8 +240,12 @@ class Chapters extends Model {
                 'ip'             =>  $_SERVER["REMOTE_ADDR"] ,
                 'create_at'      =>  date('Y-m-d H:i:s')
             ]);
+            //事务提交
+            DB::commit();
             return ['code' => 200 , 'msg' => '添加成功'];
         } else {
+            //事务回滚
+            DB::rollBack();
             return ['code' => 203 , 'msg' => '添加失败'];
         }
     }
@@ -276,6 +300,9 @@ class Chapters extends Model {
         
         //获取后端的操作员id
         $admin_id = isset(AdminLog::getAdminInfo()->admin_user->id) ? AdminLog::getAdminInfo()->admin_user->id : 0;
+        
+        //开启事务
+        DB::beginTransaction();
 
         //根据题库科目id更新删除状态
         if(false !== self::where('id',$body['chapters_id'])->update($data)){
@@ -289,8 +316,12 @@ class Chapters extends Model {
                 'ip'             =>  $_SERVER["REMOTE_ADDR"] ,
                 'create_at'      =>  date('Y-m-d H:i:s')
             ]);
+            //事务提交
+            DB::commit();
             return ['code' => 200 , 'msg' => '删除成功'];
         } else {
+            //事务回滚
+            DB::rollBack();
             return ['code' => 203 , 'msg' => '删除失败'];
         }
     }
