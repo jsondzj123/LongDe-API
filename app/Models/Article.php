@@ -25,7 +25,7 @@ class Article extends Model {
         $data['role_id'] = isset(AdminLog::getAdminInfo()->admin_user->role_id) ? AdminLog::getAdminInfo()->admin_user->role_id : 0;
         $school_id = isset(AdminLog::getAdminInfo()->admin_user->school_id) ? AdminLog::getAdminInfo()->admin_user->school_id : 0;
         //每页显示的条数
-        $pagesize = isset($data['pagesize']) && $data['pagesize'] > 0 ? $data['pagesize'] : 20;
+        $pagesize = isset($data['pageSize']) && $data['pageSize'] > 0 ? $data['pageSize'] : 20;
         $page     = isset($data['page']) && $data['page'] > 0 ? $data['page'] : 1;
         $offset   = ($page - 1) * $pagesize;
         $total = self::leftJoin('ld_school','ld_school.id','=','ld_article.school_id')
@@ -84,11 +84,10 @@ class Article extends Model {
             $type = Articletype::select('id as lable','typename as value')->where(['school_id'=>$data['school_id'],'status'=>1,'is_del'=>1])->get()->toArray();
         }
         $page=[
-            'pagesize'=>$pagesize,
+            'pageSize'=>$pagesize,
             'page' =>$page,
             'total'=>$total
         ];
-        print_r($data);die;
         return ['code' => 200 , 'msg' => '查询成功','data'=>$list,'school'=>$school,'type'=>$type,'where'=>$data,'page'=>$page];
     }
     /*
