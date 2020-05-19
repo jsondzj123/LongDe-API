@@ -132,7 +132,6 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin' , 'middleware'=> ['
      * 直播课次模块(sxl)
     */
     $router->post('liveChild', 'LiveChildController@index');
-    $router->post('liveChild/{id}', 'LiveChildController@show');
     $router->post('liveChild', 'LiveChildController@store');
     $router->post('liveChild/{id}/update', 'LiveChildController@update');
     $router->post('liveChild/{id}/delete', 'LiveChildController@destroy');
