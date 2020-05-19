@@ -23,21 +23,21 @@ class Article extends Model {
     public static function getArticleList($data){
         //获取用户网校id
         $data['role_id'] = isset(AdminLog::getAdminInfo()->admin_user->role_id) ? AdminLog::getAdminInfo()->admin_user->role_id : 0;
-        $data['school_id'] = isset(AdminLog::getAdminInfo()->admin_user->school_id) ? AdminLog::getAdminInfo()->admin_user->school_id : 0;
+        $school_id = isset(AdminLog::getAdminInfo()->admin_user->school_id) ? AdminLog::getAdminInfo()->admin_user->school_id : 0;
         //每页显示的条数
-        $pagesize = isset($data['pagesize']) && $data['pagesize'] > 0 ? $data['pagesize'] : 2;
+        $pagesize = isset($data['pagesize']) && $data['pagesize'] > 0 ? $data['pagesize'] : 20;
         $page     = isset($data['page']) && $data['page'] > 0 ? $data['page'] : 1;
         $offset   = ($page - 1) * $pagesize;
         $total = self::leftJoin('ld_school','ld_school.id','=','ld_article.school_id')
             ->leftJoin('ld_article_type','ld_article_type.id','=','ld_article.article_type_id')
             ->leftJoin('ld_admin','ld_admin.id','=','ld_article.user_id')
-            ->where(function($query) use ($data) {
+            ->where(function($query) use ($data,$school_id) {
                 if($data['role_id'] == 1){
                     if(!empty($data['school_id']) && $data['school_id'] != ''){
                         $query->where('ld_article.school_id',$data['school_id']);
                     }
                 }else{
-                    $query->where('ld_article.school_id',$data['school_id']);
+                    $query->where('ld_article.school_id',$school_id);
                 }
                 if(!empty($data['type_id']) && $data['type_id'] != '' ){
                     $query->where('ld_article.article_type_id',$data['type_id']);
@@ -74,17 +74,13 @@ class Article extends Model {
             ->where(['ld_article.is_del'=>1,'ld_article_type.is_del'=>1,'ld_article_type.status'=>1,'ld_admin.is_del'=>1,'ld_admin.is_forbid'=>1,'ld_school.is_del'=>1,'ld_school.is_forbid'=>1])
             ->orderBy('ld_article.id','desc')
             ->offset($offset)->limit($pagesize)->get();
-
         //分校列表
         if($data['role_id'] == 1){
             $school = School::select('id as lable','name as value')->where(['is_forbid'=>1,'is_del'=>1])->get()->toArray();
-        }else{
-            $school = School::select('id as lable','name as value')->where(['id'=>$data['school_id'],'is_forbid'=>1,'is_del'=>1])->get()->toArray();
-        }
-        //文章分类
-        if($data['role_id'] == 1){
             $type = Articletype::select('id as lable','typename as value')->where(['status'=>1,'is_del'=>1])->get()->toArray();
         }else{
+            $data['school_id'] = $school_id;
+            $school = School::select('id as lable','name as value')->where(['id'=>$data['school_id'],'is_forbid'=>1,'is_del'=>1])->get()->toArray();
             $type = Articletype::select('id as lable','typename as value')->where(['school_id'=>$data['school_id'],'status'=>1,'is_del'=>1])->get()->toArray();
         }
         $page=[
@@ -92,6 +88,7 @@ class Article extends Model {
             'page' =>$page,
             'total'=>$total
         ];
+        print_r($data);die;
         return ['code' => 200 , 'msg' => '查询成功','data'=>$list,'school'=>$school,'type'=>$type,'where'=>$data,'page'=>$page];
     }
     /*
