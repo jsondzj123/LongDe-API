@@ -4,6 +4,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\AdminLog;
 use Illuminate\Support\Facades\Redis;
+use Illuminate\Support\Facades\DB;
 
 class Teacher extends Model {
     //指定别的表名
@@ -215,7 +216,8 @@ class Teacher extends Model {
         }
 
         //如果是讲师
-        if($body['type'] > 1){
+        $teacher_info = self::find($body['teacher_id']);
+        if($teacher_info['type'] > 1){
             //判断学科是否选择
             if((!isset($body['parent_id']) || empty($body['parent_id'])) || (!isset($body['child_id']) || empty($body['child_id'])) || ($body['child_id'] <= 0 || $body['child_id'] <= 0)){
                 return ['code' => 201 , 'msg' => '请选择关联学科'];
@@ -246,15 +248,29 @@ class Teacher extends Model {
             }
         }
         
-        //将更新时间追加
-        $body['update_at'] = date('Y-m-d H:i:s');
-        unset($body['teacher_id']);
+        //讲师或教务数组信息追加
+        $teacher_array = [
+            'head_icon'  =>    $body['head_icon'] ,
+            'phone'      =>    $body['phone'] ,
+            'real_name'  =>    $body['real_name'] ,
+            'qq'         =>    isset($body['qq']) && !empty($body['qq']) ? $body['qq'] : '' ,
+            'wechat'     =>    isset($body['wechat']) && !empty($body['wechat']) ? $body['wechat'] : '' ,
+            'sex'        =>    $body['sex'] ,
+            'describe'   =>    $body['describe'] ,
+            'parent_id'  =>    $teacher_info['type'] > 1 ? $body['parent_id'] : 0 ,
+            'child_id'   =>    $teacher_info['type'] > 1 ? $body['child_id'] : 0 ,
+            'content'    =>    $teacher_info['type'] > 1 ? $body['content'] : '' ,
+            'update_at'  =>    date('Y-m-d H:i:s')
+        ];
         
         //获取后端的操作员id
         $admin_id = isset(AdminLog::getAdminInfo()->admin_user->id) ? AdminLog::getAdminInfo()->admin_user->id : 0;
+        
+        //开启事务
+        DB::beginTransaction();
 
         //根据讲师或教务id更新信息
-        if(false !== self::where('id',$teacher_id)->update($body)){
+        if(false !== self::where('id',$teacher_id)->update($teacher_array)){
             //添加日志操作
             AdminLog::insertAdminLog([
                 'admin_id'       =>   $admin_id  ,
@@ -265,8 +281,12 @@ class Teacher extends Model {
                 'ip'             =>  $_SERVER["REMOTE_ADDR"] ,
                 'create_at'      =>  date('Y-m-d H:i:s')
             ]);
+            //事务提交
+            DB::commit();
             return ['code' => 200 , 'msg' => '更新成功'];
         } else {
+            //事务回滚
+            DB::rollBack();
             return ['code' => 203 , 'msg' => '更新失败'];
         }
     }
@@ -349,13 +369,29 @@ class Teacher extends Model {
         $school_id= isset(AdminLog::getAdminInfo()->admin_user->school_id) ? AdminLog::getAdminInfo()->admin_user->school_id : 0;
 
 
-        //将所属网校id和后台人员id追加
-        $body['admin_id']   = $admin_id;
-        $body['school_id']  = $school_id;
-        $body['create_at']  = date('Y-m-d H:i:s');
+        //讲师或教务数组信息追加
+        $teacher_array = [
+            'type'       =>    $body['type'] ,
+            'head_icon'  =>    $body['head_icon'] ,
+            'phone'      =>    $body['phone'] ,
+            'real_name'  =>    $body['real_name'] ,
+            'qq'         =>    isset($body['qq']) && !empty($body['qq']) ? $body['qq'] : '' ,
+            'wechat'     =>    isset($body['wechat']) && !empty($body['wechat']) ? $body['wechat'] : '' ,
+            'sex'        =>    $body['sex'] ,
+            'describe'   =>    $body['describe'] ,
+            'parent_id'  =>    $body['type'] > 1 ? $body['parent_id'] : 0 ,
+            'child_id'   =>    $body['type'] > 1 ? $body['child_id'] : 0 ,
+            'content'    =>    $body['type'] > 1 ? $body['content'] : '' ,
+            'admin_id'   =>    $admin_id ,
+            'school_id'  =>    $school_id ,
+            'create_at'  =>    date('Y-m-d H:i:s')
+        ];
+        
+        //开启事务
+        DB::beginTransaction();
 
         //将数据插入到表中
-        if(false !== self::insertTeacher($body)){
+        if(false !== self::insertTeacher($teacher_array)){
             //添加日志操作
             AdminLog::insertAdminLog([
                 'admin_id'       =>   $admin_id  ,
@@ -366,8 +402,12 @@ class Teacher extends Model {
                 'ip'             =>  $_SERVER["REMOTE_ADDR"] ,
                 'create_at'      =>  date('Y-m-d H:i:s')
             ]);
+            //事务提交
+            DB::commit();
             return ['code' => 200 , 'msg' => '添加成功'];
         } else {
+            //事务回滚
+            DB::rollBack();
             return ['code' => 203 , 'msg' => '添加失败'];
         }
     }
@@ -417,6 +457,9 @@ class Teacher extends Model {
         
         //获取后端的操作员id
         $admin_id = isset(AdminLog::getAdminInfo()->admin_user->id) ? AdminLog::getAdminInfo()->admin_user->id : 0;
+        
+        //开启事务
+        DB::beginTransaction();
 
         //根据讲师或教务id更新删除状态
         if(false !== self::where('id',$body['teacher_id'])->update($data)){
@@ -430,8 +473,12 @@ class Teacher extends Model {
                 'ip'             =>  $_SERVER["REMOTE_ADDR"] ,
                 'create_at'      =>  date('Y-m-d H:i:s')
             ]);
+            //事务提交
+            DB::commit();
             return ['code' => 200 , 'msg' => '删除成功'];
         } else {
+            //事务回滚
+            DB::rollBack();
             return ['code' => 203 , 'msg' => '删除失败'];
         }
     }
@@ -473,15 +520,21 @@ class Teacher extends Model {
                 return ['code' => 204 , 'msg' => '此讲师教务不存在'];
             }
         }
+        
+        //根据学员的id获取学员的状态
+        $is_recommend = self::where('id',$body['teacher_id'])->pluck('is_recommend');
 
         //追加更新时间
         $data = [
-            'is_recommend' => $body['is_recommend'] == 1 ? 1 : 0 ,
+            'is_recommend' => $is_recommend[0] > 0 ? 0 : 1 ,
             'update_at'    => date('Y-m-d H:i:s')
         ];
         
         //获取后端的操作员id
         $admin_id = isset(AdminLog::getAdminInfo()->admin_user->id) ? AdminLog::getAdminInfo()->admin_user->id : 0;
+        
+        //开启事务
+        DB::beginTransaction();
 
         //根据讲师或教务id更新推荐状态
         if(false !== self::where('id',$body['teacher_id'])->update($data)){
@@ -490,16 +543,18 @@ class Teacher extends Model {
                 'admin_id'       =>   $admin_id  ,
                 'module_name'    =>  'Teacher' ,
                 'route_url'      =>  'admin/teacher/doRecommendTeacher' , 
-                'operate_method' =>  'delete' ,
+                'operate_method' =>  'recommend' ,
                 'content'        =>  json_encode($body) ,
                 'ip'             =>  $_SERVER["REMOTE_ADDR"] ,
                 'create_at'      =>  date('Y-m-d H:i:s')
             ]);
+            //事务提交
+            DB::commit();
             return ['code' => 200 , 'msg' => '操作成功'];
         } else {
+            //事务回滚
+            DB::rollBack();
             return ['code' => 203 , 'msg' => '操作失败'];
         }
     }
-
-    
 }
