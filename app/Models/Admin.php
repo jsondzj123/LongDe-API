@@ -242,7 +242,7 @@ class Admin extends Model implements AuthenticatableContract, AuthorizableContra
         }
          $adminUserInfo  = CurrentAdmin::user();  //当前登录用户所有信息
         //判断搜索条件是否合法
-        $body['search'] = !isset($body['search']) && empty($body['search'] ?'':$body['search'];
+        $body['search'] = !isset($body['search']) && empty($body['search']) ?'':$body['search'];
         
         $pagesize = isset($body['pagesize']) && $body['pagesize'] > 0 ? $body['pagesize'] : 15;
         $page     = isset($body['page']) && $body['page'] > 0 ? $body['page'] : 1;
