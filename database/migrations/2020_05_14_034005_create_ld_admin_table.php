@@ -18,7 +18,7 @@ class CreateLdAdminTable extends Migration
             $table->integer('admin_id')->comment('操作员ID');
             $table->string('username')->nullable()->comment('用户名');
             $table->string('password')->nullable()->comment('密码');
-            $table->integer('role_id')s ->comment('角色ID');
+            $table->integer('role_id')->comment('角色ID');
             $table->string('realname')->nullable()->comment('真实姓名');
             $table->integer('sex')->nullable()->default(0)->comment('性别');
             $table->integer('mobile')->comment('手机号码');

@@ -28,14 +28,13 @@ class SchoolController extends Controller {
      */
     public function getSchoolList(){
             $data = self::$accept_data;
+
             $pagesize = isset($data['pagesize']) && $data['pagesize'] > 0 ? $data['pagesize'] : 15;
             $page     = isset($data['page']) && $data['page'] > 0 ? $data['page'] : 1;
-            $offset   = ($page - 1) * $pagesize;
 
+            $offset   = ($page - 1) * $pagesize;
             $where['name'] = empty($data['school_name']) || !isset($data['school_name']) ?'':$data['school_name'];
             $where['dns'] = empty($data['school_dns']) || !isset($data['school_dns']) ?'':$data['school_dns'];
-     
-            $offset  = ($page -1)*$pagesize;
             $school_count = School::where(function($query) use ($where){
                     if($where['name'] != ''){
                         $query->where('name','like','%'.$where['name'].'%');
@@ -56,6 +55,7 @@ class SchoolController extends Controller {
                     }
                     $query->where('is_del','=',1);
                 })->select('id','name','logo_url','dns','is_forbid','logo_url')->offset($offset)->limit($pagesize)->get();
+
                 return response()->json(['code'=>200,'msg'=>'Success','data'=>['school_list' => $schoolArr , 'total' => $school_count , 'pagesize' => $pagesize , 'page' => $page,'sum_page'=>$sum_page,'name'=>$where['name'],'dns'=>$where['dns']]]);           
             }
             return response()->json(['code'=>200,'msg'=>'Success','data'=>['school_list' => [] , 'total' => 0 , 'pagesize' => $pagesize , 'page' => $page,'sum_page'=>$sum_page,'name'=>$where['name'],'dns'=>$where['dns']]]);           
