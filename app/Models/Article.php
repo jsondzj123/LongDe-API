@@ -74,7 +74,6 @@ class Article extends Model {
             ->where(['ld_article.is_del'=>1,'ld_article_type.is_del'=>1,'ld_article_type.status'=>1,'ld_admin.is_del'=>1,'ld_admin.is_forbid'=>1,'ld_school.is_del'=>1,'ld_school.is_forbid'=>1])
             ->orderBy('ld_article.id','desc')
             ->offset($offset)->limit($pagesize)->get();
-
         //分校列表
         if($data['role_id'] == 1){
             $school = School::select('id as lable','name as value')->where(['is_forbid'=>1,'is_del'=>1])->get()->toArray();
@@ -89,6 +88,7 @@ class Article extends Model {
             'page' =>$page,
             'total'=>$total
         ];
+        print_r($data);die;
         return ['code' => 200 , 'msg' => '查询成功','data'=>$list,'school'=>$school,'type'=>$type,'where'=>$data,'page'=>$page];
     }
     /*
