@@ -21,6 +21,7 @@ class OrderController extends Controller {
          */
     public function orderList(){
         $list = Order::getList(self::$accept_data);
+        print_r($list);die;
         return response()->json(['code' => 200 , 'msg' => '获取成功','data'=>$list]);
     }
     /*
