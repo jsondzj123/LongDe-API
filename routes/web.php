@@ -226,7 +226,7 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin' , 'middleware'=> ['
     //运营模块(szw)
     $router->group(['prefix' => 'article'], function () use ($router) {
         /*------------文章模块---------------------*/
-        $router->post('postArticleList', 'ArticleController@postArticleList');//获取文章列表
+        $router->post('getArticleList', 'ArticleController@getArticleList');//获取文章列表
         $router->post('addArticle', 'ArticleController@addArticle');//新增文章
         $router->post('editStatusToId', 'ArticleController@editStatusToId');//文章启用&禁用
         $router->post('editDelToId', 'ArticleController@editDelToId');//文章删除
@@ -234,7 +234,7 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin' , 'middleware'=> ['
         $router->post('exitForId', 'ArticleController@exitForId');//文章修改
         /*------------文章分类模块------------------*/
         $router->post('addType', 'ArticletypeController@addType');//文章分类添加
-        $router->post('postTypeList', 'ArticletypeController@postTypeList');//获取文章分类列表
+        $router->post('getTypeList', 'ArticletypeController@getTypeList');//获取文章分类列表
         $router->post('editStatusForId', 'ArticletypeController@editStatusForId');//文章分类禁用&启用
         $router->post('exitDelForId', 'ArticletypeController@exitDelForId');//文章分类删除
         $router->post('exitTypeForId', 'ArticletypeController@exitTypeForId');//文章分类修改
