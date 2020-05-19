@@ -187,7 +187,7 @@ class LessonController extends Controller {
 
 
     /**
-     * Update the specified resource in storage.
+     * 修改课程
      *
      * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
@@ -261,7 +261,7 @@ class LessonController extends Controller {
 
 
     /**
-     * 删除
+     * 删除课程
      *
      * @param  int  $id
      * @return \Illuminate\Http\Response
@@ -273,64 +273,5 @@ class LessonController extends Controller {
             return $this->response("删除失败", 500);
         }
         return $this->response("删除成功");
-    }
-
-
-    /**
-     * 添加课程.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function auth(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'title' => 'required',
-            'keyword' => 'required',
-            'cover' => 'required',
-            'price' => 'required',
-            'favorable_price' => 'required',
-            'method' => 'required',
-            'teacher_id' => 'required',
-            'description' => 'required',
-            'introduction' => 'required',
-            'subject_id' => 'required',
-            'is_public' => 'required',
-            'buy_num' => 'required',
-            'ttl' => 'required',
-        ]);
-        if ($validator->fails()) {
-            return $this->response($validator->errors()->first(), 422);
-        }
-        $subjectIds = json_decode($request->input('subject_id'), true);
-        $teacherIds = json_decode($request->input('teacher_id'), true);
-        $user = CurrentAdmin::user();
-
-        try {
-            $lesson = Lesson::create([
-                    'admin_id' => intval($user->id),
-                    'title' => $request->input('title'),
-                    'keyword' => $request->input('keyword'),
-                    'cover' => $request->input('cover'),
-                    'price' => $request->input('price'),
-                    'favorable_price' => $request->input('favorable_price'),
-                    'method' => $request->input('method'),
-                    'description' => $request->input('description'),
-                    'introduction' => $request->input('introduction'),
-                    'is_public' => $request->input('is_public'),
-                    'buy_num' => $request->input('buy_num'),
-                    'ttl' => $request->input('ttl'),
-                ]);
-            if(!empty($teacherIds)){
-                $lesson->teachers()->attach($teacherIds); 
-            }
-            if(!empty($subjectIds)){
-                $lesson->subjects()->attach($subjectIds); 
-            }
-        } catch (Exception $e) {
-            Log::error('创建失败:'.$e->getMessage());
-            return $this->response($e->getMessage(), 500);
-        }
-        return $this->response('创建成功');
     }
 }

@@ -24,7 +24,31 @@ class Article extends Model {
         //获取用户网校id
         $data['role_id'] = isset(AdminLog::getAdminInfo()->admin_user->role_id) ? AdminLog::getAdminInfo()->admin_user->role_id : 0;
         $data['school_id'] = isset(AdminLog::getAdminInfo()->admin_user->school_id) ? AdminLog::getAdminInfo()->admin_user->school_id : 0;
-        $data['num'] = isset($data['num'])?$data['num']:20;
+        //每页显示的条数
+        $pagesize = isset($data['pagesize']) && $data['pagesize'] > 0 ? $data['pagesize'] : 2;
+        $page     = isset($data['page']) && $data['page'] > 0 ? $data['page'] : 1;
+        $offset   = ($page - 1) * $pagesize;
+        $total = self::leftJoin('ld_school','ld_school.id','=','ld_article.school_id')
+            ->leftJoin('ld_article_type','ld_article_type.id','=','ld_article.article_type_id')
+            ->leftJoin('ld_admin','ld_admin.id','=','ld_article.user_id')
+            ->where(function($query) use ($data) {
+                if($data['role_id'] == 1){
+                    if(!empty($data['school_id']) && $data['school_id'] != ''){
+                        $query->where('ld_article.school_id',$data['school_id']);
+                    }
+                }else{
+                    $query->where('ld_article.school_id',$data['school_id']);
+                }
+                if(!empty($data['type_id']) && $data['type_id'] != '' ){
+                    $query->where('ld_article.article_type_id',$data['type_id']);
+                }
+                if(!empty($data['title']) && $data['title'] != ''){
+                    $query->where('ld_article.title','like','%'.$data['title'].'%')
+                        ->orwhere('ld_article.id',$data['title']);
+                }
+            })
+            ->where(['ld_article.is_del'=>1,'ld_article_type.is_del'=>1,'ld_article_type.status'=>1,'ld_admin.is_del'=>1,'ld_admin.is_forbid'=>1,'ld_school.is_del'=>1,'ld_school.is_forbid'=>1])
+            ->count();
         $list = self::select('ld_article.id','ld_article.title','ld_article.create_at','ld_article.status','ld_school.name','ld_article_type.typename','ld_admin.username')
             ->leftJoin('ld_school','ld_school.id','=','ld_article.school_id')
             ->leftJoin('ld_article_type','ld_article_type.id','=','ld_article.article_type_id')
@@ -49,7 +73,8 @@ class Article extends Model {
             })
             ->where(['ld_article.is_del'=>1,'ld_article_type.is_del'=>1,'ld_article_type.status'=>1,'ld_admin.is_del'=>1,'ld_admin.is_forbid'=>1,'ld_school.is_del'=>1,'ld_school.is_forbid'=>1])
             ->orderBy('ld_article.id','desc')
-            ->paginate($data['num']);
+            ->offset($offset)->limit($pagesize)->get();
+
         //分校列表
         if($data['role_id'] == 1){
             $school = School::select('id as lable','name as value')->where(['is_forbid'=>1,'is_del'=>1])->get()->toArray();
@@ -62,7 +87,12 @@ class Article extends Model {
         }else{
             $type = Articletype::select('id as lable','typename as value')->where(['school_id'=>$data['school_id'],'status'=>1,'is_del'=>1])->get()->toArray();
         }
-        return ['code' => 200 , 'msg' => '查询成功','data'=>$list,'school'=>$school,'type'=>$type];
+        $page=[
+            'pagesize'=>$pagesize,
+            'page' =>$page,
+            'total'=>$total
+        ];
+        return ['code' => 200 , 'msg' => '查询成功','data'=>$list,'school'=>$school,'type'=>$type,'where'=>$data,'page'=>$page];
     }
     /*
          * @param 修改文章状态

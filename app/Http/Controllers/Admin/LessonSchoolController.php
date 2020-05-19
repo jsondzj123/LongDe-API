@@ -37,7 +37,7 @@ class LessonSchoolController extends Controller {
 
 
     /*
-     * @param  课程详情
+     * @param  分校课程详情
      * @param  课程id
      * @param  author  孙晓丽
      * @param  ctime   2020/5/1 
@@ -53,10 +53,10 @@ class LessonSchoolController extends Controller {
 
 
     /**
-     * 授权添加课程.
+     * 批量授权添加课程.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @param  lesson_id school_id
+     * @return json
      */
     public function store(Request $request)
     {
@@ -86,7 +86,7 @@ class LessonSchoolController extends Controller {
 
 
     /**
-     * 修改授权课程内容
+     * 分校修改授权课程内容
      *
      * @param  \Illuminate\Http\Request  $request
      * @param  int  $id

@@ -28,7 +28,7 @@ class SchoolController extends Controller {
      */
     public function getSchoolList(){
             $data = self::$accept_data;
-
+                
             $pagesize = isset($data['pagesize']) && $data['pagesize'] > 0 ? $data['pagesize'] : 15;
             $page     = isset($data['page']) && $data['page'] > 0 ? $data['page'] : 1;
 
@@ -91,10 +91,10 @@ class SchoolController extends Controller {
                 ]);
                 return response()->json(['code' => 200 , 'msg' => '删除成功']);
             } else {
-                return response()->json(['code' => 201 , 'msg' => '删除失败']);
+                return response()->json(['code' => 203 , 'msg' => '删除失败']);
             }
         } catch (Exception $ex) {
-            return response()->json(['code' => 500 , 'msg' => $ex->getMessage()]);
+            return response()->json(['code' => 203 , 'msg' => $ex->getMessage()]);
         }
     }
 
@@ -135,7 +135,7 @@ class SchoolController extends Controller {
                 ]);
                 return response()->json(['code' => 200 , 'msg' => '更新成功']);
             } else {
-                return response()->json(['code' => 201 , 'msg' => '更新失败']);
+                return response()->json(['code' => 203 , 'msg' => '更新失败']);
             }
         } catch (Exception $ex) {
             return response()->json(['code' => 500 , 'msg' => $ex->getMessage()]);
@@ -178,7 +178,7 @@ class SchoolController extends Controller {
             return response()->json(json_decode($validator->errors()->first(),1));
         }
         if($data['password'] != $data['pwd']){
-            return response()->json(['code'=>2001,'msg'=>'两次密码不一致']);
+            return response()->json(['code'=>206,'msg'=>'两次密码不一致']);
         }
         try{
             $school = [
@@ -190,7 +190,7 @@ class SchoolController extends Controller {
             ];
             $school_id = School::insertGetId($school);
             if($school_id <0){
-                return response()->json(['code'=>2002,'msg'=>'创建学校未成功']);  
+                return response()->json(['code'=>203,'msg'=>'创建学校未成功']);  
             }
             $admin =[
                 'username' =>$data['username'],
@@ -214,7 +214,7 @@ class SchoolController extends Controller {
                 ]);
                 return response()->json(['code' => 200 , 'msg' => '创建成功']);
             } else {
-                return response()->json(['code' => 201 , 'msg' => '创建账号未成功']);
+                return response()->json(['code' => 203 , 'msg' => '创建账号未成功']);
             }
         } catch (Exception $ex) {
             return response()->json(['code' => 500 , 'msg' => $ex->getMessage()]);
@@ -353,11 +353,11 @@ class SchoolController extends Controller {
             return response()->json(json_decode($validator->errors()->first(),1));
         }
         if(!isset($data['auth_id'])){
-             return response()->json(['code'=>422,'msg'=>'权限组标识缺少']);
+             return response()->json(['code'=>201,'msg'=>'权限组标识缺少']);
         }
         if($data['role_id']>0){
             if(empty($data['auth_id'])){
-                return response()->json(['code'=>422,'msg'=>'权限组标识不能为空']);
+                return response()->json(['code'=>201,'msg'=>'权限组标识不能为空']);
             }
         }
         $auths_id = Authrules::where(['is_del'=>1,'is_show'=>1,'is_forbid'=>1])->pluck('id')->toarray();
@@ -368,7 +368,7 @@ class SchoolController extends Controller {
             }
         }
         if(empty($arr)){
-             return response()->json(['code'=>422,'msg'=>'非法请求']);
+             return response()->json(['code'=>404,'msg'=>'非法请求']);
         }
         $roleAuthArr = Roleauth::where(['school_id'=>$data['id'],'is_super'=>1,'is_del'=>1])->first();
         try {  //5.15  
@@ -396,13 +396,13 @@ class SchoolController extends Controller {
                 if(!Adminuser::where('id',$data['user_id'])->update(['role_id'=>$role_id])){
                     return response()->json(['code'=>200,'msg'=>'赋权成功']);
                 }else{
-                    return response()->json(['code'=>500,'msg'=>'网络错误，请重试']);
+                    return response()->json(['code'=>203,'msg'=>'网络错误，请重试']);
                 }
             }else{
                 //有
                 $super  = Roleauth::where(['id'=>$data['role_id']])->select('is_super')->first();
                 if($super['is_super']<1){
-                    return response()->json(['code'=>500,'msg'=>'非法请求']);
+                    return response()->json(['code'=>404,'msg'=>'非法请求']);
                 }
                 //判断是否为超管，如果删除权限判断分校超管是否在使用，如果存在就不能删除，如果强删联系技术
                 $fen_role_auth_arr = Roleauth::where(['is_del'=>1,'is_super'=>0])->where('school_id',$data['id'])->select('auth_id')->get();
@@ -411,7 +411,7 @@ class SchoolController extends Controller {
                     $new_arr = array_diff($fen_roles_id,$arr);
                     foreach ($new_arr as $vv) {
                         if(in_array($vv,$fen_roles_id)){
-                            return response()->json(['code'=>422,'msg'=>'该校其他角色在使用中，不能修改']);
+                            return response()->json(['code'=>204,'msg'=>'该校其他角色在使用中，不能修改']);
                         }
                     }
                 }
@@ -427,7 +427,7 @@ class SchoolController extends Controller {
                 if(Roleauth::where('id',$data['role_id'])->update(['auth_id'=>implode(',',$arr),'update_time'=>date('Y-m-d H:i:s')])){
                     return response()->json(['code'=>200,'msg'=>'赋权成功']);
                 }else{
-                    return response()->json(['code'=>500,'msg'=>'网络错误，请重试']);
+                    return response()->json(['code'=>203,'msg'=>'网络错误，请重试']);
                 }
             }
             DB::commit();
