@@ -58,7 +58,7 @@ class Article extends Model {
         }
         //文章分类
         if($data['role_id'] == 1){
-            $type = Articletype::select('id as value','typename as lable')->where(['status'=>1,'is_del'=>1])->get()->toArray();
+            $type = Articletype::select('id as lable','typename as value')->where(['status'=>1,'is_del'=>1])->get()->toArray();
         }else{
             $type = Articletype::select('id as value','typename as lable')->where(['school_id'=>$data['school_id'],'status'=>1,'is_del'=>1])->get()->toArray();
         }
