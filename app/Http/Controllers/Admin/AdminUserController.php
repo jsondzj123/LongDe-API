@@ -74,7 +74,7 @@ class AdminUserController extends Controller {
             ]);
             return response()->json(['code'=>200,'msg'=>'Success']);    
         }else{
-            return response()->json(['code'=>500,'msg'=>'网络超时，请重试']);    
+            return response()->json(['code'=>204,'msg'=>'网络超时，请重试']);    
         }
 
     }
@@ -109,7 +109,7 @@ class AdminUserController extends Controller {
             ]);
             return response()->json(['code'=>200,'msg'=>'Success']);    
         }else{
-            return response()->json(['code'=>500,'msg'=>'网络超时，请重试']);    
+            return response()->json(['code'=>204,'msg'=>'网络超时，请重试']);    
         }
     }
     /*
@@ -159,17 +159,17 @@ class AdminUserController extends Controller {
                 ],
                 Adminuser::message());
         if($validator->fails()) {
-            return response()->json(['code'=>422,'msg'=>$validator->errors()->first()]);
+            return response()->json(json_decode($validator->errors()->first(),1));
         }
         if( !isset($data['teacher_id'])){
-            return response()->json(['code'=>422,'msg'=>'缺少教师id']);
+            return response()->json(['code'=>201,'msg'=>'缺少教师id']);
         }
         if($data['password'] != $data['pwd']){
-            return response()->json(['code'=>422,'msg'=>'登录密码不一致']);
+            return response()->json(['code'=>206,'msg'=>'登录密码不一致']);
         } 
         $count  = Adminuser::where('username',$data['username'])->where('school_id',$data['school_id'])->where('is_del',1)->count();
         if($count>0){
-            return response()->json(['code'=>422,'msg'=>'用户名已存在']);
+            return response()->json(['code'=>205,'msg'=>'用户名已存在']);
         }
         unset($data['pwd']);
         $data['password'] = password_hash($data['password'], PASSWORD_DEFAULT);
@@ -189,7 +189,7 @@ class AdminUserController extends Controller {
             ]);
             return   response()->json(['code'=>200,'msg'=>'添加成功']);
         }else{
-            return  response()->json(['code'=>500,'msg'=>'网络超时，请重试']);
+            return  response()->json(['code'=>203,'msg'=>'网络超时，请重试']);
         }
     }
     /*
@@ -208,7 +208,7 @@ class AdminUserController extends Controller {
         }
         $adminUserArr = Adminuser::getUserOne($data);
         if($adminUserArr['code'] != 200){
-            return response()->json(['code'=>202,'msg'=>'用户不存在']);
+            return response()->json(['code'=>204,'msg'=>'用户不存在']);
         }
         $adminUserArr['data']['school_name']  = School::getSchoolOne(['id'=>$adminUserArr['data']['school_id'],'is_forbid'=>1,'is_del'=>1],['name'])['data']['name'];
         $roleAuthArr = Roleauth::getRoleAuthAlls(['school_id'=>$adminUserArr['data']['school_id'],'is_del'=>1],['id','role_name']);
@@ -259,20 +259,20 @@ class AdminUserController extends Controller {
                 ],
                 Adminuser::message());
         if($validator->fails()) {
-            return response()->json(['code'=>422,'msg'=>$validator->errors()->first()]);
+            return response()->json(json_decode($validator->errors()->first(),1));
         }
         if( !isset($data['teacher_id'])){
             return response()->json(['code'=>422,'msg'=>'缺少教师id']);
         }
         if($data['password'] != $data['pwd']){
-            return response()->json(['code'=>202,'msg'=>'登录密码不一致']);
+            return response()->json(['code'=>206,'msg'=>'登录密码不一致']);
         }
         $where['school_id'] = $data['school_id'];
         $where['username']   = $data['username'];
         $where['is_del'] = 1;
         $count = Adminuser::where($where)->where('id','!=',$data['id'])->count();
         if($count >=1 ){
-             return response()->json(['code'=>203,'msg'=>'用户名已存在']);
+             return response()->json(['code'=>205,'msg'=>'用户名已存在']);
         }  
         $data['password'] = password_hash($data['password'], PASSWORD_DEFAULT);
         unset($data['pwd']);
@@ -309,7 +309,7 @@ class AdminUserController extends Controller {
                 ]);
                 return   response()->json(['code'=>200,'msg'=>'更改成功']);
             }else{
-                return   response()->json(['code'=>500,'msg'=>'网络超时，请重试']);    
+                return   response()->json(['code'=>203,'msg'=>'网络超时，请重试']);    
             }
            
             DB::commit();
@@ -329,7 +329,7 @@ class AdminUserController extends Controller {
 
     public function getAdminUserLoginAuth($admin_role_id){
         if(empty($admin_role_id) || !intval($admin_role_id)){
-            return ['code'=>204,'msg'=>'参数值为空或参数类型错误'];
+            return ['code'=>201,'msg'=>'参数值为空或参数类型错误'];
         }
         $adminRole =  Roleauth::getRoleOne(['id'=>$admin_role_id,'is_del'=>1],['id','role_name','auth_id']);
         if($adminRole['code'] != 200){

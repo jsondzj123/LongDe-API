@@ -55,7 +55,7 @@ class Authrules extends Model {
         if($arr){
             return ['code'=>200,'msg'=>'获取权限信息成功','data'=>$arr];
         }else{
-            return ['code'=>201,'msg'=>'权限信息不存在'];
+            return ['code'=>204,'msg'=>'权限信息不存在'];
         }
     }
         /*
