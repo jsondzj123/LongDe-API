@@ -263,24 +263,24 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin' , 'middleware'=> ['
     /*begin 系统管理   lys   */
         //系统用户管理模块
     $router->group(['prefix' => 'adminuser'], function () use ($router) {
-        $router->post('postAdminUserList', 'AdminUserController@postAdminUserList');            //获取后台用户列表方法 √ 5.8
+        $router->post('getAdminUserList', 'AdminUserController@getAdminUserList');            //获取后台用户列表方法 √ 5.8
         $router->post('upUserForbidStatus', 'AdminUserController@upUserForbidStatus');        //更改账号状态方法（启用禁用） √√√ +1
         $router->post('upUserDelStatus', 'AdminUserController@upUserDelStatus');              //更改账号状态方法 (删除)  √√√  +1
-        $router->post('postInsertAdminUser', 'CommonController@postInsertAdminUser');           //获取添加账号信息（school，roleAuth）方法 √
+        $router->post('getInsertAdminUser', 'CommonController@getInsertAdminUser');           //获取添加账号信息（school，roleAuth）方法 √
         $router->post('doInsertAdminUser', 'AdminUserController@doInsertAdminUser');          //添加账号方法 √  +1
-        $router->post('postAuthList', 'AdminUserController@postAuthList');                      //获取角色列表方法 √
-        $router->post('postAdminUserUpdate', 'AdminUserController@postAdminUserUpdate');        //获取账号信息（编辑） √√√
+        $router->post('getAuthList', 'AdminUserController@getAuthList');                      //获取角色列表方法 √
+        $router->post('getAdminUserUpdate', 'AdminUserController@getAdminUserUpdate');        //获取账号信息（编辑） √√√
         $router->post('doAdminUserUpdate', 'AdminUserController@doAdminUserUpdate');          //编辑账号信息  √√  5.9  +1
 
     });
         //系统角色管理模块
     $router->group(['prefix' => 'role'], function () use ($router) {
 
-        $router->post('postAuthList', 'RoleController@postAuthList');                           //获取后台角色列表方法    xxx
+        $router->post('getAuthList', 'RoleController@getAuthList');                           //获取后台角色列表方法    xxx
         $router->post('doRoleDel', 'RoleController@doRoleDel');                                //修改状态码(删除) √   +1
-        $router->post('postRoleAuthInsert', 'CommonController@postRoleAuth');                   //获取role_auth列表 √√
+        $router->post('getRoleAuthInsert', 'CommonController@getRoleAuth');                   //获取role_auth列表 √√
         $router->post('doRoleAuthInsert', 'RoleController@doRoleInsert');                     //添加角色方法 √√ +1
-        $router->post('postRoleAuthUpdate', 'RoleController@postRoleAuthUpdate');               // 获取角色信息（编辑）√√
+        $router->post('getRoleAuthUpdate', 'RoleController@getRoleAuthUpdate');               // 获取角色信息（编辑）√√
         $router->post('doRoleAuthUpdate', 'RoleController@doRoleAuthUpdate');                 //编辑角色信息  √√ +1
     });
     /*end 系统管理  */
@@ -292,17 +292,17 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin' , 'middleware'=> ['
     /*begin 网校系统  lys*/
 
     $router->group(['prefix' => 'school'], function () use ($router) {
-        $router->post('postSchoolList', 'SchoolController@postSchoolList');                    //获取网校列表方法 √√√
+        $router->post('getSchoolList', 'SchoolController@getSchoolList');                    //获取网校列表方法 √√√
         $router->post('doSchoolForbid', 'SchoolController@doSchoolForbid');                  //修改学校状态 （禁启)√√
         $router->post('doSchoolDel', 'SchoolController@doSchoolDel');                         //修改学校状态 （删除) √√
         $router->post('doInsertSchool', 'SchoolController@doInsertSchool');                  //添加分校信息并创建分校管理员 √√  +1
-        $router->post('postSchoolUpdate', 'SchoolController@postSchoolUpdate');                //获取分校信息（编辑）√√
+        $router->post('getSchoolUpdate', 'SchoolController@getSchoolUpdate');                //获取分校信息（编辑）√√
         $router->post('doSchoolUpdate', 'SchoolController@doSchoolUpdate');                  //编辑分校信息  √√   +1
-        $router->post('postSchoolAdminById', 'SchoolController@postSchoolAdminById');          //查看分校超级管理角色信息 √√
+        $router->post('getSchoolAdminById', 'SchoolController@getSchoolAdminById');          //查看分校超级管理角色信息 √√
         $router->post('doSchoolAdminById', 'SchoolController@doSchoolAdminById');            //编辑分校超级管理角色信息（给分校超管赋权限） √√
-        $router->post('postAdminById', 'SchoolController@postAdminById');                      //获取分校超级管理用户信息（编辑） √√
+        $router->post('getAdminById', 'SchoolController@postAdminById');                      //获取分校超级管理用户信息（编辑） √√
         $router->post('doAdminUpdate', 'SchoolController@doAdminUpdate');                    //编辑分校超级管理用户信息   √√  +1
-        $router->post('postSchoolTeacherList', 'SchoolController@postSchoolTeacherList');      //获取分校讲师列表  √√√  5.11
+        $router->post('getSchoolTeacherList', 'SchoolController@getSchoolTeacherList');      //获取分校讲师列表  √√√  5.11
     });
     //end 网校系统     lys
 });
