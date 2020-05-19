@@ -66,7 +66,7 @@ class School extends Model {
         if($schoolInfo){
             return ['code'=>200,'msg'=>'获取学校信息成功','data'=>$schoolInfo];
         }else{
-            return ['code'=>201,'msg'=>'学校信息不存在'];
+            return ['code'=>204,'msg'=>'学校信息不存在'];
         }
     }
         /*
@@ -99,13 +99,13 @@ class School extends Model {
          */
     public static function doAdminUpdate($data){
         if(!$data || !is_array($data)){
-             return ['code'=>422,'msg'=>'传参不合法'];
+             return ['code'=>202,'msg'=>'传参不合法'];
         }
         $update = [];
         if(isset($data['password']) && isset($data['pwd'])){
             if(!empty($data['password'])|| !empty($data['pwd']) ){
                if($data['password'] != $data['pwd'] ){
-                    return ['code'=>201,'msg'=>'两个密码不一致'];
+                    return ['code'=>206,'msg'=>'两个密码不一致'];
                 }else{
                     $update['password'] = password_hash($data['password'], PASSWORD_DEFAULT);
                 }
@@ -130,7 +130,7 @@ class School extends Model {
             ]); 
             return ['code'=>200,'msg'=>'更新成功'];
         }else{
-            return ['code'=>202,'msg'=>'更新失败'];
+            return ['code'=>203,'msg'=>'更新失败'];
         }
     }
     
