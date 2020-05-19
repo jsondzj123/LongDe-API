@@ -29,14 +29,13 @@ class AdminUserController extends Controller {
      */
     public function getAdminUserList(){
 
-        $result     = Adminuser::getAdminUserList(self::$accept_data);
+        $result = Adminuser::getAdminUserList(self::$accept_data);
         if($result['code'] == 200){
             return response()->json($result);
         }else{
             return response()->json($result);
         }
     }
-
 
     /*
      * @param  description  更改用户状态（启用、禁用）
