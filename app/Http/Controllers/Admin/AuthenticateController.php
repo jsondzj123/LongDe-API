@@ -26,7 +26,7 @@ class AuthenticateController extends Controller {
             'password'=> 'required'
         ]);
         if ($validator->fails()) {
-            return $this->response($validator->errors()->first(), 422);
+            return $this->response($validator->errors()->first(), 202);
         }
 
         $credentials = $request->only('username', 'password');
@@ -38,7 +38,7 @@ class AuthenticateController extends Controller {
         $validator = $this->validator($request->all());
 
         if ($validator->fails()) {
-            return response($validator->errors()->first(), 422);
+            return response($validator->errors()->first(), 202);
         }
 
         $user = $this->create($request->all())->toArray();

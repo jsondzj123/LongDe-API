@@ -157,7 +157,7 @@ class LessonController extends Controller {
             'ttl' => 'required',
         ]);
         if ($validator->fails()) {
-            return $this->response($validator->errors()->first(), 422);
+            return $this->response($validator->errors()->first(), 202);
         }
         $subjectIds = json_decode($request->input('subject_id'), true);
         $teacherIds = json_decode($request->input('teacher_id'), true);
@@ -216,7 +216,7 @@ class LessonController extends Controller {
             'ttl' => 'required',
         ]);
         if ($validator->fails()) {
-            return $this->response($validator->errors()->first(), 422);
+            return $this->response($validator->errors()->first(), 202);
         }
         $lesson = Lesson::findOrFail($id);;
         $lesson->title = $request->input('title') ?: $lesson->title;
@@ -251,7 +251,7 @@ class LessonController extends Controller {
             'url' => 'required|json',
         ]);
         if ($validator->fails()) {
-            return $this->response($validator->errors()->first(), 422);
+            return $this->response($validator->errors()->first(), 202);
         }
         $lesson = Lesson::findOrFail($id);;
         $lesson->url = $request->input('url');

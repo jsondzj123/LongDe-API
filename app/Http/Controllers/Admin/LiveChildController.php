@@ -63,7 +63,7 @@ class LiveChildController extends Controller {
             'nickname' => 'required',
         ]);
         if ($validator->fails()) {
-            return $this->response($validator->errors()->first(), 422);
+            return $this->response($validator->errors()->first(), 202);
         }
         $user = CurrentAdmin::user();
         try{

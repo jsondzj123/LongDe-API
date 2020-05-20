@@ -66,7 +66,7 @@ class LessonSchoolController extends Controller {
             'school_id' => 'required',
         ]);
         if ($validator->fails()) {
-            return $this->response($validator->errors()->first(), 422);
+            return $this->response($validator->errors()->first(), 202);
         }
         $user = CurrentAdmin::user();
         $lessonIds = json_decode($request->input('lesson_id'), true);
@@ -116,7 +116,7 @@ class LessonSchoolController extends Controller {
             'is_public' => 'required',
         ]);
         if ($validator->fails()) {
-            return $this->response($validator->errors()->first(), 422);
+            return $this->response($validator->errors()->first(), 202);
         }
         $lesson = Lessonschool::findOrFail($id);;
         $lesson->title = $request->input('title') ?: $lesson->title;
@@ -149,7 +149,7 @@ class LessonSchoolController extends Controller {
             'url' => 'required|json',
         ]);
         if ($validator->fails()) {
-            return $this->response($validator->errors()->first(), 422);
+            return $this->response($validator->errors()->first(), 202);
         }
         $lesson = Lesson::findOrFail($id);;
         $lesson->url = $request->input('url');

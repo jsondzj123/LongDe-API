@@ -26,7 +26,7 @@ class AuthenticateController extends Controller {
             'password'=> 'required'
         ]);
         if ($validator->fails()) {
-            return $this->response($validator->errors()->first(), 422);
+            return $this->response($validator->errors()->first(), 202);
         }
         $credentials = $request->only('username', 'password');
         return $this->login($credentials);
@@ -41,7 +41,7 @@ class AuthenticateController extends Controller {
     public function register(Request $request) {
         $validator = $this->validator($request->all());
         if ($validator->fails()) {
-            return response($validator->errors()->first(), 422);
+            return response($validator->errors()->first(), 202);
         }
         $user = $this->create($request->all());
         return $this->login($user);
@@ -108,7 +108,7 @@ class AuthenticateController extends Controller {
             'password' => 'required|min:6',
         ]);
         if ($validator->fails()) {
-            return $this->response($validator->errors()->first(), 422);
+            return $this->response($validator->errors()->first(), 202);
         }
 
         $user = User::where('username', $request->input('username'))->firstOrfail();
