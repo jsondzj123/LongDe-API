@@ -196,10 +196,14 @@ class Admin extends Model implements AuthenticatableContract, AuthorizableContra
         }else{
             $SchoolInfo = [];
         }
-        $admin_count = self::where(['is_del'=>1,'school_id'=>$school_id])->where('realname','like','%'.$body['search'].'%')
-                        ->orWhere('username','like','%'.$body['search'].'%')
-                        ->orWhere('mobile','like','%'.$body['search'].'%')
-                        ->count();
+        $admin_count = self::where(['is_del'=>1,'school_id'=>$school_id])
+                        ->where(function($query) use ($body){
+                            if(!empty($body['search'])){
+                                $query->where('realname','like','%'.$body['search'].'%')
+                                    ->orWhere('username','like','%'.$body['search'].'%')
+                                    ->orWhere('mobile','like','%'.$body['search'].'%');
+                            }
+                        })->count();
         $sum_page = ceil($admin_count/$pagesize);
         $adminUserData = [];
         if($admin_count >0){
