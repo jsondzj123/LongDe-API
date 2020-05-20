@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateLessonVideosTable extends Migration
+class CreateLdLessonVideosTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,14 +13,14 @@ class CreateLessonVideosTable extends Migration
      */
     public function up()
     {
-        Schema::create('lesson_videos', function (Blueprint $table) {
+        Schema::create('ld_lesson_videos', function (Blueprint $table) {
             $table->integer('child_id')->unsigned()->comment('课程小节ID');
             $table->integer('video_id')->unsigned()->comment('录播资源ID');
             $table->timestamps();
 
-            $table->foreign('child_id')->references('id')->on('lesson_childs')
+            $table->foreign('child_id')->references('id')->on('ld_lesson_childs')
                 ->onUpdate('cascade')->onDelete('cascade');
-            $table->foreign('video_id')->references('id')->on('videos')
+            $table->foreign('video_id')->references('id')->on('ld_videos')
                 ->onUpdate('cascade')->onDelete('cascade');
 
             $table->index('child_id');
@@ -35,6 +35,6 @@ class CreateLessonVideosTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('lesson_videos');
+        Schema::dropIfExists('ld_lesson_videos');
     }
 }

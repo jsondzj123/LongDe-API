@@ -34,7 +34,7 @@ class Articletype extends Model {
         }else{
            $where['ld_article_type.school_id'] = $school_id;
         }
-       $whereschool = ($role_id == 1)?(empty($data['school_id']))?0:$data['school_id']:$school_id;
+       $whereschool = ($role_id == 1)?(empty($data['school_id']))?'':$data['school_id']:$school_id;
         $total = self::leftJoin('ld_school','ld_school.id','=','ld_article_type.school_id')
             ->leftJoin('ld_admin','ld_admin.id','=','ld_article_type.user_id')
             ->where($where)->count();
@@ -93,6 +93,7 @@ class Articletype extends Model {
             return ['code' => 202 , 'msg' => '修改失败'];
         }
     }
+
     /*
          * @param  软删除
          * @param  $id     参数
@@ -113,7 +114,7 @@ class Articletype extends Model {
             return json_decode(Redis::get('article_editDelToId'.$data['id']),true);
         }else{
             //判断分类下是否有文章
-            $article = Article::getArticleList(['type_id'=>$data['id']]);
+            $article = Article::getArticleList(['article_type_id'=>$data['id'],'is_del'=>1]);
             $array = $article['data']->toArray();
             if(!empty($array['data'])){
                 Redis::setex($key,'60',json_encode(['code' => 203 , 'msg' => '此分类下有文章，无法删除']));
