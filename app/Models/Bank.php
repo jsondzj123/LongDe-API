@@ -344,6 +344,7 @@ class Bank extends Model {
             if(isset($body['subject_list']) && !empty($body['subject_list'])){
                 $array_bank['bank_id']       = $body['bank_id'];
                 $array_bank['subject_list']  = $body['subject_list'];
+                $array_bank['is_insert']     = 2;
                 
                 //更新题库科目的所属题库id
                 Subject::doUpdateBankIds($array_bank);
@@ -429,7 +430,8 @@ class Bank extends Model {
         $bank_id = self::insertGetId($array_bank);
         if($bank_id && $bank_id > 0){
             //更新题库科目的所属题库id
-            $body['bank_id'] = $bank_id;
+            $body['bank_id']   = $bank_id;
+            $body['is_insert'] = 1;
             Subject::doUpdateBankIds($body);
             
             //添加日志操作

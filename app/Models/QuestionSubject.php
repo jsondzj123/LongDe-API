@@ -303,10 +303,10 @@ class QuestionSubject extends Model {
         
         //循环科目入库
         $subject_list = json_decode($body['subject_list'] , true);
-        foreach($subject_list as $k=>$v){
-            //判断题库下面的名称是否存在
-            $subject_count = self::where("bank_id",$body['bank_id'])->where("subject_name",$v['subject_name'])->where("is_del",0)->count();
-            if($subject_count <= 0){
+        
+        //判断是插入还是更新
+        if($body['is_insert'] == 1){ //插入
+            foreach($subject_list as $k=>$v){
                 //插入科目操作
                 $insert_subject = self::insertGetId([
                     'admin_id'     =>  $admin_id ,
@@ -314,35 +314,78 @@ class QuestionSubject extends Model {
                     'subject_name' =>  $v['subject_name'] ,
                     'create_at'    =>  date('Y-m-d H:i:s')
                 ]);
-            } else {
-                $insert_subject = 0;
             }
-        }
-
-        //更新科目信息
-        if(false !== $insert_subject){
-            //根据题库id更新所属科目id
-            $subject_id_array = self::where("bank_id" , $body['bank_id'])->get()->toArray();
-            $subject_ids      = implode(',' , array_column($subject_id_array , 'id'));
-            Bank::where('id' , $body['bank_id'])->update(['subject_id' => $subject_ids]);
             
-            //添加日志操作
-            AdminLog::insertAdminLog([
-                'admin_id'       =>   $admin_id  ,
-                'module_name'    =>  'Question' ,
-                'route_url'      =>  'admin/question/doUpdateBankIds' , 
-                'operate_method' =>  'update' ,
-                'content'        =>  json_encode($body) ,
-                'ip'             =>  $_SERVER["REMOTE_ADDR"] ,
-                'create_at'      =>  date('Y-m-d H:i:s')
-            ]);
-            //事务提交
-            DB::commit();
+            //更新科目信息
+            if(false !== $insert_subject){
+                //根据题库id更新所属科目id
+                $subject_id_array = self::where("bank_id" , $body['bank_id'])->get()->toArray();
+                $subject_ids      = implode(',' , array_column($subject_id_array , 'id'));
+                Bank::where('id' , $body['bank_id'])->update(['subject_id' => $subject_ids]);
+
+                //添加日志操作
+                AdminLog::insertAdminLog([
+                    'admin_id'       =>   $admin_id  ,
+                    'module_name'    =>  'Question' ,
+                    'route_url'      =>  'admin/question/doUpdateBankIds' , 
+                    'operate_method' =>  'update' ,
+                    'content'        =>  json_encode($body) ,
+                    'ip'             =>  $_SERVER["REMOTE_ADDR"] ,
+                    'create_at'      =>  date('Y-m-d H:i:s')
+                ]);
+                //事务提交
+                DB::commit();
+                return true;
+            } else {
+                //事务回滚
+                DB::rollBack();
+                return false;
+            }
+        } else {  //更新
+            //获取传递过来的科目名称
+            $subject_name = array_column($subject_list, 'subject_name');
+            
+            //判断题库下面的名称是否存在
+            $subject_arr  = self::whereIn("subject_name" , $subject_name)->where("bank_id",$body['bank_id'])->where("is_del",0)->get()->toArray();
+            $subject_arr  = array_diff($subject_name , array_column($subject_arr, 'subject_name'));
+            if(count($subject_arr) > 0){
+                foreach($subject_arr as $k=>$v){
+                    //插入科目操作
+                    $insert_subject = self::insertGetId([
+                        'admin_id'     =>  $admin_id ,
+                        'bank_id'      =>  $body['bank_id'] ,
+                        'subject_name' =>  $v ,
+                        'create_at'    =>  date('Y-m-d H:i:s')
+                    ]);
+                }
+                
+                //更新科目信息
+                if(false !== $insert_subject){
+                    //根据题库id更新所属科目id
+                    $subject_id_array = self::where("bank_id" , $body['bank_id'])->get()->toArray();
+                    $subject_ids      = implode(',' , array_column($subject_id_array , 'id'));
+                    Bank::where('id' , $body['bank_id'])->update(['subject_id' => $subject_ids]);
+
+                    //添加日志操作
+                    AdminLog::insertAdminLog([
+                        'admin_id'       =>   $admin_id  ,
+                        'module_name'    =>  'Question' ,
+                        'route_url'      =>  'admin/question/doUpdateBankIds' , 
+                        'operate_method' =>  'update' ,
+                        'content'        =>  json_encode($body) ,
+                        'ip'             =>  $_SERVER["REMOTE_ADDR"] ,
+                        'create_at'      =>  date('Y-m-d H:i:s')
+                    ]);
+                    //事务提交
+                    DB::commit();
+                    return true;
+                } else {
+                    //事务回滚
+                    DB::rollBack();
+                    return false;
+                }
+            }
             return true;
-        } else {
-            //事务回滚
-            DB::rollBack();
-            return false;
         }
     }
 }
