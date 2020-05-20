@@ -304,13 +304,19 @@ class QuestionSubject extends Model {
         //循环科目入库
         $subject_list = json_decode($body['subject_list'] , true);
         foreach($subject_list as $k=>$v){
-            //插入科目操作
-            $insert_subject = self::insertGetId([
-                'admin_id'     =>  $admin_id ,
-                'bank_id'      =>  $body['bank_id'] ,
-                'subject_name' =>  $v['name'] ,
-                'create_at'    =>  date('Y-m-d H:i:s')
-            ]);
+            //判断题库下面的名称是否存在
+            $subject_count = self::where("bank_id",$body['bank_id'])->where("subject_name",$v['subject_name'])->where("is_del",0)->count();
+            if($subject_count <= 0){
+                //插入科目操作
+                $insert_subject = self::insertGetId([
+                    'admin_id'     =>  $admin_id ,
+                    'bank_id'      =>  $body['bank_id'] ,
+                    'subject_name' =>  $v['subject_name'] ,
+                    'create_at'    =>  date('Y-m-d H:i:s')
+                ]);
+            } else {
+                $insert_subject = 0;
+            }
         }
 
         //更新科目信息
