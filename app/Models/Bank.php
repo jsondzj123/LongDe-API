@@ -112,9 +112,14 @@ class Bank extends Model {
 
         //根据科目id获取科目信息
         $subject_list = Subject::findMany(explode(',' , $bank_info['subject_id']) , ['id','subject_name']);
-        
+        if($subject_list && !empty($subject_list)){
+            foreach($subject_list as $k=>$v){
+                $subject_list[$k]['disabled'] = true;
+            }
+        }
         //科目列表赋值
-        $bank_info['subject_list'] = $subject_list;
+        $bank_info['subject_list']    = $subject_list && !empty($subject_list) ? $subject_list : [];
+        $bank_info['lession_subject'] = [$bank_info['parent_id'],$bank_info['child_id']];
         return ['code' => 200 , 'msg' => '获取题库信息成功' , 'data' => $bank_info];
     }
 
