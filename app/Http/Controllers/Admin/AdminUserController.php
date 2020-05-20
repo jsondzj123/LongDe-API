@@ -57,7 +57,6 @@ class AdminUserController extends Controller {
         if($userInfo['code'] !=200){
             return response()->json(['code'=>$userInfo['code'],'msg'=>$userInfo['msg']]); 
         }   
-     
         if($userInfo['data']['is_forbid'] == 1)  $updateArr['is_forbid'] = 0;  else  $updateArr['is_forbid'] = 1; 
         $result = Adminuser::upUserStatus($data,$updateArr);
         if($result){
@@ -94,7 +93,6 @@ class AdminUserController extends Controller {
         }
         $userInfo = Adminuser::findOrFail($data['id']);
         $userInfo->is_del = 0;
-        $result = Adminuser::upUserStatus($data,$updateArr);
         if($userInfo->save()){
             //添加日志操作
             AdminLog::insertAdminLog([

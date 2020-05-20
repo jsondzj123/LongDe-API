@@ -196,7 +196,10 @@ class Admin extends Model implements AuthenticatableContract, AuthorizableContra
         }else{
             $SchoolInfo = [];
         }
-        $admin_count = self::where(['is_del'=>1,'school_id'=>$school_id])->count();
+        $admin_count = self::where(['is_del'=>1,'school_id'=>$school_id])->where('real_name','like','%'.$body['search'].'%')
+                        ->orWhere('account','like','%'.$body['search'].'%')
+                        ->orWhere('phone','like','%'.$body['search'].'%')
+                        ->count();
         $sum_page = ceil($admin_count/$pagesize);
         $adminUserData = [];
         if($admin_count >0){
@@ -209,7 +212,7 @@ class Admin extends Model implements AuthenticatableContract, AuthorizableContra
                 }
                     $query->where('ld_admin.is_del',1);
                     $query->where('ld_admin.school_id',$school_id);
-                })->offset($offset)->limit($pagesize)->get();
+                })->select('ld_admin.id as adminid','ld_admin.username','ld_admin.realname','ld_admin.sex','ld_admin.mobile','ld_role_auth.role_name','ld_role_auth.auth_desc','ld_admin.is_forbid')->offset($offset)->limit($pagesize)->get();
                
         }
         $arr['code']= 200;
