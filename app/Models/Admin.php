@@ -179,7 +179,7 @@ class Admin extends Model implements AuthenticatableContract, AuthorizableContra
         $school_id = $adminUserInfo['school_id'];//学校
         if($adminUserInfo['school_status'] == 1){ //总校
             //判断学校id是否合法
-            $school_id = !isset($body['school_id']) && empty($body['school_id']) ?'':$body['school_id'];
+            $school_id = !isset($body['school_id']) && empty($body['school_id']) ?$school_id:$body['school_id'];
         }
         //判断搜索条件是否合法、
         $body['search'] = !isset($body['search']) && empty($body['search']) ?'':$body['search'];  
@@ -196,9 +196,9 @@ class Admin extends Model implements AuthenticatableContract, AuthorizableContra
         }else{
             $SchoolInfo = [];
         }
-        $admin_count = self::where(['is_del'=>1,'school_id'=>$school_id])->where('real_name','like','%'.$body['search'].'%')
-                        ->orWhere('account','like','%'.$body['search'].'%')
-                        ->orWhere('phone','like','%'.$body['search'].'%')
+        $admin_count = self::where(['is_del'=>1,'school_id'=>$school_id])->where('realname','like','%'.$body['search'].'%')
+                        ->orWhere('username','like','%'.$body['search'].'%')
+                        ->orWhere('mobile','like','%'.$body['search'].'%')
                         ->count();
         $sum_page = ceil($admin_count/$pagesize);
         $adminUserData = [];
@@ -206,9 +206,9 @@ class Admin extends Model implements AuthenticatableContract, AuthorizableContra
             $adminUserData =  self::leftjoin('ld_role_auth','ld_role_auth.id', '=', 'ld_admin.role_id')
                 ->where(function($query) use ($body,$school_id){
                 if(!empty($body['search'])){
-                    $query->where('ld_admin.real_name','like','%'.$body['search'].'%')
-                        ->orWhere('ld_admin.account','like','%'.$body['search'].'%')
-                        ->orWhere('ld_admin.phone','like','%'.$body['search'].'%');
+                    $query->where('ld_admin.realname','like','%'.$body['search'].'%')
+                        ->orWhere('ld_admin.username','like','%'.$body['search'].'%')
+                        ->orWhere('ld_admin.mobile','like','%'.$body['search'].'%');
                 }
                     $query->where('ld_admin.is_del',1);
                     $query->where('ld_admin.school_id',$school_id);
