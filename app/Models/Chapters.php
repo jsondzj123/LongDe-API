@@ -300,8 +300,18 @@ class Chapters extends Model {
             }
         }
         
+        //根据章节考点id获取详情
+        $chapter_info = self::find($body['chapters_id']);
+        $chapter_type = $chapter_info['type'];
+        
         //判断此科目是否被试题正在使用
-        $exam_count = Exam::where("is_del" , 0)->where("chapter_id" , $body['chapters_id'])->orWhere("joint_id" , $body['chapters_id'])->orWhere("point_id" , $body['chapters_id'])->count();
+        if($chapter_type == 1){
+            $exam_count = Exam::where("is_del" , 0)->where("joint_id" , $body['chapters_id'])->count();
+        } else if($chapter_type == 2){
+            $exam_count = Exam::where("is_del" , 0)->where("point_id" , $body['chapters_id'])->count();
+        } else {
+            $exam_count = Exam::where("is_del" , 0)->where("chapter_id" , $body['chapters_id'])->count();
+        }
         if($exam_count > 0){
             return ['code' => 205 , 'msg' => '此科目被其他试题已使用,不能删除'];
         }
