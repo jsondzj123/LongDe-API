@@ -27,11 +27,7 @@ class SubjectController extends Controller {
         foreach ($subject as $value) {
             $value['childs'] = $value->childs();
         }
-        $data = [
-            'page_data' => $subject,
-            'total' => $total,
-        ];
-        return $this->response($data);
+        return $this->response($subject);
     }
 
 
