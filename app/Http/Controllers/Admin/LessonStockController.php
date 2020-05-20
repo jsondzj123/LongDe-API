@@ -49,7 +49,7 @@ class LessonStockController extends Controller {
 
         ]);
         if ($validator->fails()) {
-            return $this->response($validator->errors()->first(), 422);
+            return $this->response($validator->errors()->first(), 202);
         }
         $data = $request->all();
         if($request->input('type') == 2){

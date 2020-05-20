@@ -30,7 +30,7 @@ class LiveChildController extends Controller {
                 'is_forbid' => 0,
                 'live_id' => $live_id,
             ])->count();
-        $lesson = LiveChild::select('id', 'course_name', 'start_time', 'modetype')
+        $lesson = LiveChild::select('id', 'course_name', 'start_time', 'end_time', 'modetype')
             ->where([
                 'is_del' => 0, 
                 'is_forbid' => 0, 
@@ -63,7 +63,7 @@ class LiveChildController extends Controller {
             'nickname' => 'required',
         ]);
         if ($validator->fails()) {
-            return $this->response($validator->errors()->first(), 422);
+            return $this->response($validator->errors()->first(), 202);
         }
         $user = CurrentAdmin::user();
         try{

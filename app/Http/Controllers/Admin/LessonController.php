@@ -8,6 +8,7 @@ use App\Tools\CurrentAdmin;
 use DB;
 use Validator;
 use App\Models\Teacher;
+use App\Models\LessonSchool;
 
 class LessonController extends Controller {
 
@@ -24,18 +25,18 @@ class LessonController extends Controller {
         $subject_id = $request->input('subject_id') ?: 0;
         $method = $request->input('method') ?: 0;
         $status = $request->input('status') ?: 0;
-        $auth = $request->input('auth') ?: 0;
-        $user = CurrentAdmin::user();
-        $data =  Lesson::with('subjects')
-                ->select('id', 'admin_id', 'title', 'cover', 'price', 'favorable_price', 'buy_num', 'method', 'status')
+        $auth = (int)$request->input('auth') ?: 0;
+        $user = CurrentAdmin::user();   
+        $data =  Lesson::select('id', 'admin_id', 'title', 'cover', 'price', 'favorable_price', 'buy_num', 'method', 'status', 'is_del', 'is_forbid')
                 ->where(['is_del' => 0, 'is_forbid' => 0])
-                ->whereHas('subjects', function ($query) use ($subject_id)
-                    {
-                        if($subject_id != 0){
-                            $query->where('subjects.id', $subject_id);
-                        }
-                    })
-                ->where(function($query) use ($method, $status, $auth, $user){
+
+                // ->whereHas('subjects', function ($query) use ($subject_id)
+                //     {
+                //         if($subject_id != 0){
+                //             $query->where('subjects.id', $subject_id);
+                //         }
+                //     })
+                ->where(function($query) use ($method, $status){
                     if($method == 0){
                         $query->whereIn("method", [1, 2, 3]);
                     }else{
@@ -46,20 +47,25 @@ class LessonController extends Controller {
                     }else{
                         $query->where("status", $status);
                     }
-                    if($auth == 1){
-                        $query->where("admin_id",$user->id);
-                    }
                 });
-                // ->whereHas('schools', function ($query) use ($auth)
-                //     {
-                //         if($auth == 2){
-                //             $query->where('school_id', $user->school_id);
-                //         }
-                //     });
-        $total = $data->count();
-        $lesson = $data->orderBy('status', 'desc')->skip($currentCount)->take($count)->get();
+        $lessons = [];
+        foreach ($data->get()->toArray() as $value) {
+            
+            if($auth == 0){
+                if($value['is_auth'] == 1 || $value['is_auth'] == 2){
+                    $lessons[] = $value;   
+                }
+                 
+            }else{
+                if($value['is_auth'] == $auth){
+                    $lessons[] = $value;   
+                }
+            }
+        }
+        $total = collect($lessons)->count();
+        $lesson = collect($lessons)->skip($currentCount)->take($count);
         $data = [
-            'page_data' => $lesson,
+            'page_data' => $lessons,
             'total' => $total,
         ];
         return $this->response($data);
@@ -151,7 +157,7 @@ class LessonController extends Controller {
             'ttl' => 'required',
         ]);
         if ($validator->fails()) {
-            return $this->response($validator->errors()->first(), 422);
+            return $this->response($validator->errors()->first(), 202);
         }
         $subjectIds = json_decode($request->input('subject_id'), true);
         $teacherIds = json_decode($request->input('teacher_id'), true);
@@ -210,7 +216,7 @@ class LessonController extends Controller {
             'ttl' => 'required',
         ]);
         if ($validator->fails()) {
-            return $this->response($validator->errors()->first(), 422);
+            return $this->response($validator->errors()->first(), 202);
         }
         $lesson = Lesson::findOrFail($id);;
         $lesson->title = $request->input('title') ?: $lesson->title;
@@ -245,7 +251,7 @@ class LessonController extends Controller {
             'url' => 'required|json',
         ]);
         if ($validator->fails()) {
-            return $this->response($validator->errors()->first(), 422);
+            return $this->response($validator->errors()->first(), 202);
         }
         $lesson = Lesson::findOrFail($id);;
         $lesson->url = $request->input('url');

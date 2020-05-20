@@ -65,7 +65,7 @@ class LiveController extends Controller {
             'description' => 'required',
         ]);
         if ($validator->fails()) {
-            return $this->response($validator->errors()->first(), 422);
+            return $this->response($validator->errors()->first(), 202);
         }
         $user = CurrentAdmin::user();
         try {
@@ -96,7 +96,7 @@ class LiveController extends Controller {
             'lesson_id' => 'required|json',
         ]);
         if ($validator->fails()) {
-            return $this->response($validator->errors()->first(), 422);
+            return $this->response($validator->errors()->first(), 202);
         }
         $user = CurrentAdmin::user();
         $lessonIds = json_decode($request->input('lesson_id'), true);

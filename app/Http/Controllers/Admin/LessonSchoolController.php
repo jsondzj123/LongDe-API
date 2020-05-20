@@ -3,6 +3,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\LessonSchool;
+use App\Models\Lesson;
 use Illuminate\Http\Request;
 use App\Tools\CurrentAdmin;
 use DB;
@@ -65,10 +66,18 @@ class LessonSchoolController extends Controller {
             'school_id' => 'required',
         ]);
         if ($validator->fails()) {
-            return $this->response($validator->errors()->first(), 422);
+            return $this->response($validator->errors()->first(), 202);
         }
         $user = CurrentAdmin::user();
         $lessonIds = json_decode($request->input('lesson_id'), true);
+        $userIds = Lesson::whereIn('id', $lessonIds)->pluck('admin_id');
+
+        $flipped_haystack = array_flip($userIds->toArray());
+
+        if ( isset($flipped_haystack[$user->id]) )
+        {
+            return $this->response('自增课程无法再次授权', 202);
+        }
         try {
                 foreach ($lessonIds as $value) {
                     LessonSchool::create([
@@ -107,7 +116,7 @@ class LessonSchoolController extends Controller {
             'is_public' => 'required',
         ]);
         if ($validator->fails()) {
-            return $this->response($validator->errors()->first(), 422);
+            return $this->response($validator->errors()->first(), 202);
         }
         $lesson = Lessonschool::findOrFail($id);;
         $lesson->title = $request->input('title') ?: $lesson->title;
@@ -140,7 +149,7 @@ class LessonSchoolController extends Controller {
             'url' => 'required|json',
         ]);
         if ($validator->fails()) {
-            return $this->response($validator->errors()->first(), 422);
+            return $this->response($validator->errors()->first(), 202);
         }
         $lesson = Lesson::findOrFail($id);;
         $lesson->url = $request->input('url');
