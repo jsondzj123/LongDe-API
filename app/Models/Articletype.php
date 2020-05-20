@@ -93,6 +93,7 @@ class Articletype extends Model {
             return ['code' => 202 , 'msg' => '修改失败'];
         }
     }
+
     /*
          * @param  软删除
          * @param  $id     参数
