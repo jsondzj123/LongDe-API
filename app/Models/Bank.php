@@ -341,7 +341,7 @@ class Bank extends Model {
         //根据题库id更新信息
         if(false !== self::where('id',$body['bank_id'])->update($array_bank)){
             //判断是否传递科目列表
-            if(isset($body['subject_list']) && is_array($body['subject_list']) && !empty($body['subject_list'])){
+            if(isset($body['subject_list']) && !empty($body['subject_list'])){
                 $array_bank['bank_id']       = $body['bank_id'];
                 $array_bank['subject_list']  = $body['subject_list'];
                 
