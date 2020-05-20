@@ -34,7 +34,7 @@ class Articletype extends Model {
         }else{
            $where['ld_article_type.school_id'] = $school_id;
         }
-       $whereschool = ($role_id == 1)?(empty($data['school_id']))?0:$data['school_id']:$school_id;
+       $whereschool = ($role_id == 1)?(empty($data['school_id']))?'':$data['school_id']:$school_id;
         $total = self::leftJoin('ld_school','ld_school.id','=','ld_article_type.school_id')
             ->leftJoin('ld_admin','ld_admin.id','=','ld_article_type.user_id')
             ->where($where)->count();
