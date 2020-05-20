@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateLiveChildsTable extends Migration
+class CreateLdLiveChildsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,7 +13,7 @@ class CreateLiveChildsTable extends Migration
      */
     public function up()
     {
-        Schema::create('live_childs', function (Blueprint $table) {
+        Schema::create('ld_live_childs', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('live_id')->unsigned()->comment('直播ID');
             $table->integer('admin_id')->unsigned()->comment('操作员ID');
@@ -58,6 +58,6 @@ class CreateLiveChildsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('lives');
+        Schema::dropIfExists('ld_lives');
     }
 }
