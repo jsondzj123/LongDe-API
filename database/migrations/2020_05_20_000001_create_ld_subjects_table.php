@@ -16,13 +16,13 @@ class CreateLdSubjectsTable extends Migration
         Schema::create('ld_subjects', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('admin_id')->default(0)->comment('操作员ID');
-            $table->integer('pid')->null()->default(0)->comment('科目上级ID');
+            $table->integer('pid')->default(0)->comment('科目上级ID');
             $table->string('name')->comment('科目标题');
-            $table->string('cover')->comment('科目封面');
-            $table->text('description')->comment('科目描述');
-            $table->integer('status')->null()->default(0)->comment('科目状态:0未上架1已上架');
-            $table->integer('is_del')->null()->default(0)->comment('是否删除：0否1是');
-            $table->integer('is_forbid')->null()->default(0)->comment('是否禁用：0否1是');
+            $table->string('cover')->nullable()->comment('科目封面');
+            $table->text('description')->nullable()->comment('科目描述');
+            $table->integer('status')->default(0)->comment('科目状态:0未上架1已上架');
+            $table->integer('is_del')->default(0)->comment('是否删除：0否1是');
+            $table->integer('is_forbid')->default(0)->comment('是否禁用：0否1是');
             $table->timestamps();
         });
     }
