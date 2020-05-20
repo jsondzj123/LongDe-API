@@ -2,7 +2,9 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\AdminLog;
 use App\Models\Articletype;
+use App\Models\School;
 
 class ArticletypeController extends Controller {
     /*
@@ -51,6 +53,19 @@ class ArticletypeController extends Controller {
             return response()->json(['code' => 500 , 'msg' => $ex->getMessage()]);
         }
     }
+    //获取学校信息
+    public function schoollist(){
+        $role_id = isset(AdminLog::getAdminInfo()->admin_user->role_id) ? AdminLog::getAdminInfo()->admin_user->role_id : 0;
+        if($role_id == 1){
+            $school = School::select('id as value','name as label')->where(['is_forbid'=>1,'is_del'=>1])->get()->toArray();
+        }else{
+            $school_id = isset(AdminLog::getAdminInfo()->admin_user->school_id) ? AdminLog::getAdminInfo()->admin_user->school_id : 0;
+            $data['school_id'] = $school_id;
+            $school = School::select('id as value','name as label')->where(['id'=>$data['school_id'],'is_forbid'=>1,'is_del'=>1])->get()->toArray();
+        }
+        return response()->json(['code' => 200 , 'msg' =>'成功','data'=>$school]);
+    }
+
     /*
          * @param  添加
          * @param  author  苏振文
