@@ -230,13 +230,13 @@ class Chapters extends Model {
         DB::beginTransaction();
         
         //判断题库id对应的题库是否存在
-        $bank_count = Bank::where("id",$body['bank_id'])->count();
+        $bank_count = Bank::where("id",$body['bank_id'])->where("is_del" , 0)->count();
         if($bank_count <= 0){
             return ['code' => 204 , 'msg' => '此题库信息不存在'];
         }
         
         //判断科目id对应的科目是否存在
-        $bank_count = QuestionSubject::where("id",$body['subject_id'])->count();
+        $bank_count = QuestionSubject::where("id",$body['subject_id'])->where("is_del" , 0)->count();
         if($bank_count <= 0){
             return ['code' => 204 , 'msg' => '此科目信息不存在'];
         }
