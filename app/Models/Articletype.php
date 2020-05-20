@@ -200,6 +200,7 @@ class Articletype extends Model {
         }
         $id = $data['id'];
         unset($data['id']);
+        unset($data['schoolname']);
         $data['update_at'] = date('Y-m-d H:i:s');
         $update = self::where(['id'=>$id])->update($data);
         if($update){
