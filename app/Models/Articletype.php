@@ -19,19 +19,45 @@ class Articletype extends Model {
          * return  array
          */
     public static function getArticleList($data){
-        $where['ld_article_type.is_del'] = 1;
-       if(!empty($data['school_id']) && $data['school_id'] != ''){
-           $where['ld_article_type.school_id'] = $data['school_id'];
-       }
-       $page = (!empty($data['page']))?$data['page']:20;
+        //获取用户网校id
+        $role_id = isset(AdminLog::getAdminInfo()->admin_user->role_id) ? AdminLog::getAdminInfo()->admin_user->role_id : 0;
+        $school_id = isset(AdminLog::getAdminInfo()->admin_user->school_id) ? AdminLog::getAdminInfo()->admin_user->school_id : 0;
+        //每页显示的条数
+        $pagesize = (int)isset($data['pageSize']) && $data['pageSize'] > 0 ? $data['pageSize'] : 20;
+        $page     = isset($data['page']) && $data['page'] > 0 ? $data['page'] : 1;
+        $offset   = ($page - 1) * $pagesize;
 
+        $where['ld_article_type.is_del'] = 1;
+        if($role_id == 1){
+           if(!empty($data['school_id']) && $data['school_id'] != ''){
+               $where['ld_article_type.school_id'] = $data['school_id'];
+           }
+        }else{
+           $where['ld_article_type.school_id'] = $school_id;
+        }
+       $whereschool = ($role_id == 1)?(empty($data['school_id']))?0:$data['school_id']:$school_id;
+        $total = self::leftJoin('ld_school','ld_school.id','=','ld_article_type.school_id')
+            ->leftJoin('ld_admin','ld_admin.id','=','ld_article_type.user_id')
+            ->where($where)->count();
         $typelist = self::select('ld_article_type.id','ld_article_type.typename','ld_article_type.status','ld_school.name','ld_admin.username')
             ->leftJoin('ld_school','ld_school.id','=','ld_article_type.school_id')
             ->leftJoin('ld_admin','ld_admin.id','=','ld_article_type.user_id')
             ->where($where)
             ->orderBy('ld_article_type.id','desc')
-            ->paginate($page);
-        return ['code' => 200 , 'msg' => '获取成功','data'=>$typelist];
+            ->offset($offset)->limit($pagesize)->get();
+         //获取分校列表
+        if($role_id == 1){
+            $school = School::select('id as value','name as label')->where(['is_forbid'=>1,'is_del'=>1])->get()->toArray();
+        }else{
+            $school = School::select('id as value','name as label')->where(['id'=>$school_id,'is_forbid'=>1,'is_del'=>1])->get()->toArray();
+        }
+        //分页
+        $page=[
+            'pageSize'=>$pagesize,
+            'page' =>$page,
+            'total'=>$total
+        ];
+        return ['code' => 200 , 'msg' => '获取成功','data'=>$typelist,'school'=>$school,'where'=>$whereschool,'page'=>$page];
     }
     /*
          * @param  修改状态
