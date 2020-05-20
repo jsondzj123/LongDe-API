@@ -58,7 +58,7 @@ class AdminUserController extends Controller {
             return response()->json(['code'=>$userInfo['code'],'msg'=>$userInfo['msg']]); 
         }   
         if($userInfo['data']['is_forbid'] == 1)  $updateArr['is_forbid'] = 0;  else  $updateArr['is_forbid'] = 1; 
-        $result = Adminuser::upUserStatus($data,$updateArr);
+        $result = Adminuser::upUserStatus(['id'=>$data['id']],$updateArr);
         if($result){
             //添加日志操作
             AdminLog::insertAdminLog([
