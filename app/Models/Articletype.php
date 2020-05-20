@@ -203,6 +203,7 @@ class Articletype extends Model {
         unset($data['schoolname']);
         unset($data['page']);
         unset($data['update_at']);
+        unset($data['/admin/article/exitTypeForId']);
         $data['update_at'] = date('Y-m-d H:i:s');
         $update = self::where(['id'=>$id])->update($data);
         if($update){
