@@ -73,7 +73,6 @@ class ArticletypeController extends Controller {
          */
     public function exitTypeForId(){
         try{
-            print_r(self::$accept_data);die;
             $list = Articletype::editForId(self::$accept_data);
             return response()->json($list);
         } catch (Exception $ex) {
