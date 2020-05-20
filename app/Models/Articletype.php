@@ -160,6 +160,7 @@ class Articletype extends Model {
             $school_id = isset(AdminLog::getAdminInfo()->admin_user->school_id) ? AdminLog::getAdminInfo()->admin_user->school_id : 0;
             $data['school_id'] = $school_id ;
         }
+        unset($data['/admin/article/addType']);
         if($data['typename'] == ''){
             return ['code' => 201 , 'msg' => '名称不能为空'];
         }
