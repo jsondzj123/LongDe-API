@@ -154,10 +154,12 @@ class Articletype extends Model {
          * return  array
          */
     public static function addType($data){
-        //获取用户信息
-        //缓存查出用户id和分校id
-        $data['school_id'] = isset(AdminLog::getAdminInfo()->admin_user->school_id) ? AdminLog::getAdminInfo()->admin_user->school_id : 0;
         $data['user_id'] = isset(AdminLog::getAdminInfo()->admin_user->id) ? AdminLog::getAdminInfo()->admin_user->id : 0;
+        $role_id = isset(AdminLog::getAdminInfo()->admin_user->role_id) ? AdminLog::getAdminInfo()->admin_user->role_id : 0;
+        if($role_id != 1){
+            $school_id = isset(AdminLog::getAdminInfo()->admin_user->school_id) ? AdminLog::getAdminInfo()->admin_user->school_id : 0;
+            $data['school_id'] = $school_id ;
+        }
         if($data['typename'] == ''){
             return ['code' => 201 , 'msg' => '名称不能为空'];
         }
