@@ -113,7 +113,7 @@ class Articletype extends Model {
             return json_decode(Redis::get('article_editDelToId'.$data['id']),true);
         }else{
             //判断分类下是否有文章
-            $article = Article::getArticleList(['type_id'=>$data['id']]);
+            $article = Article::getArticleList(['article_type_id'=>$data['id'],'is_del'=>1]);
             $array = $article['data']->toArray();
             if(!empty($array['data'])){
                 Redis::setex($key,'60',json_encode(['code' => 203 , 'msg' => '此分类下有文章，无法删除']));
