@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateUsersTable extends Migration
+class CreateLdLiveTeachersTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,12 +13,12 @@ class CreateUsersTable extends Migration
      */
     public function up()
     {
-        Schema::create('users', function (Blueprint $table) {
+        Schema::create('ld_live_teachers', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('username')->nullable()->comment('用户名');
-            $table->string('password')->comment('密码');
-            $table->string('mobile')->comment('手机号码');
-            $table->string('email')->nullable()->comment('邮箱');
+            $table->integer('admin_id')->comment('操作员ID');
+            $table->integer('live_id')->comment('直播ID');
+            $table->integer('live_child_id')->comment('直播课次ID');
+            $table->integer('teacher_id')->comment('讲师ID');
             $table->timestamps();
         });
     }
@@ -30,6 +30,6 @@ class CreateUsersTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('users');
+        Schema::dropIfExists('ld_live_teachers');
     }
 }

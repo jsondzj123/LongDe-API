@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateLessonSchoolsTable extends Migration
+class CreateLdLessonSchoolsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,7 +13,7 @@ class CreateLessonSchoolsTable extends Migration
      */
     public function up()
     {
-        Schema::create('lesson_schools', function (Blueprint $table) {
+        Schema::create('ld_lesson_schools', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('admin_id')->unsigned()->comment('操作员ID');
             $table->integer('lesson_id')->unsigned()->comment('课程ID');
@@ -41,6 +41,6 @@ class CreateLessonSchoolsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('lesson_schools');
+        Schema::dropIfExists('ld_lesson_schools');
     }
 }

@@ -112,9 +112,14 @@ class Bank extends Model {
 
         //根据科目id获取科目信息
         $subject_list = Subject::findMany(explode(',' , $bank_info['subject_id']) , ['id','subject_name']);
-        
+        if($subject_list && !empty($subject_list)){
+            foreach($subject_list as $k=>$v){
+                $subject_list[$k]['disabled'] = true;
+            }
+        }
         //科目列表赋值
-        $bank_info['subject_list'] = $subject_list;
+        $bank_info['subject_list']    = $subject_list && !empty($subject_list) ? $subject_list : [];
+        $bank_info['lession_subject'] = [$bank_info['parent_id'],$bank_info['child_id']];
         return ['code' => 200 , 'msg' => '获取题库信息成功' , 'data' => $bank_info];
     }
 
@@ -336,9 +341,10 @@ class Bank extends Model {
         //根据题库id更新信息
         if(false !== self::where('id',$body['bank_id'])->update($array_bank)){
             //判断是否传递科目列表
-            if(isset($body['subject_list']) && is_array($body['subject_list']) && !empty($body['subject_list'])){
+            if(isset($body['subject_list']) && !empty($body['subject_list'])){
                 $array_bank['bank_id']       = $body['bank_id'];
                 $array_bank['subject_list']  = $body['subject_list'];
+                $array_bank['is_insert']     = 2;
                 
                 //更新题库科目的所属题库id
                 Subject::doUpdateBankIds($array_bank);
@@ -424,7 +430,8 @@ class Bank extends Model {
         $bank_id = self::insertGetId($array_bank);
         if($bank_id && $bank_id > 0){
             //更新题库科目的所属题库id
-            $body['bank_id'] = $bank_id;
+            $body['bank_id']   = $bank_id;
+            $body['is_insert'] = 1;
             Subject::doUpdateBankIds($body);
             
             //添加日志操作

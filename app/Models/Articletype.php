@@ -34,7 +34,7 @@ class Articletype extends Model {
         }else{
            $where['ld_article_type.school_id'] = $school_id;
         }
-       $whereschool = ($role_id == 1)?(empty($data['school_id']))?0:$data['school_id']:$school_id;
+       $whereschool = ($role_id == 1)?(empty($data['school_id']))?'':$data['school_id']:$school_id;
         $total = self::leftJoin('ld_school','ld_school.id','=','ld_article_type.school_id')
             ->leftJoin('ld_admin','ld_admin.id','=','ld_article_type.user_id')
             ->where($where)->count();
@@ -93,6 +93,7 @@ class Articletype extends Model {
             return ['code' => 202 , 'msg' => '修改失败'];
         }
     }
+
     /*
          * @param  软删除
          * @param  $id     参数
@@ -113,9 +114,8 @@ class Articletype extends Model {
             return json_decode(Redis::get('article_editDelToId'.$data['id']),true);
         }else{
             //判断分类下是否有文章
-            $article = Article::getArticleList(['type_id'=>$data['id']]);
-            $array = $article['data']->toArray();
-            if(!empty($array['data'])){
+            $article = Article::where(['article_type_id'=>$data['id'],'is_del'=>1])->get()->toArray();
+            if(!empty($article[0])){
                 Redis::setex($key,'60',json_encode(['code' => 203 , 'msg' => '此分类下有文章，无法删除']));
                 return ['code' => 203 , 'msg' => '此分类下有文章，无法删除'];
             }else{
@@ -154,10 +154,13 @@ class Articletype extends Model {
          * return  array
          */
     public static function addType($data){
-        //获取用户信息
-        //缓存查出用户id和分校id
-        $data['school_id'] = isset(AdminLog::getAdminInfo()->admin_user->school_id) ? AdminLog::getAdminInfo()->admin_user->school_id : 0;
         $data['user_id'] = isset(AdminLog::getAdminInfo()->admin_user->id) ? AdminLog::getAdminInfo()->admin_user->id : 0;
+        $role_id = isset(AdminLog::getAdminInfo()->admin_user->role_id) ? AdminLog::getAdminInfo()->admin_user->role_id : 0;
+        if($role_id != 1){
+            $school_id = isset(AdminLog::getAdminInfo()->admin_user->school_id) ? AdminLog::getAdminInfo()->admin_user->school_id : 0;
+            $data['school_id'] = $school_id ;
+        }
+        unset($data['/admin/article/addType']);
         if($data['typename'] == ''){
             return ['code' => 201 , 'msg' => '名称不能为空'];
         }
@@ -192,14 +195,18 @@ class Articletype extends Model {
          */
     public static function editForId($data){
         //判断id
-        if(empty($data['id']  )){
+        if(empty($data['id'])){
             return ['code' => 201 , 'msg' => '参数id为空或格式不正确'];
         }
-        if(empty($data['typename'] =='')){
+        if(empty($data['typename']) || $data['typename']==''){
             return ['code' => 201 , 'msg' => '参数名称为空或格式不正确'];
         }
         $id = $data['id'];
         unset($data['id']);
+        unset($data['schoolname']);
+        unset($data['page']);
+        unset($data['pageSize']);
+        unset($data['/admin/article/exitTypeForId']);
         $data['update_at'] = date('Y-m-d H:i:s');
         $update = self::where(['id'=>$id])->update($data);
         if($update){
