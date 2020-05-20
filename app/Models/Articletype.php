@@ -192,14 +192,18 @@ class Articletype extends Model {
          */
     public static function editForId($data){
         //判断id
-        if(empty($data['id']  )){
+        if(empty($data['id'])){
             return ['code' => 201 , 'msg' => '参数id为空或格式不正确'];
         }
-        if(empty($data['typename'] =='')){
+        if(empty($data['typename']) || $data['typename']==''){
             return ['code' => 201 , 'msg' => '参数名称为空或格式不正确'];
         }
         $id = $data['id'];
         unset($data['id']);
+        unset($data['schoolname']);
+        unset($data['page']);
+        unset($data['pageSize']);
+        unset($data['/admin/article/exitTypeForId']);
         $data['update_at'] = date('Y-m-d H:i:s');
         $update = self::where(['id'=>$id])->update($data);
         if($update){
