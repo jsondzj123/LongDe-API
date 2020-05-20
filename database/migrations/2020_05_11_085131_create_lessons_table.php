@@ -23,6 +23,8 @@ class CreateLessonsTable extends Migration
             $table->text('introduction')->nullable()->comment('介绍');
             $table->text('url')->nullable()->comment('课程资料');
             $table->smallInteger('is_public')->nullable()->default(0)->comment('公开0否1是');
+            $table->integer('start_at')->nullable()->comment('公开课开始时间');
+            $table->integer('end_at')->nullable()->comment('公开课结束时间');
             $table->decimal('price', 10, 2)->nullable()->comment('定价');
             $table->decimal('favorable_price', 10, 2)->nullable()->comment('优惠价格');
             $table->smallInteger('method')->nullable()->default(0)->comment('授课方式1录播2直播3其他');

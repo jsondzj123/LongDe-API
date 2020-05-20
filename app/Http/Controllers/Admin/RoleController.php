@@ -69,7 +69,7 @@ class RoleController extends Controller {
                 'module_name'    =>  'Role' ,
                 'route_url'      =>  'admin/role/upRoleStatus' , 
                 'operate_method' =>  'update' ,
-                'content'        =>  json_encode(['id'=>$id]),
+                'content'        =>  json_encode(['id'=>$data['id']]),
                 'ip'             =>  $_SERVER["REMOTE_ADDR"] ,
                 'create_at'      =>  date('Y-m-d H:i:s')
             ]);

@@ -82,7 +82,7 @@ class LessonChildController extends Controller {
             'video_id'  => 'json'
         ]);
         if ($validator->fails()) {
-            return $this->response($validator->errors()->first(), 422);
+            return $this->response($validator->errors()->first(), 202);
         }
         $videoIds = json_decode($request->input('video_id'), true);
         $user = CurrentAdmin::user();
@@ -126,7 +126,7 @@ class LessonChildController extends Controller {
             'is_free'   => 'required_unless:pid,0',
         ]);
         if ($validator->fails()) {
-            return $this->response($validator->errors()->first(), 422);
+            return $this->response($validator->errors()->first(), 202);
         }
 
         $lesson = LessonChild::findOrFail($id);

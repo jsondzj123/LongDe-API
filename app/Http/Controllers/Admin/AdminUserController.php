@@ -29,14 +29,13 @@ class AdminUserController extends Controller {
      */
     public function getAdminUserList(){
 
-        $result     = Adminuser::getAdminUserList(self::$accept_data);
+        $result = Adminuser::getAdminUserList(self::$accept_data);
         if($result['code'] == 200){
             return response()->json($result);
         }else{
             return response()->json($result);
         }
     }
-
 
     /*
      * @param  description  更改用户状态（启用、禁用）
@@ -58,7 +57,6 @@ class AdminUserController extends Controller {
         if($userInfo['code'] !=200){
             return response()->json(['code'=>$userInfo['code'],'msg'=>$userInfo['msg']]); 
         }   
-     
         if($userInfo['data']['is_forbid'] == 1)  $updateArr['is_forbid'] = 0;  else  $updateArr['is_forbid'] = 1; 
         $result = Adminuser::upUserStatus($data,$updateArr);
         if($result){
@@ -95,7 +93,6 @@ class AdminUserController extends Controller {
         }
         $userInfo = Adminuser::findOrFail($data['id']);
         $userInfo->is_del = 0;
-        $result = Adminuser::upUserStatus($data,$updateArr);
         if($userInfo->save()){
             //添加日志操作
             AdminLog::insertAdminLog([

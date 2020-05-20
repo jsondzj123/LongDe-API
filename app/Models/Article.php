@@ -24,7 +24,7 @@ class Article extends Model {
         $data['role_id'] = isset(AdminLog::getAdminInfo()->admin_user->role_id) ? AdminLog::getAdminInfo()->admin_user->role_id : 0;
         $school_id = isset(AdminLog::getAdminInfo()->admin_user->school_id) ? AdminLog::getAdminInfo()->admin_user->school_id : 0;
         //每页显示的条数
-        $pagesize = isset($data['pageSize']) && $data['pageSize'] > 0 ? $data['pageSize'] : '20';
+        $pagesize = (int)isset($data['pageSize']) && $data['pageSize'] > 0 ? $data['pageSize'] : 20;
         $page     = isset($data['page']) && $data['page'] > 0 ? $data['page'] : 1;
         $offset   = ($page - 1) * $pagesize;
         $total = self::leftJoin('ld_school','ld_school.id','=','ld_article.school_id')
@@ -75,12 +75,12 @@ class Article extends Model {
             ->offset($offset)->limit($pagesize)->get();
         //分校列表
         if($data['role_id'] == 1){
-            $school = School::select('id as lable','name as value')->where(['is_forbid'=>1,'is_del'=>1])->get()->toArray();
-            $type = Articletype::select('id as lable','typename as value')->where(['status'=>1,'is_del'=>1])->get()->toArray();
+            $school = School::select('id as value','name as label')->where(['is_forbid'=>1,'is_del'=>1])->get()->toArray();
+            $type = Articletype::select('id as value','typename as label')->where(['status'=>1,'is_del'=>1])->get()->toArray();
         }else{
             $data['school_id'] = $school_id;
-            $school = School::select('id as lable','name as value')->where(['id'=>$data['school_id'],'is_forbid'=>1,'is_del'=>1])->get()->toArray();
-            $type = Articletype::select('id as lable','typename as value')->where(['school_id'=>$data['school_id'],'status'=>1,'is_del'=>1])->get()->toArray();
+            $school = School::select('id as value','name as label')->where(['id'=>$data['school_id'],'is_forbid'=>1,'is_del'=>1])->get()->toArray();
+            $type = Articletype::select('id as value','typename as label')->where(['school_id'=>$data['school_id'],'status'=>1,'is_del'=>1])->get()->toArray();
         }
         $page=[
             'pageSize'=>$pagesize,
