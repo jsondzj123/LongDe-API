@@ -5,6 +5,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class Live extends Model {
 
+    //指定别的表名
+    public $table = 'ld_lives';
+
     protected $fillable = [
         'admin_id',
         'subject_id',
@@ -35,7 +38,7 @@ class Live extends Model {
     }
 
     public function lessons() {
-        return $this->belongsToMany('App\Models\Lesson', 'lesson_lives');
+        return $this->belongsToMany('App\Models\Lesson', 'ld_lesson_lives');
     }
 }
 

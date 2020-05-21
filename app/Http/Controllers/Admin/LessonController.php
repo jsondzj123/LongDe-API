@@ -9,6 +9,10 @@ use DB;
 use Validator;
 use App\Models\Teacher;
 use App\Models\LessonSchool;
+use App\Tools\MTCloud;
+use App\Models\LiveChild;
+use App\Models\LiveTeacher;
+use App\Models\Live;
 
 class LessonController extends Controller {
 
@@ -26,6 +30,7 @@ class LessonController extends Controller {
         $method = $request->input('method') ?: 0;
         $status = $request->input('status') ?: 0;
         $auth = (int)$request->input('auth') ?: 0;
+        $public = (int)$request->input('public') ?: 0;
         $user = CurrentAdmin::user();   
         $data =  Lesson::select('id', 'admin_id', 'title', 'cover', 'price', 'favorable_price', 'buy_num', 'method', 'status', 'is_del', 'is_forbid')
                 ->where(['is_del' => 0, 'is_forbid' => 0])
@@ -71,52 +76,6 @@ class LessonController extends Controller {
         return $this->response($data);
     }
 
-    /**
-     * @param  分校课程列表
-     * @param  current_count   count
-     * @param  author  孙晓丽
-     * @param  ctime   2020/5/1 
-     * return  array
-     */
-    public function list()
-    {
-        $currentCount = $request->input('current_count') ?: 0;
-        $count = $request->input('count') ?: 15;
-        $subject_id = $request->input('subject_id');
-        $method = $request->input('method');
-        $status = $request->input('status');
-        $auth = $request->input('auth');
-        $user = CurrentAdmin::user();
-        //自增课程
-        $lesson_ids = Lesson::where('admin_id', $user->id)->pluck('id');
-        //授权课程
-        $school_lesson_ids = LessonStock::where([
-            'school_id' => $user->school_id,
-            'is_forbid' => 0])->pluck('lesson_id');
-        $ids = $lesson_ids->merge($school_lesson_ids);
-        $lesson = Lesson::with('subjects')->whereHas('subjects', function ($query) use ($subject_id)
-                        {
-                            $query->where('subjects.id', $subject_id);
-                        })
-                ->whereIn('id', $ids)
-                ->get();
-        $total = $lesson->count();
-        foreach ($lesson as $key=>$value) {
-            if(in_array($value->id, $school_lesson_ids->toArray())){
-                $lesson[$key]['is_auth'] = 1;
-            }else{
-                $lesson[$key]['is_auth'] = 0;
-            }
-        }
-        $data = [
-            'page_data' => $lesson,
-            'total' => $total,
-        ];
-        return $this->response($data);
-    }
-
-   
-
     /*
      * @param  课程详情
      * @param  课程id
@@ -148,21 +107,27 @@ class LessonController extends Controller {
             'price' => 'required',
             'favorable_price' => 'required',
             'method' => 'required',
-            'teacher_id' => 'required',
             'description' => 'required',
             'introduction' => 'required',
             'subject_id' => 'required',
             'is_public' => 'required',
             'buy_num' => 'required',
             'ttl' => 'required',
+            'teacher_id' => 'required|json',//'required|exclude_if:is_public,0|integer',
+            'nickname' => 'required_if:is_public,1',
+            'start_at' => 'required_if:is_public,1',
+            'end_at' => 'required_if:is_public,1',
+            'barrage' => 'required_if:is_public,1',
+            'modetype' => 'required_if:is_public,1',
         ]);
+
         if ($validator->fails()) {
             return $this->response($validator->errors()->first(), 202);
         }
         $subjectIds = json_decode($request->input('subject_id'), true);
         $teacherIds = json_decode($request->input('teacher_id'), true);
         $user = CurrentAdmin::user();
-
+        //DB::beginTransaction(); //开启事务
         try {
             $lesson = Lesson::create([
                     'admin_id' => intval($user->id),
@@ -184,7 +149,12 @@ class LessonController extends Controller {
             if(!empty($subjectIds)){
                 $lesson->subjects()->attach($subjectIds); 
             }
+            if($request->input('is_public') == 1){ 
+                $this->addLive($request->all(), $lesson->id);  
+            }
+            //DB::commit();  //提交
         } catch (Exception $e) {
+            //DB::rollback();  //回滚
             Log::error('创建失败:'.$e->getMessage());
             return $this->response($e->getMessage(), 500);
         }
@@ -279,5 +249,68 @@ class LessonController extends Controller {
             return $this->response("删除失败", 500);
         }
         return $this->response("删除成功");
+    }
+
+    public function addLive($data, $lesson_id)
+    {
+        $user = CurrentAdmin::user();
+        try {
+            $MTCloud = new MTCloud();
+            $res = $MTCloud->courseAdd(
+                $data['title'],
+                $data['teacher_id'],
+                $data['start_at'],
+                $data['end_at'],
+                $data['nickname'],
+                '',
+                [   //'departmentId' => 6, 
+                    'barrage' => $data['barrage'], 
+                    'modetype' => $data['modetype'],
+                    //'isPublic' => 1, 
+                    //'robotNumber' => 1, 
+                    //'robotType' => 1, 
+                    //'pptDisplay' => 1
+                ]
+            );
+            if(!array_key_exists('code', $res) && !$res["code"] == 0){
+                Log::error('欢拓创建失败:'.json_encode($res));
+                return false;
+            }
+            $live = Live::create([
+                    'admin_id' => intval($user->id),
+                    'subject_id' => $data['subject_id'],
+                    'name' => $data['title'],
+                    'description' => $data['description'],
+                ]);
+            
+            $live->lessons()->attach([$lesson_id]);
+            $livechild =  LiveChild::create([
+                            'admin_id'   => $user->id,
+                            'live_id'    => $live->id,
+                            'course_name' => $data['title'],
+                            'account'     => $data['teacher_id'],
+                            'start_time'  => $data['start_at'],
+                            'end_time'    => $data['end_at'],
+                            'nickname'    => $data['nickname'],
+                            'partner_id'  => $res['data']['partner_id'],
+                            'bid'         => $res['data']['bid'],
+                            'course_id'   => $res['data']['course_id'],
+                            'zhubo_key'   => $res['data']['zhubo_key'],
+                            'admin_key'   => $res['data']['admin_key'],
+                            'user_key'    => $res['data']['user_key'],
+                            'add_time'    => $res['data']['add_time'],
+                        ]);
+
+            LiveTeacher::create([
+                'admin_id' => $user->id,
+                'live_id' => $live->id,
+                'live_child_id' => $livechild->id,
+                'teacher_id' => $data['teacher_id'],
+            ]);
+        } catch (Exception $e) {
+            Log::error('创建失败:'.$e->getMessage());
+            return false;
+        }
+        return true;
     }
 }

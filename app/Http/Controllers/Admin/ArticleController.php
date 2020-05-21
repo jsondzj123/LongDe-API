@@ -2,9 +2,16 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\AdminLog;
 use App\Models\Article;
 
 class ArticleController extends Controller {
+    //获取分类和学校
+    public function schoolList(){
+        $role_id = isset(AdminLog::getAdminInfo()->admin_user->role_id) ? AdminLog::getAdminInfo()->admin_user->role_id : 0;
+        $data = Article::schoolANDtype($role_id);
+        return response()->json(['code' => 200 , 'msg' =>'成功','school'=>$data[0],'type'=>$data[1],]);
+    }
     /*
          * @param  新增文章
          * @param  $user_id     参数

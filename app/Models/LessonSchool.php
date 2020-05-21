@@ -6,6 +6,9 @@ use App\Models\SubjectLesson;
 
 class LessonSchool extends Model {
 
+    //指定别的表名
+    public $table = 'ld_lesson_schools';
+
     protected $fillable = [
         'admin_id',
         'school_id',

@@ -6,6 +6,9 @@ use Illuminate\Http\Request;
 
 class Subject extends Model {
 
+    //指定别的表名
+    public $table = 'ld_subjects';
+
 	protected $fillable = [
         'id',
     	'admin_id',

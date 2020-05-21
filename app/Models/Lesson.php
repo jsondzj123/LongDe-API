@@ -8,7 +8,7 @@ use App\Tools\CurrentAdmin;
 class Lesson extends Model {
 
     //指定别的表名
-    public $table      = 'ld_lessons';
+    public $table = 'ld_lessons';
 
     protected $fillable = [
         'admin_id',
@@ -64,11 +64,11 @@ class Lesson extends Model {
     }
 
     public function teachers() {
-        return $this->belongsToMany('App\Models\Teacher', 'lesson_teachers');
+        return $this->belongsToMany('App\Models\Teacher', 'ld_lesson_teachers');
     }
 
     public function subjects() {
-        return $this->belongsToMany('App\Models\Subject', 'subject_lessons');
+        return $this->belongsToMany('App\Models\Subject', 'ld_subject_lessons');
     }
 
     public function schools() {

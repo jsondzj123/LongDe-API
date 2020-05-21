@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 class LiveChild extends Model {
 
         //指定别的表名
-    public $table = 'live_childs';
+    public $table = 'ld_live_childs';
 
     protected $fillable = [
         'admin_id',
