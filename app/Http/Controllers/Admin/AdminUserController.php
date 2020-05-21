@@ -169,6 +169,9 @@ class AdminUserController extends Controller {
             return response()->json(['code'=>205,'msg'=>'用户名已存在']);
         }
         unset($data['pwd']);
+        if(isset($data['/admin/adminuser/doInsertAdminUser'])){
+            unset($data['/admin/adminuser/doInsertAdminUser']);
+        }
         $data['password'] = password_hash($data['password'], PASSWORD_DEFAULT);
         $data['admin_id'] = CurrentAdmin::user()['id'];
         $result = Adminuser::insertAdminUser($data);
@@ -308,7 +311,7 @@ class AdminUserController extends Controller {
             }else{
                 return   response()->json(['code'=>203,'msg'=>'网络超时，请重试']);    
             }
-           
+            
             DB::commit();
         } catch (Exception $e) {
             DB::rollBack();
