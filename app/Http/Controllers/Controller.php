@@ -22,7 +22,7 @@ class Controller extends BaseController {
         //app('rsa')->Test();
         self::$accept_data = $_REQUEST;
     }
- 
+
 
 
      /*返回json串
@@ -43,7 +43,7 @@ class Controller extends BaseController {
         }
         return response()->json($data);
     }
-    
+
     /*
      * @param  description   导入功能方法
      * @param  参数说明[
@@ -60,7 +60,7 @@ class Controller extends BaseController {
         try{
             //导入数据方法
             $exam_array = Excel::toArray($imxport , $excelpath);
-            
+
             //判断导入的excel文件中是否有信息
             if(!$exam_array || empty($exam_array)){
                 return ['code' => 204 , 'msg' => '暂无信息导入'];
@@ -91,7 +91,7 @@ class Controller extends BaseController {
             return ['code' => 500 , 'msg' => $ex->getMessage()];
         }
     }
-    
+
     /*
      * @param  description   检测真实文件后缀格式的方法
      * @param  参数说明[
@@ -139,7 +139,7 @@ class Controller extends BaseController {
         }
         return $flag;
     }
-    
+
    /** delDir()删除文件夹及文件夹内文件函数
     * @param string $path   文件夹路径
     * @param string $delDir 是否删除改
