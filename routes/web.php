@@ -64,7 +64,7 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin' , 'middleware'=> ['
     /*
      * 课程模块(sxl)
     */
-    
+
     $router->post('lesson', 'LessonController@index');
     $router->post('lesson/add', 'LessonController@store');
     $router->post('lesson/{id}', 'LessonController@show');
@@ -227,6 +227,7 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin' , 'middleware'=> ['
     $router->group(['prefix' => 'article'], function () use ($router) {
         /*------------文章模块---------------------*/
         $router->post('getArticleList', 'ArticleController@getArticleList');//获取文章列表
+        $router->post('schoolList', 'ArticleController@schoolList');//学校列表
         $router->post('addArticle', 'ArticleController@addArticle');//新增文章
         $router->post('editStatusToId', 'ArticleController@editStatusToId');//文章启用&禁用
         $router->post('editDelToId', 'ArticleController@editDelToId');//文章删除
@@ -239,7 +240,7 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin' , 'middleware'=> ['
         $router->post('exitDelForId', 'ArticletypeController@exitDelForId');//文章分类删除
         $router->post('exitTypeForId', 'ArticletypeController@exitTypeForId');//文章分类修改
         $router->post('OnelistType', 'ArticletypeController@OnelistType');//单条查询
-        $router->post('schoollist', 'ArticletypeController@schoollist');//学校列表
+
     });
     //订单&支付模块(szw)
     $router->group(['prefix' => 'order'], function () use ($router) {
