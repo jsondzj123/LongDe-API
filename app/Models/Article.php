@@ -290,6 +290,7 @@ class Article extends Model {
         $data['update_at'] = date('Y-m-d H:i:s');
         $id = $data['id'];
         unset($data['id']);
+        unset($data['/admin/article/exitForId']);
         $res = self::where(['id'=>$id])->update($data);
         if($res){
             //获取后端的操作员id
