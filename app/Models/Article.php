@@ -74,20 +74,13 @@ class Article extends Model {
             ->orderBy('ld_article.id','desc')
             ->offset($offset)->limit($pagesize)->get();
         //分校列表
-        if($data['role_id'] == 1){
-            $school = School::select('id as value','name as label')->where(['is_forbid'=>1,'is_del'=>1])->get()->toArray();
-            $type = Articletype::select('id as value','typename as label')->where(['status'=>1,'is_del'=>1])->get()->toArray();
-        }else{
-            $data['school_id'] = $school_id;
-            $school = School::select('id as value','name as label')->where(['id'=>$data['school_id'],'is_forbid'=>1,'is_del'=>1])->get()->toArray();
-            $type = Articletype::select('id as value','typename as label')->where(['school_id'=>$data['school_id'],'status'=>1,'is_del'=>1])->get()->toArray();
-        }
+        $schooltype = self::schoolANDtype($data['role_id']);
         $page=[
             'pageSize'=>$pagesize,
             'page' =>$page,
             'total'=>$total
         ];
-        return ['code' => 200 , 'msg' => '查询成功','data'=>$list,'school'=>$school,'type'=>$type,'where'=>$data,'page'=>$page];
+        return ['code' => 200 , 'msg' => '查询成功','data'=>$list,'school'=>$schooltype[0],'type'=>$schooltype[1],'where'=>$data,'page'=>$page];
     }
     /*
          * @param 修改文章状态
@@ -310,4 +303,24 @@ class Article extends Model {
             return ['code' => 202 , 'msg' => '更新失败'];
         }
     }
+
+    public static function schoolANDtype($role_id){
+//        $role_id = isset(AdminLog::getAdminInfo()->admin_user->role_id) ? AdminLog::getAdminInfo()->admin_user->role_id : 0;
+        if($role_id == 1){
+            $school = School::select('id as value','name as label')->where(['is_forbid'=>1,'is_del'=>1])->get()->toArray();
+            $type = Articletype::select('id as value','typename as label')->where(['status'=>1,'is_del'=>1])->get()->toArray();
+        }else{
+            $school_id = isset(AdminLog::getAdminInfo()->admin_user->school_id) ? AdminLog::getAdminInfo()->admin_user->school_id : 0;
+            $school = School::select('id as value','name as label')->where(['id'=>$school_id,'is_forbid'=>1,'is_del'=>1])->get()->toArray();
+            $type = Articletype::select('id as value','typename as label')->where(['school_id'=>$school_id,'status'=>1,'is_del'=>1])->get()->toArray();
+        }
+        $data=[
+            0 => $school,
+            1 => $type
+        ];
+        return $data;
+    }
+
+
+
 }

@@ -8,7 +8,7 @@ use App\Tools\CurrentAdmin;
 class Lesson extends Model {
 
     //指定别的表名
-    public $table      = 'ld_lessons';
+    public $table = 'ld_lessons';
 
     protected $fillable = [
         'admin_id',
