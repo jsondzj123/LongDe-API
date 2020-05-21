@@ -16,13 +16,13 @@ class CreateLdAdminTable extends Migration
         Schema::create('ld_admin', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('admin_id')->default(0)->comment('操作员ID');
-            $table->string('username')->nullable()->comment('用户名');
-            $table->string('password')->nullable()->comment('密码');
+            $table->string('username')->comment('用户名');
+            $table->string('password')->comment('密码');
             $table->integer('role_id')->comment('角色ID');
-            $table->string('realname')->nullable()->comment('真实姓名');
+            $table->string('realname')->comment('真实姓名');
             $table->integer('sex')->default(0)->comment('性别');
-            $table->integer('mobile')->comment('手机号码');
-            $table->integer('email')->nullable()->comment('邮箱');
+            $table->string('mobile')->comment('手机号码');
+            $table->string('email')->nullable()->comment('邮箱');
             $table->integer('teacher_id')->nullable()->comment('教师ID');
             $table->smallInteger('school_id')->comment('学校ID');
             $table->smallInteger('school_status')->default(0)->comment('学校状态ID');
