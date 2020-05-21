@@ -64,9 +64,10 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin' , 'middleware'=> ['
     /*
      * 课程模块(sxl)
     */
+    
     $router->post('lesson', 'LessonController@index');
-    $router->post('lesson/{id}', 'LessonController@show');
     $router->post('lesson/add', 'LessonController@store');
+    $router->post('lesson/{id}', 'LessonController@show');
     $router->post('lesson/{id}/update', 'LessonController@update');
     $router->post('lesson/{id}/edit', 'LessonController@edit');
     $router->post('lesson/{id}/delete', 'LessonController@destroy');
@@ -75,8 +76,8 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin' , 'middleware'=> ['
      * 章节模块(sxl)
     */
     $router->post('lessonChild', 'LessonChildController@index');
-    $router->post('lessonChild/{id}', 'LessonChildController@show');
     $router->post('lessonChild/add', 'LessonChildController@store');
+    $router->post('lessonChild/{id}', 'LessonChildController@show');
     $router->post('lessonChild/{id}/update', 'LessonChildController@update');
     $router->post('lessonChild/{id}/delete', 'LessonChildController@destroy');
 
@@ -84,8 +85,8 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin' , 'middleware'=> ['
      * 分校课程(sxl)
     */
     $router->post('lessonSchool', 'LessonSchoolController@index');
-    $router->post('lessonSchool/{id}', 'LessonSchoolController@show');
     $router->post('lessonSchool/add', 'LessonSchoolController@store');
+    $router->post('lessonSchool/{id}', 'LessonSchoolController@show');
     $router->post('lessonSchool/{id}/update', 'LessonSchoolController@update');
     $router->post('lessonSchool/{id}/delete', 'LessonSchoolController@destroy');
 
@@ -101,8 +102,8 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin' , 'middleware'=> ['
      * 科目模块(sxl)
     */
     $router->post('subject', 'SubjectController@index');
-    $router->post('subject/{id}', 'SubjectController@show');
     $router->post('subject/add', 'SubjectController@store');
+    $router->post('subject/{id}', 'SubjectController@show');
     $router->post('subject/{id}/update', 'SubjectController@update');
     $router->post('subject/{id}/delete', 'SubjectController@destroy');
 
@@ -110,10 +111,9 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin' , 'middleware'=> ['
      * 录播模块(sxl)
     */
     $router->post('video', 'VideoController@index');
-    $router->post('video/{id}', 'VideoController@show');
     $router->post('video/add', 'VideoController@store');
+    $router->post('video/{id}', 'VideoController@show');
     $router->post('video/{id}/update', 'VideoController@update');
-
     $router->post('video/{id}/edit', 'VideoController@edit');
 
 
@@ -121,8 +121,8 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin' , 'middleware'=> ['
      * 直播模块(sxl)
     */
     $router->post('live', 'LiveController@index');
-    $router->post('live/{id}', 'LiveController@show');
     $router->post('live/add', 'LiveController@store');
+    $router->post('live/{id}', 'LiveController@show');
     $router->post('live/{id}/update', 'LiveController@update');
     $router->post('live/{id}/delete', 'LiveController@destroy');
     $router->post('live/{id}/edit', 'LiveController@edit');
