@@ -20,8 +20,7 @@ class Controller extends BaseController {
     public function __construct() {
         //self::$accept_data = app('rsa')->servicersadecrypt($request);
         //app('rsa')->Test();
-//        self::$accept_data = $_REQUEST;
-        self::$accept_data = $_POST;
+        self::$accept_data = $_REQUEST;
     }
 
 
