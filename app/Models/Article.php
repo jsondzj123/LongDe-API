@@ -310,7 +310,6 @@ class Article extends Model {
             return ['code' => 202 , 'msg' => '更新失败'];
         }
     }
-
     public static function schoolANDtype($role_id){
 //        $role_id = isset(AdminLog::getAdminInfo()->admin_user->role_id) ? AdminLog::getAdminInfo()->admin_user->role_id : 0;
         if($role_id == 1){
