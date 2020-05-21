@@ -38,7 +38,7 @@ class Live extends Model {
     }
 
     public function lessons() {
-        return $this->belongsToMany('App\Models\Lesson', 'lesson_lives');
+        return $this->belongsToMany('App\Models\Lesson', 'ld_lesson_lives');
     }
 }
 

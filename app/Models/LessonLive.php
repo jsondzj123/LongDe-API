@@ -23,7 +23,7 @@ class LessonLive extends Model {
     ];
 
     public function lives() {
-        return $this->belongsToMany('App\Models\Live', 'lesson_lives');
+        return $this->belongsToMany('App\Models\Live', 'ld_lesson_lives');
     }
 }
 

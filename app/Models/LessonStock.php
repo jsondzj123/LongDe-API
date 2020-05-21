@@ -7,7 +7,7 @@ use App\Models\SubjectLesson;
 class LessonStock extends Model {
 
     //指定别的表名
-    public $table      = 'ld_lesson_stocks';
+    public $table = 'ld_lesson_stocks';
 
     protected $fillable = [
         'admin_id',

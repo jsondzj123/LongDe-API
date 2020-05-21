@@ -90,10 +90,8 @@ class LiveChildController extends Controller {
             $livechild =  LiveChild::create([
                             'admin_id' => $user->id,
                             'live_id' => $request->input('live_id'),
-                            'live_child_id' => $request->input('nickname'),
-                            'teacher_id' => $request->input('account'),
-                            'course_name' => $request->input('account'),
-                            'account'=> $request->input('account'),
+                            'course_name' => $request->input('course_name'),
+                            'account'=> $request->input('teacher_id'),
                             'start_time'=> $request->input('start_time'),
                             'end_time' => $request->input('end_time'),
                             'nickname' => $request->input('nickname'),
@@ -111,7 +109,7 @@ class LiveChildController extends Controller {
                 'admin_id' => $user->id,
                 'live_id' => $request->input('live_id'),
                 'live_child_id' => $livechild->id,
-                'teacher_id' => $request->input('account'),
+                'teacher_id' => $request->input('teacher_id'),
                 ]);
         }catch(Exception $e){
             Log::error('创建失败:'.$e->getMessage());
