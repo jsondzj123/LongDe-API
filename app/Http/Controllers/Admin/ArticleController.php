@@ -4,8 +4,6 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\AdminLog;
 use App\Models\Article;
-use App\Models\Articletype;
-use App\Models\School;
 
 class ArticleController extends Controller {
     //获取分类和学校
