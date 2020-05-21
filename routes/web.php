@@ -122,6 +122,7 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin' , 'middleware'=> ['
     */
     $router->post('live', 'LiveController@index');
     $router->post('live/add', 'LiveController@store');
+    $router->post('live/{id}/classNumberList', 'LiveController@classList');
     $router->post('live/{id}', 'LiveController@show');
     $router->post('live/{id}/update', 'LiveController@update');
     $router->post('live/{id}/delete', 'LiveController@destroy');

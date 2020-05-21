@@ -21,7 +21,7 @@ class CreateLdArticleTypeTable extends Migration
             $table->string('description')->comment('简介');
             $table->smallInteger('status')->default(0)->comment('0禁用1启用');
             $table->smallInteger('is_del')->default(1)->comment('0无效1有效');
-            $table->timestamp('create_at')->comment('创建时间');
+            $table->timestamp('create_at')->comment('创建时间')->default(DB::raw('CURRENT_TIMESTAMP'));
             $table->dateTime('update_at')->nullable()->comment('修改时间');
         });
     }

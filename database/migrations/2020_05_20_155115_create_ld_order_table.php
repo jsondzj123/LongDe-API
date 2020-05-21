@@ -30,8 +30,11 @@ class CreateLdOrderTable extends Migration
             $table->integer('class_id')->comment('课程ID');
             $table->integer('school_id')->comment('学员答案');
             $table->dateTime('refund_time')->comment('退款时间');
-            $table->timestamp('create_at')->comment('创建时间');
+            $table->timestamp('create_at')->comment('创建时间')->default(DB::raw('CURRENT_TIMESTAMP'));
             $table->dateTime('update_at')->comment('修改时间');
+
+            //引擎设置部分
+            $table->engine  = 'InnoDB';
         });
     }
 

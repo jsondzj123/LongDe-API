@@ -10,6 +10,7 @@ use Validator;
 use App\Tools\MTCloud;
 use App\Models\LiveChild;
 use App\Models\LiveTeacher;
+use App\Models\LiveClasschild;
 
 class LiveChildController extends Controller {
 
@@ -55,12 +56,15 @@ class LiveChildController extends Controller {
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
+            'class_id' => 'required',
             'live_id' => 'required',
             'course_name' => 'required',
-            'account' => 'required',
+            'teacher_id' => 'required',
             'start_time' => 'required',
             'end_time' => 'required',
             'nickname' => 'required',
+            'modetype' => 'required',
+            'barrage'  => 'required',
         ]);
         if ($validator->fails()) {
             return $this->response($validator->errors()->first(), 202);
@@ -70,17 +74,18 @@ class LiveChildController extends Controller {
             $MTCloud = new MTCloud();
             $res = $MTCloud->courseAdd(
                         $request->input('course_name'),
-                        $request->input('account'),
+                        $request->input('teacher_id'),
                         $request->input('start_time'),
                         $request->input('end_time'),
                         $request->input('nickname'),
-                        $request->input('accountIntro'),
+                        '',
                         [   //'departmentId' => 6, 
-                            'barrage' => 1, 
-                            'isPublic' => 1, 
-                            'robotNumber' => 1, 
-                            'robotType' => 1, 
-                            'pptDisplay' => 1
+                            'barrage' => $request->input('barrage'), 
+                            'modetype' => $request->input('modetype'),
+                            //'isPublic' => 1, 
+                            //'robotNumber' => 1, 
+                            //'robotType' => 1, 
+                            //'pptDisplay' => 1
                         ]
                     );
             if(!array_key_exists('code', $res) && !$res["code"] == 0){
@@ -95,7 +100,7 @@ class LiveChildController extends Controller {
                             'start_time'=> $request->input('start_time'),
                             'end_time' => $request->input('end_time'),
                             'nickname' => $request->input('nickname'),
-                            'accountIntro' => $request->input('accountIntro'),
+                            //'accountIntro' => $request->input('accountIntro'),
                             'partner_id' => $res['data']['partner_id'],
                             'bid' => $res['data']['bid'],
                             'course_id' => $res['data']['course_id'],
@@ -105,6 +110,10 @@ class LiveChildController extends Controller {
                             'add_time' => $res['data']['add_time'],
                         ]);
 
+            LiveClasschild::create([
+                'live_child_id' => $livechild->id,
+                'lesson_child_id' => $request->input('class_id'),
+                ]);
             LiveTeacher::create([
                 'admin_id' => $user->id,
                 'live_id' => $request->input('live_id'),
