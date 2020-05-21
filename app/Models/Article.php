@@ -192,7 +192,11 @@ class Article extends Model {
             return ['code' => 201 , 'msg' => '正文不能为空'];
         }
         //缓存查出用户id和分校id
-        $data['school_id'] = isset(AdminLog::getAdminInfo()->admin_user->school_id) ? AdminLog::getAdminInfo()->admin_user->school_id : 0;
+        $role_id = isset(AdminLog::getAdminInfo()->admin_user->role_id) ? AdminLog::getAdminInfo()->admin_user->role_id : 0;
+        if($role_id != 1){
+            $data['school_id'] = isset(AdminLog::getAdminInfo()->admin_user->school_id) ? AdminLog::getAdminInfo()->admin_user->school_id : 0;
+        }
+        unset($data['/admin/article/addArticle']);
         $data['user_id'] = isset(AdminLog::getAdminInfo()->admin_user->id) ? AdminLog::getAdminInfo()->admin_user->id : 0;
         $data['update_at'] = date('Y-m-d H:i:s');
         $add = self::insert($data);
