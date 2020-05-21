@@ -5,6 +5,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class Live extends Model {
 
+    //指定别的表名
+    public $table = 'ld_lives';
+
     protected $fillable = [
         'admin_id',
         'subject_id',

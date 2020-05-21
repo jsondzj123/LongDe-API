@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 class LessonVideo extends Model {
 
 	//指定别的表名
-    public $table = 'lesson_videos';
+    public $table = 'ld_lesson_videos';
 
 
     protected $fillable = [
