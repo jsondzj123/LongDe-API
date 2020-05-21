@@ -9,6 +9,8 @@ use  App\Tools\CurrentAdmin;
 use Validator;
 use App\Tools\MTCloud;
 use App\Models\LessonLive;
+use App\Models\Lesson;
+use App\Models\LessonChild;
 
 class LiveController extends Controller {
 
@@ -48,6 +50,20 @@ class LiveController extends Controller {
     public function show($id) {
         $live = Live::with('subject')->findOrFail($id);
         return $this->response($live);
+    }
+
+
+    /*
+     * @param  班号列表
+     * @param  直播id
+     * @param  author  孙晓丽
+     * @param  ctime   2020/5/18 
+     * return  array
+     */
+    public function classList($id) {
+        $lesson_id = LessonLive::where('live_id', $id)->first()['lesson_id'];
+        $lesson = LessonChild::where(['lesson_id' => $lesson_id, 'pid' => 0])->get();
+        return $this->response($lesson);
     }
 
 
