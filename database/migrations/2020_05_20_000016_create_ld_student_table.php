@@ -3,6 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
 
 class CreateLdStudentTable extends Migration
 {
@@ -14,38 +15,44 @@ class CreateLdStudentTable extends Migration
     public function up()
     {
         Schema::create('ld_student', function (Blueprint $table) {
-            $table->increments('id');
-            $table->integer('admin_id')->default(0)->comment('操作员ID');
-            $table->integer('school_id')->default(0)->comment('分校ID');
-            $table->char('phone', 11)->comment('手机号');
-            $table->string('real_name')->comment('姓名');
-            $table->smallInteger('sex')->default(1)->comment('手机号');
-            $table->smallInteger('papers_type')->default(0)->comment('证件类型');
-            $table->string('papers_num')->comment('证件号码');
-            $table->string('birthday')->comment('出生日期');
-            $table->string('address_locus')->comment('户口所在地');
+            //字段设置部分
+            $table->increments('id')->comment('自增id');
+            $table->integer('admin_id')->default(0)->comment('操作员id');
+            $table->integer('school_id')->default(0)->comment('分校id');
+            $table->char('phone' , 11)->default('')->comment('手机号');
+            $table->string('real_name' , 255)->default('')->comment('姓名');
+            $table->tinyInteger('sex')->default(1)->comment('性别(1男,2代表女)');
+            $table->tinyInteger('papers_type')->default(0)->comment('证件类型(1代表身份证,2代表护照,3代表港澳通行证,4代表台胞证,5代表军官证,6代表士官证,7代表其他)');
+            $table->string('papers_num' , 255)->default('')->comment('证件号码');
+            $table->string('birthday' , 255)->default('')->comment('出生日期');
+            $table->string('address_locus' , 255)->default('')->comment('户口所在地');
             $table->integer('age')->default(0)->comment('年龄');
-            $table->smallInteger('educational')->default(0)->comment('学历');
-            $table->string('family_phone', 60)->comment('家庭电话');
-            $table->string('office_phone', 60)->comment('办公电话');
-            $table->string('contact_people', 60)->comment('紧急联系人');
-            $table->string('contact_phone', 60)->comment('紧急联系电话');
-            $table->string('email', 60)->comment('邮箱');
-            $table->string('qq', 30)->comment('qq号码');
-            $table->string('wechat', 30)->comment('微信号');
-            $table->string('address')->comment('住址');
+            $table->tinyInteger('educational')->default(0)->comment('学历(1代表小学,2代表初中,3代表高中,4代表大专,5代表大本,6代表研究生,7代表博士生,8代表博士后及以上)');
+            $table->string('family_phone' , 60)->default('')->comment('家庭电话号');
+            $table->string('office_phone' , 60)->default('')->comment('办公电话');
+            $table->string('contact_people' , 60)->default('')->comment('紧急联系人');
+            $table->string('contact_phone' , 60)->default('')->comment('紧急联系电话');
+            $table->string('email' , 60)->default('')->comment('邮箱');
+            $table->string('qq' , 30)->default('')->comment('qq号码');
+            $table->string('wechat' , 30)->default('')->comment('微信号');
+            $table->string('address' , 255)->default('')->comment('住址');
             $table->text('remark')->nullable()->comment('备注');
-            $table->smallInteger('is_forbid')->default(1)->comment('是否禁用：1否2是');
-            $table->smallInteger('enroll_status')->default(0)->comment('报名状态0未报名1已报名');
-            $table->smallInteger('state_status')->default(0)->comment('开课状态0未开课1部分未开课2全部未开课');
-            $table->smallInteger('reg_source')->default(0)->comment('来源：0官网注册1手机端线下录入');
-            $table->dateTime('create_time')->comment('创建时间');
-            $table->dateTime('update_time')->nullable()->comment('更新时间');
+            $table->tinyInteger('is_forbid')->default(1)->comment('账号状态(1代表启用,2代表禁用)');
+            $table->tinyInteger('enroll_status')->default(0)->comment('报名状态(1代表已报名,0代表未报名)');
+            $table->tinyInteger('state_status')->default(0)->comment('开课状态(0代表均未开课,1代表部分未开课,2代表全部开课)');
+            $table->tinyInteger('reg_source')->default(0)->comment('注册来源(0代表官网注册,1代表手机端,2代表线下录入)');
+            $table->dateTime('create_at')->comment('创建时间');
+            $table->dateTime('update_at')->nullable()->comment('更新时间');
 
-            $table->index('school_id');
-            $table->index('is_forbid');
-            $table->index('state_status');
+            //索引设置部分
+            $table->index('school_id' , 'index_school_id');
+            $table->index(['is_forbid', 'state_status'], 'index_status_id');
+            
+            //引擎设置部分
+            $table->engine  = 'InnoDB';
         });
+        //设置表注释
+        DB::statement("alter table `ld_student` comment '学员表'");
     }
 
 
