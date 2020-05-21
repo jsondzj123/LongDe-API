@@ -158,12 +158,10 @@ class AdminUserController extends Controller {
         if($validator->fails()) {
             return response()->json(json_decode($validator->errors()->first(),1));
         }
-        if( !isset($data['teacher_id'])){
-            return response()->json(['code'=>201,'msg'=>'缺少教师id']);
-        }
+        $data['teacher_id'] = !isset($data['teacher_id']) || empty($data['teacher_id'])? 0: $data['teacher_id'];
         if($data['password'] != $data['pwd']){
             return response()->json(['code'=>206,'msg'=>'登录密码不一致']);
-        } 
+        }  
         $count  = Adminuser::where('username',$data['username'])->where('school_id',$data['school_id'])->where('is_del',1)->count();
         if($count>0){
             return response()->json(['code'=>205,'msg'=>'用户名已存在']);

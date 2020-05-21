@@ -5,7 +5,7 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
 
-class CreateLdQuestionSubjectTable extends Migration
+class CreateLdAdminOperateLogTable extends Migration
 {
     /**
      * Run the migrations.
@@ -14,26 +14,25 @@ class CreateLdQuestionSubjectTable extends Migration
      */
     public function up()
     {
-        Schema::create('ld_question_subject', function (Blueprint $table) {
+        Schema::create('ld_admin_operate_log', function (Blueprint $table) {
             //字段设置部分
             $table->increments('id')->comment('自增id');
             $table->integer('admin_id')->default(0)->comment('操作员id');
-            $table->integer('bank_id')->default(0)->comment('题库id');
-            $table->string('subject_name' , 255)->default('')->comment('科目名称');
-            $table->tinyInteger('is_del')->default(0)->comment('是否删除(1代表删除,0代表正常)');
+            $table->string('module_name' , 255)->default('')->comment('模块名称');
+            $table->string('route_url' , 255)->default('')->comment('路由路径');
+            $table->string('operate_method' , 10)->default('')->comment('操作方式(insert,update,delete)');
+            $table->text('content')->nullable()->comment('备注(增加或者更改或者删除了哪些内容)');
+            $table->string('ip' , 60)->default('')->comment('ip地址');
             $table->dateTime('create_at')->comment('创建时间');
-            $table->dateTime('update_at')->nullable()->comment('更新时间');
-
+            
             //索引设置部分
             $table->index('admin_id' , 'index_admin_id');
-            $table->index('bank_id' , 'index_bank_id');
-            $table->index(['admin_id', 'bank_id'], 'index_admin_bank');
             
             //引擎设置部分
             $table->engine  = 'InnoDB';
         });
         //设置表注释
-        DB::statement("alter table `ld_question_subject` comment '题库科目表'");
+        DB::statement("alter table `ld_admin_operate_log` comment '后台操作日志表'");
     }
 
     /**
@@ -43,6 +42,6 @@ class CreateLdQuestionSubjectTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('ld_question_subject');
+        Schema::dropIfExists('ld_admin_operate_log');
     }
 }

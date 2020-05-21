@@ -4,6 +4,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\AdminLog;
 use App\Models\PapersExam;
+use App\Models\Bank;
 use App\Models\QuestionSubject;
 use Validator;
 use Illuminate\Support\Facades\Redis;
@@ -89,6 +90,18 @@ class Papers extends Model {
         
         //开启事务
         DB::beginTransaction();
+        
+        //判断题库id对应的题库是否存在
+        $bank_count = Bank::where("id",$body['bank_id'])->where("is_del" , 0)->count();
+        if($bank_count <= 0){
+            return ['code' => 204 , 'msg' => '此题库信息不存在'];
+        }
+        
+        //判断科目id对应的科目是否存在
+        $bank_count = QuestionSubject::where("id",$body['subject_id'])->where("is_del" , 0)->count();
+        if($bank_count <= 0){
+            return ['code' => 204 , 'msg' => '此科目信息不存在'];
+        }
 
         //将数据插入到表中
         $papers_id = self::insertGetId($papers_array);
