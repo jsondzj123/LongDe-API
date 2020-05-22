@@ -75,10 +75,10 @@ class LessonChildController extends Controller {
             'lesson_id' => 'required',
             'name'      => 'required',
             'pid'       => 'required',
+            'is_free'   => 'required',
             'category'  => 'required_unless:pid,0',
             'url'       => 'required_unless:pid,0|json',
             'size'      => 'required_unless:pid,0',
-            'is_free'   => 'required_unless:pid,0',
             'video_id'  => 'json'
         ]);
         if ($validator->fails()) {

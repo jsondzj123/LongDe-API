@@ -9,6 +9,11 @@ use  App\Tools\CurrentAdmin;
 use Validator;
 use App\Tools\MTCloud;
 use App\Models\LessonLive;
+use App\Models\Lesson;
+use App\Models\LessonChild;
+use App\Models\LiveClassChild;
+use App\Models\LiveChild;
+use App\Models\Teacher;
 
 class LiveController extends Controller {
 
@@ -48,6 +53,27 @@ class LiveController extends Controller {
     public function show($id) {
         $live = Live::with('subject')->findOrFail($id);
         return $this->response($live);
+    }
+
+
+    /*
+     * @param  班号列表
+     * @param  直播id
+     * @param  author  孙晓丽
+     * @param  ctime   2020/5/18 
+     * return  array
+     */
+    public function classList($id) {
+        $lesson_id = LessonLive::where('live_id', $id)->first()['lesson_id'];
+        $lessons = LessonChild::select('id', 'name', 'description', 'url', 'is_forbid')->where(['lesson_id' => $lesson_id, 'pid' => 0])->get();
+        foreach ($lessons as $key => $value) {
+            $childs = LiveChild::select('id', 'course_name', 'start_time', 'end_time', 'account')->whereIn('id' ,LiveClassChild::where('lesson_child_id', $value->id)->pluck('live_child_id'))->get();
+            foreach ($childs as $k => $val) {
+                $childs[$k]['teacher_name'] = Teacher::find($val->account)->real_name;
+            }
+            $lessons[$key]['childs'] = $childs;
+        }
+        return $this->response($lessons);
     }
 
 

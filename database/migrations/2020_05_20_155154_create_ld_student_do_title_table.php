@@ -3,6 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
 
 class CreateLdStudentDoTitleTable extends Migration
 {
@@ -14,21 +15,24 @@ class CreateLdStudentDoTitleTable extends Migration
     public function up()
     {
         Schema::create('ld_student_do_title', function (Blueprint $table) {
-            $table->increments('id');
-            $table->integer('student_id')->default(0)->comment('学员ID');
-            $table->integer('bank_id')->default(0)->comment('题库ID');
-            $table->integer('papers_id')->default(0)->comment('试卷ID');
-            $table->integer('exam_id')->default(0)->comment('试题ID');
-            $table->string('answer')->comment('学员答案');
-            $table->smallInteger('is_right')->default(0)->comment('对错类型0错误1正确');
+            //字段设置部分
+            $table->increments('id')->comment('自增id');
+            $table->integer('student_id')->default(0)->comment('学员id');
+            $table->integer('bank_id')->default(0)->comment('题库id');
+            $table->integer('papers_id')->default(0)->comment('试卷id');
+            $table->integer('exam_id')->default(0)->comment('试题id');
+            $table->string('answer' , 20)->default('')->comment('学员答案');
+            $table->tinyInteger('is_right')->default(0)->comment('对错类型(1代表正确,0代表错误)');
             $table->dateTime('create_at')->comment('创建时间');
 
-            $table->index('student_id');
-            $table->index('bank_id');
-            $table->index('exam_id');
-            $table->index('papers_id');
-            $table->index('create_at');
+            //索引设置部分
+            $table->index(['student_id', 'bank_id','papers_id', 'exam_id','create_at'], 'index_exam_id');
+            
+            //引擎设置部分
+            $table->engine  = 'InnoDB';
         });
+        //设置表注释
+        DB::statement("alter table `ld_student_do_title` comment '学员做题记录表'");
     }
 
     /**

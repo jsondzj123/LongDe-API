@@ -298,9 +298,6 @@ class QuestionSubject extends Model {
         //获取后端的操作员id
         $admin_id = isset(AdminLog::getAdminInfo()->admin_user->id) ? AdminLog::getAdminInfo()->admin_user->id : 0;
         
-        //开启事务
-        DB::beginTransaction();
-        
         //循环科目入库
         $subject_list = json_decode($body['subject_list'] , true);
         
@@ -385,7 +382,7 @@ class QuestionSubject extends Model {
                     return false;
                 }
             }
-            return true;
         }
+        return true;
     }
 }
