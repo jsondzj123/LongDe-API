@@ -18,25 +18,19 @@ $router->post('/', function () use ($router) {
 });
 
 //客户端(ios,安卓)路由接口
-/*$router->group(['prefix' => 'api'], function () use ($router) {
-    $router->post('login','Api\AuthenticateController@postLogin');
-    $router->post('register','Api\AuthenticateController@register');
+$router->group(['prefix' => 'api', 'namespace' => 'Api'], function () use ($router) {
+    /*
+     * 科目模块(sxl)
+    */
+    $router->post('subject', 'SubjectController@index');
 
-    $router->group(['middleware'=>['jwt.role:user', 'jwt.auth']], function () use ($router) {
-        $router->post('user/{id}', 'Api\UserController@show');
-
-    });
-
-
-    $router->group(['prefix' => 'user' , 'middleware'=>'api'], function () use ($router) {
-        $router->post('user/userinfo','Api\UserController@postUserinfo');
-        $router->post('logReg', 'Api\UserController@loginAndRegister');
-        $router->post('postUserInfoById', 'Api\UserController@postUserInfoById');
-
-        $router->post('logout','Api\UserController@logout');
-        $router->post('refreshToken','Api\UserController@refreshToken');
-    });
-});*/
+    /*
+     * 课程模块(sxl)
+    */
+    $router->post('lesson', 'LessonController@index');
+    $router->post('doUserRegister','AuthenticateController@doUserRegister');    //APP注册接口
+    $router->post('doSendSms','AuthenticateController@doSendSms');              //APP发送短信接口
+});
 
 //PC端路由接口
 $router->group(['prefix' => 'web'], function () use ($router) {

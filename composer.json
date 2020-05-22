@@ -9,6 +9,7 @@
         "illuminate/redis": "^7.5",
         "laravel/lumen-framework": "^7.0",
         "league/flysystem": "^1.0",
+        "lysice/laravel-sms": "dev-master",
         "maatwebsite/excel": "^3.1",
         "predis/predis": "^1.1",
         "tymon/jwt-auth": "dev-develop"

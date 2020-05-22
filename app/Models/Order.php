@@ -23,6 +23,7 @@ class Order extends Model {
          * return  array
          */
     public static function getList($data){
+        unset($data['/admin/order/orderList']);
         //用户权限
         $role_id = isset(AdminLog::getAdminInfo()->admin_user->role_id) ? AdminLog::getAdminInfo()->admin_user->role_id : 0;
         //如果不是总校管理员，只能查询当前关联的网校订单
@@ -30,8 +31,12 @@ class Order extends Model {
             $school_id = isset(AdminLog::getAdminInfo()->admin_user->school_id) ? AdminLog::getAdminInfo()->admin_user->school_id : 0;
             $data['school_id'] = $school_id;
         }
-        $state_time = !empty($data['state_time'])?$data['state_time']:"1999-01-01 12:12:12";
-        $end_time = !empty($data['end_time'])?$data['end_time']:"2999-01-01 12:12:12";
+        $begindata=date('Y-m-01', strtotime(date("Y-m-d")));
+        $enddate = date('Y-m-d',strtotime("$begindata +1 month -1 day"));
+        $statetime = !empty($data['state_time'])?$data['state_time']:$begindata;
+        $endtime = !empty($data['end_time'])?$data['end_time']:$enddate;
+        $state_time = $statetime." 00:00:00";
+        $end_time = $endtime." 23:59:59";
         //每页显示的条数
         $pagesize = (int)isset($data['pageSize']) && $data['pageSize'] > 0 ? $data['pageSize'] : 20;
         $page     = isset($data['page']) && $data['page'] > 0 ? $data['page'] : 1;
@@ -40,7 +45,7 @@ class Order extends Model {
         $count = self::leftJoin('ld_student','ld_student.id','=','ld_order.student_id')
             ->where(function($query) use ($data) {
                 if(isset($data['school_id']) && !empty($data['school_id'])){
-                    $query->where('ld_student.school_id',$data['school_id']);
+                    $query->where('ld_order.school_id',$data['school_id']);
                 }
                 if(isset($data['status'])&& !empty($data['status'])){
                     $query->where('ld_order.status',$data['status']);
@@ -55,9 +60,9 @@ class Order extends Model {
             ->leftJoin('ld_student','ld_student.id','=','ld_order.student_id')
             ->where(function($query) use ($data) {
                 if(isset($data['school_id']) && !empty($data['school_id'])){
-                    $query->where('ld_student.school_id',$data['school_id']);
+                    $query->where('ld_order.school_id',$data['school_id']);
                 }
-                if(isset($data['status'])&& !empty($data['status'])){
+                if(isset($data['status'])&& is_numeric($data['status'])){
                     $query->where('ld_order.status',$data['status']);
                 }
                 if(isset($data['order_number'])&& !empty($data['order_number'])){
@@ -237,13 +242,10 @@ class Order extends Model {
         }
         //获取后端的操作员id
         $admin_id = isset(AdminLog::getAdminInfo()->admin_user->id) ? AdminLog::getAdminInfo()->admin_user->id : 0;
-        if($data['status'] == 1){
-            if($find['status'] == 2){
-                return ['code' => 200 , 'msg' => '审核已通过'];
-            }else if($find['status'] == 1){
+        if($find['status'] == 1){
+            if($data['status'] == 2){
                 $update = self::where(['id'=>$data['order_id']])->update(['status'=>2]);
                 if($update){
-
                     //添加日志操作
                     AdminLog::insertAdminLog([
                         'admin_id'       =>   $admin_id  ,
@@ -258,13 +260,7 @@ class Order extends Model {
                 }else{
                     return ['code' => 202 , 'msg' => '操作失败'];
                 }
-            }else{
-                return ['code' => 203 , 'msg' => '此订单无法进行此操作'];
-            }
-        }else{
-            if($find['status'] == 4){
-                return ['code' => 200 , 'msg' => '回审已通过'];
-            }else if($find['status'] == 1 || $find['status'] == 2){
+           }else if($data['status'] == 4){
                 $update = self::where(['id'=>$data['order_id']])->update(['status'=>4]);
                 if($update){
                     //添加日志操作
@@ -281,9 +277,9 @@ class Order extends Model {
                 }else{
                     return ['code' => 202 , 'msg' => '操作失败'];
                 }
-            }else{
-                return ['code' => 203 , 'msg' => '此订单无法进行此操作'];
             }
+        }else{
+            return ['code' => 203 , 'msg' => '此订单无法进行此操作'];
         }
     }
     /*
@@ -297,12 +293,19 @@ class Order extends Model {
         if(empty($data['order_id'])){
             return ['code' => 201 , 'msg' => '订单id错误'];
         }
-        $list = self::select('ld_order.order_number','ld_order.create_at','ld_order.price','ld_order.order_type','ld_order.status','ld_order.pay_time','ld_student.real_name','ld_student.phone','ld_school.name','lessons.title','lessons.price as lessprice','lesson_teachers.real_name')
-            ->leftJoin('ld_student','ld_student.id','=','ld_order.student_id')
+//        $list = self::select('ld_order.order_number','ld_order.create_at','ld_order.price','ld_order.order_type','ld_order.status','ld_order.pay_time','ld_student.real_name','ld_student.phone','ld_school.name','lessons.title','lessons.price as lessprice','lesson_teachers.real_name')
+//            ->leftJoin('ld_student','ld_student.id','=','ld_order.student_id')
+//            ->leftJoin('ld_school','ld_school.id','=','ld_student.school_id')
+//            ->leftJoin('ld_lessons','ld_lessons.id','=','ld_order.class_id')
+//            ->leftJoin('ld_lesson_teachers','ld_lesson_teachers.lesson_id','=','ld_lessons.id')
+//            ->leftJoin('ld_lecturer_educationa','ld_lecturer_educationa.id','=','ld_lesson_teachers.teacher_id')
+//            ->where(['ld_order.id'=>$data['order_id']])
+//            ->first();
+        $list = self::leftJoin('ld_student','ld_student.id','=','ld_order.student_id')
             ->leftJoin('ld_school','ld_school.id','=','ld_student.school_id')
-            ->leftJoin('lessons','lessons.id','=','ld_order.class_id')
-            ->leftJoin('lesson_teachers','lesson_teachers.lesson_id','=','lessons.id')
-            ->leftJoin('lecturer_educationa','lecturer_educationa.id','=','lesson_teachers.teacher_id')
+            ->leftJoin('ld_lessons','ld_lessons.id','=','ld_order.class_id')
+            ->leftJoin('ld_lesson_teachers','ld_lesson_teachers.lesson_id','=','ld_lessons.id')
+            ->leftJoin('ld_lecturer_educationa','ld_lecturer_educationa.id','=','ld_lesson_teachers.teacher_id')
             ->where(['ld_order.id'=>$data['order_id']])
             ->first();
         if($list){
