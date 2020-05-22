@@ -17,13 +17,11 @@ class PapersExam extends Model {
      * @param  description   试卷选择试题添加
      * @param  参数说明       body包含以下参数[
      * 操作员id
-     * 科目id
-     * 试卷id
-     * 试题id
-     * 试题类型
-     * 章id
-     * 节id
-     * 每题得分
+     *  subject_id  科目id
+     *  papers_id   试卷id
+     *  exam_id 试题id
+     *  type    试题类型
+     *  grade   每题得分
      * ]
      * @param  author        zzk
      * @param  ctime         2020-05-11
@@ -31,23 +29,23 @@ class PapersExam extends Model {
     public static function InsertTestPaperSelection($body=[]){
         //规则结构
         $rule = [
-            //'subject_id'   =>   'required|numeric' ,
+            'subject_id'   =>   'required|numeric' ,
             'papers_id'    =>   'required|numeric' ,
             'exam_id'      =>   'required|numeric' ,
             'type'         =>   'required|numeric' ,
-            'joint_id'     =>   'required|numeric' ,
-            'chapter_id'   =>   'required|numeric' ,
+            // 'joint_id'     =>   'required|numeric' ,
+            // 'chapter_id'   =>   'required|numeric' ,
             'grade'        =>   'required|numeric' ,
         ];
 
         //信息提示
         $message = [
-            //'subject_id.required'   =>  json_encode(['code'=>201,'msg'=>'科目id为空']) ,
+            'subject_id.required'   =>  json_encode(['code'=>201,'msg'=>'科目id为空']) ,
             'papers_id.required'   =>  json_encode(['code'=>201,'msg'=>'试卷id为空']) ,
             'exam_id.required'   =>  json_encode(['code'=>201,'msg'=>'试题id为空']) ,
             'type.required'   =>  json_encode(['code'=>201,'msg'=>'试题类型为空']) ,
-            'chapter_id.required'   =>  json_encode(['code'=>201,'msg'=>'章id为空']) ,
-            'joint_id.required'   =>  json_encode(['code'=>201,'msg'=>'节id为空']) ,
+            // 'chapter_id.required'   =>  json_encode(['code'=>201,'msg'=>'章id为空']) ,
+            // 'joint_id.required'   =>  json_encode(['code'=>201,'msg'=>'节id为空']) ,
             'grade.required'   =>  json_encode(['code'=>201,'msg'=>'每题得分为空']) ,
 
         ];
@@ -116,11 +114,11 @@ class PapersExam extends Model {
         $exam_name = $body['exam_name'];
         if(isset($exam_name) && isset($chapter_id) && isset($joint_id)){
             //通过条件获取所有试题
-            $exam_count = Exam::where(['is_del'=>1])->orWhere('exam_name', 'like', '%'.$exam_name.'%')->orWhere('joint_id',$joint_id)->orWhere('chapter_id',$chapter_id)->count();
-            $exam_list = Exam::where(['is_del'=>1])->orWhere('exam_name', 'like', '%'.$exam_name.'%')->orWhere('joint_id',$joint_id)->orWhere('chapter_id',$chapter_id)->select('id','exam_name','item_diffculty','chapter_id','joint_id')->forPage($page,$limit)->get()->toArray();
+            $exam_count = Exam::where(['is_del'=>1])->orWhere('exam_content', 'like', '%'.$exam_name.'%')->orWhere('joint_id',$joint_id)->orWhere('chapter_id',$chapter_id)->count();
+            $exam_list = Exam::where(['is_del'=>1])->orWhere('exam_content', 'like', '%'.$exam_name.'%')->orWhere('joint_id',$joint_id)->orWhere('chapter_id',$chapter_id)->select('id','exam_content','item_diffculty','chapter_id','joint_id')->forPage($page,$limit)->get()->toArray();
         }else{
             $exam_count = Exam::where('is_del' , '=' , 0)->count();
-            $exam_list = Exam::where(['is_del'=>0])->select('id','exam_name','item_diffculty')->forPage($page,$limit)->get()->toArray();
+            $exam_list = Exam::where(['is_del'=>0])->select('id','exam_content','item_diffculty')->forPage($page,$limit)->get()->toArray();
         }
 
         return ['code' => 200 , 'msg' => '获取成功','data'=>['exam_list' => $exam_list , 'total' => $exam_count , 'pagesize' => $pagesize , 'page' => $page]];

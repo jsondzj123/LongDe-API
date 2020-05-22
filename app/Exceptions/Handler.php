@@ -8,6 +8,7 @@ use Illuminate\Validation\ValidationException;
 use Laravel\Lumen\Exceptions\Handler as ExceptionHandler;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Throwable;
+use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 
 class Handler extends ExceptionHandler
 {
@@ -48,7 +49,19 @@ class Handler extends ExceptionHandler
      * @throws \Throwable
      */
     public function render($request, Throwable $exception)
-    {
-        return parent::render($request, $exception);
+    {   
+        if ($exception instanceof UnauthorizedHttpException) {
+            $preException = $exception->getPrevious();
+            if ($preException instanceof \Tymon\JWTAuth\Exceptions\TokenExpiredException) {
+                return response()->json(['code' => 401, 'msg' => 'Token过期']);
+            } else if ($preException instanceof \Tymon\JWTAuth\Exceptions\TokenInvalidException) {
+                return response()->json(['code' => 401, 'msg' => 'Token无效']);
+            } else if ($preException instanceof \Tymon\JWTAuth\Exceptions\TokenBlacklistedException) {
+                 return response()->json(['code' => 401, 'msg' => 'Token黑名单']);
+           }
+           if ($exception->getMessage() === 'Token not provided') {
+               return response()->json(['code' => 401, 'msg' => '未授权']);
+           }
+        }
     }
 }

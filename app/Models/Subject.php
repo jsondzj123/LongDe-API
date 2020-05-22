@@ -29,7 +29,7 @@ class Subject extends Model {
 
     public function childs()
     {
-    	return $this->where('pid', $this->id)->get();
+    	return $this->select('id', 'name')->where('pid', $this->id)->get();
     }
 }
 
