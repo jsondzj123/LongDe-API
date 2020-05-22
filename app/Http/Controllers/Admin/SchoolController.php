@@ -166,7 +166,7 @@ class SchoolController extends Controller {
                  'dns' => 'required',
                  'logo_url'=>'required',
                  'introduce'=>'required',
-                 'username'=>'required|unique:ld_admin',
+                 'username'=>'required',
                  'password'=>'required',
                  'pwd' =>'required',
                  'realname'=>'required',
@@ -187,6 +187,7 @@ class SchoolController extends Controller {
                 'logo_url'  =>$data['logo_url'],
                 'introduce'  =>$data['introduce'],
                 'admin_id'  => CurrentAdmin::user()['id'],
+                'create_time'=>date('Y-m-d H:i:s')
             ];
             $school_id = School::insertGetId($school);
             if($school_id <0){

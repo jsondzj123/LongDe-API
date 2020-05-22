@@ -263,6 +263,7 @@ class Student extends Model {
         }
     }
 
+    
 
     /*
      * @param  description   添加学员的方法

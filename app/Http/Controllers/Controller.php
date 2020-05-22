@@ -163,4 +163,30 @@ class Controller extends BaseController {
             return false;
         }
     }
+    
+   /* @param  decerption     省市县三级联动
+    * @param  $body[
+    *     region_id   地区id(默认为0)
+    * ]     
+    * @return array
+    */
+    public static function getRegionDataList($body){
+        //如果传递的地区id大于0则走下面的判断逻辑
+        if(!empty($body) && isset($body['region_id']) && $body['region_id'] > 0){
+            //根据地区id判断所属的地区在表中是否存在
+            $region_count = \App\Models\Region::where("parent_id" , $body['region_id'])->count();
+            if($region_count <= 0){
+                return ['code' => 204 , 'msg' => '该地区不存在'];
+            }
+            
+            //获取地区列表数据
+            $region_list  = \App\Models\Region::where("parent_id" , $body['region_id'])->get()->toArray();
+        } else {
+            //获取省级列表数据
+            $region_list  = \App\Models\Region::where("parent_id" , 0)->get()->toArray();
+        }
+        
+        //返回数据信息
+        return ['code' => 200 , 'msg' => '获取地区列表数据成功' , 'data' => $region_list];
+   }
 }
