@@ -144,16 +144,18 @@ class PapersExam extends Model {
             //通过试卷id获取该试卷下的所有试题按照分类进行搜索
             $exam = self::where(['ld_question_papers_exam.papers_id'=>$papers_id,'ld_question_papers_exam.type'=>$type,'ld_question_papers_exam.is_del'=>0])
             ->join('ld_question_exam', 'ld_question_papers_exam.exam_id', '=', 'ld_question_exam.id')
-            ->select('ld_question_papers_exam.id','ld_question_papers_exam.exam_id','ld_question_exam.exam_name')
+            ->select('ld_question_papers_exam.id','ld_question_papers_exam.exam_id','ld_question_exam.exam_content')
             ->get()
             ->toArray();
         }else{
             $exam = self::where(['ld_question_papers_exam.papers_id'=>$papers_id,'ld_question_papers_exam.is_del'=>0])
             ->join('ld_question_exam', 'ld_question_papers_exam.exam_id', '=', 'ld_question_exam.id')
-            ->select('ld_question_papers_exam.id','ld_question_papers_exam.exam_id','ld_question_exam.exam_name')
+            ->select('ld_question_papers_exam.id','ld_question_papers_exam.exam_id','ld_question_exam.exam_content')
             ->get()
             ->toArray();
         }
+        $last_ages = array_column($exam,'exam_id');
+        array_multisort($last_ages ,SORT_ASC,$exam);
         return ['code' => 200 , 'msg' => '获取成功','data'=>$exam];
     }
     /*
@@ -180,7 +182,12 @@ class PapersExam extends Model {
             $exam = self::where(['papers_id'=>$papers_id,'is_del'=>0])->select('id','exam_id')->get()->toArray();
         }
         foreach($exam as $k => $exams){
-            $exam[$k]['exam_name'] = Exam::where(['id'=>$exams['exam_id'],'is_del'=>0])->select('exam_name')->first()['exam_name'];
+            if(empty(Exam::where(['id'=>$exams['exam_id'],'is_del'=>0])->select('exam_content')->first()['exam_content'])){
+                unset($exam[$k]);
+            }else{
+                $exam[$k]['exam_content'] = Exam::where(['id'=>$exams['exam_id'],'is_del'=>0])->select('exam_content')->first()['exam_content'];
+            }
+
         }
         return ['code' => 200 , 'msg' => '获取成功','data'=>$exam];
     }
