@@ -23,6 +23,7 @@ class Order extends Model {
          * return  array
          */
     public static function getList($data){
+        unset($data['/admin/order/orderList']);
         //用户权限
         $role_id = isset(AdminLog::getAdminInfo()->admin_user->role_id) ? AdminLog::getAdminInfo()->admin_user->role_id : 0;
         //如果不是总校管理员，只能查询当前关联的网校订单
@@ -30,8 +31,12 @@ class Order extends Model {
             $school_id = isset(AdminLog::getAdminInfo()->admin_user->school_id) ? AdminLog::getAdminInfo()->admin_user->school_id : 0;
             $data['school_id'] = $school_id;
         }
-        $state_time = !empty($data['state_time'])?$data['state_time']:"1999-01-01 12:12:12";
-        $end_time = !empty($data['end_time'])?$data['end_time']:"2999-01-01 12:12:12";
+        $begindata=date('Y-m-01', strtotime(date("Y-m-d")));
+        $enddate = date('Y-m-d',strtotime("$begindata +1 month -1 day"));
+        $statetime = !empty($data['state_time'])?$data['state_time']:$begindata;
+        $endtime = !empty($data['end_time'])?$data['end_time']:$enddate;
+        $state_time = $statetime." 00:00:00";
+        $end_time = $endtime." 23:59:59";
         //每页显示的条数
         $pagesize = (int)isset($data['pageSize']) && $data['pageSize'] > 0 ? $data['pageSize'] : 20;
         $page     = isset($data['page']) && $data['page'] > 0 ? $data['page'] : 1;
