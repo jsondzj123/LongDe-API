@@ -61,9 +61,17 @@ class PapersExam extends Model {
         //将后台人员id追加
         $body['admin_id']   = $admin_id;
         $body['create_at']  = date('Y-m-d H:i:s');
-
+        $data = [
+            "subject_id" => $body['subject_id'],
+            "papers_id" => $body['papers_id'],
+            "exam_id" => $body['exam_id'],
+            "type" => $body['type'],
+            "grade" => $body['grade'],
+            "admin_id" => $body['admin_id'],
+            "create_at" => $body['create_at'],
+        ];
         //将数据插入到表中
-        $papersexam_id = self::insertGetId($body);
+        $papersexam_id = self::insertGetId($data);
         if($papersexam_id && $papersexam_id > 0){
             //添加日志操作
             AdminLog::insertAdminLog([
