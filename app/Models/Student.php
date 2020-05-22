@@ -230,6 +230,16 @@ class Student extends Model {
         
         //开启事务
         DB::beginTransaction();
+        
+        //根据学员id获取学员信息
+        $student_info = self::find($student_id);
+        if($student_info['phone'] != $body['phone']){
+            //根据手机号判断是否注册
+            $is_mobile_exists = self::where("phone" , $body['phone'])->count();
+            if($is_mobile_exists > 0){
+                return ['code' => 205 , 'msg' => '此手机号已存在'];
+            }
+        }
 
         //根据学员id更新信息
         if(false !== self::where('id',$student_id)->update($student_array)){
@@ -350,6 +360,12 @@ class Student extends Model {
         
         //开启事务
         DB::beginTransaction();
+        
+        //根据手机号判断是否注册
+        $is_mobile_exists = self::where("phone" , $body['phone'])->count();
+        if($is_mobile_exists > 0){
+            return ['code' => 205 , 'msg' => '此手机号已存在'];
+        }
 
         //将数据插入到表中
         if(false !== self::insertStudent($student_array)){
