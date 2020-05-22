@@ -293,6 +293,7 @@ class Order extends Model {
         if(empty($data['order_id'])){
             return ['code' => 201 , 'msg' => '订单id错误'];
         }
+        echo $data['order_id'];die;
         $list = self::select('ld_order.order_number','ld_order.create_at','ld_order.price','ld_order.order_type','ld_order.status','ld_order.pay_time','ld_student.real_name','ld_student.phone','ld_school.name','lessons.title','lessons.price as lessprice','lesson_teachers.real_name')
             ->leftJoin('ld_student','ld_student.id','=','ld_order.student_id')
             ->leftJoin('ld_school','ld_school.id','=','ld_student.school_id')
