@@ -11,6 +11,9 @@ use App\Tools\MTCloud;
 use App\Models\LessonLive;
 use App\Models\Lesson;
 use App\Models\LessonChild;
+use App\Models\LiveClassChild;
+use App\Models\LiveChild;
+use App\Models\Teacher;
 
 class LiveController extends Controller {
 
@@ -62,8 +65,15 @@ class LiveController extends Controller {
      */
     public function classList($id) {
         $lesson_id = LessonLive::where('live_id', $id)->first()['lesson_id'];
-        $lesson = LessonChild::where(['lesson_id' => $lesson_id, 'pid' => 0])->get();
-        return $this->response($lesson);
+        $lessons = LessonChild::select('id', 'name', 'description', 'url', 'is_forbid')->where(['lesson_id' => $lesson_id, 'pid' => 0])->get();
+        foreach ($lessons as $key => $value) {
+            $childs = LiveChild::select('id', 'course_name', 'start_time', 'end_time', 'account')->whereIn('id' ,LiveClassChild::where('lesson_child_id', $value->id)->pluck('live_child_id'))->get();
+            foreach ($childs as $k => $val) {
+                $childs[$k]['teacher_name'] = Teacher::find($val->account)->real_name;
+            }
+            $lessons[$key]['childs'] = $childs;
+        }
+        return $this->response($lessons);
     }
 
 
