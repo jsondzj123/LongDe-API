@@ -30,6 +30,7 @@ class CreateLdLessonsTable extends Migration
             $table->smallInteger('method')->nullable()->default(0)->comment('授课方式1录播2直播3其他');
             $table->integer('ttl')->nullable()->default(0)->comment('有效期');
             $table->integer('buy_num')->nullable()->default(0)->comment('购买基数');
+            $table->smallInteger('is_recommend')->nullable()->default(0)->comment('推荐0否1是');
             $table->smallInteger('status')->nullable()->default(0)->comment('上架0否1是');
             $table->smallInteger('is_del')->nullable()->default(0)->comment('删除0否1是');
             $table->smallInteger('is_forbid')->nullable()->default(0)->comment('禁用0否1是');
