@@ -30,6 +30,7 @@ class OrderController extends Controller {
          * return  array
          */
     public function findOrderForId(){
+        echo "123456";die;
         //获取提交的参数
         try{
             $data = Order::findOrderForId(self::$accept_data);
