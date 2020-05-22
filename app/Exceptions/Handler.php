@@ -53,16 +53,15 @@ class Handler extends ExceptionHandler
         if ($exception instanceof UnauthorizedHttpException) {
             $preException = $exception->getPrevious();
             if ($preException instanceof \Tymon\JWTAuth\Exceptions\TokenExpiredException) {
-                return response()->json(['error' => 'TOKEN_EXPIRED']);
+                return response()->json(['code' => 401, 'msg' => 'Token过期']);
             } else if ($preException instanceof \Tymon\JWTAuth\Exceptions\TokenInvalidException) {
-                return response()->json(['error' => 'TOKEN_INVALID']);
+                return response()->json(['code' => 401, 'msg' => 'Token无效']);
             } else if ($preException instanceof \Tymon\JWTAuth\Exceptions\TokenBlacklistedException) {
-                 return response()->json(['error' => 'TOKEN_BLACKLISTED']);
+                 return response()->json(['code' => 401, 'msg' => 'Token黑名单']);
            }
            if ($exception->getMessage() === 'Token not provided') {
                return response()->json(['code' => 401, 'msg' => '未授权']);
            }
         }
-        /*return parent::render($request, $exception);*/
     }
 }
