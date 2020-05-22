@@ -6,6 +6,7 @@ use App\Models\AdminLog;
 use App\Models\PapersExam;
 use App\Models\Bank;
 use App\Models\QuestionSubject;
+use App\Models\Region;
 use Validator;
 use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\DB;
@@ -101,6 +102,12 @@ class Papers extends Model {
         $bank_count = QuestionSubject::where("id",$body['subject_id'])->where("is_del" , 0)->count();
         if($bank_count <= 0){
             return ['code' => 204 , 'msg' => '此科目信息不存在'];
+        }
+        
+        //判断地区id对应的地区是否存在
+        $area_count = Region::where("id",$body['area'])->count();
+        if($area_count <= 0){
+            return ['code' => 204 , 'msg' => '此地区不存在'];
         }
 
         //将数据插入到表中
@@ -212,6 +219,12 @@ class Papers extends Model {
         
         //开启事务
         DB::beginTransaction();
+        
+        //判断地区id对应的地区是否存在
+        $area_count = Region::where("id",$body['area'])->count();
+        if($area_count <= 0){
+            return ['code' => 204 , 'msg' => '此地区不存在'];
+        }
 
         //根据试卷id更新信息
         if(false !== self::where('id',$papers_id)->update($papers_array)){
