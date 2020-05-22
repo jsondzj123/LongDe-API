@@ -155,4 +155,25 @@ class PapersController extends Controller {
             return response()->json(['code' => 500 , 'msg' => $ex->getMessage()]);
         }
     }
+    
+   /* @param  decerption     省市县三级联动
+    * @param  $body[
+    *     region_id   地区id(默认为0)
+    * ]     
+    * @return array
+    */
+    public function getRegionList(){
+        //获取提交的参数
+        try{
+            //获取地区所属列表
+            $data = self::getRegionDataList(self::$accept_data);
+            if($data['code'] == 200){
+                return response()->json(['code' => 200 , 'msg' => '获取地区列表数据成功' , 'data' => $data['data']]);
+            } else {
+                return response()->json(['code' => $data['code'] , 'msg' => $data['msg']]);
+            }
+        } catch (Exception $ex) {
+            return response()->json(['code' => 500 , 'msg' => $ex->getMessage()]);
+        }
+    }
 }

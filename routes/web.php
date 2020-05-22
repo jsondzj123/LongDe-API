@@ -195,6 +195,7 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin' , 'middleware'=> ['
         $router->post('doPublishPapers', 'PapersController@doPublishPapers');            //发布/取消发布试卷的方法
         $router->post('getPapersInfoById', 'PapersController@getPapersInfoById');        //获取试卷详情信息
         $router->post('getPapersList', 'PapersController@getPapersList');                //获取题库列表
+        $router->post('getRegionList', 'PapersController@getRegionList');                //获取所属区域列表
         /****************试卷部分  end****************/
 
 
