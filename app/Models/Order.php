@@ -32,7 +32,25 @@ class Order extends Model {
         }
         $state_time = !empty($data['state_time'])?$data['state_time']:"1999-01-01 12:12:12";
         $end_time = !empty($data['end_time'])?$data['end_time']:"2999-01-01 12:12:12";
-        $data['num'] = empty($data['num'])?20:$data['num'];
+        //每页显示的条数
+        $pagesize = (int)isset($data['pageSize']) && $data['pageSize'] > 0 ? $data['pageSize'] : 20;
+        $page     = isset($data['page']) && $data['page'] > 0 ? $data['page'] : 1;
+        $offset   = ($page - 1) * $pagesize;
+        //計算總數
+        $count = self::leftJoin('ld_student','ld_student.id','=','ld_order.student_id')
+            ->where(function($query) use ($data) {
+                if(isset($data['school_id']) && !empty($data['school_id'])){
+                    $query->where('ld_student.school_id',$data['school_id']);
+                }
+                if(isset($data['status'])&& !empty($data['status'])){
+                    $query->where('ld_order.status',$data['status']);
+                }
+                if(isset($data['order_number'])&& !empty($data['order_number'])){
+                    $query->where('ld_order.order_number',$data['order_number']);
+                }
+            })
+            ->whereBetween('ld_order.create_at', [$state_time, $end_time])
+            ->count();
         $order = self::select('ld_order.id','ld_order.order_number','ld_order.order_type','ld_order.price','ld_order.pay_status','ld_order.pay_type','ld_order.status','ld_order.create_at','ld_order.oa_status','ld_order.student_id','ld_student.phone','ld_student.real_name')
             ->leftJoin('ld_student','ld_student.id','=','ld_order.student_id')
             ->where(function($query) use ($data) {
@@ -48,8 +66,14 @@ class Order extends Model {
             })
             ->whereBetween('ld_order.create_at', [$state_time, $end_time])
             ->orderByDesc('ld_order.id')
-            ->paginate($data['num']);
-        return $order;
+            ->offset($offset)->limit($pagesize)->get();
+        $schooltype = Article::schoolANDtype($role_id);
+        $page=[
+            'pageSize'=>$pagesize,
+            'page' =>$page,
+            'total'=>$count
+        ];
+        return ['code' => 200 , 'msg' => '查询成功','data'=>$order,'school'=>$schooltype[0],'where'=>$data,'page'=>$page];
     }
     /*
        * @param  线下学生报名 添加订单
