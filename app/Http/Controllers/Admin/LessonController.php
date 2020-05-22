@@ -49,7 +49,7 @@ class LessonController extends Controller {
                         $query->where("method", $method);
                     }
                     if($status == 0){
-                        $query->whereIn("status", [0, 1, 2]);
+                        $query->whereIn("status", [1, 2, 3]);
                     }else{
                         $query->where("status", $status);
                     }
