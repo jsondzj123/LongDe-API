@@ -116,11 +116,11 @@ class PapersExam extends Model {
         $exam_name = $body['exam_name'];
         if(isset($exam_name) && isset($chapter_id) && isset($joint_id)){
             //通过条件获取所有试题
-            $exam_count = Exam::where(['is_del'=>1])->orWhere('exam_name', 'like', '%'.$exam_name.'%')->orWhere('joint_id',$joint_id)->orWhere('chapter_id',$chapter_id)->count();
-            $exam_list = Exam::where(['is_del'=>1])->orWhere('exam_name', 'like', '%'.$exam_name.'%')->orWhere('joint_id',$joint_id)->orWhere('chapter_id',$chapter_id)->select('id','exam_name','item_diffculty','chapter_id','joint_id')->forPage($page,$limit)->get()->toArray();
+            $exam_count = Exam::where(['is_del'=>1])->orWhere('exam_content', 'like', '%'.$exam_name.'%')->orWhere('joint_id',$joint_id)->orWhere('chapter_id',$chapter_id)->count();
+            $exam_list = Exam::where(['is_del'=>1])->orWhere('exam_content', 'like', '%'.$exam_name.'%')->orWhere('joint_id',$joint_id)->orWhere('chapter_id',$chapter_id)->select('id','exam_content','item_diffculty','chapter_id','joint_id')->forPage($page,$limit)->get()->toArray();
         }else{
             $exam_count = Exam::where('is_del' , '=' , 0)->count();
-            $exam_list = Exam::where(['is_del'=>0])->select('id','exam_name','item_diffculty')->forPage($page,$limit)->get()->toArray();
+            $exam_list = Exam::where(['is_del'=>0])->select('id','exam_content','item_diffculty')->forPage($page,$limit)->get()->toArray();
         }
 
         return ['code' => 200 , 'msg' => '获取成功','data'=>['exam_list' => $exam_list , 'total' => $exam_count , 'pagesize' => $pagesize , 'page' => $page]];
