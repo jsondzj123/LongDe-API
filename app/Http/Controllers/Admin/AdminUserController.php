@@ -204,7 +204,7 @@ class AdminUserController extends Controller {
         if( !isset($data['id']) || empty($data['id']) ){
             return response()->json(['code'=>201,'msg'=>'用户表示缺少或为空']);
         }
-        $adminUserArr = Adminuser::getUserOne($data);
+        $adminUserArr = Adminuser::getUserOne(['id'=>$data['id']]);
         if($adminUserArr['code'] != 200){
             return response()->json(['code'=>204,'msg'=>'用户不存在']);
         }
