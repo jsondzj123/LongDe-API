@@ -45,7 +45,7 @@ class Order extends Model {
         $count = self::leftJoin('ld_student','ld_student.id','=','ld_order.student_id')
             ->where(function($query) use ($data) {
                 if(isset($data['school_id']) && !empty($data['school_id'])){
-                    $query->where('ld_student.school_id',$data['school_id']);
+                    $query->where('ld_order.school_id',$data['school_id']);
                 }
                 if(isset($data['status'])&& !empty($data['status'])){
                     $query->where('ld_order.status',$data['status']);
@@ -60,9 +60,9 @@ class Order extends Model {
             ->leftJoin('ld_student','ld_student.id','=','ld_order.student_id')
             ->where(function($query) use ($data) {
                 if(isset($data['school_id']) && !empty($data['school_id'])){
-                    $query->where('ld_student.school_id',$data['school_id']);
+                    $query->where('ld_order.school_id',$data['school_id']);
                 }
-                if(isset($data['status'])&& !empty($data['status'])){
+                if(isset($data['status'])&& is_numeric($data['status'])){
                     $query->where('ld_order.status',$data['status']);
                 }
                 if(isset($data['order_number'])&& !empty($data['order_number'])){
