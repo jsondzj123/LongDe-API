@@ -242,13 +242,10 @@ class Order extends Model {
         }
         //获取后端的操作员id
         $admin_id = isset(AdminLog::getAdminInfo()->admin_user->id) ? AdminLog::getAdminInfo()->admin_user->id : 0;
-        if($data['status'] == 1){
-            if($find['status'] == 2){
-                return ['code' => 200 , 'msg' => '审核已通过'];
-            }else if($find['status'] == 1){
+        if($find['status'] == 1){
+            if($data['status'] == 2){
                 $update = self::where(['id'=>$data['order_id']])->update(['status'=>2]);
                 if($update){
-
                     //添加日志操作
                     AdminLog::insertAdminLog([
                         'admin_id'       =>   $admin_id  ,
@@ -263,13 +260,7 @@ class Order extends Model {
                 }else{
                     return ['code' => 202 , 'msg' => '操作失败'];
                 }
-            }else{
-                return ['code' => 203 , 'msg' => '此订单无法进行此操作'];
-            }
-        }else{
-            if($find['status'] == 4){
-                return ['code' => 200 , 'msg' => '回审已通过'];
-            }else if($find['status'] == 1 || $find['status'] == 2){
+           }else if($data['status'] == 4){
                 $update = self::where(['id'=>$data['order_id']])->update(['status'=>4]);
                 if($update){
                     //添加日志操作
@@ -286,9 +277,9 @@ class Order extends Model {
                 }else{
                     return ['code' => 202 , 'msg' => '操作失败'];
                 }
-            }else{
-                return ['code' => 203 , 'msg' => '此订单无法进行此操作'];
             }
+        }else{
+            return ['code' => 203 , 'msg' => '此订单无法进行此操作'];
         }
     }
     /*
