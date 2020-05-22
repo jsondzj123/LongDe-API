@@ -75,7 +75,7 @@ class LessonChildController extends Controller {
             'lesson_id' => 'required',
             'name'      => 'required',
             'pid'       => 'required',
-            'is_free'   => 'required',
+            'is_free'   => 'required_unless:pid,0',
             'category'  => 'required_unless:pid,0',
             'url'       => 'required_unless:pid,0|json',
             'size'      => 'required_unless:pid,0',
@@ -154,6 +154,9 @@ class LessonChildController extends Controller {
      */
     public function destroy($id) {
         $lesson = LessonChild::findOrFail($id);
+        if($lesson->is_del == 1){
+            return $this->response("已经删除", 205);
+        }
         $lesson->is_del = 1;
         if (!$lesson->save()) {
             return $this->response("删除失败", 500);
