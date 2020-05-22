@@ -75,7 +75,7 @@ class LessonChildController extends Controller {
             'lesson_id' => 'required',
             'name'      => 'required',
             'pid'       => 'required',
-            'is_free'   => 'required',
+            'is_free'   => 'required_unless:pid,0',
             'category'  => 'required_unless:pid,0',
             'url'       => 'required_unless:pid,0|json',
             'size'      => 'required_unless:pid,0',
