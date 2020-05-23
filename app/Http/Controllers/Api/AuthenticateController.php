@@ -101,7 +101,7 @@ class AuthenticateController extends Controller {
                 
                 //事务提交
                 DB::commit();
-                $user_info = ['user_id' => $user_id , 'user_token' => $token ,  'head_icon' => '' , 'real_name' => '' , 'phone' => $body['phone'] , 'nickname' => '' , 'sign' => '' , 'papers_type' => '' , 'papers_num' => ''];
+                $user_info = ['user_id' => $user_id , 'user_token' => $token ,  'head_icon' => '' , 'real_name' => '' , 'phone' => $body['phone'] , 'nickname' => '' , 'sign' => '' , 'papers_type' => '' , 'papers_name' => '' , 'papers_num' => ''];
                 return response()->json(['code' => 200 , 'msg' => '注册成功' , 'data' => ['user_info' => $user_info]]);
             } else {
                 //事务回滚
@@ -181,6 +181,7 @@ class AuthenticateController extends Controller {
                     'nickname'   => $user_login->nickname , 
                     'sign'       => $user_login->sign , 
                     'papers_type'=> $user_login->papers_type , 
+                    'papers_name'=> $user_login->papers_type > 0 ? parent::getPapersNameByType($user_login->papers_type) : '',
                     'papers_num' => $user_login->papers_num
                 ];
                 
@@ -251,6 +252,7 @@ class AuthenticateController extends Controller {
                     'nickname'   => $student_info->nickname , 
                     'sign'       => $student_info->sign , 
                     'papers_type'=> $student_info->papers_type , 
+                    'papers_name'=> $student_info->papers_type > 0 ? parent::getPapersNameByType($student_info->papers_type) : '',
                     'papers_num' => $student_info->papers_num
                 ];
                 
@@ -291,6 +293,7 @@ class AuthenticateController extends Controller {
                         'nickname'   => '' , 
                         'sign'       => '' , 
                         'papers_type'=> '' , 
+                        'papers_name'=> '' ,
                         'papers_num' => ''
                     ];
                 
@@ -429,6 +432,12 @@ class AuthenticateController extends Controller {
             $time= 300;
             //短信模板code码
             $template_code = 'SMS_180053367';
+            
+            //判断用户手机号是否注册过
+            $student_count = User::where("phone" , $body['phone'])->count();
+            if($student_count > 0){
+                return response()->json(['code' => 205 , 'msg' => '此手机号已被注册']);
+            }
         } else {
             //设置key值
             $key = 'user:forget:'.$body['phone'];
@@ -436,6 +445,12 @@ class AuthenticateController extends Controller {
             $time= 1800;
             //短信模板code码
             $template_code = 'SMS_190727799';
+            
+            //判断用户手机号是否注册过
+            $student_count = User::where("phone" , $body['phone'])->count();
+            if($student_count <= 0){
+                return response()->json(['code' => 204 , 'msg' => '此手机号未注册']);
+            }
         }
         
         //判断验证码是否过期
