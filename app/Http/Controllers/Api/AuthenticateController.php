@@ -51,7 +51,7 @@ class AuthenticateController extends Controller {
             }
 
             //验证码合法验证
-            /*$verify_code = Redis::get('user:verifycode:'.$body['phone']);
+            $verify_code = Redis::get('user:register:'.$body['phone']);
             if(!$verify_code || empty($verify_code)){
                 return ['code' => 201 , 'msg' => '请先获取验证码'];
             }
@@ -59,10 +59,10 @@ class AuthenticateController extends Controller {
             //判断验证码是否一致
             if($verify_code != $body['verifycode']){
                 return ['code' => 202 , 'msg' => '验证码错误'];
-            }*/
+            }
 
             //key赋值
-            $key = 'user:register:'.$body['phone'];
+            $key = 'user:isregister:'.$body['phone'];
 
             //判断此学员是否被请求过一次(防止重复请求,且数据信息存在)
             if(Redis::get($key)){
@@ -77,9 +77,6 @@ class AuthenticateController extends Controller {
                 }
             }
 
-            //生成随机唯一的token
-            $token = sha1(uniqid().$body['phone'].$body['password'].time().rand(1000,9999));
-
             //开启事务
             DB::beginTransaction();
 
@@ -87,22 +84,17 @@ class AuthenticateController extends Controller {
             $user_data = [
                 'phone'     =>    $body['phone'] ,
                 'password'  =>    $body['password'] ,
-                'token'     =>    $token ,
                 'device'    =>    isset($body['device']) && !empty($body['device']) ? $body['device'] : '' ,
                 'reg_source'=>    1 ,
                 'create_at' =>    date('Y-m-d H:i:s')
             ];
 
             //将数据插入到表中
-            //User::insertGetId(['phone' => $body['phone'] , 'password' => password_hash($body['password'], PASSWORD_DEFAULT) , 'create_at' => date('Y-m-d H:i:s')])
             $user_id = User::insertGetId($user_data);
             if($user_id && $user_id > 0){
-                //redis存储信息
-                Redis::set("user:regtoken:".$token , json_encode($user_data));
-                
                 //事务提交
                 DB::commit();
-                return response()->json(['code' => 200 , 'msg' => '注册成功' , 'data' => ['id' => $user_id , 'token' => $token]]);
+                return response()->json(['code' => 200 , 'msg' => '注册成功']);
             } else {
                 //事务回滚
                 DB::rollBack();
@@ -161,17 +153,27 @@ class AuthenticateController extends Controller {
             
             //生成随机唯一的token
             $token = sha1(uniqid().$body['phone'].$body['password'].time().rand(1000,9999));
+            
+            //开启事务
+            DB::beginTransaction();
 
             //根据手机号和密码进行登录验证
             $user_login = User::where("phone",$body['phone'])->where("password",$body['password'])->first();
             if($user_login && !empty($user_login)){
+                //清除老的redis的key值
+                Redis::del("user:regtoken:".$user_login->token);
+                
                 //redis存储信息
                 Redis::set("user:regtoken:".$token , $token);
                 
                 //更新token
                 User::where("phone" , $body['phone'])->update(["token" => $token , "update_at" => date('Y-m-d H:i:s')]);
+                //事务提交
+                DB::commit();
                 return response()->json(['code' => 200 , 'msg' => '登录成功' , 'data' => ['token' => $token]]);
             } else {
+                //事务回滚
+                DB::rollBack();
                 return response()->json(['code' => 203 , 'msg' => '手机号或密码错误']);
             }
         } catch (Exception $ex) {
@@ -207,6 +209,9 @@ class AuthenticateController extends Controller {
             //通过设备唯一标识判断是否注册过
             $student_info = User::where("device" , $body['device'])->first();
             if($student_info && !empty($student_info)){
+                //清除老的redis的key值
+                Redis::del("user:regtoken:".$student_info->token);
+                
                 //redis存储信息
                 Redis::set("user:regtoken:".$token , $token);
                 
@@ -292,9 +297,7 @@ class AuthenticateController extends Controller {
         
         //判断验证码是否过期
         $code = Redis::get($key);
-        if($code && !empty($code)){
-            return response()->json(['code' => 200 , 'msg' => '发送短信成功' , 'data'=>[]]);
-        } else {
+        if(!$code || empty($code)){
             //随机生成验证码数字,默认为6位数字
             $code = rand(100000,999999);
         }
@@ -306,10 +309,17 @@ class AuthenticateController extends Controller {
         //判断发送验证码是否成功
         if($send_data->Code == 'OK'){
             //存储学员的id值
-            Redis::setex($key , $time , $body['phone']);
+            Redis::setex($key , $time , $code);
             return response()->json(['code' => 200 , 'msg' => '发送短信成功']);
         } else {
             return response()->json(['code' => 203 , 'msg' => '发送短信失败' , 'data' => $send_data->Message]);
         }
+    }
+    
+    //删除redis指定key的所有键值信息
+    public static function doDelRedisKeys($prefix){
+        //获取所有的指定的前缀的信息列表
+        $key_list = Redis::keys($prefix . '*');
+        Redis::del($key_list);
     }
 }
