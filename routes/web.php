@@ -29,7 +29,10 @@ $router->group(['prefix' => 'api', 'namespace' => 'Api'], function () use ($rout
     */
     $router->post('lesson', 'LessonController@index');
     $router->post('doUserRegister','AuthenticateController@doUserRegister');    //APP注册接口
+    $router->post('doVisitorLogin','AuthenticateController@doVisitorLogin');    //APP游客登录接口
+    $router->post('doUserLogin','AuthenticateController@doUserLogin');          //APP登录接口
     $router->post('doSendSms','AuthenticateController@doSendSms');              //APP发送短信接口
+    $router->post('getUserInfoById','UserController@getUserInfoById');          //APP学员详情接口
 });
 
 //PC端路由接口

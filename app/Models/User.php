@@ -28,11 +28,23 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
      *
      * @var array
      */
-    /*protected $hidden = [
+    protected $hidden = [
         'password',
         'create_at',
-        'update_at'
-    ]; */
+        'update_at',
+        'is_forbid',
+        'reg_source',
+        'state_status',
+        'enroll_status',
+        'remark',
+        'family_phone',
+        'age',
+        'address',
+        'id',
+        'admin_id',
+        'school_id',
+        'birthday'
+    ];
 
 
     public function getJWTIdentifier()

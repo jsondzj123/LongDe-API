@@ -43,10 +43,12 @@ class CreateLdStudentTable extends Migration
             $table->string('wechat' , 30)->default('')->comment('微信号');
             $table->string('address' , 255)->default('')->comment('住址');
             $table->text('remark')->nullable()->comment('备注');
+            $table->string('device' , 255)->default('')->comment('设备唯一标识');
             $table->tinyInteger('is_forbid')->default(1)->comment('账号状态(1代表启用,2代表禁用)');
             $table->tinyInteger('enroll_status')->default(0)->comment('报名状态(1代表已报名,0代表未报名)');
             $table->tinyInteger('state_status')->default(0)->comment('开课状态(0代表均未开课,1代表部分未开课,2代表全部开课)');
             $table->tinyInteger('reg_source')->default(0)->comment('注册来源(0代表官网注册,1代表手机端,2代表线下录入)');
+            $table->tinyInteger('user_type')->default(0)->comment('用户类型(0代表正常用户,1代表游客)');
             $table->dateTime('create_at')->nullable()->comment('创建时间');
             $table->dateTime('update_at')->nullable()->comment('更新时间');
 
