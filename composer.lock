@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "759e792008ba0fa720dbb0ef4957db17",
+    "content-hash": "4ac8d996e16e02a37e4e10d10c177e26",
     "packages": [
         {
             "name": "brick/math",
@@ -1975,6 +1975,45 @@
                 }
             ],
             "time": "2020-05-12T20:33:44+00:00"
+        },
+        {
+            "name": "lysice/laravel-sms",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Lysice/laravel-sms.git",
+                "reference": "e5f8c9afb2b98cd5881dc2575d4d6f31e3925ac6"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Lysice/laravel-sms/zipball/e5f8c9afb2b98cd5881dc2575d4d6f31e3925ac6",
+                "reference": "e5f8c9afb2b98cd5881dc2575d4d6f31e3925ac6",
+                "shasum": "",
+                "mirrors": [
+                    {
+                        "url": "https://mirrors.aliyun.com/composer/dists/%package%/%reference%.%type%",
+                        "preferred": true
+                    }
+                ]
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Lysice\\Sms\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "lysice",
+                    "email": "snowist@126.com"
+                }
+            ],
+            "description": "a alibaba sms service for laravel.",
+            "time": "2019-10-11T03:37:53+00:00"
         },
         {
             "name": "maatwebsite/excel",
@@ -6843,6 +6882,7 @@
     "aliases": [],
     "minimum-stability": "dev",
     "stability-flags": {
+        "lysice/laravel-sms": 20,
         "tymon/jwt-auth": 20
     },
     "prefer-stable": true,
