@@ -20,7 +20,7 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
      * @var array
      */
     protected $fillable = [
-        'real_name', 'phone', 'sex', 'educational', 'address_locus', 'qq', 'wechat','email','office_phone','contact_people','contact_phone','head_icon','sign','province_id','city_id','nickname','papers_type','papers_num'
+        'id','head_icon', 'real_name', 'phone', 'nickname', 'sign', 'papers_type', 'papers_num'
     ];
     
     /**
@@ -40,10 +40,23 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
         'family_phone',
         'age',
         'address',
-        'id',
         'admin_id',
         'school_id',
-        'birthday'
+        'birthday',
+        'province_id' ,
+        'city_id' ,
+        'sex' ,
+        'address_locus',
+        'educational',
+        'office_phone',
+        'contact_people',
+        'contact_phone',
+        'email',
+        'qq',
+        'wechat',
+        'device',
+        'user_type',
+        'token'
     ];
 
 

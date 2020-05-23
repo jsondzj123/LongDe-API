@@ -97,4 +97,19 @@ function getParentsList($categorys,$pId = 0,$l=0){
     }
     return $list;
 }
+
+ /*
+ * @param  descriptsion    随机生成字符串
+ * @param  author          dzj
+ * @param  ctime           2020-04-29
+ * return  array
+ */
+function randstr($len=6){
+    $chars='abcdefghijklmnopqrstuvwxyz0123456789';
+    mt_srand((double)microtime()*1000000*getmypid());
+    $password='';
+    while(strlen($password)<$len)
+    $password.=substr($chars,(mt_rand()%strlen($chars)),1);
+    return $password;
+}
 ?>

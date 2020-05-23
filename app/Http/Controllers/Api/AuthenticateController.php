@@ -77,24 +77,8 @@ class AuthenticateController extends Controller {
                 }
             }
             
-            //判断设备号是否传递
-            if(isset($body['device']) && !empty($body['device'])){
-                //key赋值
-                $device_key = 'user:device:'.$body['device'];
-
-                //判断此学员是否被请求过一次(防止重复请求,且数据信息存在)
-                if(Redis::get($device_key)){
-                    return response()->json(['code' => 205 , 'msg' => '此设备号已存在']);
-                } else {
-                    //判断用户设备号是否注册过
-                    $student_count = User::where("device" , $body['device'])->count();
-                    if($student_count > 0){
-                        //存储学员的手机号值并且保存60s
-                        Redis::setex($device_key , 60 , $body['device']);
-                        return response()->json(['code' => 205 , 'msg' => '此设备号已存在']);
-                    }
-                }
-            }
+            //生成随机唯一的token
+            $token = sha1(uniqid().$body['phone'].$body['password'].time().rand(1000,9999));
 
             //开启事务
             DB::beginTransaction();
@@ -103,6 +87,7 @@ class AuthenticateController extends Controller {
             $user_data = [
                 'phone'     =>    $body['phone'] ,
                 'password'  =>    $body['password'] ,
+                'token'     =>    $token ,
                 'device'    =>    isset($body['device']) && !empty($body['device']) ? $body['device'] : '' ,
                 'reg_source'=>    1 ,
                 'create_at' =>    date('Y-m-d H:i:s')
@@ -111,9 +96,13 @@ class AuthenticateController extends Controller {
             //将数据插入到表中
             $user_id = User::insertGetId($user_data);
             if($user_id && $user_id > 0){
+                //redis存储信息
+                Redis::set("user:regtoken:".$token , json_encode($user_data));
+                
                 //事务提交
                 DB::commit();
-                return response()->json(['code' => 200 , 'msg' => '注册成功']);
+                $user_info = ['user_id' => $user_id , 'user_token' => $token ,  'head_icon' => '' , 'real_name' => '' , 'phone' => $body['phone'] , 'nickname' => '' , 'sign' => '' , 'papers_type' => '' , 'papers_num' => ''];
+                return response()->json(['code' => 200 , 'msg' => '注册成功' , 'data' => ['user_info' => $user_info]]);
             } else {
                 //事务回滚
                 DB::rollBack();
@@ -182,8 +171,21 @@ class AuthenticateController extends Controller {
                 //清除老的redis的key值
                 Redis::del("user:regtoken:".$user_login->token);
                 
+                //用户详细信息赋值
+                $user_info = [
+                    'user_id'    => $user_login->id ,
+                    'user_token' => $token , 
+                    'head_icon'  => $user_login->head_icon , 
+                    'real_name'  => $user_login->real_name , 
+                    'phone'      => $user_login->phone , 
+                    'nickname'   => $user_login->nickname , 
+                    'sign'       => $user_login->sign , 
+                    'papers_type'=> $user_login->papers_type , 
+                    'papers_num' => $user_login->papers_num
+                ];
+                
                 //redis存储信息
-                Redis::set("user:regtoken:".$token , $token);
+                Redis::set("user:regtoken:".$token , json_encode($user_info));
                 
                 //更新token
                 $rs = User::where("phone" , $body['phone'])->update(["token" => $token , "update_at" => date('Y-m-d H:i:s')]);
@@ -194,7 +196,7 @@ class AuthenticateController extends Controller {
                     //事务回滚
                     DB::rollBack();
                 }
-                return response()->json(['code' => 200 , 'msg' => '登录成功' , 'data' => ['user_token' => $token]]);
+                return response()->json(['code' => 200 , 'msg' => '登录成功' , 'data' => ['user_info' => $user_info]]);
             } else {
                 return response()->json(['code' => 203 , 'msg' => '手机号或密码错误']);
             }
@@ -239,15 +241,28 @@ class AuthenticateController extends Controller {
                 //清除老的redis的key值
                 Redis::del("user:regtoken:".$student_info->token);
                 
+                //用户详细信息赋值
+                $user_info = [
+                    'user_id'    => $student_info->id ,
+                    'user_token' => $token , 
+                    'head_icon'  => $student_info->head_icon , 
+                    'real_name'  => $student_info->real_name , 
+                    'phone'      => $student_info->phone , 
+                    'nickname'   => $student_info->nickname , 
+                    'sign'       => $student_info->sign , 
+                    'papers_type'=> $student_info->papers_type , 
+                    'papers_num' => $student_info->papers_num
+                ];
+                
                 //redis存储信息
-                Redis::set("user:regtoken:".$token , $token);
+                Redis::set("user:regtoken:".$token , json_encode($user_info));
                 
                 //更新token
                 $rs = User::where("device" , $body['device'])->update(["token" => $token , "update_at" => date('Y-m-d H:i:s')]);
                 if($rs && !empty($rs)){
                     //事务提交
                     DB::commit();
-                    return response()->json(['code' => 200 , 'msg' => '登录成功' , 'data' => ['token' => $token]]);
+                    return response()->json(['code' => 200 , 'msg' => '登录成功' , 'data' => ['user_info' => $user_info]]);
                 } else {
                     //事务回滚
                     DB::rollBack();
@@ -259,18 +274,32 @@ class AuthenticateController extends Controller {
                     'token'     =>    $token ,
                     'device'    =>    isset($body['device']) && !empty($body['device']) ? $body['device'] : '' ,
                     'reg_source'=>    1 ,
+                    'nickname'  =>    '游客'.randstr(8) ,
                     'user_type' =>    1 ,
                     'create_at' =>    date('Y-m-d H:i:s')
                 ];
 
                 $user_id = User::insertGetId($user_data);
                 if($user_id && $user_id > 0){
+                    //用户详细信息赋值
+                    $user_info = [
+                        'user_id'    => $user_id ,
+                        'user_token' => $token , 
+                        'head_icon'  => '' , 
+                        'real_name'  => '' , 
+                        'phone'      => '' , 
+                        'nickname'   => '' , 
+                        'sign'       => '' , 
+                        'papers_type'=> '' , 
+                        'papers_num' => ''
+                    ];
+                
                     //redis存储信息
-                    Redis::set("user:regtoken:".$token , json_encode($user_data));
+                    Redis::set("user:regtoken:".$token , json_encode($user_info));
 
                     //事务提交
                     DB::commit();
-                    return response()->json(['code' => 200 , 'msg' => '登录成功' , 'data' => ['user_token' => $token]]);
+                    return response()->json(['code' => 200 , 'msg' => '登录成功' , 'data' => ['user_info' => $user_info]]);
                 } else {
                     //事务回滚
                     DB::rollBack();
