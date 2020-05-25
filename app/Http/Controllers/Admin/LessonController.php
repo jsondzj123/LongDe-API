@@ -19,14 +19,15 @@ class LessonController extends Controller {
 
     /**
      * @param  课程列表
-     * @param  current_count   count
+     * @param  pagesize   count
      * @param  author  孙晓丽
      * @param  ctime   2020/5/1 
      * return  array
      */
     public function index(Request $request){
-        $currentCount = $request->input('current_count') ?: 0;
-        $count = $request->input('count') ?: 15;
+        $pagesize = $request->input('pagesize') ?: 15;
+        $page     = $request->input('page') ?: 1;
+        $offset   = ($page - 1) * $pagesize;
         $subject_id = $request->input('subject_id') ?: 0;
         $method = $request->input('method') ?: 0;
         $status = $request->input('status') ?: 0;
@@ -69,7 +70,7 @@ class LessonController extends Controller {
             }
         }
         $total = collect($lessons)->count();
-        $lesson = collect($lessons)->skip($currentCount)->take($count);
+        $lesson = collect($lessons)->offset($offset)->limit($pagesize);
         $data = [
             'page_data' => $lessons,
             'total' => $total,
@@ -113,7 +114,7 @@ class LessonController extends Controller {
             'subject_id' => 'required',
             'is_public' => 'required',
             'buy_num' => 'required',
-            'ttl' => 'required',
+            'ttl' => 'required_if:is_public,0',
             'teacher_id' => 'required|json',//'required|exclude_if:is_public,0|integer',
             'nickname' => 'required_if:is_public,1',
             'start_at' => 'required_if:is_public,1',
@@ -172,31 +173,32 @@ class LessonController extends Controller {
      */
     public function update($id, Request $request) {
         $validator = Validator::make($request->all(), [
+            'subject_id' => 'required',
+            'is_public' => 'required',
             'title' => 'required',
             'keyword' => 'required',
             'cover' => 'required',
             'price' => 'required',
             'favorable_price' => 'required',
             'method' => 'required',
-            'teacher_id' => 'required',
             'description' => 'required',
             'introduction' => 'required',
-            'subject_id' => 'required',
-            'is_public' => 'required',
             'buy_num' => 'required',
             'ttl' => 'required',
+            'start_at' => 'required_if:is_public,1',
+            'end_at' => 'required_if:is_public,1',
         ]);
         if ($validator->fails()) {
             return $this->response($validator->errors()->first(), 202);
         }
-        $lesson = Lesson::findOrFail($id);;
+        $lesson = Lesson::findOrFail($id);
         $lesson->title = $request->input('title') ?: $lesson->title;
         $lesson->keyword = $request->input('keyword') ?: $lesson->keyword;
         $lesson->cover = $request->input('cover') ?: $lesson->cover;
         $lesson->price = $request->input('price') ?: $lesson->price;
+        $lesson->favorable_price = $request->input('favorable_price') ?: $lesson->favorable_price;
         $lesson->method = $request->input('method') ?: $lesson->method;
         $lesson->description = $request->input('description') ?: $lesson->description;
-        $lesson->is_public = $request->input('is_public') ?: $lesson->is_public;
         $lesson->buy_num = $request->input('buy_num') ?: $lesson->buy_num;
         $lesson->ttl = $request->input('ttl') ?: $lesson->ttl;
         try {
