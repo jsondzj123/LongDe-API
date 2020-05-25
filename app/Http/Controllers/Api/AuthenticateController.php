@@ -96,12 +96,12 @@ class AuthenticateController extends Controller {
             //将数据插入到表中
             $user_id = User::insertGetId($user_data);
             if($user_id && $user_id > 0){
+                $user_info = ['user_id' => $user_id , 'user_token' => $token , 'user_type' => 0  , 'head_icon' => '' , 'real_name' => '' , 'phone' => $body['phone'] , 'nickname' => '' , 'sign' => '' , 'papers_type' => '' , 'papers_name' => '' , 'papers_num' => '' , 'balance' => 0];
                 //redis存储信息
-                Redis::set("user:regtoken:".$token , json_encode($user_data));
+                Redis::set("user:regtoken:".$token , json_encode($user_info));
                 
                 //事务提交
                 DB::commit();
-                $user_info = ['user_id' => $user_id , 'user_token' => $token , 'user_type' => 0  , 'head_icon' => '' , 'real_name' => '' , 'phone' => $body['phone'] , 'nickname' => '' , 'sign' => '' , 'papers_type' => '' , 'papers_name' => '' , 'papers_num' => ''];
                 return response()->json(['code' => 200 , 'msg' => '注册成功' , 'data' => ['user_info' => $user_info]]);
             } else {
                 //事务回滚
@@ -183,7 +183,8 @@ class AuthenticateController extends Controller {
                     'sign'       => $user_login->sign , 
                     'papers_type'=> $user_login->papers_type , 
                     'papers_name'=> $user_login->papers_type > 0 ? parent::getPapersNameByType($user_login->papers_type) : '',
-                    'papers_num' => $user_login->papers_num
+                    'papers_num' => $user_login->papers_num ,
+                    'balance'    => $user_login->balance > 0 ? floatval($user_login->balance) : 0
                 ];
                 
                 //redis存储信息
@@ -255,7 +256,8 @@ class AuthenticateController extends Controller {
                     'sign'       => $student_info->sign , 
                     'papers_type'=> $student_info->papers_type , 
                     'papers_name'=> $student_info->papers_type > 0 ? parent::getPapersNameByType($student_info->papers_type) : '',
-                    'papers_num' => $student_info->papers_num
+                    'papers_num' => $student_info->papers_num ,
+                    'balance'    => $student_info->balance > 0 ? floatval($student_info->balance) : 0
                 ];
                 
                 //redis存储信息
@@ -297,7 +299,8 @@ class AuthenticateController extends Controller {
                         'sign'       => '' , 
                         'papers_type'=> '' , 
                         'papers_name'=> '' ,
-                        'papers_num' => ''
+                        'papers_num' => '' ,
+                        'balance'    => 0
                     ];
                 
                     //redis存储信息

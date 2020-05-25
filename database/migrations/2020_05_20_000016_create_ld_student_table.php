@@ -45,6 +45,7 @@ class CreateLdStudentTable extends Migration
             $table->string('address' , 255)->default('')->comment('住址');
             $table->text('remark')->nullable()->comment('备注');
             $table->string('device' , 255)->default('')->comment('设备唯一标识');
+            $table->decimal('balance' , 10 , 2)->default(0)->comment('余额');
             $table->tinyInteger('is_forbid')->default(1)->comment('账号状态(1代表启用,2代表禁用)');
             $table->tinyInteger('enroll_status')->default(0)->comment('报名状态(1代表已报名,0代表未报名)');
             $table->tinyInteger('state_status')->default(0)->comment('开课状态(0代表均未开课,1代表部分未开课,2代表全部开课)');
