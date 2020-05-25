@@ -84,6 +84,7 @@ $app->configure('sms');
 $app->routeMiddleware([
      'auth' => App\Http\Middleware\Authenticate::class,
      'api' => App\Http\Middleware\ApiAuthToken::class,
+     'user'=> App\Http\Middleware\UserAuthToken::class,
     // 'jwt.role' => App\Http\Middleware\JWTRoleAuth::class,
      'cors' => App\Http\Middleware\Cors::class,
      

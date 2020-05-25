@@ -86,7 +86,7 @@ class AuthenticateController extends Controller {
             //封装成数组
             $user_data = [
                 'phone'     =>    $body['phone'] ,
-                'password'  =>    $body['password'] ,
+                'password'  =>    md5($body['password']) ,
                 'token'     =>    $token ,
                 'device'    =>    isset($body['device']) && !empty($body['device']) ? $body['device'] : '' ,
                 'reg_source'=>    1 ,
@@ -101,7 +101,7 @@ class AuthenticateController extends Controller {
                 
                 //事务提交
                 DB::commit();
-                $user_info = ['user_id' => $user_id , 'user_token' => $token ,  'head_icon' => '' , 'real_name' => '' , 'phone' => $body['phone'] , 'nickname' => '' , 'sign' => '' , 'papers_type' => '' , 'papers_name' => '' , 'papers_num' => ''];
+                $user_info = ['user_id' => $user_id , 'user_token' => $token , 'user_type' => 0  , 'head_icon' => '' , 'real_name' => '' , 'phone' => $body['phone'] , 'nickname' => '' , 'sign' => '' , 'papers_type' => '' , 'papers_name' => '' , 'papers_num' => ''];
                 return response()->json(['code' => 200 , 'msg' => '注册成功' , 'data' => ['user_info' => $user_info]]);
             } else {
                 //事务回滚
@@ -166,7 +166,7 @@ class AuthenticateController extends Controller {
             DB::beginTransaction();
 
             //根据手机号和密码进行登录验证
-            $user_login = User::where("phone",$body['phone'])->where("password",$body['password'])->first();
+            $user_login = User::where("phone",$body['phone'])->where("password",md5($body['password']))->first();
             if($user_login && !empty($user_login)){
                 //清除老的redis的key值
                 Redis::del("user:regtoken:".$user_login->token);
@@ -175,6 +175,7 @@ class AuthenticateController extends Controller {
                 $user_info = [
                     'user_id'    => $user_login->id ,
                     'user_token' => $token , 
+                    'user_type'  => 0 ,
                     'head_icon'  => $user_login->head_icon , 
                     'real_name'  => $user_login->real_name , 
                     'phone'      => $user_login->phone , 
@@ -246,6 +247,7 @@ class AuthenticateController extends Controller {
                 $user_info = [
                     'user_id'    => $student_info->id ,
                     'user_token' => $token , 
+                    'user_type'  => 0 ,
                     'head_icon'  => $student_info->head_icon , 
                     'real_name'  => $student_info->real_name , 
                     'phone'      => $student_info->phone , 
@@ -287,6 +289,7 @@ class AuthenticateController extends Controller {
                     $user_info = [
                         'user_id'    => $user_id ,
                         'user_token' => $token , 
+                        'user_type'  => 1 ,
                         'head_icon'  => '' , 
                         'real_name'  => '' , 
                         'phone'      => '' , 
@@ -381,7 +384,7 @@ class AuthenticateController extends Controller {
             DB::beginTransaction();
 
             //将数据插入到表中
-            $update_user_password = User::where("phone" , $body['phone'])->update(['password' => $body['password'] , 'update_at' => date('Y-m-d H:i:s')]);
+            $update_user_password = User::where("phone" , $body['phone'])->update(['password' => md5($body['password']) , 'update_at' => date('Y-m-d H:i:s')]);
             if($update_user_password && !empty($update_user_password)){
                 //事务提交
                 DB::commit();

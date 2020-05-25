@@ -22,6 +22,7 @@ class CreateLdStudentTable extends Migration
             $table->integer('province_id')->default(0)->comment('省id');
             $table->integer('city_id')->default(0)->comment('市id');
             $table->char('phone' , 11)->default('')->comment('手机号');
+            $table->string('token' , 255)->default('')->comment('用户token');
             $table->string('real_name' , 255)->default('')->comment('姓名');
             $table->string('nickname' , 255)->default('')->comment('昵称');
             $table->string('sign' , 255)->default('')->comment('签名');
