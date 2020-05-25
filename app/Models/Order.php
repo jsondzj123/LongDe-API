@@ -165,6 +165,7 @@ class Order extends Model {
          * return  array
          */
     public static function orderPayList($arr){
+            DB::beginTransaction();
             if(!$arr || empty($arr)){
                 return ['code' => 201 , 'msg' => '参数错误'];
             }
@@ -173,7 +174,8 @@ class Order extends Model {
                 return ['code' => 201 , 'msg' => '学生id为空或格式不对'];
             }
             //根据用户id查询信息
-            $student = Student::select('balance')->where('id',$arr['student_id'])->first();
+            $student = Student::select('balance')->where('id','=',$arr['student_id'])->first();
+
             //判断课程id
             if(!isset($arr['class_id']) || empty($arr['class_id'])){
                 return ['code' => 201 , 'msg' => '课程id为空或格式不对'];
@@ -183,7 +185,7 @@ class Order extends Model {
                 return ['code' => 201 , 'msg' => '机型不匹配'];
             }
             //根据课程id 查询价格
-            $lesson = Lesson::select('id','title','cover','price','favorable_price')->where(['id'=>$arr['class_id'],'is_del'=>0,'is_forbid'=>0,'status'=>2,'is_public'=>0])->get();
+            $lesson = Lesson::select('id','title','cover','price','favorable_price')->where(['id'=>$arr['class_id'],'is_del'=>0,'is_forbid'=>0,'status'=>2,'is_public'=>0])->first()->toArray();
             if(!$lesson){
                 return ['code' => 204 , 'msg' => '此课程选择无效'];
             }
@@ -207,29 +209,16 @@ class Order extends Model {
             $data['status'] = 0;
             $data['oa_status'] = 0;              //OA状态
             $data['class_id'] = $arr['class_id'];
-            $add = self::insert($data);
-            echo $add;die;
+            $add = self::insertGetId($data);
             if($add){
                 $lesson['order_id'] = $add;
                 $lesson['order_number'] = $orderfind['order_number'];
-                if($arr['type'] == 2){
-                    $lesson['user_balance'] = $student['balance'];
-                }
-//                DB::commit();
+                $lesson['user_balance'] = $student['balance'];
+                DB::commit();
+                //添加支付方式数组
                 return ['code' => 200 , 'msg' => '生成预订单成功','data'=>$lesson];
-//                if($arr['pay_type'] == 1){
-//                    $return = app('wx')->getPrePayOrder($data['order_number'],$data['price']);
-//                    if($return['code'] == 200){
-//                        return ['code' => 200 , 'msg' => '生成预订单成功','data'=>$return['list']];
-//                    }else{
-//                        throw new Exception($return['list']);
-//                    }
-//                }else{
-//                    $return = app('ali')->createAppPay($data['order_number'],'商品简介',$data['price']);
-//                    return ['code' => 200 , 'msg' => '生成预订单成功','data'=>$return];
-//                }
             }else{
-//                DB::rollback();
+                DB::rollback();
                 return ['code' => 203 , 'msg' => '生成订单失败'];
             }
     }
