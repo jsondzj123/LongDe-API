@@ -18,9 +18,6 @@ class OrderController extends Controller {
          * return  array
          */
     public function createOrder() {
-
-        $list = Lesson::get()->toArray();
-        print_r($list);die;
         $data = self::$accept_data;
         $data['student_id'] = 1;
         $orderid = Order::orderPayList($data);
