@@ -19,8 +19,9 @@ class LessonChildController extends Controller {
      * @return  array
      */
     public function index(Request $request){
-        $currentCount = $request->input('current_count') ?: 0;
-        $count = $request->input('count') ?: 15;
+        $pagesize = $request->input('pagesize') ?: 15;
+        $page     = $request->input('page') ?: 1;
+        $offset   = ($page - 1) * $pagesize;
         $lesson_id = $request->input('lesson_id');
         $pid = $request->input('pid') ?: 0;
         $total = LessonChild::where([
@@ -30,7 +31,7 @@ class LessonChildController extends Controller {
                 'pid' => $pid
             ])->count();
         $lesson = LessonChild::where(['is_del' => 0, 'is_forbid' => 0, 'lesson_id' => $lesson_id, 'pid' => $pid])
-            ->skip($currentCount)->take($count)
+            ->skip($offset)->take($pagesize)
             ->get();
         if($pid == 0){
             foreach ($lesson as $k => $value) {
