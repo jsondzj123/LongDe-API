@@ -145,6 +145,7 @@ class LessonController extends Controller {
                     'is_public' => $request->input('is_public'),
                     'buy_num' => $request->input('buy_num'),
                     'ttl' => $request->input('ttl'),
+                    'status' => $request->input('status') ?: 1,
                 ]);
             if(!empty($teacherIds)){
                 $lesson->teachers()->attach($teacherIds); 
@@ -192,17 +193,26 @@ class LessonController extends Controller {
         if ($validator->fails()) {
             return $this->response($validator->errors()->first(), 202);
         }
+        $subjectIds = json_decode($request->input('subject_id'), true);
         $lesson = Lesson::findOrFail($id);
-        $lesson->title = $request->input('title') ?: $lesson->title;
+        if(!empty($subjectIds)){
+            $lesson->subjects()->detach(); 
+            $lesson->subjects()->attach($subjectIds);
+        }
+        $lesson->title   = $request->input('title') ?: $lesson->title;
         $lesson->keyword = $request->input('keyword') ?: $lesson->keyword;
-        $lesson->cover = $request->input('cover') ?: $lesson->cover;
-        $lesson->price = $request->input('price') ?: $lesson->price;
+        $lesson->cover   = $request->input('cover') ?: $lesson->cover;
+        $lesson->price   = $request->input('price') ?: $lesson->price;
         $lesson->favorable_price = $request->input('favorable_price') ?: $lesson->favorable_price;
-        $lesson->method = $request->input('method') ?: $lesson->method;
+        $lesson->method  = $request->input('method') ?: $lesson->method;
         $lesson->description = $request->input('description') ?: $lesson->description;
         $lesson->buy_num = $request->input('buy_num') ?: $lesson->buy_num;
-        $lesson->ttl = $request->input('ttl') ?: $lesson->ttl;
+        $lesson->ttl     = $request->input('ttl') ?: $lesson->ttl;
+        $lesson->start_at = $request->input('start_at') ?: $lesson->start_at;
+        $lesson->end_at = $request->input('end_at') ?: $lesson->end_at;
+        $lesson->status = $request->input('status') ?: $lesson->status;
         try {
+
             $lesson->save();
             return $this->response("修改成功");
         } catch (Exception $e) {
