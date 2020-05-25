@@ -31,21 +31,24 @@ class Lesson extends Model {
         'created_at',
         'updated_at',
         'is_del',
-        'is_forbid'
+        'is_forbid',
+        'pivot'
     ];
 
     protected $appends = ['is_auth'];
 
     public function getIsAuthAttribute($value) {
         $user = CurrentAdmin::user();
-        $school = LessonSchool::where(['school_id' => $user->school_id, 'lesson_id' => $this->id])->count();
-        if($school > 0){
-            //授权
-            return 2;
-        }
-        if($user->id == $this->admin_id){
-            //自增
-            return  1;
+        if(!empty($user)){
+            $school = LessonSchool::where(['school_id' => $user->school_id, 'lesson_id' => $this->id])->count();
+            if($school > 0){
+                //授权
+                return 2;
+            }
+            if($user->id == $this->admin_id){
+                //自增
+                return  1;
+            }
         }
         return  0;
     }

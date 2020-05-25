@@ -84,10 +84,18 @@ class LessonController extends Controller {
      * @param  课程id
      * @param  author  孙晓丽
      * @param  ctime   2020/5/1 
-     * return  array
+     * return  array->with(['subjects' => function ($query) {
+                $query->select('id', 'name');
+            }])
      */
     public function show($id) {
-        $lesson = Lesson::with('teachers', 'subjects')->find($id);
+        $lesson = Lesson::with(['teachers' => function ($query) {
+                $query->select('id', 'real_name');
+            }])
+        ->with(['subjects' => function ($query) {
+                $query->select('id', 'name');
+            }])
+        ->find($id);
         if(empty($lesson)){
             return $this->response('课程不存在', 404);
         }
