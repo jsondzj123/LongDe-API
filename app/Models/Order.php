@@ -186,7 +186,6 @@ class Order extends Model {
             }
             //根据课程id 查询价格
             $lesson = Lesson::select('id','title','cover','price','favorable_price')->where(['id'=>$arr['class_id'],'is_del'=>0,'is_forbid'=>0,'status'=>2,'is_public'=>0])->first();
-            print_r($lesson);die;
             if(!$lesson){
                 return ['code' => 204 , 'msg' => '此课程选择无效'];
             }
