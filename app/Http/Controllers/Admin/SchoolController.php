@@ -322,7 +322,7 @@ class SchoolController extends Controller {
         $adminUser['auth_id'] = $roleAuthId['auth_id'] ? $roleAuthId['auth_id']  : '';
         $adminUser['school_name'] =  !empty($schoolData['name']) ? $schoolData['name']  : '';
         $authRules = Authrules::getAuthAlls([],['id','name','title','parent_id']);
-        $authRules = getParentsList($authRules);
+        $authRules = getAuthArr($authRules);
         $arr = [
             'admin' =>$adminUser,
             'auth_rules'=>$authRules,
