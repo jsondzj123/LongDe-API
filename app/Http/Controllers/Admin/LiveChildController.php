@@ -23,8 +23,9 @@ class LiveChildController extends Controller {
      * @return  array
      */
     public function index(Request $request){
-        $currentCount = $request->input('current_count') ?: 0;
-        $count = $request->input('count') ?: 15;
+        $pagesize = $request->input('pagesize') ?: 15;
+        $page     = $request->input('page') ?: 1;
+        $offset   = ($page - 1) * $pagesize;
         $live_id = $request->input('live_id');
         $total = LiveChild::where([
                 'is_del' => 0,
@@ -37,7 +38,7 @@ class LiveChildController extends Controller {
                 'is_forbid' => 0, 
                 'live_id' => $live_id
             ])
-            ->skip($currentCount)->take($count)
+            ->skip($offset)->take($pagesize)
             ->get();
     
         $data = [
