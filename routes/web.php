@@ -38,6 +38,10 @@ $router->group(['prefix' => 'api', 'namespace' => 'Api'], function () use ($rout
     $router->group(['prefix' => 'user' , 'middleware'=> ['user']], function () use ($router) {
         $router->post('getUserInfoById','UserController@getUserInfoById');          //APP学员详情接口
     });
+    //支付
+    $router->group(['prefix' => 'order'], function () use ($router) {
+        $router->post('createOrder','OrderController@createOrder');
+    });
 });
 
 //PC端路由接口
