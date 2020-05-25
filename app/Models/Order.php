@@ -167,20 +167,15 @@ class Order extends Model {
          * return  array
          */
     public static function orderPayList($arr){
-        $lesson = Lesson::get()->toArray();
-        return ['code' => 201 , 'msg' => '参数错误','data'=>$lesson];
-//            DB::beginTransaction();
             if(!$arr || empty($arr)){
                 return ['code' => 201 , 'msg' => '参数错误'];
             }
-
             //判断学生id
             if(!isset($arr['student_id']) || empty($arr['student_id'])){
                 return ['code' => 201 , 'msg' => '学生id为空或格式不对'];
             }
             //根据用户id查询信息
             $student = Student::select('balance')->where('id',$arr['student_id'])->first();
-
             //判断课程id
             if(!isset($arr['class_id']) || empty($arr['class_id'])){
                 return ['code' => 201 , 'msg' => '课程id为空或格式不对'];
@@ -189,12 +184,18 @@ class Order extends Model {
             if(!isset($arr['type']) || empty($arr['type'] || !in_array($arr['type'],[1,2,3]))){
                 return ['code' => 201 , 'msg' => '机型不匹配'];
             }
-
             //根据课程id 查询价格
-            $lesson = Lesson::get()->toArray();
-        return ['code' => 201 , 'msg' => '参数错误'];
+            $lesson = Lesson::select('id','title','cover','price','favorable_price')->where(['id'=>$arr['class_id'],'is_del'=>0,'is_forbid'=>0,'status'=>2,'is_public'=>0])->first();
             if(!$lesson){
                 return ['code' => 204 , 'msg' => '此课程选择无效'];
+            }
+            //查询用户有此类订单没有，有的话直接返回
+            $orderfind = self::where(['student_id'=>$arr['student_id'],'class_id'=>$arr['class_id'],'status'=>0])->first();
+            if($orderfind){
+                $lesson['order_id'] = $orderfind['id'];
+                $lesson['order_number'] = $orderfind['order_number'];
+                $lesson['user_balance'] = $student['balance'];
+                return ['code' => 200 , 'msg' => '生成预订单成功','data'=>$lesson];
             }
             //数据入库，生成订单
             $data['order_number'] = date('YmdHis', time()) . rand(1111, 9999);
@@ -211,6 +212,7 @@ class Order extends Model {
             $add = self::insert($data);
             if($add){
                 $lesson['order_id'] = $add;
+                $lesson['order_number'] = $orderfind['order_number'];
                 if($arr['type'] == 2){
                     $lesson['user_balance'] = $student['balance'];
                 }
