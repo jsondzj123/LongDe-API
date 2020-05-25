@@ -186,6 +186,7 @@ class Order extends Model {
             }
             //根据课程id 查询价格
             $lesson = Lesson::select('id','title','cover','price','favorable_price')->where(['id'=>$arr['class_id'],'is_del'=>0,'is_forbid'=>0,'status'=>2,'is_public'=>0])->first();
+            print_r($lesson);die;
             if(!$lesson){
                 return ['code' => 204 , 'msg' => '此课程选择无效'];
             }
@@ -209,7 +210,8 @@ class Order extends Model {
             $data['status'] = 0;
             $data['oa_status'] = 0;              //OA状态
             $data['class_id'] = $arr['class_id'];
-            $add = self::insert($data);
+            $add = self::insertGetId($data);
+            echo $add;die;
             if($add){
                 $lesson['order_id'] = $add;
                 $lesson['order_number'] = $orderfind['order_number'];
