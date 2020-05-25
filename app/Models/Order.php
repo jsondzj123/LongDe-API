@@ -301,7 +301,7 @@ class Order extends Model {
 //            ->leftJoin('ld_lecturer_educationa','ld_lecturer_educationa.id','=','ld_lesson_teachers.teacher_id')
 //            ->where(['ld_order.id'=>$data['order_id']])
 //            ->first();
-        $list = self::select('ld_order.order_number','ld_order.create_at','ld_order.price','ld_order.order_type','ld_order.status','ld_order.pay_time','ld_student.real_name','ld_student.phone','ld_school.name','ld_lessons.title','ld_lesson_teachers.real_name')
+        $list = self::select('ld_order.order_number','ld_order.create_at','ld_order.price','ld_order.order_type','ld_order.status','ld_order.pay_time','ld_student.real_name','ld_student.phone','ld_school.name','ld_lessons.title','ld_lecturer_educationa.real_name')
             ->leftJoin('ld_student','ld_student.id','=','ld_order.student_id')
             ->leftJoin('ld_school','ld_school.id','=','ld_student.school_id')
             ->leftJoin('ld_lessons','ld_lessons.id','=','ld_order.class_id')
