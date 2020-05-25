@@ -38,6 +38,7 @@ $router->group(['prefix' => 'api', 'namespace' => 'Api'], function () use ($rout
     //用户学员相关接口
     $router->group(['prefix' => 'user' , 'middleware'=> ['user']], function () use ($router) {
         $router->post('getUserInfoById','UserController@getUserInfoById');          //APP学员详情接口
+        $router->post('doUserUpdateInfo','UserController@doUserUpdateInfo');        //APP用户更新信息接口
     });
 });
 
