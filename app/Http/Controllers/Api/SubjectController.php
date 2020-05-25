@@ -16,13 +16,26 @@ class SubjectController extends Controller {
      * return  array
      */
     public function index(Request $request){
-        $subject = Subject::where('pid', 0)
+        $subjects = Subject::where('pid', 0)
                 ->select('id', 'name', 'pid')
                 ->orderBy('created_at', 'desc')
                 ->get();
-            foreach ($subject as $value) {
+            foreach ($subjects as $value) {
                 $value['childs'] = $value->childs();
             }
-        return $this->response($subject);
+        $data['subjects'] = $subjects; 
+        $data['sort'] = [
+            ['id' => 1, 'name' => '综合', 'type' => []],
+            ['id' => 2, 'name' => '按热度', 'type' => ['asc', 'desc']],
+            ['id' => 3, 'name' => '按价格', 'type' => ['asc', 'desc']],
+        ];
+        $data['method'] = [
+            ['id' => 1, 'name' => '综合'],
+            ['id' => 2, 'name' => '直播'],
+            ['id' => 3, 'name' => '录播'],
+            ['id' => 4, 'name' => '直播+录播'],
+            ['id' => 5, 'name' => '其他'],
+        ]; 
+        return $this->response($data);
     }
 }

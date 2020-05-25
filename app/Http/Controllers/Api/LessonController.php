@@ -16,7 +16,6 @@ class LessonController extends Controller {
      * return  array
      */
     public function index(Request $request){
-
         $currentCount = $request->input('current_count') ?: 0;
         $count = $request->input('count') ?: 15;
         $total = Lesson::where(['is_del'=> 0, 'is_forbid' => 0, 'status' => 2])->count();
