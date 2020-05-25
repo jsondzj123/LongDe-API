@@ -65,7 +65,7 @@ $app->singleton(
 $app->configure('app');
 $app->configure('auth');
 $app->configure('jwt');
-
+$app->configure('sms');
 /*
 |--------------------------------------------------------------------------
 | Register Middleware
@@ -84,6 +84,7 @@ $app->configure('jwt');
 $app->routeMiddleware([
      'auth' => App\Http\Middleware\Authenticate::class,
      'api' => App\Http\Middleware\ApiAuthToken::class,
+     'user'=> App\Http\Middleware\UserAuthToken::class,
     // 'jwt.role' => App\Http\Middleware\JWTRoleAuth::class,
      'cors' => App\Http\Middleware\Cors::class,
      
@@ -116,6 +117,8 @@ $app->register(\Tymon\JWTAuth\Providers\LumenServiceProvider::class);
 $app->register(\Illuminate\Redis\RedisServiceProvider::class);
 //加载注册excel
 $app->register(\Maatwebsite\Excel\ExcelServiceProvider::class);
+//阿里云短信
+$app->register(\Lysice\Sms\SmsServiceProvider::class);
 /*
 |--------------------------------------------------------------------------
 | Load The Application Routes

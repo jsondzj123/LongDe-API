@@ -5,15 +5,9 @@ use App\Http\Controllers\Controller;
 use App\Models\Lesson;
 use Illuminate\Http\Request;
 
+
 class LessonController extends Controller {
 
-    /*
-     * @param  科目列表
-     * @param  current_count   count
-     * @param  author  孙晓丽
-     * @param  ctime   2020/5/1 
-     * return  array
-     */
     /**
      * @param  课程列表
      * @param  current_count   count
@@ -35,7 +29,6 @@ class LessonController extends Controller {
             'page_data' => $lessons,
             'total' => $total,
         ];
-        return response()->json(['code' => 200, 'msg' => 'success', 'data' => $data]);
-        //return $this->response($data);
+        return $this->response($data);
     }
 }

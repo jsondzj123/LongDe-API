@@ -170,6 +170,7 @@ class AdminUserController extends Controller {
         if(isset($data['/admin/adminuser/doInsertAdminUser'])){
             unset($data['/admin/adminuser/doInsertAdminUser']);
         }
+        $data['school_status']=CurrentAdmin::user()['school_status'] == 1 ?1:0;
         $data['password'] = password_hash($data['password'], PASSWORD_DEFAULT);
         $data['admin_id'] = CurrentAdmin::user()['id'];
         $result = Adminuser::insertAdminUser($data);
@@ -259,9 +260,8 @@ class AdminUserController extends Controller {
         if($validator->fails()) {
             return response()->json(json_decode($validator->errors()->first(),1));
         }
-        if( !isset($data['teacher_id'])){
-            return response()->json(['code'=>422,'msg'=>'缺少教师id']);
-        }
+        $data['teacher_id']= !isset($data['teacher_id']) || empty($data['teacher_id']) ?0 :$data['teacher_id'];
+     
         if($data['password'] != $data['pwd']){
             return response()->json(['code'=>206,'msg'=>'登录密码不一致']);
         }
@@ -275,7 +275,7 @@ class AdminUserController extends Controller {
         $data['password'] = password_hash($data['password'], PASSWORD_DEFAULT);
         unset($data['pwd']);
         $admin_id  = CurrentAdmin::user()['id'];
-        try {
+      
             DB::beginTransaction();
             // if(Adminuser::where(['school_id'=>$data['school_id'],'is_del'=>1])->count() == 1){  //判断该账号是不是分校超管 5.14
             //     if(Roleauth::where(['school_id'=>$data['school_id'],'is_del'=>1])->count() <1){
@@ -305,16 +305,15 @@ class AdminUserController extends Controller {
                     'ip'             =>  $_SERVER["REMOTE_ADDR"] ,
                     'create_at'      =>  date('Y-m-d H:i:s')
                 ]);
+                DB::commit();
                 return   response()->json(['code'=>200,'msg'=>'更改成功']);
             }else{
+                 DB::rollBack();
                 return   response()->json(['code'=>203,'msg'=>'网络超时，请重试']);    
             }
             
-            DB::commit();
-        } catch (Exception $e) {
-            DB::rollBack();
-            return response()->json(['code'=>500,'msg'=>$e->getMessage()]);
-        }
+            
+        
     }  
     /*
      * @param  description   登录账号权限（菜单栏）
