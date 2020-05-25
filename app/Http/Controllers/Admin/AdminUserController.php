@@ -170,6 +170,7 @@ class AdminUserController extends Controller {
         if(isset($data['/admin/adminuser/doInsertAdminUser'])){
             unset($data['/admin/adminuser/doInsertAdminUser']);
         }
+        $data['school_status']=CurrentAdmin::user()['school_status'] == 1 ?1:0;
         $data['password'] = password_hash($data['password'], PASSWORD_DEFAULT);
         $data['admin_id'] = CurrentAdmin::user()['id'];
         $result = Adminuser::insertAdminUser($data);

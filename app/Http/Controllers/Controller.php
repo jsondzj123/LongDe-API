@@ -189,4 +189,19 @@ class Controller extends BaseController {
         //返回数据信息
         return ['code' => 200 , 'msg' => '获取地区列表数据成功' , 'data' => $region_list];
    }
+   
+    /*
+     * @param  description   通过证件名称获取对应的id值
+     * @param $name     证件名称
+     * @param author    dzj
+     * @param ctime     2020-05-22
+     * return string
+     */
+    public static function getPapersNameByType($val){
+        //证件类型数组
+        $arr = [1=>'身份证' , 2=>'护照' , 3=>'港澳通行证' , 4=>'台胞证' , 5=>'军官证' , 6=>'士官证' , 7=>'其他'];
+        
+        //$papers_id = array_search($name, $arr);
+        return $arr[$val];
+    }
 }

@@ -97,4 +97,50 @@ function getParentsList($categorys,$pId = 0,$l=0){
     }
     return $list;
 }
+
+ /*
+ * @param  descriptsion    权限管理数组处理
+ * @param  author          lys
+ * @param  ctime           2020-05-23
+ * return  array
+ */
+
+function getAuthArr($arr){
+   foreach ($arr as $key => $value) {
+            if ($value['parent_id'] == 0) {
+                $arr_1 = $value;
+                foreach ($arr as $k => $v) {
+                    if ($v['parent_id'] == $value['id']) {
+                        $arr_2 = $v;
+                        foreach ($arr as $kk => $vv) {
+                            if ($vv['parent_id'] == $v['id']) {
+                                $arr_3 = $vv;
+                                $arr_3['parent_id'] = $arr_1['id'].','.$arr_2['id'];
+                                $arr_2['child_arr'][] = $arr_3;
+                            }
+                        }
+                        $arr_1['child_arr'][] = $arr_2;
+                    }
+                }
+                $new_arr[] = $arr_1;
+            }
+        }
+        return $new_arr;
+}
+
+ /*
+ * @param  descriptsion    随机生成字符串
+ * @param  author          dzj
+ * @param  ctime           2020-04-29
+ * return  array
+ */
+function randstr($len=6){
+    $chars='abcdefghijklmnopqrstuvwxyz0123456789';
+    mt_srand((double)microtime()*1000000*getmypid());
+    $password='';
+    while(strlen($password)<$len)
+    $password.=substr($chars,(mt_rand()%strlen($chars)),1);
+    return $password;
+
+}
 ?>
