@@ -207,7 +207,7 @@ class Order extends Model {
             $data['status'] = 0;
             $data['oa_status'] = 0;              //OA状态
             $data['class_id'] = $arr['class_id'];
-            $add = self::insertGetId($data);
+            $add = self::insert($data);
             echo $add;die;
             if($add){
                 $lesson['order_id'] = $add;
