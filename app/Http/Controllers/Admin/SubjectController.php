@@ -18,11 +18,13 @@ class SubjectController extends Controller {
      * return  array
      */
     public function index(Request $request){
-        $currentCount = $request->input('current_count') ?: 0;
-        $count = $request->input('count') ?: 15;
+        $pagesize = $request->input('pagesize') ?: 15;
+        $page     = $request->input('page') ?: 1;
+        $offset   = ($page - 1) * $pagesize;
         $total = Subject::where('pid', 0)->count();
         $subject = Subject::where('pid', 0)->orderBy('status', 'desc')
             ->skip($currentCount)->take($count)
+            ->skip($offset)->take($pagesize)
             ->get();
         foreach ($subject as $value) {
             $value['childs'] = $value->childs();

@@ -56,6 +56,7 @@ class LessonController extends Controller {
                     }
                 });
         $lessons = [];
+
         foreach ($data->get()->toArray() as $value) {
             
             if($auth == 0){
@@ -70,9 +71,9 @@ class LessonController extends Controller {
             }
         }
         $total = collect($lessons)->count();
-        $lesson = collect($lessons)->offset($offset)->limit($pagesize);
+        $lesson = collect($lessons)->skip($offset)->take($pagesize);
         $data = [
-            'page_data' => $lessons,
+            'page_data' => $lesson,
             'total' => $total,
         ];
         return $this->response($data);
