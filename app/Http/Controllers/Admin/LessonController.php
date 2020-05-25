@@ -84,10 +84,18 @@ class LessonController extends Controller {
      * @param  课程id
      * @param  author  孙晓丽
      * @param  ctime   2020/5/1 
-     * return  array
+     * return  array->with(['subjects' => function ($query) {
+                $query->select('id', 'name');
+            }])
      */
     public function show($id) {
-        $lesson = Lesson::with('teachers', 'subjects')->find($id);
+        $lesson = Lesson::with(['teachers' => function ($query) {
+                $query->select('id', 'real_name');
+            }])
+        ->with(['subjects' => function ($query) {
+                $query->select('id', 'name');
+            }])
+        ->find($id);
         if(empty($lesson)){
             return $this->response('课程不存在', 404);
         }
@@ -104,19 +112,16 @@ class LessonController extends Controller {
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
+            'subject_id' => 'required',
             'title' => 'required',
-            'keyword' => 'required',
-            'cover' => 'required',
             'price' => 'required',
             'favorable_price' => 'required',
+            'teacher_id' => 'required|json',
             'method' => 'required',
+            'cover' => 'required',
             'description' => 'required',
             'introduction' => 'required',
-            'subject_id' => 'required',
             'is_public' => 'required',
-            'buy_num' => 'required',
-            'ttl' => 'required_if:is_public,0',
-            'teacher_id' => 'required|json',//'required|exclude_if:is_public,0|integer',
             'nickname' => 'required_if:is_public,1',
             'start_at' => 'required_if:is_public,1',
             'end_at' => 'required_if:is_public,1',
@@ -135,16 +140,17 @@ class LessonController extends Controller {
             $lesson = Lesson::create([
                     'admin_id' => intval($user->id),
                     'title' => $request->input('title'),
-                    'keyword' => $request->input('keyword'),
-                    'cover' => $request->input('cover'),
+                    'keyword' => $request->input('keyword') ?: NULL,
                     'price' => $request->input('price'),
                     'favorable_price' => $request->input('favorable_price'),
                     'method' => $request->input('method'),
+                    'cover' => $request->input('cover'),
                     'description' => $request->input('description'),
                     'introduction' => $request->input('introduction'),
                     'is_public' => $request->input('is_public'),
-                    'buy_num' => $request->input('buy_num'),
-                    'ttl' => $request->input('ttl'),
+                    'buy_num' => $request->input('buy_num') ?: 0,
+                    'ttl' => $request->input('ttl') ?: 0,
+                    'status' => $request->input('status') ?: 1,
                 ]);
             if(!empty($teacherIds)){
                 $lesson->teachers()->attach($teacherIds); 
@@ -174,36 +180,36 @@ class LessonController extends Controller {
      */
     public function update($id, Request $request) {
         $validator = Validator::make($request->all(), [
-            'subject_id' => 'required',
             'is_public' => 'required',
-            'title' => 'required',
-            'keyword' => 'required',
-            'cover' => 'required',
-            'price' => 'required',
-            'favorable_price' => 'required',
-            'method' => 'required',
-            'description' => 'required',
-            'introduction' => 'required',
-            'buy_num' => 'required',
-            'ttl' => 'required',
-            'start_at' => 'required_if:is_public,1',
-            'end_at' => 'required_if:is_public,1',
         ]);
         if ($validator->fails()) {
             return $this->response($validator->errors()->first(), 202);
         }
-        $lesson = Lesson::findOrFail($id);
-        $lesson->title = $request->input('title') ?: $lesson->title;
-        $lesson->keyword = $request->input('keyword') ?: $lesson->keyword;
-        $lesson->cover = $request->input('cover') ?: $lesson->cover;
-        $lesson->price = $request->input('price') ?: $lesson->price;
-        $lesson->favorable_price = $request->input('favorable_price') ?: $lesson->favorable_price;
-        $lesson->method = $request->input('method') ?: $lesson->method;
-        $lesson->description = $request->input('description') ?: $lesson->description;
-        $lesson->buy_num = $request->input('buy_num') ?: $lesson->buy_num;
-        $lesson->ttl = $request->input('ttl') ?: $lesson->ttl;
+        $subjectIds = json_decode($request->input('subject_id'), true);
+        $teacherIds = json_decode($request->input('teacher_id'), true);
         try {
+            $lesson = Lesson::findOrFail($id);
+            $lesson->title   = $request->input('title') ?: $lesson->title;
+            $lesson->keyword = $request->input('keyword') ?: $lesson->keyword;
+            $lesson->cover   = $request->input('cover') ?: $lesson->cover;
+            $lesson->price   = $request->input('price') ?: $lesson->price;
+            $lesson->favorable_price = $request->input('favorable_price') ?: $lesson->favorable_price;
+            $lesson->method  = $request->input('method') ?: $lesson->method;
+            $lesson->description = $request->input('description') ?: $lesson->description;
+            $lesson->buy_num = $request->input('buy_num') ?: $lesson->buy_num;
+            $lesson->ttl     = $request->input('ttl') ?: $lesson->ttl;
+            $lesson->start_at = $request->input('start_at') ?: $lesson->start_at;
+            $lesson->end_at = $request->input('end_at') ?: $lesson->end_at;
+            $lesson->status = $request->input('status') ?: $lesson->status;
             $lesson->save();
+            if(!empty($subjectIds)){
+                $lesson->subjects()->detach(); 
+                $lesson->subjects()->attach($subjectIds);
+            }
+            if(!empty($teacherIds)){
+                $lesson->teachers()->detach(); 
+                $lesson->teachers()->attach($teacherIds); 
+            }
             return $this->response("修改成功");
         } catch (Exception $e) {
             Log::error('修改课程信息失败' . $e->getMessage());
