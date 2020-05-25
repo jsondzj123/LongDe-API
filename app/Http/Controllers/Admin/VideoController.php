@@ -18,13 +18,14 @@ class VideoController extends Controller {
      * return  array
      */
     public function index(Request $request){
-        $currentCount = $request->input('current_count') ?: 0;
-        $count = $request->input('count') ?: 15;
+        $pagesize = $request->input('pagesize') ?: 15;
+        $page     = $request->input('page') ?: 1;
+        $offset   = ($page - 1) * $pagesize;
         $total = Video::where('is_del', 0)->count();
         $video = Video::with('subject')
             ->where('is_del', 0)
             ->orderBy('id', 'desc')
-            ->skip($currentCount)->take($count)
+            ->skip($offset)->take($pagesize)
             ->get();
         foreach ($video as $value) {
             $value->subject->parent = Subject::find($value->subject->pid);

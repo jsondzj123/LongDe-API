@@ -19,13 +19,14 @@ class LessonStockController extends Controller {
      * return  array
      */
     public function index(Request $request){
-        $currentCount = $request->input('current_count') ?: 0;
-        $count = $request->input('count') ?: 15;
+        $pagesize = $request->input('pagesize') ?: 15;
+        $page     = $request->input('page') ?: 1;
+        $offset   = ($page - 1) * $pagesize;
         $lesson_id = $request->input('lesson_id');
         $school_id = $request->input('school_id');
         $data =  LessonStock::where(['lesson_id' => $lesson_id, 'school_id' => $school_id]);
         $total = $data->count();
-        $stock = $data->orderBy('created_at', 'desc')->skip($currentCount)->take($count)->get();
+        $stock = $data->orderBy('created_at', 'desc')->skip($offset)->take($pagesize)->get();
         $data = [
             'page_data' => $stock,
             'total' => $total,

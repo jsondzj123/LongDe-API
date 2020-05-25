@@ -19,13 +19,14 @@ class LessonSchoolController extends Controller {
      * return  array
      */
     public function index(Request $request){
-        $currentCount = $request->input('current_count') ?: 0;
-        $count = $request->input('count') ?: 15;
+        $pagesize = $request->input('pagesize') ?: 15;
+        $page     = $request->input('page') ?: 1;
+        $offset   = ($page - 1) * $pagesize;
         $school_id = $request->input('school_id');
         $total = LessonSchool::where('school_id', $school_id)->count();
         $lesson = LessonSchool::where('school_id', $school_id)
                 ->orderBy('created_at', 'desc')
-                ->skip($currentCount)->take($count)
+                ->skip($offset)->take($pagesize)
                 ->get();
 
         $data = [

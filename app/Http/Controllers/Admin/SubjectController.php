@@ -23,7 +23,6 @@ class SubjectController extends Controller {
         $offset   = ($page - 1) * $pagesize;
         $total = Subject::where('pid', 0)->count();
         $subject = Subject::where('pid', 0)->orderBy('status', 'desc')
-            ->skip($currentCount)->take($count)
             ->skip($offset)->take($pagesize)
             ->get();
         foreach ($subject as $value) {
