@@ -167,27 +167,34 @@ class Order extends Model {
          * return  array
          */
     public static function orderPayList($arr){
-        try{
-            DB::beginTransaction();
+        $lesson = Lesson::get()->toArray();
+        return ['code' => 201 , 'msg' => '参数错误','data'=>$lesson];
+//            DB::beginTransaction();
             if(!$arr || empty($arr)){
                 return ['code' => 201 , 'msg' => '参数错误'];
             }
+
             //判断学生id
             if(!isset($arr['student_id']) || empty($arr['student_id'])){
                 return ['code' => 201 , 'msg' => '学生id为空或格式不对'];
             }
-            //判断支付方式
-            if(!isset($arr['pay_type']) || empty($arr['pay_type']) || !in_array($arr['pay_type'],[1,2])){
-                return ['code' => 201 , 'msg' => '选择正确的支付方式'];
-            }
+            //根据用户id查询信息
+            $student = Student::select('balance')->where('id',$arr['student_id'])->first();
+
             //判断课程id
             if(!isset($arr['class_id']) || empty($arr['class_id'])){
                 return ['code' => 201 , 'msg' => '课程id为空或格式不对'];
             }
+            //判断类型
+            if(!isset($arr['type']) || empty($arr['type'] || !in_array($arr['type'],[1,2,3]))){
+                return ['code' => 201 , 'msg' => '机型不匹配'];
+            }
+
             //根据课程id 查询价格
-            $lesson = Lesson::select('price','favorable_price')->where(['id'=>$arr['class_id'],'is_del'=>0,'is_forbid'=>0,'status'=>1])->first();
+            $lesson = Lesson::get()->toArray();
+        return ['code' => 201 , 'msg' => '参数错误'];
             if(!$lesson){
-                return ['code' => 201 , 'msg' => '此课程选择无效'];
+                return ['code' => 204 , 'msg' => '此课程选择无效'];
             }
             //数据入库，生成订单
             $data['order_number'] = date('YmdHis', time()) . rand(1111, 9999);
@@ -197,32 +204,33 @@ class Order extends Model {
             $data['price'] = $lesson['favorable_price'];
             $data['lession_price'] = $lesson['price'];
             $data['pay_status'] = 4;
-            $data['pay_type'] = $arr['pay_type'];
+            $data['pay_type'] = 0;
             $data['status'] = 0;
             $data['oa_status'] = 0;              //OA状态
             $data['class_id'] = $arr['class_id'];
             $add = self::insert($data);
             if($add){
-                if($arr['pay_type'] == 1){
-                    $return = app('wx')->getPrePayOrder($data['order_number'],$data['price']);
-                    if($return['code'] == 200){
-                        return ['code' => 200 , 'msg' => '生成预订单成功','data'=>$return['list']];
-                    }else{
-                        throw new Exception($return['list']);
-                    }
-                }else{
-                    $return = app('ali')->createAppPay($data['order_number'],'商品简介',$data['price']);
-                    return ['code' => 200 , 'msg' => '生成预订单成功','data'=>$return];
+                $lesson['order_id'] = $add;
+                if($arr['type'] == 2){
+                    $lesson['user_balance'] = $student['balance'];
                 }
+//                DB::commit();
+                return ['code' => 200 , 'msg' => '生成预订单成功','data'=>$lesson];
+//                if($arr['pay_type'] == 1){
+//                    $return = app('wx')->getPrePayOrder($data['order_number'],$data['price']);
+//                    if($return['code'] == 200){
+//                        return ['code' => 200 , 'msg' => '生成预订单成功','data'=>$return['list']];
+//                    }else{
+//                        throw new Exception($return['list']);
+//                    }
+//                }else{
+//                    $return = app('ali')->createAppPay($data['order_number'],'商品简介',$data['price']);
+//                    return ['code' => 200 , 'msg' => '生成预订单成功','data'=>$return];
+//                }
             }else{
-                throw new Exception('生成订单失败');
+//                DB::rollback();
+                return ['code' => 203 , 'msg' => '生成订单失败'];
             }
-            DB::commit();
-        } catch (Exception $ex) {
-            DB::rollback();
-            return ['code' => 202 , 'msg' => $ex->getMessage()];
-        }
-
     }
     /*
          * @param  修改审核状态

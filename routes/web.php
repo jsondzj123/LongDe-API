@@ -35,6 +35,16 @@ $router->group(['prefix' => 'api', 'namespace' => 'Api'], function () use ($rout
     $router->post('doSendSms','AuthenticateController@doSendSms');              //APP发送短信接口
     $router->post('doUserForgetPassword','AuthenticateController@doUserForgetPassword');              //APP忘记密码接口
     $router->post('getUserInfoById','UserController@getUserInfoById');          //APP学员详情接口
+
+    //订单&支付模块(szw)
+    $router->group(['prefix' => 'order'], function () use ($router) {
+        $router->post('createOrder', 'OrderController@createOrder');//订单列表
+//        $router->post('orderPay', 'OrderController@orderPay');//订单在线支付
+//        $router->post('wxnotify_url', 'OrderController@wxnotify_url');//微信回调
+//        $router->post('alinotify_url', 'OrderController@alinotify_url');//ali回调
+//        $router->post('Pcpay', 'OrderController@Pcpay');//pc支付
+    });
+
 });
 
 //PC端路由接口
