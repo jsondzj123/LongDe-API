@@ -158,9 +158,7 @@ class Order extends Model {
     /*
          * @param  线上支付 生成预订单
          * @param  $student_id  学生id
-         * @param  $price  支付金额
-         * @param  $lession_price  原价
-         * @param  $pay_type  支付方式
+         * @param  type  1安卓2ios3h5
          * @param  $class_id  课程id
          * @param  author  苏振文
          * @param  ctime   2020/5/6 14:53
@@ -185,7 +183,7 @@ class Order extends Model {
                 return ['code' => 201 , 'msg' => '机型不匹配'];
             }
             //根据课程id 查询价格
-            $lesson = Lesson::select('id','title','cover','price','favorable_price')->where(['id'=>$arr['class_id'],'is_del'=>0,'is_forbid'=>0,'status'=>2,'is_public'=>0])->first();
+            $lesson = Lesson::select('id','title','cover','price','favorable_price')->where(['id'=>$arr['class_id'],'is_del'=>0,'is_forbid'=>0,'status'=>2,'is_public'=>0])->get();
             if(!$lesson){
                 return ['code' => 204 , 'msg' => '此课程选择无效'];
             }
