@@ -181,6 +181,7 @@ class SchoolController extends Controller {
             return response()->json(['code'=>206,'msg'=>'两次密码不一致']);
         }
         try{
+            DB::beginTransaction();
             $school = [
                 'name' =>$data['name'],
                 'dns'  =>$data['dns'],
@@ -191,6 +192,7 @@ class SchoolController extends Controller {
             ];
             $school_id = School::insertGetId($school);
             if($school_id <0){
+                DB::rollBack();
                 return response()->json(['code'=>203,'msg'=>'创建学校未成功']);  
             }
             $admin =[
@@ -203,6 +205,7 @@ class SchoolController extends Controller {
                 'school_id' =>$school_id,
                 'school_status' => 0,
             ];
+
             if(Adminuser::insertGetId($admin)>0){
                 AdminLog::insertAdminLog([
                     'admin_id'       =>   CurrentAdmin::user()['id'] ,
@@ -213,14 +216,15 @@ class SchoolController extends Controller {
                     'ip'             =>  $_SERVER["REMOTE_ADDR"] ,
                     'create_at'      =>  date('Y-m-d H:i:s')
                 ]);
+                DB::commit();
                 return response()->json(['code' => 200 , 'msg' => '创建成功']);
             } else {
+                 DB::rollBack();
                 return response()->json(['code' => 203 , 'msg' => '创建账号未成功']);
             }
         } catch (Exception $ex) {
             return response()->json(['code' => 500 , 'msg' => $ex->getMessage()]);
         }
-        return response()->json(['code' => 200 , 'msg' => 'Success']);
     }
     /*
      * @param  description 获取学校信息 
@@ -372,6 +376,8 @@ class SchoolController extends Controller {
              return response()->json(['code'=>404,'msg'=>'非法请求']);
         }
         $roleAuthArr = Roleauth::where(['school_id'=>$data['id'],'is_super'=>1,'is_del'=>1])->first();
+        if(isset($data['admin/school/doSchoolAdminById'])) unset($data['admin/school/doSchoolAdminById']);
+        
         try {  //5.15  
             DB::beginTransaction();
             if(is_null($roleAuthArr)){
@@ -394,9 +400,11 @@ class SchoolController extends Controller {
                     'ip'             =>  $_SERVER["REMOTE_ADDR"] ,
                     'create_at'      =>  date('Y-m-d H:i:s')
                 ]);
-                if(!Adminuser::where('id',$data['user_id'])->update(['role_id'=>$role_id])){
+                if(Adminuser::where('id',$data['user_id'])->update(['role_id'=>$role_id])){
+                     DB::commit();
                     return response()->json(['code'=>200,'msg'=>'赋权成功']);
                 }else{
+                     DB::rollBack();
                     return response()->json(['code'=>203,'msg'=>'网络错误，请重试']);
                 }
             }else{
@@ -407,6 +415,7 @@ class SchoolController extends Controller {
                 }
                 //判断是否为超管，如果删除权限判断分校超管是否在使用，如果存在就不能删除，如果强删联系技术
                 $fen_role_auth_arr = Roleauth::where(['is_del'=>1,'is_super'=>0])->where('school_id',$data['id'])->select('auth_id')->get();
+
                 foreach ($fen_role_auth_arr as $k => $v) {
                     $fen_roles_id = explode(",", $v['auth_id']); 
                     $new_arr = array_diff($fen_roles_id,$arr);
@@ -426,14 +435,14 @@ class SchoolController extends Controller {
                     'create_at'      =>  date('Y-m-d H:i:s')
                 ]);
                 if(Roleauth::where('id',$data['role_id'])->update(['auth_id'=>implode(',',$arr),'update_time'=>date('Y-m-d H:i:s')])){
+                    DB::commit();
                     return response()->json(['code'=>200,'msg'=>'赋权成功']);
                 }else{
+                    DB::rollBack();
                     return response()->json(['code'=>203,'msg'=>'网络错误，请重试']);
                 }
             }
-            DB::commit();
         } catch (Exception $e) {
-            DB::rollBack();
             return response()->json(['code'=>500,'msg'=>$e->getMessage()]);
         }    
     }
