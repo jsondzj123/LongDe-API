@@ -19,16 +19,29 @@ class LessonController extends Controller {
         $pagesize = $request->input('pagesize') ?: 15;
         $page     = $request->input('page') ?: 1;
         $offset   = ($page - 1) * $pagesize;
-        if($request->input('sort') == 3){
-            $sort = 'price';
-        }
+        $subject_id = $request->input('subject_id') ?: 0;
+        $method = $request->input('method') ?: 0;
+        $sort = $request->input('sort') ?: 'created_at';
         $sort_type = $request->input('sort_type') ?: 'asc';
-        $total = Lesson::where(['is_del'=> 0, 'is_forbid' => 0, 'status' => 2])->count();
-        $lessons = Lesson::select('id', 'title', 'cover', 'method', 'price', 'favorable_price', 'is_del', 'is_forbid', 'status')
-            ->where(['is_del'=> 0, 'is_forbid' => 0, 'status' => 2])
-            ->orderBy($sort, $sort_type)
-            ->skip($offset)->take($pagesize)
-            ->get();
+        $data =  Lesson::with('subjects')->select('id', 'admin_id', 'title', 'cover', 'price', 'favorable_price', 'buy_num', 'method', 'status', 'is_del', 'is_forbid')
+                ->where(['is_del'=> 0, 'is_forbid' => 0, 'status' => 2])
+                ->orderBy($sort, $sort_type)
+                ->whereHas('subjects', function ($query) use ($subject_id)
+                      {
+                          if($subject_id != 0){
+                              $query->where('id', $subject_id);
+                          }
+                      })
+                ->where(function($query) use ($method){
+                    if($method == 0){
+                        $query->whereIn("method", [1, 2, 3]);
+                    }else{
+                        $query->where("method", $method);
+                    }
+                });
+        $total = $data->count();
+        
+        $lessons = $data->skip($offset)->take($pagesize)->get();
         $data = [
             'page_data' => $lessons,
             'total' => $total,
