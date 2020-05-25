@@ -27,7 +27,7 @@ $router->group(['prefix' => 'api', 'namespace' => 'Api'], function () use ($rout
     /*
      * 课程模块(sxl)
     */
-    $router->get('lesson', 'LessonController@index');
+    $router->post('lesson', 'LessonController@index');
 
     $router->post('doUserRegister','AuthenticateController@doUserRegister');    //APP注册接口
     $router->post('doVisitorLogin','AuthenticateController@doVisitorLogin');    //APP游客登录接口

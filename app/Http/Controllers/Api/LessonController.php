@@ -16,13 +16,18 @@ class LessonController extends Controller {
      * return  array
      */
     public function index(Request $request){
-        $currentCount = $request->input('current_count') ?: 0;
-        $count = $request->input('count') ?: 15;
+        $pagesize = $request->input('pagesize') ?: 15;
+        $page     = $request->input('page') ?: 1;
+        $offset   = ($page - 1) * $pagesize;
+        if($request->input('sort') == 3){
+            $sort = 'price';
+        }
+        $sort_type = $request->input('sort_type') ?: 'asc';
         $total = Lesson::where(['is_del'=> 0, 'is_forbid' => 0, 'status' => 2])->count();
         $lessons = Lesson::select('id', 'title', 'cover', 'method', 'price', 'favorable_price', 'is_del', 'is_forbid', 'status')
             ->where(['is_del'=> 0, 'is_forbid' => 0, 'status' => 2])
-            ->orderBy('created_at', 'desc')
-            ->skip($currentCount)->take($count)
+            ->orderBy($sort, $sort_type)
+            ->skip($offset)->take($pagesize)
             ->get();
         $data = [
             'page_data' => $lessons,
