@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Lesson;
 use Illuminate\Http\Request;
-
+use DB;
 
 class LessonController extends Controller {
 
@@ -16,18 +16,59 @@ class LessonController extends Controller {
      * return  array
      */
     public function index(Request $request){
-        $currentCount = $request->input('current_count') ?: 0;
-        $count = $request->input('count') ?: 15;
-        $total = Lesson::where(['is_del'=> 0, 'is_forbid' => 0, 'status' => 2])->count();
-        $lessons = Lesson::select('id', 'title', 'cover', 'method', 'price', 'favorable_price', 'is_del', 'is_forbid', 'status')
-            ->where(['is_del'=> 0, 'is_forbid' => 0, 'status' => 2])
-            ->orderBy('created_at', 'desc')
-            ->skip($currentCount)->take($count)
-            ->get();
+        $pagesize = $request->input('pagesize') ?: 15;
+        $page     = $request->input('page') ?: 1;
+        $offset   = ($page - 1) * $pagesize;
+        $subject_id = $request->input('subject_id') ?: 0;
+        $method = $request->input('method') ?: 0;
+        $sort = $request->input('sort') ?: 'created_at';
+        $sort_type = $request->input('sort_type') ?: 'asc';
+        $data =  Lesson::with('subjects')->select('id', 'admin_id', 'title', 'cover', 'price', 'favorable_price', 'buy_num', 'method', 'status', 'is_del', 'is_forbid')
+                ->where(['is_del'=> 0, 'is_forbid' => 0, 'status' => 2])
+                ->orderBy($sort, $sort_type)
+                ->whereHas('subjects', function ($query) use ($subject_id)
+                      {
+                          if($subject_id != 0){
+                              $query->where('id', $subject_id);
+                          }
+                      })
+                ->where(function($query) use ($method){
+                    if($method == 0){
+                        $query->whereIn("method", [1, 2, 3]);
+                    }else{
+                        $query->where("method", $method);
+                    }
+                });
+        $total = $data->count();
+        
+        $lessons = $data->skip($offset)->take($pagesize)->get();
         $data = [
             'page_data' => $lessons,
             'total' => $total,
         ];
         return $this->response($data);
+    }
+
+
+    /**
+     * @param  课程详情
+     * @param  课程id
+     * @param  author  孙晓丽
+     * @param  ctime   2020/5/1 
+     * return  array
+     */
+    public function show($id) {
+        $lesson = Lesson::with(['teachers' => function ($query) {
+                $query->select('id', 'real_name');
+            }])
+        ->with(['subjects' => function ($query) {
+                $query->select('id', 'name');
+            }])
+        ->find($id);
+        if(empty($lesson)){
+            return $this->response('课程不存在', 404);
+        }
+        Lesson::where('id', $id)->update(['watch_num' => DB::raw('watch_num + 1')]);
+        return $this->response($lesson);
     }
 }
