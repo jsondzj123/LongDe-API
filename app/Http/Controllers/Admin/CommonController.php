@@ -70,7 +70,7 @@ class CommonController extends BaseController {
             }
 
             $roleAuthData = \App\Models\Roleauth::getRoleAuthAlls(['school_id'=>$adminUserSchoolId,'is_del'=>1],['id','role_name','auth_desc','auth_id']);
-            $roleAuthArr  = getParentsList($roleAuthArr);
+            $roleAuthArr  = getAuthArr($roleAuthArr);
             $arr = [
                 'role_auth'=>$roleAuthData,
                 'auth'=>$roleAuthArr,
