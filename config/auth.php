@@ -37,7 +37,7 @@ return [
 
     'guards' => [
         'api' => ['driver' => 'jwt' , 'provider' => 'admins'],   //更改为JWT驱动
-        'user'=> ['driver' => 'jwt' , 'provider' => 'users'], 
+        //'admin' => ['driver' => 'jwt' , 'provider' => 'admins'], 
     ],
 
     /*
