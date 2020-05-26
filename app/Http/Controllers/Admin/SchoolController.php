@@ -365,86 +365,84 @@ class SchoolController extends Controller {
                 return response()->json(['code'=>201,'msg'=>'权限组标识不能为空']);
             }
         }
-        $auths_id = Authrules::where(['is_del'=>1,'is_show'=>1,'is_forbid'=>1])->pluck('id')->toarray();
-        $auth_id = explode(',', $data['auth_id']);
-        foreach ($auth_id as $v) {
-            if(in_array($v,$auths_id)){
-                $arr[]= $v;
+        $arr = [];
+        if(!empty($data['auth_id'])){
+            $auths_id = Authrules::where(['is_del'=>1,'is_show'=>1,'is_forbid'=>1])->pluck('id')->toarray();
+            $auth_id = explode(',', $data['auth_id']);
+            foreach ($auth_id as $v) {
+                if(in_array($v,$auths_id)){
+                    $arr[]= $v;
+                }
             }
         }
-        if(empty($arr)){
-             return response()->json(['code'=>404,'msg'=>'非法请求']);
-        }
+        
         $roleAuthArr = Roleauth::where(['school_id'=>$data['id'],'is_super'=>1,'is_del'=>1])->first();
         if(isset($data['admin/school/doSchoolAdminById'])) unset($data['admin/school/doSchoolAdminById']);
-        
-        try {  //5.15  
-            DB::beginTransaction();
-            if(is_null($roleAuthArr)){
-                //无
-                $insert =[
-                        'role_name'=>'超级管理员',
-                        'auth_desc'=>'拥有所有权限',
-                        'auth_id' =>$arr,
-                        'school_id'=>$data['id'],
-                        'is_super'=>1,
-                        'admin_id'=>CurrentAdmin::user()['id'],
-                ]; 
-                $role_id = Roleauth::getInsertId($insert);
-                 AdminLog::insertAdminLog([
-                    'admin_id'       =>   CurrentAdmin::user()['id'] ,
-                    'module_name'    =>  'School' ,
-                    'route_url'      =>  'admin/school/doSchoolAdminById' , 
-                    'operate_method' =>  'insert/update' ,
-                    'content'        =>  json_encode($data),
-                    'ip'             =>  $_SERVER["REMOTE_ADDR"] ,
-                    'create_at'      =>  date('Y-m-d H:i:s')
-                ]);
-                if(Adminuser::where('id',$data['user_id'])->update(['role_id'=>$role_id])){
-                     DB::commit();
-                    return response()->json(['code'=>200,'msg'=>'赋权成功']);
-                }else{
-                     DB::rollBack();
-                    return response()->json(['code'=>203,'msg'=>'网络错误，请重试']);
-                }
-            }else{
-                //有
-                $super  = Roleauth::where(['id'=>$data['role_id']])->select('is_super')->first();
-                if($super['is_super']<1){
-                    return response()->json(['code'=>404,'msg'=>'非法请求']);
-                }
-                //判断是否为超管，如果删除权限判断分校超管是否在使用，如果存在就不能删除，如果强删联系技术
-                $fen_role_auth_arr = Roleauth::where(['is_del'=>1,'is_super'=>0])->where('school_id',$data['id'])->select('auth_id')->get();
+        DB::beginTransaction();
+        if(is_null($roleAuthArr)){
+            //无
+            $insert =[
+                    'role_name'=>'超级管理员',
+                    'auth_desc'=>'拥有所有权限',
+                    'auth_id' => empty($arr)?$arr:implode(",",$arr),
+                    'school_id'=>$data['id'],
+                    'is_super'=>1,
+                    'admin_id'=>CurrentAdmin::user()['id'],
+                    'create_time' => date('Y-m-d H:i:s')
+            ]; 
+            $role_id = Roleauth::insertGetId($insert);
 
-                foreach ($fen_role_auth_arr as $k => $v) {
-                    $fen_roles_id = explode(",", $v['auth_id']); 
-                    $new_arr = array_diff($fen_roles_id,$arr);
-                    foreach ($new_arr as $vv) {
-                        if(in_array($vv,$fen_roles_id)){
-                            return response()->json(['code'=>204,'msg'=>'该校其他角色在使用中，不能修改']);
-                        }
+             AdminLog::insertAdminLog([
+                'admin_id'       =>   CurrentAdmin::user()['id'] ,
+                'module_name'    =>  'School' ,
+                'route_url'      =>  'admin/school/doSchoolAdminById' , 
+                'operate_method' =>  'insert/update' ,
+                'content'        =>  json_encode($data),
+                'ip'             =>  $_SERVER["REMOTE_ADDR"] ,
+                'create_at'      =>  date('Y-m-d H:i:s')
+            ]);
+            if(Adminuser::where('id',$data['user_id'])->update(['role_id'=>$role_id])){
+                 DB::commit();
+                return response()->json(['code'=>200,'msg'=>'赋权成功']);
+            }else{
+                 DB::rollBack();
+                return response()->json(['code'=>203,'msg'=>'网络错误，请重试']);
+            }
+        }else{
+            //有
+            $super  = Roleauth::where(['id'=>$data['role_id']])->select('is_super')->first();
+            if($super['is_super']<1){
+                return response()->json(['code'=>404,'msg'=>'非法请求']);
+            }
+            //判断是否为超管，如果删除权限判断分校超管是否在使用，如果存在就不能删除，如果强删联系技术
+            $fen_role_auth_arr = Roleauth::where(['is_del'=>1,'is_super'=>0])->where('school_id',$data['id'])->select('auth_id')->get();
+            foreach ($fen_role_auth_arr as $k => $v) {
+                $fen_roles_id = explode(",", $v['auth_id']); 
+                $new_arr = array_diff($fen_roles_id,$arr);
+                foreach ($new_arr as $vv) {
+                    if(in_array($vv,$fen_roles_id)){
+                        return response()->json(['code'=>204,'msg'=>'该校其他角色在使用中，不能修改']);
                     }
                 }
-                AdminLog::insertAdminLog([
-                    'admin_id'       =>   CurrentAdmin::user()['id'] ,
-                    'module_name'    =>  'School' ,
-                    'route_url'      =>  'admin/school/doSchoolAdminById' , 
-                    'operate_method' =>  'update' ,
-                    'content'        =>  json_encode($data),
-                    'ip'             =>  $_SERVER["REMOTE_ADDR"] ,
-                    'create_at'      =>  date('Y-m-d H:i:s')
-                ]);
-                if(Roleauth::where('id',$data['role_id'])->update(['auth_id'=>implode(',',$arr),'update_time'=>date('Y-m-d H:i:s')])){
-                    DB::commit();
-                    return response()->json(['code'=>200,'msg'=>'赋权成功']);
-                }else{
-                    DB::rollBack();
-                    return response()->json(['code'=>203,'msg'=>'网络错误，请重试']);
-                }
             }
-        } catch (Exception $e) {
-            return response()->json(['code'=>500,'msg'=>$e->getMessage()]);
-        }    
+            AdminLog::insertAdminLog([
+                'admin_id'       =>   CurrentAdmin::user()['id'] ,
+                'module_name'    =>  'School' ,
+                'route_url'      =>  'admin/school/doSchoolAdminById' , 
+                'operate_method' =>  'update' ,
+                'content'        =>  json_encode($data),
+                'ip'             =>  $_SERVER["REMOTE_ADDR"] ,
+                'create_at'      =>  date('Y-m-d H:i:s')
+            ]);
+            if(Roleauth::where('id',$data['role_id'])->update(['auth_id'=>empty($arr)?$arr:implode(",",$arr),'update_time'=>date('Y-m-d H:i:s')])){
+                DB::commit();
+                return response()->json(['code'=>200,'msg'=>'赋权成功']);
+            }else{
+                DB::rollBack();
+                return response()->json(['code'=>203,'msg'=>'网络错误，请重试']);
+            }
+        }
+        
     }
 
 
