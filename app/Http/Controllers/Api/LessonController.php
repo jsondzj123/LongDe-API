@@ -20,16 +20,26 @@ class LessonController extends Controller {
         $page     = $request->input('page') ?: 1;
         $offset   = ($page - 1) * $pagesize;
         $subject_id = $request->input('subject_id') ?: 0;
+        $child_id = $request->input('child_id') ?: 0;
+        if($subject_id == 0 && $child_id == 0){
+            $subjectId = 0;
+        }elseif($subject_id != 0 && $child_id == 0){
+            $subjectId = $subject_id;
+        }elseif($subject_id != 0 && $child_id != 0){
+            $subjectId = $child_id;
+        }elseif($subject_id == 0 && $child_id != 0){
+            $subjectId = $subject_id;
+        }
         $method = $request->input('method') ?: 0;
         $sort = $request->input('sort') ?: 'created_at';
         $sort_type = $request->input('sort_type') ?: 'asc';
         $data =  Lesson::with('subjects')->select('id', 'admin_id', 'title', 'cover', 'price', 'favorable_price', 'buy_num', 'method', 'status', 'is_del', 'is_forbid')
                 ->where(['is_del'=> 0, 'is_forbid' => 0, 'status' => 2])
                 ->orderBy($sort, $sort_type)
-                ->whereHas('subjects', function ($query) use ($subject_id)
+                ->whereHas('subjects', function ($query) use ($subjectId)
                       {
-                          if($subject_id != 0){
-                              $query->where('id', $subject_id);
+                          if($subjectId != 0){
+                              $query->where('id', $subjectId);
                           }
                       })
                 ->where(function($query) use ($method){
