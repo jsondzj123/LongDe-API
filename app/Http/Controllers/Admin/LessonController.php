@@ -262,7 +262,7 @@ class LessonController extends Controller {
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id, Request $request) {
+    public function editStatus($id, Request $request) {
         $validator = Validator::make($request->all(), [
             'status' => 'required',
         ]);

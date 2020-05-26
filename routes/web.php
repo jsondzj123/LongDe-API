@@ -87,7 +87,9 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin' , 'middleware'=> ['
     $router->post('lesson/{id}', 'LessonController@show');
     $router->post('lesson/{id}/update', 'LessonController@update');
     $router->post('lesson/{id}/edit', 'LessonController@edit');
+    $router->post('lesson/{id}/status', 'LessonController@editStatus');
     $router->post('lesson/{id}/delete', 'LessonController@destroy');
+    
 
     /*
      * 章节模块(sxl)
