@@ -16,6 +16,8 @@ class CreateLdMethodsTable extends Migration
         Schema::create('ld_methods', function (Blueprint $table) {
             $table->increments('id');
             $table->string('name')->comment('授课方式');
+            $table->smallInteger('is_del')->nullable()->default(0)->comment('删除0否1是');
+            $table->smallInteger('is_forbid')->nullable()->default(0)->comment('禁用0否1是');
             $table->timestamps();
         });
     }
