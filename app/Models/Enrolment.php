@@ -3,6 +3,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use App\Models\AdminLog;
+use App\Models\Order;
 use Illuminate\Support\Facades\DB;
 
 class Enrolment extends Model {
@@ -114,6 +115,7 @@ class Enrolment extends Model {
         //将数据插入到表中
         if(false !== self::insertEnrolment($enroll_array)){
             //订单表插入逻辑
+            Order::offlineStudentSignup($enroll_array);
             
             //添加日志操作
             AdminLog::insertAdminLog([
