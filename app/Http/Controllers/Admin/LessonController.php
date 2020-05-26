@@ -34,23 +34,24 @@ class LessonController extends Controller {
         $auth = (int)$request->input('auth') ?: 0;
         $public = (int)$request->input('public') ?: 0;
         $user = CurrentAdmin::user();   
-        $data =  Lesson::with('subjects')->select('id', 'admin_id', 'title', 'cover', 'price', 'favorable_price', 'buy_num', 'method', 'status', 'is_del', 'is_forbid')
+        $data =  Lesson::with('subjects', 'methods')->select('id', 'admin_id', 'title', 'cover', 'price', 'favorable_price', 'buy_num', 'method', 'status', 'is_del', 'is_forbid')
                 ->where(['is_del' => 0, 'is_forbid' => 0])
 
-                 ->whereHas('subjects', function ($query) use ($subject_id)
-                     {
-                         if($subject_id != 0){
-                             $query->where('id', $subject_id);
-                         }
-                     })
-                ->where(function($query) use ($method, $status){
-                    if($method == 0){
-                        $query->whereIn("method", [1, 2, 3]);
-                    }else{
-                        $query->where("method", $method);
-                    }
+                ->whereHas('subjects', function ($query) use ($subject_id)
+                    {
+                       if($subject_id != 0){
+                            $query->where('id', $subject_id);
+                        }
+                    })
+                ->whereHas('methods', function ($query) use ($method)
+                    {
+                        if($method != 0){
+                            $query->where('id', $method);
+                        }
+                    })
+                ->where(function($query) use ($status){
                     if($status == 0){
-                        $query->whereIn("status", [0, 1, 2]);
+                        $query->whereIn("status", [1, 2, 3]);
                     }else{
                         $query->where("status", $status);
                     }
