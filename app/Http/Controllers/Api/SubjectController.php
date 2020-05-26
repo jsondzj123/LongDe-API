@@ -27,7 +27,8 @@ class SubjectController extends Controller {
         $data['sort'] = [
             ['sort' => 'created_at', 'name' => '综合', 'type' => ['asc', 'desc']],
             ['sort' => 'watch_num', 'name' => '按热度', 'type' => ['asc', 'desc']],
-            ['sort' => 'price', 'name' => '按价格', 'type' => ['asc', 'desc']],
+            ['sort' => 'price', 'name' => '按价格升', 'type' => ['asc']],
+            ['sort' => 'price', 'name' => '按价格降', 'type' => ['desc']],
         ];
         $data['method'] = [
             ['id' => 0, 'name' => '综合'],
