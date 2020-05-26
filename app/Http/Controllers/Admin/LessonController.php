@@ -95,6 +95,9 @@ class LessonController extends Controller {
         ->with(['subjects' => function ($query) {
                 $query->select('id', 'name');
             }])
+        ->with(['methods' => function ($query) {
+                $query->select('id', 'name');
+            }])
         ->find($id);
         if(empty($lesson)){
             return $this->response('课程不存在', 404);
@@ -117,7 +120,7 @@ class LessonController extends Controller {
             'price' => 'required',
             'favorable_price' => 'required',
             'teacher_id' => 'required|json',
-            'method' => 'required',
+            'method_id' => 'required|json',
             'cover' => 'required',
             'description' => 'required',
             'introduction' => 'required',
@@ -132,6 +135,7 @@ class LessonController extends Controller {
         if ($validator->fails()) {
             return $this->response($validator->errors()->first(), 202);
         }
+        $methodIds = json_decode($request->input('method_id'), true);
         $subjectIds = json_decode($request->input('subject_id'), true);
         $teacherIds = json_decode($request->input('teacher_id'), true);
         $user = CurrentAdmin::user();
@@ -143,7 +147,6 @@ class LessonController extends Controller {
                     'keyword' => $request->input('keyword') ?: NULL,
                     'price' => $request->input('price'),
                     'favorable_price' => $request->input('favorable_price'),
-                    'method' => $request->input('method'),
                     'cover' => $request->input('cover'),
                     'description' => $request->input('description'),
                     'introduction' => $request->input('introduction'),
@@ -157,6 +160,9 @@ class LessonController extends Controller {
             }
             if(!empty($subjectIds)){
                 $lesson->subjects()->attach($subjectIds); 
+            }
+            if(!empty($methodIds)){
+                $lesson->methods()->attach($methodIds); 
             }
             if($request->input('is_public') == 1){ 
                 $this->addLive($request->all(), $lesson->id);  
@@ -185,6 +191,7 @@ class LessonController extends Controller {
         if ($validator->fails()) {
             return $this->response($validator->errors()->first(), 202);
         }
+        $methodIds = json_decode($request->input('method_id'), true);
         $subjectIds = json_decode($request->input('subject_id'), true);
         $teacherIds = json_decode($request->input('teacher_id'), true);
         try {
@@ -194,7 +201,6 @@ class LessonController extends Controller {
             $lesson->cover   = $request->input('cover') ?: $lesson->cover;
             $lesson->price   = $request->input('price') ?: $lesson->price;
             $lesson->favorable_price = $request->input('favorable_price') ?: $lesson->favorable_price;
-            $lesson->method  = $request->input('method') ?: $lesson->method;
             $lesson->description = $request->input('description') ?: $lesson->description;
             $lesson->buy_num = $request->input('buy_num') ?: $lesson->buy_num;
             $lesson->ttl     = $request->input('ttl') ?: $lesson->ttl;
@@ -209,6 +215,10 @@ class LessonController extends Controller {
             if(!empty($teacherIds)){
                 $lesson->teachers()->detach(); 
                 $lesson->teachers()->attach($teacherIds); 
+            }
+            if(!empty($methodIds)){
+                $lesson->methods()->detach(); 
+                $lesson->methods()->attach($methodIds);  
             }
             return $this->response("修改成功");
         } catch (Exception $e) {
@@ -244,8 +254,6 @@ class LessonController extends Controller {
         }
     }
 
-
-
     /**
      * 删除课程
      *
@@ -261,6 +269,8 @@ class LessonController extends Controller {
         return $this->response("删除成功");
     }
 
+
+    //公开课创建直播
     public function addLive($data, $lesson_id)
     {
         $user = CurrentAdmin::user();
