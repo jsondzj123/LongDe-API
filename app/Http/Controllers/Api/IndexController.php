@@ -35,7 +35,10 @@ class IndexController extends Controller {
                     'jump_url'     =>   'http://www.sina.com' ,
                     'pic_image'    =>   "https://dss0.bdstatic.com/70cFvHSh_Q1YnxGkpoWK1HF6hhy/it/u=3256100974,305075936&fm=26&gp=0.jpg" ,
                     'type'         =>   0 ,
-                    'lession_info' =>   []
+                    'lession_info' =>   [
+                        'lession_id'  => 0 ,
+                        'lession_name'=> ''
+                    ]
                 ] ,
                 [
                     'chart_id'     =>   3 ,
