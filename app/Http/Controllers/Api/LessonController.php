@@ -9,6 +9,29 @@ use DB;
 class LessonController extends Controller {
 
     /**
+     * @param  公开课列表
+     * @param  pagesize   page
+     * @param  author  孙晓丽
+     * @param  ctime   2020/5/26 
+     * @return  array
+     */
+    public function publicList(Request $request){
+        $pagesize = $request->input('pagesize') ?: 15;
+        $page     = $request->input('page') ?: 1;
+        $offset   = ($page - 1) * $pagesize;
+        $lesson =  Lesson::select('id', 'admin_id', 'title', 'cover', 'price', 'favorable_price', 'buy_num', 'method', 'status', 'is_del', 'is_forbid', 'start_at', 'end_at')
+                ->where(['is_public' => 1, 'is_del'=> 0, 'is_forbid' => 0, 'status' => 2])
+                ->orderBy('start_at', 'desc');
+        $total = $lesson->count();
+        $lessons = $lesson->skip($offset)->take($pagesize)->get();
+        $data = [
+            'page_data' => $lessons,
+            'total' => $total,
+        ];
+        return $this->response($data);
+    }
+
+    /**
      * @param  课程列表
      * @param  current_count   count
      * @param  author  孙晓丽
@@ -31,12 +54,21 @@ class LessonController extends Controller {
             $subjectId = $subject_id;
         }
         $keyWord = $request->input('keyword') ?: 0;
-        $method = $request->input('method') ?: 0;
-        $sort = $request->input('sort') ?: 'created_at';
+        $method = $request->input('method_id') ?: 0;
+        $sort = $request->input('sort_id') ?: 0;
+        if($sort == 0){
+            $sort_name = 'created_at'; 
+        }elseif($sort == 1){
+            $sort_name = 'watch_num'; 
+        }elseif($sort == 2){
+            $sort_name = 'price'; 
+        }elseif($sort == 3){
+            $sort_name = 'price'; 
+        }
         $sort_type = $request->input('sort_type') ?: 'asc';
         $lesson =  Lesson::with('subjects')->select('id', 'admin_id', 'title', 'cover', 'price', 'favorable_price', 'buy_num', 'method', 'status', 'is_del', 'is_forbid')
                 ->where(['is_del'=> 0, 'is_forbid' => 0, 'status' => 2])
-                ->orderBy($sort, $sort_type)
+                ->orderBy($sort_name, $sort_type)
                 ->whereHas('subjects', function ($query) use ($subjectId)
                       {
                           if($subjectId != 0){
