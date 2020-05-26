@@ -74,6 +74,10 @@ class Lesson extends Model {
         return $this->belongsToMany('App\Models\Subject', 'ld_subject_lessons');
     }
 
+    public function methods() {
+        return $this->belongsToMany('App\Models\Method', 'ld_lesson_methods');
+    }
+
     public function schools() {
         return $this->belongsTo('App\Models\LessonSchool');
     }
