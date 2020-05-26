@@ -256,6 +256,31 @@ class LessonController extends Controller {
     }
 
     /**
+     * 修改课程状态
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function edit($id, Request $request) {
+        $validator = Validator::make($request->all(), [
+            'status' => 'required',
+        ]);
+        if ($validator->fails()) {
+            return $this->response($validator->errors()->first(), 202);
+        }
+        $lesson = Lesson::findOrFail($id);;
+        $lesson->status = $request->input('status');
+        try {
+            $lesson->save();
+            return $this->response("修改成功");
+        } catch (Exception $e) {
+            Log::error('修改课程信息失败' . $e->getMessage());
+            return $this->response("修改成功");
+        }
+    }
+
+    /**
      * 删除课程
      *
      * @param  int  $id
