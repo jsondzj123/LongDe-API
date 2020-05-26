@@ -15,6 +15,7 @@ class CreateLdMethodsTable extends Migration
     {
         Schema::create('ld_methods', function (Blueprint $table) {
             $table->increments('id');
+            $table->string('name')->comment('授课方式');
             $table->timestamps();
         });
     }
