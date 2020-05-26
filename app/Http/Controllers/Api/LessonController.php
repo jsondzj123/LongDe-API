@@ -30,10 +30,11 @@ class LessonController extends Controller {
         }elseif($subject_id == 0 && $child_id != 0){
             $subjectId = $subject_id;
         }
+        $keyWord = $request->input('keyword') ?: 0;
         $method = $request->input('method') ?: 0;
         $sort = $request->input('sort') ?: 'created_at';
         $sort_type = $request->input('sort_type') ?: 'asc';
-        $data =  Lesson::with('subjects')->select('id', 'admin_id', 'title', 'cover', 'price', 'favorable_price', 'buy_num', 'method', 'status', 'is_del', 'is_forbid')
+        $lesson =  Lesson::with('subjects')->select('id', 'admin_id', 'title', 'cover', 'price', 'favorable_price', 'buy_num', 'method', 'status', 'is_del', 'is_forbid')
                 ->where(['is_del'=> 0, 'is_forbid' => 0, 'status' => 2])
                 ->orderBy($sort, $sort_type)
                 ->whereHas('subjects', function ($query) use ($subjectId)
@@ -42,16 +43,14 @@ class LessonController extends Controller {
                               $query->where('id', $subjectId);
                           }
                       })
-                ->where(function($query) use ($method){
-                    if($method == 0){
-                        $query->whereIn("method", [1, 2, 3]);
-                    }else{
+                ->where(function($query) use ($method, $keyWord){
+                    if($method != 0){
                         $query->where("method", $method);
                     }
-                });
-        $total = $data->count();
-        
-        $lessons = $data->skip($offset)->take($pagesize)->get();
+                })
+                ->where('title', 'like', '%'.$keyWord.'%');
+        $total = $lesson->count();
+        $lessons = $lesson->skip($offset)->take($pagesize)->get();
         $data = [
             'page_data' => $lessons,
             'total' => $total,
