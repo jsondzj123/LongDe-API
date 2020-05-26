@@ -11,15 +11,6 @@ use Illuminate\Support\Facades\Redis;
 
 
 class UserController extends Controller {
-    protected $token_info;
-    public function __construct() {
-        //调取父级相关的构造方法
-        parent::__construct();
-        
-        //从redis中获取token相关信息
-        $this->token_info = json_decode(Redis::get("user:regtoken:".self::$accept_data['user_token']) , true);
-    }
-    
     /*
      * @param  description   用户详情信息
      * @param author    dzj
@@ -30,7 +21,7 @@ class UserController extends Controller {
         //获取提交的参数
         try{
             //根据用户id获取用户详情
-            $user_info = Student::select("id as user_id" , "token  as user_token" , "user_type" , "head_icon" , "real_name" , "phone" , "nickname" , "sign" , "papers_type" , "papers_num" , "balance")->find($this->token_info['user_id']);
+            $user_info = Student::select("id as user_id" , "token  as user_token" , "user_type" , "head_icon" , "real_name" , "phone" , "nickname" , "sign" , "papers_type" , "papers_num" , "balance")->find(self::$accept_data['user_info']['user_id']);
             if($user_info && !empty($user_info)){
                 //证件名称
                 $user_info['papers_name']  = $user_info['papers_type'] > 0 ? parent::getPapersNameByType($user_info['papers_type']) : '';
@@ -108,7 +99,7 @@ class UserController extends Controller {
             DB::beginTransaction();
             
             //更新用户信息
-            $rs = Student::where("id" , $this->token_info['user_id'])->update($where);
+            $rs = Student::where("id" , $body['user_info']['user_id'])->update($where);
             if($rs && !empty($rs)){
                 //事务提交
                 DB::commit();

@@ -34,6 +34,19 @@ class UserAuthToken {
         if($user_info['token'] != $token){
             return ['code' => 206 , 'msg' => '您已在其他设备上登录'];
         }
-        return $next($request);
+        
+        //从redis中获取token相关信息
+        //第一种方法赋值:$request->offsetSet('user_token_info' , json_decode(Redis::get("user:regtoken:".$token) , true));  //添加参数
+        /****
+         * 例如:public function doUpdateUser(Request $request) {}
+         */
+        //第二种方法赋值:$_REQUEST['user_info'] = json_decode(Redis::get("user:regtoken:".$token) , true);
+        /****
+         * 例如:public function doUpdateUser() {
+         *     self::$accept_data
+         * }
+         */
+        $_REQUEST['user_info'] = json_decode(Redis::get("user:regtoken:".$token) , true);
+        return $next($request);//进行下一步(即传递给控制器)
     }
 }
