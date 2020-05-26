@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Lesson;
 use Illuminate\Http\Request;
-
+use DB;
 
 class LessonController extends Controller {
 
@@ -47,5 +47,28 @@ class LessonController extends Controller {
             'total' => $total,
         ];
         return $this->response($data);
+    }
+
+
+    /**
+     * @param  课程详情
+     * @param  课程id
+     * @param  author  孙晓丽
+     * @param  ctime   2020/5/1 
+     * return  array
+     */
+    public function show($id) {
+        $lesson = Lesson::with(['teachers' => function ($query) {
+                $query->select('id', 'real_name');
+            }])
+        ->with(['subjects' => function ($query) {
+                $query->select('id', 'name');
+            }])
+        ->find($id);
+        if(empty($lesson)){
+            return $this->response('课程不存在', 404);
+        }
+        Lesson::where('id', $id)->update(['watch_num' => DB::raw('watch_num + 1')]);
+        return $this->response($lesson);
     }
 }
