@@ -107,3 +107,867 @@
         )
 
 )
+时间:2020-05-26 07:21:12Array
+(
+    [return_code] => Array
+        (
+            [@cdata] => SUCCESS
+        )
+
+    [return_msg] => Array
+        (
+            [@cdata] => OK
+        )
+
+    [appid] => Array
+        (
+            [@cdata] => wx7663a456bb43d30b
+        )
+
+    [mch_id] => Array
+        (
+            [@cdata] => 1553512891
+        )
+
+    [nonce_str] => Array
+        (
+            [@cdata] => 0EREEK2bAisISrgQ
+        )
+
+    [sign] => Array
+        (
+            [@cdata] => 359B3A15D0708BFED09F97072B2BFC1F
+        )
+
+    [result_code] => Array
+        (
+            [@cdata] => SUCCESS
+        )
+
+    [prepay_id] => Array
+        (
+            [@cdata] => wx26152112013125c583e390191750106400
+        )
+
+    [trade_type] => Array
+        (
+            [@cdata] => APP
+        )
+
+)
+时间:2020-05-26 07:22:25Array
+(
+    [return_code] => Array
+        (
+            [@cdata] => SUCCESS
+        )
+
+    [return_msg] => Array
+        (
+            [@cdata] => OK
+        )
+
+    [appid] => Array
+        (
+            [@cdata] => wx7663a456bb43d30b
+        )
+
+    [mch_id] => Array
+        (
+            [@cdata] => 1553512891
+        )
+
+    [nonce_str] => Array
+        (
+            [@cdata] => EXBRNfPQxOzFUpf1
+        )
+
+    [sign] => Array
+        (
+            [@cdata] => CF31D7DB77CD7FE8C238444DF5CF279E
+        )
+
+    [result_code] => Array
+        (
+            [@cdata] => SUCCESS
+        )
+
+    [prepay_id] => Array
+        (
+            [@cdata] => wx26152225051339c583e390191711422800
+        )
+
+    [trade_type] => Array
+        (
+            [@cdata] => APP
+        )
+
+)
+时间:2020-05-26 07:22:29Array
+(
+    [return_code] => Array
+        (
+            [@cdata] => SUCCESS
+        )
+
+    [return_msg] => Array
+        (
+            [@cdata] => OK
+        )
+
+    [appid] => Array
+        (
+            [@cdata] => wx7663a456bb43d30b
+        )
+
+    [mch_id] => Array
+        (
+            [@cdata] => 1553512891
+        )
+
+    [nonce_str] => Array
+        (
+            [@cdata] => l1HtaxVOgxhFoK1L
+        )
+
+    [sign] => Array
+        (
+            [@cdata] => 600F8BA317F009EF63333F5D65E80053
+        )
+
+    [result_code] => Array
+        (
+            [@cdata] => SUCCESS
+        )
+
+    [prepay_id] => Array
+        (
+            [@cdata] => wx26152229117924c583e390191309783800
+        )
+
+    [trade_type] => Array
+        (
+            [@cdata] => APP
+        )
+
+)
+时间:2020-05-26 07:22:40Array
+(
+    [return_code] => Array
+        (
+            [@cdata] => SUCCESS
+        )
+
+    [return_msg] => Array
+        (
+            [@cdata] => OK
+        )
+
+    [appid] => Array
+        (
+            [@cdata] => wx7663a456bb43d30b
+        )
+
+    [mch_id] => Array
+        (
+            [@cdata] => 1553512891
+        )
+
+    [nonce_str] => Array
+        (
+            [@cdata] => jrmVd1pYPnhDpM5r
+        )
+
+    [sign] => Array
+        (
+            [@cdata] => 5304B3E7B5F82C11824182EC80DD10F9
+        )
+
+    [result_code] => Array
+        (
+            [@cdata] => SUCCESS
+        )
+
+    [prepay_id] => Array
+        (
+            [@cdata] => wx26152239910127c583e390191563560900
+        )
+
+    [trade_type] => Array
+        (
+            [@cdata] => APP
+        )
+
+)
+时间:2020-05-26 07:23:05Array
+(
+    [return_code] => Array
+        (
+            [@cdata] => SUCCESS
+        )
+
+    [return_msg] => Array
+        (
+            [@cdata] => OK
+        )
+
+    [appid] => Array
+        (
+            [@cdata] => wx7663a456bb43d30b
+        )
+
+    [mch_id] => Array
+        (
+            [@cdata] => 1553512891
+        )
+
+    [nonce_str] => Array
+        (
+            [@cdata] => jGrveGyum22mSeWH
+        )
+
+    [sign] => Array
+        (
+            [@cdata] => 8854C4635C2ED303F140680A4DA2D8AF
+        )
+
+    [result_code] => Array
+        (
+            [@cdata] => SUCCESS
+        )
+
+    [prepay_id] => Array
+        (
+            [@cdata] => wx26152304298549c583e390191439312100
+        )
+
+    [trade_type] => Array
+        (
+            [@cdata] => APP
+        )
+
+)
+时间:2020-05-26 07:52:20Array
+(
+    [return_code] => Array
+        (
+            [@cdata] => SUCCESS
+        )
+
+    [return_msg] => Array
+        (
+            [@cdata] => OK
+        )
+
+    [appid] => Array
+        (
+            [@cdata] => wx7663a456bb43d30b
+        )
+
+    [mch_id] => Array
+        (
+            [@cdata] => 1553512891
+        )
+
+    [nonce_str] => Array
+        (
+            [@cdata] => amtQCHyY1Lbi6b65
+        )
+
+    [sign] => Array
+        (
+            [@cdata] => A519360C77FA9B08D9B62453BC2D5ADE
+        )
+
+    [result_code] => Array
+        (
+            [@cdata] => SUCCESS
+        )
+
+    [prepay_id] => Array
+        (
+            [@cdata] => wx26155219279409c583e390191283363100
+        )
+
+    [trade_type] => Array
+        (
+            [@cdata] => APP
+        )
+
+)
+时间:2020-05-26 07:52:31Array
+(
+    [return_code] => Array
+        (
+            [@cdata] => SUCCESS
+        )
+
+    [return_msg] => Array
+        (
+            [@cdata] => OK
+        )
+
+    [appid] => Array
+        (
+            [@cdata] => wx7663a456bb43d30b
+        )
+
+    [mch_id] => Array
+        (
+            [@cdata] => 1553512891
+        )
+
+    [nonce_str] => Array
+        (
+            [@cdata] => 4bbH3rxQWnUrHu5y
+        )
+
+    [sign] => Array
+        (
+            [@cdata] => B62C74CD50BD742F8E2D5121584A8B33
+        )
+
+    [result_code] => Array
+        (
+            [@cdata] => SUCCESS
+        )
+
+    [prepay_id] => Array
+        (
+            [@cdata] => wx26155230979180c583e390191215603900
+        )
+
+    [trade_type] => Array
+        (
+            [@cdata] => APP
+        )
+
+)
+时间:2020-05-26 07:53:31Array
+(
+    [return_code] => Array
+        (
+            [@cdata] => SUCCESS
+        )
+
+    [return_msg] => Array
+        (
+            [@cdata] => OK
+        )
+
+    [appid] => Array
+        (
+            [@cdata] => wx7663a456bb43d30b
+        )
+
+    [mch_id] => Array
+        (
+            [@cdata] => 1553512891
+        )
+
+    [nonce_str] => Array
+        (
+            [@cdata] => tQYycpbxzGYMAOrN
+        )
+
+    [sign] => Array
+        (
+            [@cdata] => B168E2FBD779165F32FE2C201B7EE27F
+        )
+
+    [result_code] => Array
+        (
+            [@cdata] => SUCCESS
+        )
+
+    [prepay_id] => Array
+        (
+            [@cdata] => wx26155330262955c583e390191888837400
+        )
+
+    [trade_type] => Array
+        (
+            [@cdata] => APP
+        )
+
+)
+时间:2020-05-26 07:53:45Array
+(
+    [return_code] => Array
+        (
+            [@cdata] => SUCCESS
+        )
+
+    [return_msg] => Array
+        (
+            [@cdata] => OK
+        )
+
+    [appid] => Array
+        (
+            [@cdata] => wx7663a456bb43d30b
+        )
+
+    [mch_id] => Array
+        (
+            [@cdata] => 1553512891
+        )
+
+    [nonce_str] => Array
+        (
+            [@cdata] => wPqp3WBx7Yafgx1x
+        )
+
+    [sign] => Array
+        (
+            [@cdata] => CF243639A0DC85A221B36ABBCD5AECB7
+        )
+
+    [result_code] => Array
+        (
+            [@cdata] => SUCCESS
+        )
+
+    [prepay_id] => Array
+        (
+            [@cdata] => wx26155344405317c583e390191452623400
+        )
+
+    [trade_type] => Array
+        (
+            [@cdata] => APP
+        )
+
+)
+时间:2020-05-26 07:53:55Array
+(
+    [return_code] => Array
+        (
+            [@cdata] => SUCCESS
+        )
+
+    [return_msg] => Array
+        (
+            [@cdata] => OK
+        )
+
+    [appid] => Array
+        (
+            [@cdata] => wx7663a456bb43d30b
+        )
+
+    [mch_id] => Array
+        (
+            [@cdata] => 1553512891
+        )
+
+    [nonce_str] => Array
+        (
+            [@cdata] => 8Iolsp3eu1HQguqN
+        )
+
+    [sign] => Array
+        (
+            [@cdata] => 69AD8F9E66316F5EC6D74965C5AFCD8B
+        )
+
+    [result_code] => Array
+        (
+            [@cdata] => SUCCESS
+        )
+
+    [prepay_id] => Array
+        (
+            [@cdata] => wx26155354402102c583e390191008135900
+        )
+
+    [trade_type] => Array
+        (
+            [@cdata] => APP
+        )
+
+)
+时间:2020-05-26 07:54:00Array
+(
+    [return_code] => Array
+        (
+            [@cdata] => SUCCESS
+        )
+
+    [return_msg] => Array
+        (
+            [@cdata] => OK
+        )
+
+    [appid] => Array
+        (
+            [@cdata] => wx7663a456bb43d30b
+        )
+
+    [mch_id] => Array
+        (
+            [@cdata] => 1553512891
+        )
+
+    [nonce_str] => Array
+        (
+            [@cdata] => L8tnjA5PVo1Laq2l
+        )
+
+    [sign] => Array
+        (
+            [@cdata] => B57558F57B2C13402C2182FA18DC31A6
+        )
+
+    [result_code] => Array
+        (
+            [@cdata] => SUCCESS
+        )
+
+    [prepay_id] => Array
+        (
+            [@cdata] => wx26155359631229c583e390191978152000
+        )
+
+    [trade_type] => Array
+        (
+            [@cdata] => APP
+        )
+
+)
+时间:2020-05-26 07:54:11Array
+(
+    [return_code] => Array
+        (
+            [@cdata] => SUCCESS
+        )
+
+    [return_msg] => Array
+        (
+            [@cdata] => OK
+        )
+
+    [appid] => Array
+        (
+            [@cdata] => wx7663a456bb43d30b
+        )
+
+    [mch_id] => Array
+        (
+            [@cdata] => 1553512891
+        )
+
+    [nonce_str] => Array
+        (
+            [@cdata] => 9FsqfgWkVdnQluGa
+        )
+
+    [sign] => Array
+        (
+            [@cdata] => BAD75EE965FD196EF6036D26F2884A43
+        )
+
+    [result_code] => Array
+        (
+            [@cdata] => SUCCESS
+        )
+
+    [prepay_id] => Array
+        (
+            [@cdata] => wx26155410970658c583e390191300867800
+        )
+
+    [trade_type] => Array
+        (
+            [@cdata] => APP
+        )
+
+)
+时间:2020-05-26 07:54:43Array
+(
+    [return_code] => Array
+        (
+            [@cdata] => SUCCESS
+        )
+
+    [return_msg] => Array
+        (
+            [@cdata] => OK
+        )
+
+    [appid] => Array
+        (
+            [@cdata] => wx7663a456bb43d30b
+        )
+
+    [mch_id] => Array
+        (
+            [@cdata] => 1553512891
+        )
+
+    [nonce_str] => Array
+        (
+            [@cdata] => zZOFW0ar7BF28mFp
+        )
+
+    [sign] => Array
+        (
+            [@cdata] => 1F40E8498A6ED27497C1E273DE6F1EFF
+        )
+
+    [result_code] => Array
+        (
+            [@cdata] => SUCCESS
+        )
+
+    [prepay_id] => Array
+        (
+            [@cdata] => wx26155442834301c583e390191018275600
+        )
+
+    [trade_type] => Array
+        (
+            [@cdata] => APP
+        )
+
+)
+时间:2020-05-26 07:55:10Array
+(
+    [return_code] => Array
+        (
+            [@cdata] => SUCCESS
+        )
+
+    [return_msg] => Array
+        (
+            [@cdata] => OK
+        )
+
+    [appid] => Array
+        (
+            [@cdata] => wx7663a456bb43d30b
+        )
+
+    [mch_id] => Array
+        (
+            [@cdata] => 1553512891
+        )
+
+    [nonce_str] => Array
+        (
+            [@cdata] => 9aaurfVLSIx7Flfr
+        )
+
+    [sign] => Array
+        (
+            [@cdata] => 92EE034D912B5E16FE2A5949EC09E606
+        )
+
+    [result_code] => Array
+        (
+            [@cdata] => SUCCESS
+        )
+
+    [prepay_id] => Array
+        (
+            [@cdata] => wx26155509159163c583e390191683062300
+        )
+
+    [trade_type] => Array
+        (
+            [@cdata] => APP
+        )
+
+)
+时间:2020-05-26 07:55:14Array
+(
+    [return_code] => Array
+        (
+            [@cdata] => SUCCESS
+        )
+
+    [return_msg] => Array
+        (
+            [@cdata] => OK
+        )
+
+    [appid] => Array
+        (
+            [@cdata] => wx7663a456bb43d30b
+        )
+
+    [mch_id] => Array
+        (
+            [@cdata] => 1553512891
+        )
+
+    [nonce_str] => Array
+        (
+            [@cdata] => PiaqJmdeYfCYD3GT
+        )
+
+    [sign] => Array
+        (
+            [@cdata] => 2D4493BF4473FE4ED84932B68E0E0C92
+        )
+
+    [result_code] => Array
+        (
+            [@cdata] => SUCCESS
+        )
+
+    [prepay_id] => Array
+        (
+            [@cdata] => wx26155514057899c583e390191634872000
+        )
+
+    [trade_type] => Array
+        (
+            [@cdata] => APP
+        )
+
+)
+时间:2020-05-26 07:55:26Array
+(
+    [return_code] => Array
+        (
+            [@cdata] => SUCCESS
+        )
+
+    [return_msg] => Array
+        (
+            [@cdata] => OK
+        )
+
+    [appid] => Array
+        (
+            [@cdata] => wx7663a456bb43d30b
+        )
+
+    [mch_id] => Array
+        (
+            [@cdata] => 1553512891
+        )
+
+    [nonce_str] => Array
+        (
+            [@cdata] => H4FBw2CuGg4N6Owm
+        )
+
+    [sign] => Array
+        (
+            [@cdata] => A854C2398A12D080E3BA4C3D903D1398
+        )
+
+    [result_code] => Array
+        (
+            [@cdata] => SUCCESS
+        )
+
+    [prepay_id] => Array
+        (
+            [@cdata] => wx26155525247929c583e390191929400000
+        )
+
+    [trade_type] => Array
+        (
+            [@cdata] => APP
+        )
+
+)
+时间:2020-05-26 10:48:38Array
+(
+    [return_code] => Array
+        (
+            [@cdata] => SUCCESS
+        )
+
+    [return_msg] => Array
+        (
+            [@cdata] => OK
+        )
+
+    [appid] => Array
+        (
+            [@cdata] => wx7663a456bb43d30b
+        )
+
+    [mch_id] => Array
+        (
+            [@cdata] => 1553512891
+        )
+
+    [nonce_str] => Array
+        (
+            [@cdata] => SrJoRGzLFWnRdDps
+        )
+
+    [sign] => Array
+        (
+            [@cdata] => B4EFA1D3EAE41DD1A2A3338429E85E22
+        )
+
+    [result_code] => Array
+        (
+            [@cdata] => SUCCESS
+        )
+
+    [prepay_id] => Array
+        (
+            [@cdata] => wx26184837102581c583e390191243753700
+        )
+
+    [trade_type] => Array
+        (
+            [@cdata] => APP
+        )
+
+)
+时间:2020-05-26 10:59:05Array
+(
+    [return_code] => Array
+        (
+            [@cdata] => SUCCESS
+        )
+
+    [return_msg] => Array
+        (
+            [@cdata] => OK
+        )
+
+    [appid] => Array
+        (
+            [@cdata] => wx7663a456bb43d30b
+        )
+
+    [mch_id] => Array
+        (
+            [@cdata] => 1553512891
+        )
+
+    [nonce_str] => Array
+        (
+            [@cdata] => m3qnxD4RKvOlRfZt
+        )
+
+    [sign] => Array
+        (
+            [@cdata] => 361337718FC31AFA42805021361C51BC
+        )
+
+    [result_code] => Array
+        (
+            [@cdata] => SUCCESS
+        )
+
+    [prepay_id] => Array
+        (
+            [@cdata] => wx26185903581552c583e390191973219200
+        )
+
+    [trade_type] => Array
+        (
+            [@cdata] => APP
+        )
+
+)

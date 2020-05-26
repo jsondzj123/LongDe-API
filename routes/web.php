@@ -35,14 +35,14 @@ $router->group(['prefix' => 'api', 'namespace' => 'Api'], function () use ($rout
     $router->post('doUserLogin','AuthenticateController@doUserLogin');          //APP登录接口
     $router->post('doSendSms','AuthenticateController@doSendSms');              //APP发送短信接口
     $router->post('doUserForgetPassword','AuthenticateController@doUserForgetPassword');              //APP忘记密码接口
-    
+
     //首页相关接口
     $router->group(['prefix' => 'index'], function () use ($router) {
         $router->post('getChartList','IndexController@getChartList');               //APP首页轮播图接口
         $router->post('getOpenClassList','IndexController@getOpenClassList');       //APP首页公开课接口
         $router->post('getTeacherList','IndexController@getTeacherList');           //APP首页讲师接口
     });
-    
+
     //用户学员相关接口
     $router->group(['prefix' => 'user' , 'middleware'=> ['user']], function () use ($router) {
         $router->post('getUserInfoById','UserController@getUserInfoById');          //APP学员详情接口
@@ -50,7 +50,9 @@ $router->group(['prefix' => 'api', 'namespace' => 'Api'], function () use ($rout
     });
     //支付
     $router->group(['prefix' => 'order'], function () use ($router) {
-        $router->post('createOrder','OrderController@createOrder');
+        $router->post('createOrder','OrderController@createOrder');   //用户生成支付
+        $router->post('orderPay','OrderController@orderPay');   //进行支付
+        $router->post('iphonePay','OrderController@iphonePay');   //苹果内部支付
     });
 });
 
