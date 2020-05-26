@@ -21,21 +21,23 @@ class SubjectController extends Controller {
                 ->orderBy('created_at', 'desc')
                 ->get();
         foreach ($subjects as $value) {
-                $value['childs'] = $value->childs();
+                $child = [['id' => 0, 'name' => '全部']];
+                $value['childs'] = array_merge($child, json_decode($value->childs()));
         }
-        $data['subjects'] = $subjects; 
+        $all = [['id' => 0, 'name' => '全部', 'pid' => 0, 'child' => []]];
+        $data['subjects'] = array_merge($all, json_decode($subjects)); 
         $data['sort'] = [
-            ['sort' => 'created_at', 'name' => '综合', 'type' => ['asc', 'desc']],
-            ['sort' => 'watch_num', 'name' => '按热度', 'type' => ['asc', 'desc']],
-            ['sort' => 'price', 'name' => '按价格升', 'type' => ['asc']],
-            ['sort' => 'price', 'name' => '按价格降', 'type' => ['desc']],
+            ['sort_id' => 0, 'name' => '综合', 'type' => ['asc', 'desc']],
+            ['sort_id' => 1, 'name' => '按热度', 'type' => ['asc', 'desc']],
+            ['sort_id' => 2, 'name' => '按价格升', 'type' => ['asc']],
+            ['sort_id' => 3, 'name' => '按价格降', 'type' => ['desc']],
         ];
         $data['method'] = [
-            ['id' => 0, 'name' => '综合'],
-            ['id' => 1, 'name' => '直播'],
-            ['id' => 2, 'name' => '录播'],
-            ['id' => 3, 'name' => '直播+录播'],
-            ['id' => 4, 'name' => '其他'],
+            ['method_id' => 0, 'name' => '综合'],
+            ['method_id' => 1, 'name' => '直播'],
+            ['method_id' => 2, 'name' => '录播'],
+            ['method_id' => 3, 'name' => '直播+录播'],
+            ['method_id' => 4, 'name' => '其他'],
         ]; 
         return $this->response($data);
     }
