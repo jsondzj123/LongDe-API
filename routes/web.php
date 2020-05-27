@@ -79,9 +79,16 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin' , 'middleware'=> ['
     });*/
 
     /*
+     * 授课方式(sxl)
+    */
+    $router->post('method', 'MethodController@index');
+    $router->post('method/add', 'MethodController@store');
+    $router->post('method/{id}/update', 'MethodController@update');
+    $router->post('method/{id}/delete', 'MethodController@destroy');
+
+    /*
      * 课程模块(sxl)
     */
-
     $router->post('lesson', 'LessonController@index');
     $router->post('lesson/add', 'LessonController@store');
     $router->post('lesson/{id}', 'LessonController@show');

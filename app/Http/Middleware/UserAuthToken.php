@@ -16,23 +16,25 @@ class UserAuthToken {
         }
         
         //判断token值是否合法
-        $redis_token = Redis::get("user:regtoken:".$token);
-        if(!$redis_token || empty($redis_token)) {
+        $redis_token = Redis::hLen("user:regtoken:".$token);
+        if(!$redis_token || $redis_token <= 0) {
             return ['code' => 202 , 'msg' => 'token值非法'];
         }
         
         //解析json获取用户详情信息
-        $json_info = json_decode($redis_token , true);
+        $json_info = Redis::hGetAll("user:regtoken:".$token);
         
         //根据手机号获取用户详情
-        $user_info = User::where("phone" , $json_info['phone'])->first();
-        if(!$user_info || empty($user_info)){
-            return ['code' => 204 , 'msg' => '此用户不存在'];
-        }
-        
-        //判断用户是否在其他设备登录
-        if($user_info['token'] != $token){
-            return ['code' => 206 , 'msg' => '您已在其他设备上登录'];
+        if($json_info['phone'] && !empty($json_info['phone'])){
+            $user_info = User::where("phone" , $json_info['phone'])->first();
+            if(!$user_info || empty($user_info)){
+                return ['code' => 204 , 'msg' => '此用户不存在'];
+            }
+
+            //判断用户是否在其他设备登录
+            if($user_info['token'] != $token){
+                return ['code' => 206 , 'msg' => '您已在其他设备上登录'];
+            }
         }
         
         //从redis中获取token相关信息
@@ -46,7 +48,7 @@ class UserAuthToken {
          *     self::$accept_data
          * }
          */
-        $_REQUEST['user_info'] = json_decode(Redis::get("user:regtoken:".$token) , true);
+        $_REQUEST['user_info'] = $json_info;
         return $next($request);//进行下一步(即传递给控制器)
     }
 }
