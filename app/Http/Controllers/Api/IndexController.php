@@ -207,4 +207,117 @@ class IndexController extends Controller {
             return response()->json(['code' => 500 , 'msg' => $ex->getMessage()]);
         }
     }
+    
+    
+    /*
+     * @param  description   APP版本升级接口
+     * @param author    dzj
+     * @param ctime     2020-05-27
+     * return string
+     */
+    public function checkVersion() {
+        try {
+            /*$version_info = [
+                'is_online'         =>   1 ,
+                'is_mustup'         =>   1 ,
+                'version'           =>   'v1.0' ,
+                'content'           =>   [
+                    '1.导师主页咨询入口增加「微咨询」选项。' ,
+                    '2.导师服务评价规则更新。' ,
+                    '3.专家圈列表增加搜索功能。' ,
+                    '4.小课部分增加讨论人数。' ,
+                    '5.「微咨询」页面优化。'
+                ],
+                'download_url'      => "http://www.baidu.com"
+            ];*/
+            
+            //获取版本的最新更新信息
+            $version_info = DB::table('ld_version')->select('is_online','is_mustup','version','content','download_url')->orderBy('create_at' , 'DESC')->first();
+            $version_info->content = json_decode($version_info->content , true);
+            return response()->json(['code' => 200 , 'msg' => '获取版本升级信息成功' , 'data' => $version_info]);
+        } catch (Exception $ex) {
+            return response()->json(['code' => 500 , 'msg' => $ex->getMessage()]);
+        }
+    }
+    
+    /*
+     * @param  description   公开课列表接口
+     * @param author    dzj
+     * @param ctime     2020-05-25
+     * return string
+     */
+    public function getOpenPublicList() {
+        //获取提交的参数
+        try{
+            $open_public_list = [
+                [
+                    'open_class_date' => '2020-05-20' ,
+                    'open_class_list' => [
+                        [
+                            'open_class_id'         =>  1 ,
+                            'cover'                 =>  'https://dss0.bdstatic.com/70cFvHSh_Q1YnxGkpoWK1HF6hhy/it/u=3256100974,305075936&fm=26&gp=0.jpg' ,
+                            'start_time'            =>  '09:00' ,
+                            'end_time'              =>  '10:00' ,
+                            'lession_parent_name'   =>  '大分类名称1' ,
+                            'lession_child_name'    =>  '小分类名称1' ,
+                            'status'                =>  1
+                        ] ,
+                        [
+                            'open_class_id'         =>  2 ,
+                            'cover'                 =>  'https://dss0.bdstatic.com/70cFvHSh_Q1YnxGkpoWK1HF6hhy/it/u=3256100974,305075936&fm=26&gp=0.jpg' ,
+                            'start_time'            =>  '10:30' ,
+                            'end_time'              =>  '12:00' ,
+                            'lession_parent_name'   =>  '大分类名称2' ,
+                            'lession_child_name'    =>  '小分类名称2' ,
+                            'status'                =>  2
+                        ] ,
+                        [
+                            'open_class_id'         =>  3 ,
+                            'cover'                 =>  'https://dss0.bdstatic.com/70cFvHSh_Q1YnxGkpoWK1HF6hhy/it/u=3256100974,305075936&fm=26&gp=0.jpg' ,
+                            'start_time'            =>  '07:30' ,
+                            'end_time'              =>  '09:00' ,
+                            'lession_parent_name'   =>  '大分类名称3' ,
+                            'lession_child_name'    =>  '小分类名称3' ,
+                            'status'                =>  3
+                        ]
+                    ]
+                ], 
+                [
+                    'open_class_date' => '2020-05-21' ,
+                    'open_class_list' => [
+                        [
+                            'open_class_id'         =>  4 ,
+                            'cover'                 =>  'https://dss0.bdstatic.com/70cFvHSh_Q1YnxGkpoWK1HF6hhy/it/u=3256100974,305075936&fm=26&gp=0.jpg' ,
+                            'start_time'            =>  '09:00' ,
+                            'end_time'              =>  '10:00' ,
+                            'lession_parent_name'   =>  '大分类名称4' ,
+                            'lession_child_name'    =>  '小分类名称4' ,
+                            'status'                =>  1
+                        ] ,
+                        [
+                            'open_class_id'         =>  5 ,
+                            'cover'                 =>  'https://dss0.bdstatic.com/70cFvHSh_Q1YnxGkpoWK1HF6hhy/it/u=3256100974,305075936&fm=26&gp=0.jpg' ,
+                            'start_time'            =>  '10:30' ,
+                            'end_time'              =>  '12:00' ,
+                            'lession_parent_name'   =>  '大分类名称5' ,
+                            'lession_child_name'    =>  '小分类名称5' ,
+                            'status'                =>  2
+                        ] ,
+                        [
+                            'open_class_id'         =>  6 ,
+                            'cover'                 =>  'https://dss0.bdstatic.com/70cFvHSh_Q1YnxGkpoWK1HF6hhy/it/u=3256100974,305075936&fm=26&gp=0.jpg' ,
+                            'start_time'            =>  '07:30' ,
+                            'end_time'              =>  '09:00' ,
+                            'lession_parent_name'   =>  '大分类名称6' ,
+                            'lession_child_name'    =>  '小分类名称6' ,
+                            'status'                =>  3
+                        ]
+                    ]
+                ] 
+            ];
+            return response()->json(['code' => 200 , 'msg' => '获取公开课列表成功' , 'data' => $open_public_list]);
+        } catch (Exception $ex) {
+            return response()->json(['code' => 500 , 'msg' => $ex->getMessage()]);
+        }
+    }
 }

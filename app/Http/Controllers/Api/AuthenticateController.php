@@ -36,7 +36,7 @@ class AuthenticateController extends Controller {
             //判断手机号是否为空
             if(!isset($body['phone']) || empty($body['phone'])){
                 return response()->json(['code' => 201 , 'msg' => '请输入手机号']);
-            } else if(!preg_match('#^13[\d]{9}$|^14[5,7]{1}\d{8}$|^15[^4]{1}\d{8}$|^17[0,6,7,8]{1}\d{8}$|^18[\d]{9}|^16[\d]{9}$#', $body['phone'])) {
+            } else if(!preg_match('#^13[\d]{9}$|^14[5,7]{1}\d{8}$|^15[^4]{1}\d{8}$|^17[0,3,6,7,8]{1}\d{8}$|^18[\d]{9}|^16[\d]{9}$#', $body['phone'])) {
                 return response()->json(['code' => 202 , 'msg' => '手机号不合法']);
             }
 
@@ -90,13 +90,14 @@ class AuthenticateController extends Controller {
                 'token'     =>    $token ,
                 'device'    =>    isset($body['device']) && !empty($body['device']) ? $body['device'] : '' ,
                 'reg_source'=>    1 ,
+                'school_id' =>    1 ,
                 'create_at' =>    date('Y-m-d H:i:s')
             ];
 
             //将数据插入到表中
             $user_id = User::insertGetId($user_data);
             if($user_id && $user_id > 0){
-                $user_info = ['user_id' => $user_id , 'user_token' => $token , 'user_type' => 0  , 'head_icon' => '' , 'real_name' => '' , 'phone' => $body['phone'] , 'nickname' => '' , 'sign' => '' , 'papers_type' => '' , 'papers_name' => '' , 'papers_num' => '' , 'balance' => 0];
+                $user_info = ['user_id' => $user_id , 'user_token' => $token , 'user_type' => 0  , 'head_icon' => '' , 'real_name' => '' , 'phone' => $body['phone'] , 'nickname' => '' , 'sign' => '' , 'papers_type' => '' , 'papers_name' => '' , 'papers_num' => '' , 'balance' => 0 , 'school_id' => 1];
                 //redis存储信息
                 Redis::hMset("user:regtoken:".$token , $user_info);
                 
@@ -134,7 +135,7 @@ class AuthenticateController extends Controller {
             //判断手机号是否为空
             if(!isset($body['phone']) || empty($body['phone'])){
                 return response()->json(['code' => 201 , 'msg' => '请输入手机号']);
-            } else if(!preg_match('#^13[\d]{9}$|^14[5,7]{1}\d{8}$|^15[^4]{1}\d{8}$|^17[0,6,7,8]{1}\d{8}$|^18[\d]{9}|^16[\d]{9}$#', $body['phone'])) {
+            } else if(!preg_match('#^13[\d]{9}$|^14[5,7]{1}\d{8}$|^15[^4]{1}\d{8}$|^17[0,3,6,7,8]{1}\d{8}$|^18[\d]{9}|^16[\d]{9}$#', $body['phone'])) {
                 return response()->json(['code' => 202 , 'msg' => '手机号不合法']);
             }
 
@@ -188,7 +189,8 @@ class AuthenticateController extends Controller {
                     'papers_type'=> $user_login->papers_type , 
                     'papers_name'=> $user_login->papers_type > 0 ? parent::getPapersNameByType($user_login->papers_type) : '',
                     'papers_num' => $user_login->papers_num ,
-                    'balance'    => $user_login->balance > 0 ? floatval($user_login->balance) : 0
+                    'balance'    => $user_login->balance > 0 ? floatval($user_login->balance) : 0 ,
+                    'school_id'  => $user_login->school_id
                 ];
                 
                 //redis存储信息
@@ -261,7 +263,8 @@ class AuthenticateController extends Controller {
                     'papers_type'=> $student_info->papers_type , 
                     'papers_name'=> $student_info->papers_type > 0 ? parent::getPapersNameByType($student_info->papers_type) : '',
                     'papers_num' => $student_info->papers_num ,
-                    'balance'    => $student_info->balance > 0 ? floatval($student_info->balance) : 0
+                    'balance'    => $student_info->balance > 0 ? floatval($student_info->balance) : 0 ,
+                    'school_id'  => $student_info->school_id
                 ];
                 
                 //redis存储信息
@@ -287,6 +290,7 @@ class AuthenticateController extends Controller {
                     'token'     =>    $token ,
                     'device'    =>    isset($body['device']) && !empty($body['device']) ? $body['device'] : '' ,
                     'reg_source'=>    1 ,
+                    'school_id' =>    1 ,
                     'nickname'  =>    $nickname ,
                     'user_type' =>    1 ,
                     'create_at' =>    date('Y-m-d H:i:s')
@@ -307,7 +311,8 @@ class AuthenticateController extends Controller {
                         'papers_type'=> '' , 
                         'papers_name'=> '' ,
                         'papers_num' => '' ,
-                        'balance'    => 0
+                        'balance'    => 0  ,
+                        'school_id'  => 1
                     ];
                 
                     //redis存储信息
@@ -349,7 +354,7 @@ class AuthenticateController extends Controller {
             //判断手机号是否为空
             if(!isset($body['phone']) || empty($body['phone'])){
                 return response()->json(['code' => 201 , 'msg' => '请输入手机号']);
-            } else if(!preg_match('#^13[\d]{9}$|^14[5,7]{1}\d{8}$|^15[^4]{1}\d{8}$|^17[0,6,7,8]{1}\d{8}$|^18[\d]{9}|^16[\d]{9}$#', $body['phone'])) {
+            } else if(!preg_match('#^13[\d]{9}$|^14[5,7]{1}\d{8}$|^15[^4]{1}\d{8}$|^17[0,3,6,7,8]{1}\d{8}$|^18[\d]{9}|^16[\d]{9}$#', $body['phone'])) {
                 return response()->json(['code' => 202 , 'msg' => '手机号不合法']);
             }
 
@@ -433,7 +438,7 @@ class AuthenticateController extends Controller {
         //判断手机号是否为空
         if(!isset($body['phone']) || empty($body['phone'])){
             return response()->json(['code' => 201 , 'msg' => '请输入手机号']);
-        } else if(!preg_match('#^13[\d]{9}$|^14[5,7]{1}\d{8}$|^15[^4]{1}\d{8}$|^17[0,6,7,8]{1}\d{8}$|^18[\d]{9}|^16[\d]{9}$#', $body['phone'])) {
+        } else if(!preg_match('#^13[\d]{9}$|^14[5,7]{1}\d{8}$|^15[^4]{1}\d{8}$|^17[0,3,6,7,8]{1}\d{8}$|^18[\d]{9}|^16[\d]{9}$#', $body['phone'])) {
             return response()->json(['code' => 202 , 'msg' => '手机号不合法']);
         }
         
