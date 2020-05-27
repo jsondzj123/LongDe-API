@@ -336,6 +336,7 @@ class Student extends Model {
         //组装学员数组信息
         $student_array = [
             'phone'         =>   $body['phone'] ,
+            'password'      =>   md5('123456') ,
             'real_name'     =>   $body['real_name'] ,
             'sex'           =>   isset($body['sex']) && $body['sex'] == 1 ? 1 : 2 ,
             'papers_type'   =>   isset($body['papers_type']) && in_array($body['papers_type'] , [1,2,3,4,5,6,7]) ? $body['papers_type'] : 0 ,
