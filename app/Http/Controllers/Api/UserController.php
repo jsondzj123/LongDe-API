@@ -21,7 +21,7 @@ class UserController extends Controller {
         //获取提交的参数
         try{
             //根据用户id获取用户详情
-            $user_info = Student::select("id as user_id" , "token  as user_token" , "user_type" , "head_icon" , "real_name" , "phone" , "nickname" , "sign" , "papers_type" , "papers_num" , "balance")->find(self::$accept_data['user_info']['user_id']);
+            $user_info = Student::select("id as user_id" , "token  as user_token" , "user_type" , "head_icon" , "real_name" , "phone" , "nickname" , "sign" , "papers_type" , "papers_num" , "balance" , "school_id")->find(self::$accept_data['user_info']['user_id']);
             if($user_info && !empty($user_info)){
                 //证件名称
                 $user_info['papers_name']  = $user_info['papers_type'] > 0 ? parent::getPapersNameByType($user_info['papers_type']) : '';
