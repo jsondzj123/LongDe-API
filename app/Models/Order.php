@@ -217,13 +217,14 @@ class Order extends Model {
             $data['status'] = 0;
             $data['oa_status'] = 0;              //OA状态
             $data['class_id'] = $arr['class_id'];
+            $data['school_id'] = $arr['user_info']['school_id'];
             $add = self::insertGetId($data);
             if($add){
                 $lesson['order_id'] = $add;
                 $lesson['order_number'] = $data['order_number'];
                 $lesson['user_balance'] = $student['balance'];
                 DB::commit();
-                //添加支付方式数组
+                //根据分校查询支付方式
                 return ['code' => 200 , 'msg' => '生成预订单成功','data'=>$lesson];
             }else{
                 DB::rollback();
@@ -360,12 +361,21 @@ class Order extends Model {
          * return  array
          */
     public static function wxnotify_url($xml){
-        if(!$xml) {
-            return ['code' => 201 , 'msg' => '参数错误'];
-        }
-        $data =  self::xmlToArray($xml);
-        Storage ::disk('logs')->append('wxpaynotify.txt', 'time:'.date('Y-m-d H:i:s')."\nresponse:".$data);
+//        if(!$xml) {
+//            return ['code' => 201 , 'msg' => '参数错误'];
+//        }
+//        $data =  self::xmlToArray($xml);
+
+        $data=[
+            'sdd'=>1,
+            'ssss'=>1
+        ];
+        Storage ::disk('logs')->append('wxpaynotify.txt', 'time:'.date('Y-m-d H:i:s')."\nresponse:".json_encode($data));
         if($data && $data['result_code']=='SUCCESS') {
+
+
+
+
                 $where = array(
                     'order_number'=>$data['attach'],
                 );

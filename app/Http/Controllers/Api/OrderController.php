@@ -8,6 +8,8 @@ use App\Models\Order;
 use App\Models\Student;
 use App\Models\Student_price;
 use App\Models\Student_pricelog;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 
 class OrderController extends Controller
@@ -23,11 +25,10 @@ class OrderController extends Controller
          */
     public function createOrder(){
         $data = self::$accept_data;
-        print_r($data);die;
-//        if($data['user_type'] ==1){
-//            return ['code' => 204 , 'msg' => '请先登录'];
-//        }
-        $data['student_id'] = 1;
+        if($data['user_info']['user_type'] ==1){
+            return ['code' => 204 , 'msg' => '请先登录'];
+        }
+        $data['student_id'] = $data['user_info']['user_id'];
         $orderid = Order::orderPayList($data);
         return response()->json($orderid);
     }
@@ -46,12 +47,11 @@ class OrderController extends Controller
          * @param  ctime   2020/5/25 17:34
          * return  array
          */
-    public function orderPay()
-    {
+    public function orderPay(){
         $data = self::$accept_data;
         //获取用户信息
-        $user_id = 1;
-        $user_balance = 1.00;
+        $user_id = $data['user_info']['user_id'];
+        $user_balance = $data['user_info']['balance'];
         $user_school_id = 1;
         //判断支付类型
         if (empty($data['type']) || !isset($data['type']) || !in_array($data['type'], [1, 2])) {
@@ -68,6 +68,9 @@ class OrderController extends Controller
             }
             //获取订单信息
             $order = Order::where(['id' => $data['order_id'], 'student_id' => $user_id])->first()->toArray();
+            if(!$order){
+                return ['code' => 201, 'msg' => '订单数据有误'];
+            }
             if ($order['status'] > 0) {
                 return ['code' => 202, 'msg' => '此订单已支付'];
             }
@@ -104,20 +107,20 @@ class OrderController extends Controller
             } else {
                 $sutdent_price = [
                     'user_id' => $user_id,
-                    'order_sn' => $order['order_number'],
+                    'order_number' => $order['order_number'],
                     'price' => $lesson['favorable_price'],
                     'pay_type' => $data['pay_type'],
                     'order_type' => 2,
                     'status' => 0
                 ];
                 Student_price::insert($sutdent_price);
-                $return = $this->payStatus($order['order_number'], $data['pay_type'], $lesson['favorable_price']);
+                $return = $this->payStatus($order['order_number'], $data['pay_type'], $lesson['favorable_price'],$user_school_id);
                 return response()->json(['code' => 200, 'msg' => '生成预订单成功', 'data' => $return]);
             }
         } else {
             $sutdent_price = [
                 'user_id' => $user_id,
-                'order_sn' => date('YmdHis', time()) . rand(1111, 9999),
+                'order_number' => date('YmdHis', time()) . rand(1111, 9999),
                 'price' => $data['price'],
                 'pay_type' => $data['pay_type'],
                 'order_type' => 1,
@@ -125,15 +128,14 @@ class OrderController extends Controller
             ];
             $add = Student_price::insert($sutdent_price);
             if ($add) {
-                $return = self::payStatus($sutdent_price['order_sn'], $data['type'], $data['price']);
+                $return = self::payStatus($sutdent_price['order_number'], $data['type'], $data['price'],$user_school_id);
                 return response()->json(['code' => 200, 'msg' => '生成预订单成功', 'data' => $return]);
             }
         }
     }
     //调用公共方法
     //$type  1微信2支付宝3汇聚微信4汇聚支付宝
-    public function payStatus($order_number, $type, $price)
-    {
+    public function payStatus($order_number, $type, $price,$school_id){
         if ($type == 1) {
             //根据分校查询对应信息
             return $return = app('wx')->getPrePayOrder($order_number, $price);
@@ -148,29 +150,57 @@ class OrderController extends Controller
         }
         if ($type == 3) {
             //根据分校查询对应信息
+            $arr=[
+                'p0_Version'=>'1.0',
+                'p1_MerchantNo'=>'888108900009969',
+                'p2_OrderNo'=>$order_number,
+                'p3_Amount'=>$price,
+                'p4_Cur'=>1,
+                'p5_ProductName'=>"龙德产品",
+                'p9_NotifyUrl'=>"http://".$_SERVER['HTTP_HOST']."/Api/order/hjWxnotify",
+                'q1_FrpCode'=>'WEIXIN_APP',
+                'q7_AppId'=>'',
+                'qa_TradeMerchantNo'=>'777170100269422'
+            ];
+            $str = "15f8014fee1642fbb123fb5684cda48b";
+            $token = $this->hjHmac($arr,$str);
+            $arr['hmac'] = $token;
+            if(strlen($token) ==32){
+                $aaa = $this->hjpost($arr);
+                print_r($aaa);die;
+            }
         }
         if ($type == 4) {
             //根据分校查询对应信息
+            $arr=[
+                'p0_Version'=>'1.0',
+                'p1_MerchantNo'=>'888108900009969',
+                'p2_OrderNo'=>$order_number,
+                'p3_Amount'=>$price,
+                'p4_Cur'=>1,
+                'p5_ProductName'=>"龙德产品",
+                'p9_NotifyUrl'=>"http://".$_SERVER['HTTP_HOST']."/Api/order/hjAlinotify",
+                'q1_FrpCode'=>'ALIPAY_APP',
+                'qa_TradeMerchantNo'=>'777170100269422'
+            ];
+            $str = "15f8014fee1642fbb123fb5684cda48b";
+            $token = $this->hjHmac($arr,$str);
+            $arr['hmac'] = $token;
+            if(strlen($token) ==32){
+                $aaa = $this->hjpost($arr);
+                print_r($aaa);die;
+            }
+
         }
     }
-
-
-
-
-    /*
-         * @param  苹果内购 充值余额 生成预订单
-         * @param  price 充值金额
-         * @param  author  苏振文
-         * @param  ctime   2020/5/27 10:31
-         * return  array
-         */
+    //  苹果内购 充值余额 生成预订单
     public function iphonePayCreateOrder(){
-        $user_id = 1;
         $data = self::$accept_data;
+        $user_id = $data['user_info']['user_id'];
         //生成预订单
         $sutdent_price = [
             'user_id' => $user_id,
-            'order_sn' => date('YmdHis', time()) . rand(1111, 9999),
+            'order_number' => date('YmdHis', time()) . rand(1111, 9999),
             'price' => $data['price'],
             'pay_type' => 5,
             'order_type' => 1,
@@ -179,17 +209,11 @@ class OrderController extends Controller
         Student_price::insert($sutdent_price);
         return response()->json(['code' => 200, 'msg' => '生成预订单成功', 'data' => $sutdent_price]);
     }
-    /*
-         * @param  ios轮询查看订单是否成功
-         * @param  order_number   订单号
-         * @param  author  苏振文
-         * @param  ctime   2020/5/27 10:54
-         * return  array
-         */
+    // ios轮询查看订单是否成功
     public function iosPolling(){
-        $user_id = 1;
         $data = self::$accept_data;
-        $list = Student_price::where(['user_id'=>$user_id,'order_sn'=>$data['order_number']])->first()->toArray();
+        $user_id = $data['user_info']['user_id'];
+        $list = Student_price::where(['user_id'=>$user_id,'order_number'=>$data['order_number']])->first()->toArray();
         if($list['status'] == 0){
             return response()->json(['code' => 202, 'msg' => '暂未支付']);
         }
@@ -200,71 +224,65 @@ class OrderController extends Controller
             return response()->json(['code' => 201, 'msg' => '支付失败']);
         }
     }
+
     //iphone 内部支付 回调
-    public function iphonePay($receiptData, $phone, $payProject){
+    public function iphonePaynotify(){
+        $data = self::$accept_data;
+        $receiptData = $data['receiptData'];
+        $order_number = $data['order_number'];
         // 验证参数
-        if (strlen($receiptData) < 1000) {
-            return;
+        if (strlen($receiptData) < 20) {
+            return response()->json(['code' => 201 , 'msg' => '不能读取你提供的JSON对象']);
         }
         // 请求验证【默认向真实环境发请求】
         $html = $this->acurl($receiptData);
-        $data = json_decode($html, true);//接收苹果系统返回数据并转换为数组，以便后续处理
+        $arr = json_decode($html, true);//接收苹果系统返回数据并转换为数组，以便后续处理
         // 如果是沙盒数据 则验证沙盒模式
-        if ($data['status'] == '21007') {
+        if ($arr['status'] == '21007') {
             // 请求验证  1代表向沙箱环境url发送验证请求
             $html = $this->acurl($receiptData, 1);
-            $data = json_decode($html, true);
+            $arr = json_decode($html, true);
         }
-        if (isset($_GET['debug'])) {
-            exit(json_encode($data));
-        }
+        Storage::disk('local')->append('iosnotify.txt', 'time:'.date('Y-m-d H:i:s')."\nresponse:".$html);
         // 判断是否购买成功  【状态码,0为成功（无论是沙箱环境还是正式环境只要数据正确status都会是：0）】
-        if (intval($data['status']) === 0) {
-            if ($phone != '') {
-                $iapData = [
-                    'phone' => $phone,
-                    'original_purchase_date_pst' => $data['receipt']['original_purchase_date_pst'],//购买时间,太平洋标准时间
-                    'purchase_date_ms' => $data['receipt']['purchase_date_ms'],//购买时间毫秒
-                    'unique_identifier' => $data['receipt']['unique_identifier'],//唯一标识符
-                    'original_transaction_id' => $data['receipt']['original_transaction_id'],//原始交易ID
-                    'bvrs' => $data['receipt']['bvrs'],//iPhone程序的版本号
-                    'transaction_id' => $data['receipt']['transaction_id'],//交易的标识
-                    'quantity' => $data['receipt']['quantity'],//购买商品的数量
-                    'unique_vendor_identifier' => $data['receipt']['unique_vendor_identifier'],//开发商交易ID
-                    'item_id' => $data['receipt']['item_id'],//App Store用来标识程序的字符串
-                    'version_external_identifier' => $data['receipt']['version_external_identifier'],//版本外部的标识，沙箱环境下其值为：0正式环境其值为一个数字，会变，原因未知。是否和修改价格有关？
-                    'bid' => $data['receipt']['bid'],//iPhone程序的bundle标识
-                    'is_in_intro_offer_period' => $data['receipt']['is_in_intro_offer_period'],//正式环境返回数据中能未找到?考虑删除，目前其值都是false
-                    'product_id' => $data['receipt']['product_id'],//商品的标识
-                    'purchase_date' => $data['receipt']['purchase_date'],//购买时间
-                    'is_trial_period' => $data['receipt']['is_trial_period'],//?沙箱环境中在in_app中找到？正式环境中找得到吗？考虑删除，目前其值都是false
-                    'purchase_date_pst' => $data['receipt']['purchase_date_pst'],//太平洋标准时间
-                    'original_purchase_date' => $data['receipt']['original_purchase_date'],//原始购买时间
-                    'original_purchase_date_ms' => $data['receipt']['original_purchase_date_ms'],//毫秒
-                    'status' => $data['status'],
-                    'timestamp' => date("Y-m-d H:i:s"),//北京时间（用户真实购买的时间）
-                ];
-                //插入iap订单表【将苹果返回的所有输数据都插入到数据库中，你可更具需要取舍，这里为了说明方便】
-                $this->insert($iapData);
-                $user = new User;
-                //修改user表中的付款状态【2019-07-02】
-                $user->where('phone', $phone)->update(['pay_project' => $payProject, 'create_time' => date('Y-m-d H:i:s', time())]);
-                //返回到APP的数据
-                $result = array(
-                    'status' => 'true',
-                    'errorCode' => '购买成功',
-                    'pay_project' => $payProject
-                );
-//                Log::record($result, 'toAPP');// 记录到日志
-                return $result;
-            } else {
-                throw new ParamErrorException(['errorCode' => '购买失败,status:' . $data['status'] . ',未填写游戏账户']);
+        if (intval($arr['status']) === 0) {
+            DB::beginTransaction();
+               $studentprice = Student_price::where(['order_number'=>$order_number])->first()->toArray();
+               if($studentprice['status'] == 1){
+                   return response()->json(['code' => 200 , 'msg' => '支付成功']);
+               }
+               $codearr=[
+                   'tc001'=>6,
+                   'tc003'=>18,
+                   'tc004'=>68,
+                   'tc005'=>168,
+                   'tc006'=>388,
+                   'tc007'=>698,
+                   'tc008'=>1998,
+                   'tc009'=>3998,
+                   'tc0010'=>6498,
+               ];
+               if($studentprice['price'] != $codearr[$arr['receipt']['in_app'][0]['product_id']]){
+                   return response()->json(['code' => 203 , 'msg' => '充值金额不一致，你充不上，气不气']);
+               }
+               //修改订单状态  更改用户余额 加入日志
+              $student = Student::where(['id'=>$studentprice['user_id']])->first()->toArray();
+              $endbalance = $student['balance'] + $studentprice['price'];
+              Student::where(['id'=>$studentprice['user_id']])->update(['balance'=>$endbalance]);
+              Student_price::where(['order_number'=>$order_number])->update(['content'=>$html,'status'=>1,'update_at'=>date('Y-m-d H:i:s')]);
+              Student_pricelog::insert(['user_id'=>$studentprice['user_id'],'price'=>$studentprice['price'],'end_price'=>$endbalance,'status'=>1]);
+              DB::commit();
+        }else{
+            if(in_array('Failed',$arr)){
+                Student_price::where(['order_number'=>$order_number])->update(['content'=>$html,'status'=>2,'update_at'=>date('Y-m-d H:i:s')]);
+                return response()->json(['code' => 207 , 'msg' =>'支付失败']);
             }
-        } else {
-            throw new ParamErrorException(['errorCode' => 'receipt参数有误']);
+            if(in_array('Deferred',$arr)){
+                return response()->json(['code' => 207 , 'msg' =>'等待确认，儿童模式需要询问家长同意']);
+            }
+            DB::rollBack();
         }
     }
-
     //curl【模拟http请求】
     public function acurl($receiptData, $sandbox = 0){
         //小票信息
@@ -284,5 +302,41 @@ class OrderController extends Controller
         $result = curl_exec($ch);
         curl_close($ch);
         return $result;
+    }
+    //汇聚签名
+    public function hjHmac($arr,$str){
+        $newarr = '';
+        foreach ($arr as $k=>$v){
+            $newarr =$newarr.$v;
+        }
+        return md5($newarr.$str);
+    }
+    public function hjpost($data){
+        //简单的curl
+        $ch = curl_init("https://www.joinpay.com/trade/uniPayApi.action");
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+        $result = curl_exec($ch);
+        curl_close($ch);
+        return $result;
+    }
+    public function hjAlinotify(){
+        $json = file_get_contents("php://input");
+        Storage ::disk('hjAlinotify')->append('hjAlinotify.txt', 'time:'.date('Y-m-d H:i:s')."\nresponse:".$json);
+    }
+    public function hjWxnotify(){
+        $json = file_get_contents("php://input");
+        Storage ::disk('hjAlinotify')->append('hjAlinotify.txt', 'time:'.date('Y-m-d H:i:s')."\nresponse:".$json);
+    }
+    public function wxnotify_url(){
+        $data=[
+            'sdd'=>1,
+            'ssss'=>1
+        ];
+//        Order::wxnotify_url();
+        Storage::disk('local')->append('wxpaynotify.txt', 'time:'.date('Y-m-d H:i:s')."\nresponse:".json_encode($data));
     }
 }
