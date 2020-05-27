@@ -34,7 +34,7 @@ class LessonController extends Controller {
         $auth = (int)$request->input('auth') ?: 0;
         $public = (int)$request->input('public') ?: 0;
         $user = CurrentAdmin::user();   
-        $data =  Lesson::with('subjects', 'methods')->select('id', 'admin_id', 'title', 'cover', 'price', 'favorable_price', 'buy_num', 'method', 'status', 'is_del', 'is_forbid')
+        $data =  Lesson::with('subjects', 'methods')->select('id', 'admin_id', 'title', 'cover', 'price', 'favorable_price', 'buy_num', 'status', 'is_del', 'is_forbid')
                 ->where(['is_del' => 0, 'is_forbid' => 0])
 
                 ->whereHas('subjects', function ($query) use ($subject_id)
