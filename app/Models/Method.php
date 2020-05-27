@@ -9,6 +9,7 @@ class Method extends Model {
     public $table = 'ld_methods';
 
     protected $fillable = [
+        'admin_id',
         'id',
         'name',
     ];
