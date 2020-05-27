@@ -67,7 +67,7 @@ class LessonController extends Controller {
         }
         $where = ['is_del'=> 0, 'is_forbid' => 0, 'status' => 2];
         $sort_type = $request->input('sort_type') ?: 'asc';
-        $lesson =  Lesson::with('subjects', 'methods')->select('id', 'admin_id', 'title', 'cover', 'price', 'favorable_price', 'buy_num', 'status', 'is_del', 'is_forbid')
+        $data =  Lesson::with('subjects', 'methods')->select('id', 'admin_id', 'title', 'cover', 'price', 'favorable_price', 'buy_num', 'status', 'is_del', 'is_forbid')
                 ->where(['is_del'=> 0, 'is_forbid' => 0, 'status' => 2])
                 ->orderBy($sort_name, $sort_type)
                 ->whereHas('subjects', function ($query) use ($subjectId)
@@ -87,8 +87,14 @@ class LessonController extends Controller {
                         $query->where('title', 'like', '%'.$keyWord.'%');
                     }
                 });
-        $total = $lesson->count();
-        $lessons = $lesson->skip($offset)->take($pagesize)->get();
+        $lessons = [];
+        foreach ($data->get()->toArray() as $value) {
+            if($value['is_auth'] == 1 || $value['is_auth'] == 2){
+                $lessons[] = $value;   
+            }
+        }
+        $total = collect($lessons)->count();
+        $lessons = collect($lessons)->skip($offset)->take($pagesize);
         $data = [
             'page_data' => $lessons,
             'total' => $total,
