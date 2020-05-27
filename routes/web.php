@@ -42,6 +42,7 @@ $router->group(['prefix' => 'api', 'namespace' => 'Api'], function () use ($rout
         $router->post('getChartList','IndexController@getChartList');               //APP首页轮播图接口
         $router->post('getOpenClassList','IndexController@getOpenClassList');       //APP首页公开课接口
         $router->post('getTeacherList','IndexController@getTeacherList');           //APP首页讲师接口
+        $router->post('getOpenPublicList','IndexController@getOpenPublicList');     //APP公开课列表接口
         $router->post('checkVersion','IndexController@checkVersion');               //APP版本升级接口
     });
     
