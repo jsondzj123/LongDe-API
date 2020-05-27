@@ -103,7 +103,7 @@ class Order extends Model {
             return ['code' => 201 , 'msg' => '报名学生为空或格式不对'];
         }
         //判断学科id
-        if(!isset($arr['class_id']) || empty($arr['class_id'])){
+        if(!isset($arr['lession_id']) || empty($arr['lession_id'])){
             return ['code' => 201 , 'msg' => '学科为空或格式不对'];
         }
         //判断原价
@@ -150,9 +150,9 @@ class Order extends Model {
                 'ip'             =>  $_SERVER["REMOTE_ADDR"] ,
                 'create_at'      =>  date('Y-m-d H:i:s')
             ]);
-            return ['code' => 200 , 'msg' => '订单生成成功','data'=>$add];
+            return true;
         }else{
-            return ['code' => 202 , 'msg' => '订单生成失败'];
+            return false;
         }
     }
     /*
