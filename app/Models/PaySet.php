@@ -70,10 +70,11 @@ class PaySet extends Model {
 
     }
 
-    public function getUpdate($where,$update){
+    public static function doUpdate($where,$update){
     	return self::where($where)->update($update);
     }
-    public function findOne($where=[]){
+
+    public static function findOne($where=[]){
    		return self::where($where)->first();
     }
 

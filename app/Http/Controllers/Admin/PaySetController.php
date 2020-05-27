@@ -24,7 +24,7 @@ class PaySetController extends Controller {
      *     pagesize     每页显示条件 （不是必填项）
      * ]
      * @param author    lys
-     * @param ctime     2020-04-29
+     * @param ctime     2020-05-27
      */
     public function getList(){
         $result = PaySet::getList(self::$accept_data);
@@ -34,14 +34,128 @@ class PaySetController extends Controller {
             return response()->json($result);
         }
     }
-    
-    // public function doUpdatePayState(){
-    // 	$data = self::$accept_data;
-    // 	if(!isset($data['id'] || empty($data['id']))){
-    // 		return json_decode(['code'=>201,'msg'=>'id缺少或为空'])
-    // 	}
-    // 	PaySet::where(['school_id'])
-    // }
+    /*
+     * @param  description   更改支付状态
+     * @param  参数说明       body包含以下参数[
+            id   列表id
+     * ]
+     * @param author    lys
+     * @param ctime     2020-05-27
+     */
+    public function doUpdatePayState(){
+    	$data = self::$accept_data;
+    	if(!isset($data['id']) || empty($data['id'])){
+    		return response()->json(['code'=>201,'msg'=>'id缺少或为空']);
+    	}
+    	$payconfigArr  = PaySet::where(['id'=>$data['id']])->first();
+        if($payconfigArr['pay_status'] == 1){
+            //禁用
+            $update['pay_status'] = -1;
+            $update['wx_pay_state'] = -1;
+            $update['zfb_pay_state'] = -1;
+            $update['hj_wx_pay_state'] = -1;
+            $update['hj_zfb_pay_state'] = -1;
+        }else{
+            //启用
+            $update['pay_status'] = 1;
+            $update['wx_pay_state'] = 1;
+            $update['zfb_pay_state'] = 1;
+            $update['hj_wx_pay_state'] = 1;
+            $update['hj_zfb_pay_state'] = 1;
+        }
+        $update['update_at'] = date('Y-m-d H:i:s');
+
+        if(PaySet::doUpdate(['id'=>$data['id']],$update)){
+            return response()->json(['code'=>200,'msg'=>"更改成功"]);
+        }else{
+            return response()->json(['code'=>203,'msg'=>'更改成功']);
+        }
+    }
+     /*
+     * @param  description   更改微信状态
+     * @param  参数说明       body包含以下参数[
+            id   列表id
+     * ]
+     * @param author    lys
+     * @param ctime     2020-05-27
+     */
+    public function doUpdateWxState(){
+        $data = self::$accept_data;
+        if(!isset($data['id']) || empty($data['id'])){
+            return response()->json(['code'=>201,'msg'=>'id缺少或为空']);
+        }
+        $payconfigArr  = PaySet::where(['id'=>$data['id']])->first();
+        if($payconfigArr['wx_pay_state'] == 1){
+                $update['wx_pay_state'] = -1;//禁用
+        }else{
+            $update['wx_pay_state'] = 1; //启用
+        }
+        $update['update_at'] = date('Y-m-d H:i:s');
+        if(PaySet::doUpdate(['id'=>$data['id']],$update)){
+            return response()->json(['code'=>200,'msg'=>"更改成功"]);
+        }else{
+            return response()->json(['code'=>203,'msg'=>'更改成功']);
+        }
+    }
+     /*
+     * @param  description   更改支付宝状态
+     * @param  参数说明       body包含以下参数[
+            id   列表id
+     * ]
+     * @param author    lys
+     * @param ctime     2020-05-27
+     */
+    public function doUpdateZfbState(){
+        $data = self::$accept_data;
+        if(!isset($data['id']) || empty($data['id'])){
+            return response()->json(['code'=>201,'msg'=>'id缺少或为空']);
+        }
+        $payconfigArr  = PaySet::where(['id'=>$data['id']])->first();
+        if($payconfigArr['zfb_pay_state'] == 1){
+                $update['zfb_pay_state'] = -1;//禁用
+        }else{
+            $update['zfb_pay_state'] = 1; //启用
+        }
+        $update['update_at'] = date('Y-m-d H:i:s');
+        if(PaySet::doUpdate(['id'=>$data['id']],$update)){
+            return response()->json(['code'=>200,'msg'=>"更改成功"]);
+        }else{
+            return response()->json(['code'=>203,'msg'=>'更改成功']);
+        }
+    }
+    /*
+     * @param  description   更改汇聚状态
+     * @param  参数说明       body包含以下参数[
+            id   列表id
+            hj_state  汇聚状态
+     * ]
+     * @param author    lys
+     * @param ctime     2020-05-27
+     */
+    public function doUpdateHjState(){
+        $data = self::$accept_data;
+        if(!isset($data['id']) || empty($data['id'])){
+            return response()->json(['code'=>201,'msg'=>'id缺少或为空']);
+        }
+        if(!isset($data['hj_state']) || empty($data['hj_state'])){
+            return response()->json(['code'=>201,'msg'=>'hj状态类型缺少或为空']);
+        }
+        if($data['hj_state'] == 1){
+            //禁用
+            $update['hj_wx_pay_state'] = -1;
+            $update['hj_zfb_pay_state'] = -1;
+        }else{
+            //启用
+            $update['hj_wx_pay_state'] = 1;
+            $update['hj_zfb_pay_state'] = 1;
+        }
+        $update['update_at'] = date('Y-m-d H:i:s');
+        if(PaySet::doUpdate(['id'=>$data['id']],$update)){
+            return response()->json(['code'=>200,'msg'=>"更改成功"]);
+        }else{
+            return response()->json(['code'=>203,'msg'=>'更改成功']);
+        }
+    }
 
 
 }

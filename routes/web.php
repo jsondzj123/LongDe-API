@@ -299,6 +299,10 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin' , 'middleware'=> ['
 
     $router->group(['prefix' => 'payset'], function () use ($router) {
         $router->post('getList', 'PaySetController@getList');                                 //获取支付配置列表
+        $router->post('doUpdatePayState', 'PaySetController@doUpdatePayState');               //更改支付状态
+        $router->post('doUpdateWxState', 'PaySetController@doUpdateWxState');                 //更改微信状态
+        $router->post('doUpdateZfbState', 'PaySetController@doUpdateZfbState');               //更改支付宝状态
+        $router->post('doUpdateHjState', 'PaySetController@doUpdateHjState');                 //更改汇聚状态
     });
         //系统角色管理模块
     $router->group(['prefix' => 'role'], function () use ($router) {
