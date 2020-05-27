@@ -129,16 +129,20 @@ class LessonChildController extends Controller {
         if ($validator->fails()) {
             return $this->response($validator->errors()->first(), 202);
         }
-
-        $lesson = LessonChild::findOrFail($id);
-        $lesson->name = $request->input('name') ?: $lesson->name;
-        $lesson->pid = $request->input('pid') ?: $lesson->pid;
-        $lesson->category = $request->input('category') ?: $lesson->category;
-        $lesson->url = $request->input('url') ?: $lesson->url;
-        $lesson->size = $request->input('size') ?: $lesson->size;
-        $lesson->is_free = $request->input('is_free') ?: $lesson->is_free;
+        $videoIds = json_decode($request->input('video_id'), true);
         try {
+            $lesson = LessonChild::findOrFail($id);
+            $lesson->name = $request->input('name') ?: $lesson->name;
+            $lesson->pid = $request->input('pid') ?: $lesson->pid;
+            $lesson->category = $request->input('category') ?: $lesson->category;
+            $lesson->url = $request->input('url') ?: $lesson->url;
+            $lesson->size = $request->input('size') ?: $lesson->size;
+            $lesson->is_free = $request->input('is_free') ?: $lesson->is_free;
             $lesson->save();
+            if(!empty($videoIds)){
+                $lesson->videos()->detach(); 
+                $lesson->videos()->attach($videoIds); 
+            }
             return $this->response("修改成功");
         } catch (Exception $e) {
             Log::error('修改课程信息失败' . $e->getMessage());
