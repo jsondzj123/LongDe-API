@@ -53,7 +53,9 @@ $router->group(['prefix' => 'api', 'namespace' => 'Api'], function () use ($rout
     $router->group(['prefix' => 'order'], function () use ($router) {
         $router->post('createOrder','OrderController@createOrder');   //用户生成支付
         $router->post('orderPay','OrderController@orderPay');   //进行支付
+        $router->post('iphoneTopOrder','OrderController@iphonePayCreateOrder');   //苹果内部支付充值 生成预订单
         $router->post('iphonePay','OrderController@iphonePay');   //苹果内部支付
+        $router->post('iosPolling','OrderController@iosPolling');   //苹果支付  轮询回调地址
     });
 });
 
@@ -91,7 +93,7 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin' , 'middleware'=> ['
     $router->post('lesson/{id}/edit', 'LessonController@edit');
     $router->post('lesson/{id}/status', 'LessonController@editStatus');
     $router->post('lesson/{id}/delete', 'LessonController@destroy');
-    
+
 
     /*
      * 章节模块(sxl)

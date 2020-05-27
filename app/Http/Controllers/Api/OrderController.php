@@ -21,9 +21,9 @@ class OrderController extends Controller
          * @param  ctime   2020/5/25 11:20
          * return  array
          */
-    public function createOrder()
-    {
+    public function createOrder(){
         $data = self::$accept_data;
+        print_r($data);die;
 //        if($data['user_type'] ==1){
 //            return ['code' => 204 , 'msg' => '请先登录'];
 //        }
@@ -154,9 +154,54 @@ class OrderController extends Controller
         }
     }
 
-    //iphone 内部支付
-    public function iphonePay($receiptData, $phone, $payProject)
-    {
+
+
+
+    /*
+         * @param  苹果内购 充值余额 生成预订单
+         * @param  price 充值金额
+         * @param  author  苏振文
+         * @param  ctime   2020/5/27 10:31
+         * return  array
+         */
+    public function iphonePayCreateOrder(){
+        $user_id = 1;
+        $data = self::$accept_data;
+        //生成预订单
+        $sutdent_price = [
+            'user_id' => $user_id,
+            'order_sn' => date('YmdHis', time()) . rand(1111, 9999),
+            'price' => $data['price'],
+            'pay_type' => 5,
+            'order_type' => 1,
+            'status' => 0
+        ];
+        Student_price::insert($sutdent_price);
+        return response()->json(['code' => 200, 'msg' => '生成预订单成功', 'data' => $sutdent_price]);
+    }
+    /*
+         * @param  ios轮询查看订单是否成功
+         * @param  order_number   订单号
+         * @param  author  苏振文
+         * @param  ctime   2020/5/27 10:54
+         * return  array
+         */
+    public function iosPolling(){
+        $user_id = 1;
+        $data = self::$accept_data;
+        $list = Student_price::where(['user_id'=>$user_id,'order_sn'=>$data['order_number']])->first()->toArray();
+        if($list['status'] == 0){
+            return response()->json(['code' => 202, 'msg' => '暂未支付']);
+        }
+        if($list['status'] == 1){
+            return response()->json(['code' => 200, 'msg' => '支付成功']);
+        }
+        if($list['status'] == 2){
+            return response()->json(['code' => 201, 'msg' => '支付失败']);
+        }
+    }
+    //iphone 内部支付 回调
+    public function iphonePay($receiptData, $phone, $payProject){
         // 验证参数
         if (strlen($receiptData) < 1000) {
             return;
@@ -210,7 +255,7 @@ class OrderController extends Controller
                     'errorCode' => '购买成功',
                     'pay_project' => $payProject
                 );
-                Log::record($result, 'toAPP');// 记录到日志
+//                Log::record($result, 'toAPP');// 记录到日志
                 return $result;
             } else {
                 throw new ParamErrorException(['errorCode' => '购买失败,status:' . $data['status'] . ',未填写游戏账户']);
