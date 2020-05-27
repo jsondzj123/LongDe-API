@@ -13,19 +13,23 @@ class MethodSeeder extends Seeder
     {
         DB::table('ld_methods')->insert([
 	        [
-	            'id' => 1, 
+	            'id' => 1,
+	            'admin_id' => 0, 
 	            'name' => '直播', 
 	        ], 
 	        [
 	            'id' => 2, 
+	            'admin_id' => 0,
 	            'name' => '录播', 
 	        ],  
 	        [
 	            'id' => 3, 
+	            'admin_id' => 0,
 	            'name' => '面授', 
 	        ], 
 	        [
-	            'id' => 4, 
+	            'id' => 4,
+	            'admin_id' => 0, 
 	            'name' => '其他', 
 	        ],
 
