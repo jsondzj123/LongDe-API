@@ -25,14 +25,16 @@ class UserAuthToken {
         $json_info = Redis::hGetAll("user:regtoken:".$token);
         
         //根据手机号获取用户详情
-        $user_info = User::where("phone" , $json_info['phone'])->first();
-        if(!$user_info || empty($user_info)){
-            return ['code' => 204 , 'msg' => '此用户不存在'];
-        }
-        
-        //判断用户是否在其他设备登录
-        if($user_info['token'] != $token){
-            return ['code' => 206 , 'msg' => '您已在其他设备上登录'];
+        if($json_info['phone'] && !empty($json_info['phone'])){
+            $user_info = User::where("phone" , $json_info['phone'])->first();
+            if(!$user_info || empty($user_info)){
+                return ['code' => 204 , 'msg' => '此用户不存在'];
+            }
+
+            //判断用户是否在其他设备登录
+            if($user_info['token'] != $token){
+                return ['code' => 206 , 'msg' => '您已在其他设备上登录'];
+            }
         }
         
         //从redis中获取token相关信息
