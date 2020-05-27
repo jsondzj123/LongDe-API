@@ -207,4 +207,36 @@ class IndexController extends Controller {
             return response()->json(['code' => 500 , 'msg' => $ex->getMessage()]);
         }
     }
+    
+    
+    /*
+     * @param  description   APP版本升级接口
+     * @param author    dzj
+     * @param ctime     2020-05-27
+     * return string
+     */
+    public function checkVersion() {
+        try {
+            /*$version_info = [
+                'is_online'         =>   1 ,
+                'is_mustup'         =>   1 ,
+                'version'           =>   'v1.0' ,
+                'content'           =>   [
+                    '1.导师主页咨询入口增加「微咨询」选项。' ,
+                    '2.导师服务评价规则更新。' ,
+                    '3.专家圈列表增加搜索功能。' ,
+                    '4.小课部分增加讨论人数。' ,
+                    '5.「微咨询」页面优化。'
+                ],
+                'download_url'      => "http://www.baidu.com"
+            ];*/
+            
+            //获取版本的最新更新信息
+            $version_info = DB::table('ld_version')->select('is_online','is_mustup','version','content','download_url')->orderBy('create_at' , 'DESC')->first();
+            $version_info->content = json_decode($version_info->content , true);
+            return response()->json(['code' => 200 , 'msg' => '获取版本升级信息成功' , 'data' => $version_info]);
+        } catch (Exception $ex) {
+            return response()->json(['code' => 500 , 'msg' => $ex->getMessage()]);
+        }
+    }
 }
