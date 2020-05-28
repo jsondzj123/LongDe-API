@@ -208,6 +208,9 @@ class RoleController extends Controller {
         if( !isset($data['auth_id']) ||  empty($data['auth_id'])){
             return response()->json(['code'=>201,'msg'=>'权限组id为空或缺少']);
         }
+        if(isset($data['admin/role/doRoleAuthUpdate'])){
+            unset($data['admin/role/doRoleAuthUpdate']);
+        }
         $admin=CurrentAdmin::user();
         $school_id = $admin['school_id'];
         $admin_id = $admin['id'];

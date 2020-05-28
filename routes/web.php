@@ -331,6 +331,9 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin' , 'middleware'=> ['
         $router->post('doUpdateWxState', 'PaySetController@doUpdateWxState');                 //更改微信状态
         $router->post('doUpdateZfbState', 'PaySetController@doUpdateZfbState');               //更改支付宝状态
         $router->post('doUpdateHjState', 'PaySetController@doUpdateHjState');                 //更改汇聚状态
+        $router->post('getZfbById', 'PaySetController@getZfbConfig');                       //添加支付宝配置(获取)
+        $router->post('getWxById', 'PaySetController@getWxConfig');                         //添加微信配置(获取)
+        $router->post('getHjById', 'PaySetController@getHjConfig');                         //添加汇聚配置(获取)
     });
         //系统角色管理模块
     $router->group(['prefix' => 'role'], function () use ($router) {
