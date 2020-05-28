@@ -24,7 +24,7 @@ class SubjectController extends Controller {
                 $child = [['id' => 0, 'name' => '全部']];
                 $value['childs'] = array_merge($child, json_decode($value->childs()));
         }
-        $all = [['id' => 0, 'name' => '全部', 'pid' => 0, 'child' => []]];
+        $all = [['id' => 0, 'name' => '全部', 'pid' => 0, 'childs' => []]];
         $data['subjects'] = array_merge($all, json_decode($subjects)); 
         $data['sort'] = [
             ['sort_id' => 0, 'name' => '综合', 'type' => ['asc', 'desc']],
