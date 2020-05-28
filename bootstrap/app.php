@@ -43,6 +43,7 @@ $app->withEloquent();
 
 $app->singleton(
     Illuminate\Contracts\Debug\ExceptionHandler::class,
+
     App\Exceptions\Handler::class
 );
 
@@ -87,7 +88,7 @@ $app->routeMiddleware([
      'user'=> App\Http\Middleware\UserAuthToken::class,
     // 'jwt.role' => App\Http\Middleware\JWTRoleAuth::class,
      'cors' => App\Http\Middleware\Cors::class,
-     
+
 ]);
 
 /*

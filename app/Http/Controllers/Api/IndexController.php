@@ -386,4 +386,32 @@ class IndexController extends Controller {
             return response()->json(['code' => 500 , 'msg' => $ex->getMessage()]);
         }
     }
+
+    /**
+     * @param  description   首页课程接口
+     * @param author    sxl
+     * @param ctime     2020-05-28
+     * @return string
+     */
+    public function getLessonList() {
+        //获取提交的参数
+        try{
+            $subject = Subject::select('id', 'name')->where('pid', 0)->limit(4)->get();
+            $lessons = [];
+            foreach ($subject as $key => $value) {
+                $lessons[$key]['subject'] = $value;
+                $lessons[$key]['lesson'] = Lesson::select('id', 'title', 'cover', 'buy_num', 'price as old_price', 'favorable_price')
+                                            ->with(['subjects' => function ($query) {
+                                                $query->select('id', 'name');
+                                            }])
+                                            ->whereHas('subjects', function ($query) use ($value)
+                                                {
+                                                    $query->where('id', $value->id);
+                                                })->get();
+            }
+            return $this->response($lessons);
+        } catch (Exception $ex) {
+            return $this->response($ex->getMessage());
+        }
+    }
 }
