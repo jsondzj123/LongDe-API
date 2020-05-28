@@ -35,10 +35,11 @@ class UserAuthToken {
             }
         } else {
             //通过token获取用户信息
-            $json_info = User::select("id as user_id")->where("token" , $token)->first()->toArray();
-            if(!$json_info || empty($json_info)){
+            $user_info = User::select("id as user_id")->where("token" , $token)->first();
+            if(!$user_info || empty($user_info)){
                 return ['code' => 202 , 'msg' => 'token值非法'];
             }
+            $json_info = $user_info->toArray();
         }
 
         //从redis中获取token相关信息
