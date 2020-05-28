@@ -59,6 +59,8 @@ $router->group(['prefix' => 'api', 'namespace' => 'Api'], function () use ($rout
         $router->post('orderPay','OrderController@orderPay');   //进行支付
         $router->post('iphoneTopOrder','OrderController@iphonePayCreateOrder');   //苹果内部支付充值 生成预订单
         $router->post('iosPolling','OrderController@iosPolling');   //轮询订单信息
+        $router->post('myOrderlist','OrderController@myOrderlist');   //我的订单
+        $router->post('myPricelist','OrderController@myPricelist');   //我的余额记录
     });
     //回调
     $router->group(['prefix' => 'notify'], function () use ($router) {

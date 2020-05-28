@@ -10,8 +10,6 @@ use App\Models\Student_price;
 use App\Models\Student_pricelog;
 use App\Tools\AlipayFactory;
 use App\Tools\WxpayFactory;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
 
 
 class OrderController extends Controller
@@ -19,20 +17,57 @@ class OrderController extends Controller
 
     /*
          * @param  我的订单
-         * @param  $user_id     参数
+         * @param  $type    参数
          * @param  author  苏振文
          * @param  ctime   2020/5/28 10:32
          * return  array
          */
     public function myOrderlist(){
         $data = self::$accept_data;
-        $count =    Order::where(['student_id'=>$data['user_info']['user_id']])->count();
+        //每页显示的条数
+        $pagesize = (int)isset($data['pageSize']) && $data['pageSize'] > 0 ? $data['pageSize'] : 10;
+        $page     = isset($data['page']) && $data['page'] > 0 ? $data['page'] : 1;
+        $offset   = ($page - 1) * $pagesize;
+
+        $count = Order::where(['student_id'=>$data['user_info']['user_id']])->count(); //全部条数
+        $success = Order::where(['student_id'=>$data['user_info']['user_id'],'status'=>2])->count(); //完成
+        $fily = Order::where(['student_id'=>$data['user_info']['user_id'],'status'=>'< 2'])->count(); //未完成
+        $orderlist = [];
         if($count >0){
-            $orderlist =Order::select()
-                ->leftJoin('ld_lessions','ld_school.id','=','ld_article_type.school_id');
-        }else{
-            $orderlist = [];
+            $orderlist =Order::select('ld_order.id','ld_order.order_number','ld_order.create_at','ld_order.price','ld_order.status','ld_order.pay_time','ld_lessons.title')
+                ->leftJoin('ld_lessons','ld_order.class_id','=','ld_lessons.id')
+                ->where(['ld_order.student_id'=>$data['user_info']['user_id']])
+                ->orderByDesc('ld_order.id')
+                ->offset($offset)->limit($pagesize)
+                ->get()->toArray();
         }
+        $page=[
+            'pageSize'=>$pagesize,
+            'page' =>$page,
+            'total'=>$count
+        ];
+        $arrcount =[
+            'count'=>$count,
+            'success'=>$success,
+            'fily'=>$fily
+        ];
+        return ['code' => 200 , 'msg' => '获取成功','data'=>$orderlist,'arrcount'=>$arrcount,'page'=>$page];
+    }
+    /*
+         * @param  descriptsion 作用
+         * @param  $user_id     参数
+         * @param  author  苏振文
+         * @param  ctime   2020/5/28 15:07
+         * return  array
+         */
+    public function myPricelist(){
+        $data = self::$accept_data;
+        $count = Student_pricelog::where(['user_id'=>$data['user_info']['user_id']])->count();
+        $pricelog = [];
+        if($count > 0){
+            $pricelog = Student_pricelog::select('price','status','create_at')->where(['user_id'=>$data['user_info']['user_id']])->get()->toArray();
+        }
+        return ['code' => 200 , 'msg' => '获取成功','data'=>$pricelog];
     }
     /*
          * @param  客户端生成预订单
