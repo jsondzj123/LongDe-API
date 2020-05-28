@@ -42,6 +42,8 @@ $router->group(['prefix' => 'api', 'namespace' => 'Api'], function () use ($rout
         $router->post('getChartList','IndexController@getChartList');               //APP首页轮播图接口
         $router->post('getOpenClassList','IndexController@getOpenClassList');       //APP首页公开课接口
         $router->post('getTeacherList','IndexController@getTeacherList');           //APP首页讲师接口
+        $router->post('getOpenPublicList','IndexController@getOpenPublicList');     //APP公开课列表接口
+        $router->post('checkVersion','IndexController@checkVersion');               //APP版本升级接口
     });
 
     //用户学员相关接口
@@ -95,9 +97,16 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin' , 'middleware'=> ['
     });*/
 
     /*
+     * 授课方式(sxl)
+    */
+    $router->post('method', 'MethodController@index');
+    $router->post('method/add', 'MethodController@store');
+    $router->post('method/{id}/update', 'MethodController@update');
+    $router->post('method/{id}/delete', 'MethodController@destroy');
+
+    /*
      * 课程模块(sxl)
     */
-
     $router->post('lesson', 'LessonController@index');
     $router->post('lesson/add', 'LessonController@store');
     $router->post('lesson/{id}', 'LessonController@show');
@@ -315,6 +324,10 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin' , 'middleware'=> ['
 
     $router->group(['prefix' => 'payset'], function () use ($router) {
         $router->post('getList', 'PaySetController@getList');                                 //获取支付配置列表
+        $router->post('doUpdatePayState', 'PaySetController@doUpdatePayState');               //更改支付状态
+        $router->post('doUpdateWxState', 'PaySetController@doUpdateWxState');                 //更改微信状态
+        $router->post('doUpdateZfbState', 'PaySetController@doUpdateZfbState');               //更改支付宝状态
+        $router->post('doUpdateHjState', 'PaySetController@doUpdateHjState');                 //更改汇聚状态
     });
         //系统角色管理模块
     $router->group(['prefix' => 'role'], function () use ($router) {

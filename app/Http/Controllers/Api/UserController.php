@@ -21,7 +21,7 @@ class UserController extends Controller {
         //获取提交的参数
         try{
             //根据用户id获取用户详情
-            $user_info = Student::select("id as user_id" , "token  as user_token" , "user_type" , "head_icon" , "real_name" , "phone" , "nickname" , "sign" , "papers_type" , "papers_num" , "balance")->find(self::$accept_data['user_info']['user_id']);
+            $user_info = Student::select("id as user_id" , "token  as user_token" , "user_type" , "head_icon" , "real_name" , "phone" , "nickname" , "sign" , "papers_type" , "papers_num" , "balance" , "school_id")->find(self::$accept_data['user_info']['user_id']);
             if($user_info && !empty($user_info)){
                 //证件名称
                 $user_info['papers_name']  = $user_info['papers_type'] > 0 ? parent::getPapersNameByType($user_info['papers_type']) : '';
@@ -65,21 +65,29 @@ class UserController extends Controller {
             //判断头像是否为空
             if(isset($body['head_icon']) && !empty($body['head_icon'])){
                 $where['head_icon'] = $body['head_icon'];
+                //设置redis的头像值
+                Redis::hSet("user:regtoken:".$body['user_token'] , 'head_icon' , $body['head_icon']);
             }
             
             //判断姓名是否为空
             if(isset($body['real_name']) && !empty($body['real_name'])){
                 $where['real_name'] = $body['real_name'];
+                //设置redis的姓名值
+                Redis::hSet("user:regtoken:".$body['user_token'] , 'real_name' , $body['real_name']);
             }
             
             //判断昵称是否为空
             if(isset($body['nickname']) && !empty($body['nickname'])){
                 $where['nickname']  = $body['nickname'];
+                //设置redis的昵称值
+                Redis::hSet("user:regtoken:".$body['user_token'] , 'nickname' , $body['nickname']);
             }
             
             //判断签名是否为空
             if(isset($body['sign']) && !empty($body['sign'])){
                 $where['sign']      = $body['sign'];
+                //设置redis的签名值
+                Redis::hSet("user:regtoken:".$body['user_token'] , 'sign' , $body['sign']);
             }
             
             //判断证件名称是否为空
@@ -87,11 +95,15 @@ class UserController extends Controller {
                 //根据证件名称获取证件类的id
                 $papers_type = array_search($body['papers_name'], [1=>'身份证' , 2=>'护照' , 3=>'港澳通行证' , 4=>'台胞证' , 5=>'军官证' , 6=>'士官证' , 7=>'其他']);
                 $where['papers_type'] = $papers_type ? $papers_type : 0;
+                //设置redis的证件值
+                Redis::hMset("user:regtoken:".$body['user_token'] , ['papers_type' => $where['papers_type'] , 'papers_name' => parent::getPapersNameByType($where['papers_type'])]);
             }
             
             //判断证件号码是否为空
             if(isset($body['papers_num']) && !empty($body['papers_num'])){
                 $where['papers_num'] = $body['papers_num'];
+                //设置redis的证件号码值
+                Redis::hSet("user:regtoken:".$body['user_token'] , 'papers_num' , $body['papers_num']);
             }
             $where['update_at']  = date('Y-m-d H:i:s');
             

@@ -15,7 +15,7 @@ class CreateLdLessonMethodsTable extends Migration
     {
         Schema::create('ld_lesson_methods', function (Blueprint $table) {
             $table->integer('lesson_id')->unsigned()->comment('课程ID');
-            $table->integer('method_id')->unsigned()->comment('直播资源ID');
+            $table->integer('method_id')->unsigned()->comment('授课方式ID');
             $table->timestamps();
 
             $table->foreign('lesson_id')->references('id')->on('ld_lessons')->onUpdate('cascade')->onDelete('cascade');  
