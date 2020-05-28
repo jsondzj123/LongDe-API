@@ -8,6 +8,7 @@ use App\Models\Admin as Adminuser;
 use App\Models\Roleauth;
 use App\Models\Authrules;
 use App\Models\School;
+use App\Models\PaySet;
 use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\Validator;
 use App\Tools\CurrentAdmin;
@@ -119,16 +120,28 @@ class SchoolController extends Controller {
             if($school['is_forbid'] != 1){
                 $school->is_forbid = 1; 
                 $is_forbid = 1;
+
+                $pay_status = 1;
+                $wx_pay_state = 1;
+                $zfb_pay_state = 1;
+                $hj_wx_pay_state = 1;
+                $hj_zfb_pay_state = 1;
+           
             }else{
                 $school->is_forbid = 0; 
                 $is_forbid = 0;
+                $pay_status = -1;
+                $wx_pay_state = -1;
+                $zfb_pay_state = -1;
+                $hj_wx_pay_state = -1;
+                $hj_zfb_pay_state = -1;
             }   
-            if( $school->save() &&Adminuser::upUserStatus(['school_id'=>$school['id']],['is_forbid'=>$is_forbid])){
+            if( $school->save() && Adminuser::upUserStatus(['school_id'=>$school['id']],['is_forbid'=>$is_forbid]) && PaySet::where('school_id',$school['id'])->update(['pay_status'=>$pay_status,'wx_pay_state'=>$wx_pay_state,'zfb_pay_state'=>$zfb_pay_state,'hj_wx_pay_state'=>$hj_wx_pay_state,'hj_zfb_pay_state'=>$hj_zfb_pay_state,'update_at'=>date('Y-m-d H:i:s')] ) ){
                 AdminLog::insertAdminLog([
                     'admin_id'       =>   CurrentAdmin::user()['id'] ,
                     'module_name'    =>  'School' ,
                     'route_url'      =>  'admin/school/doSchoolDel' , 
-                    'operate_method' =>  'update' ,
+                    'operate_method' =>  'update',
                     'content'        =>  json_encode($data),
                     'ip'             =>  $_SERVER["REMOTE_ADDR"] ,
                     'create_at'      =>  date('Y-m-d H:i:s')
@@ -206,19 +219,19 @@ class SchoolController extends Controller {
                 'school_status' => 0,
             ];
 
-            if(Adminuser::insertGetId($admin)>0){
-                AdminLog::insertAdminLog([
-                    'admin_id'       =>   CurrentAdmin::user()['id'] ,
-                    'module_name'    =>  'School' ,
-                    'route_url'      =>  'admin/school/doInsertSchool' , 
-                    'operate_method' =>  'insert',
-                    'content'        =>  json_encode($data),
-                    'ip'             =>  $_SERVER["REMOTE_ADDR"] ,
-                    'create_at'      =>  date('Y-m-d H:i:s')
-                ]);
+            if(Adminuser::insertGetId($admin)<0){
+                DB::rollBack();
+                return response()->json(['code' => 203 , 'msg' => '创建账号未成功']);
+            } 
+            $payconfig = [
+                'admin_id' => CurrentAdmin::user()['id'],
+                'school_id'=> $school_id,
+                'create_at'=> date('Y-m-d H:i:s')
+            ];
+            if(PaySet::insertGetId($payconfig)>0){
                 DB::commit();
-                return response()->json(['code' => 200 , 'msg' => '创建成功']);
-            } else {
+                return response()->json(['code' => 200 , 'msg' => '创建账号成功']);
+            }else{
                  DB::rollBack();
                 return response()->json(['code' => 203 , 'msg' => '创建账号未成功']);
             }
