@@ -39,7 +39,7 @@ class Lesson extends Model {
 
     public function getIsAuthAttribute($value) {
         $user = CurrentAdmin::user();
-        $token = isset($_REQUEST['user_token']) ?: 0;
+        $token = $_REQUEST['user_token'] ?: 0;
         $student = Student::where('token', $token)->first();
         if(!empty($student) ){
             $school = LessonSchool::where(['school_id' => $student->school_id, 'lesson_id' => $this->id])->count();
