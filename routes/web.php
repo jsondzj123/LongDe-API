@@ -58,11 +58,16 @@ $router->group(['prefix' => 'api', 'namespace' => 'Api'], function () use ($rout
     });
     //回调
     $router->group(['prefix' => 'notify'], function () use ($router) {
-        $router->post('iphonePaynotify','OrderController@iphonePaynotify');   //苹果内部支付
-        $router->post('hjAlinotify','OrderController@hjAlinotify');   //汇聚支付宝回调地址
-        $router->post('hjWxnotify','OrderController@hjWxnotify');   //汇聚支付宝回调地址
-        $router->post('Wxnotify_url', 'OrderController@wxnotify');//微信回调
-        $router->post('Alinotify_url', 'OrderController@alinotify');//支付宝回调
+        $router->post('iphonePaynotify','NotifyController@iphonePaynotify');   //苹果内部支付
+        $router->post('hjAlinotify','NotifyController@hjAlinotify');   //汇聚支付宝 购买回调地址
+        $router->post('hjWxnotify','NotifyController@hjWxnotify');   //汇聚weixin 购买回调地址
+        $router->post('wxnotify', 'NotifyController@wxnotify');//微信 购买回调
+        $router->post('alinotify', 'NotifyController@alinotify');//支付宝 购买回调
+
+        $router->post('hjAliTopnotify','NotifyController@hjAliTopnotify');   //汇聚支付宝 充值回调地址
+        $router->post('hjWxTopnotify','NotifyController@hjWxTopnotify');   //汇聚weixin 充值回调地址
+        $router->post('wxTopnotify', 'NotifyController@wxTopnotify');//微信 充值回调
+        $router->post('aliTopnotify', 'NotifyController@aliTopnotify');//支付宝 充值回调
     });
 });
 

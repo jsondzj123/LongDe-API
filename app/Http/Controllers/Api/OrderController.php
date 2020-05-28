@@ -8,6 +8,8 @@ use App\Models\Order;
 use App\Models\Student;
 use App\Models\Student_price;
 use App\Models\Student_pricelog;
+use App\Tools\AlipayFactory;
+use App\Tools\WxpayFactory;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
@@ -52,7 +54,7 @@ class OrderController extends Controller
         //获取用户信息
         $user_id = $data['user_info']['user_id'];
         $user_balance = $data['user_info']['balance'];
-        $user_school_id = 1;
+        $user_school_id = $data['user_info']['school_id'];
         //判断支付类型
         if (empty($data['type']) || !isset($data['type']) || !in_array($data['type'], [1, 2])) {
             return ['code' => 201, 'msg' => '请选择类型'];
@@ -114,7 +116,7 @@ class OrderController extends Controller
                     'status' => 0
                 ];
                 Student_price::insert($sutdent_price);
-                $return = $this->payStatus($order['order_number'], $data['pay_type'], $lesson['favorable_price'],$user_school_id);
+                $return = $this->payStatus($order['order_number'], $data['pay_type'], $lesson['favorable_price'],$user_school_id,1);
                 return response()->json(['code' => 200, 'msg' => '生成预订单成功', 'data' => $return]);
             }
         } else {
@@ -128,71 +130,80 @@ class OrderController extends Controller
             ];
             $add = Student_price::insert($sutdent_price);
             if ($add) {
-                $return = self::payStatus($sutdent_price['order_number'], $data['type'], $data['price'],$user_school_id);
+                $return = self::payStatus($sutdent_price['order_number'], $data['type'], $data['price'],$user_school_id,2);
                 return response()->json(['code' => 200, 'msg' => '生成预订单成功', 'data' => $return]);
             }
         }
     }
-    //调用公共方法
     //$type  1微信2支付宝3汇聚微信4汇聚支付宝
-    public function payStatus($order_number, $type, $price,$school_id){
-        if ($type == 1) {
-            //根据分校查询对应信息
-            return $return = app('wx')->getPrePayOrder($order_number, $price);
-        }
-        if ($type == 2) {
-            //根据分校查询对应信息
-            $return = app('ali')->createAppPay($order_number, '龙德产品', 0.01);
-            $alipay = [
-                'alipay' => $return
-            ];
-            return $alipay;
-        }
-        if ($type == 3) {
-            //根据分校查询对应信息
-            $arr=[
-                'p0_Version'=>'1.0',
-                'p1_MerchantNo'=>'888108900009969',
-                'p2_OrderNo'=>$order_number,
-                'p3_Amount'=>$price,
-                'p4_Cur'=>1,
-                'p5_ProductName'=>"龙德产品",
-                'p9_NotifyUrl'=>"http://".$_SERVER['HTTP_HOST']."/Api/order/hjWxnotify",
-                'q1_FrpCode'=>'WEIXIN_APP',
-                'q7_AppId'=>'',
-                'qa_TradeMerchantNo'=>'777170100269422'
-            ];
-            $str = "15f8014fee1642fbb123fb5684cda48b";
-            $token = $this->hjHmac($arr,$str);
-            $arr['hmac'] = $token;
-            if(strlen($token) ==32){
-                $aaa = $this->hjpost($arr);
-                print_r($aaa);die;
-            }
-        }
-        if ($type == 4) {
-            //根据分校查询对应信息
-            $arr=[
-                'p0_Version'=>'1.0',
-                'p1_MerchantNo'=>'888108900009969',
-                'p2_OrderNo'=>$order_number,
-                'p3_Amount'=>$price,
-                'p4_Cur'=>1,
-                'p5_ProductName'=>"龙德产品",
-                'p9_NotifyUrl'=>"http://".$_SERVER['HTTP_HOST']."/Api/order/hjAlinotify",
-                'q1_FrpCode'=>'ALIPAY_APP',
-                'qa_TradeMerchantNo'=>'777170100269422'
-            ];
-            $str = "15f8014fee1642fbb123fb5684cda48b";
-            $token = $this->hjHmac($arr,$str);
-            $arr['hmac'] = $token;
-            if(strlen($token) ==32){
-                $aaa = $this->hjpost($arr);
-                print_r($aaa);die;
-            }
-
+    //pay_type   1购买2充值
+    public function payStatus($order_number, $type, $price,$school_id,$pay_type){
+        switch($type){
+            case "1":
+                //根据分校查询对应信息
+                $wxpay = new WxpayFactory();
+                return $return = $wxpay->getPrePayOrder($order_number, $price,$pay_type);
+            case "2":
+                $alipay = new AlipayFactory();
+                $return = $alipay->createAppPay($order_number, '龙德产品', 0.01,$pay_type);
+                $alipay = [
+                    'alipay' => $return
+                ];
+                return $alipay;
+            case "3":
+                //根据分校查询对应信息
+                if($pay_type == 1){
+                    $notify = "http://".$_SERVER['HTTP_HOST']."/Api/notify/hjWxnotify";
+                }else{
+                    $notify = "http://".$_SERVER['HTTP_HOST']."/Api/notify/hjWxTopnotify";
+                }
+                $arr=[
+                    'p0_Version'=>'1.0',
+                    'p1_MerchantNo'=>'888108900009969',
+                    'p2_OrderNo'=>$order_number,
+                    'p3_Amount'=>$price,
+                    'p4_Cur'=>1,
+                    'p5_ProductName'=>"龙德产品",
+                    'p9_NotifyUrl'=>$notify,
+                    'q1_FrpCode'=>'WEIXIN_APP',
+                    'q7_AppId'=>'',
+                    'qa_TradeMerchantNo'=>'777170100269422'
+                ];
+                $str = "15f8014fee1642fbb123fb5684cda48b";
+                $token = $this->hjHmac($arr,$str);
+                $arr['hmac'] = $token;
+                if(strlen($token) ==32){
+                    $aaa = $this->hjpost($arr);
+                    print_r($aaa);die;
+                }
+            case "4":
+                //根据分校查询对应信息
+                if($pay_type == 1){
+                    $notify = "http://".$_SERVER['HTTP_HOST']."/Api/notify/hjAlinotify";
+                }else{
+                    $notify = "http://".$_SERVER['HTTP_HOST']."/Api/notify/hjAliTopnotify";
+                }
+                $arr=[
+                    'p0_Version'=>'1.0',
+                    'p1_MerchantNo'=>'888108900009969',
+                    'p2_OrderNo'=>$order_number,
+                    'p3_Amount'=>$price,
+                    'p4_Cur'=>1,
+                    'p5_ProductName'=>"龙德产品",
+                    'p9_NotifyUrl'=>$notify,
+                    'q1_FrpCode'=>'ALIPAY_APP',
+                    'qa_TradeMerchantNo'=>'777170100269422'
+                ];
+                $str = "15f8014fee1642fbb123fb5684cda48b";
+                $token = $this->hjHmac($arr,$str);
+                $arr['hmac'] = $token;
+                if(strlen($token) ==32){
+                    $aaa = $this->hjpost($arr);
+                    print_r($aaa);die;
+                }
         }
     }
+
     //  苹果内购 充值余额 生成预订单
     public function iphonePayCreateOrder(){
         $data = self::$accept_data;
@@ -225,84 +236,6 @@ class OrderController extends Controller
         }
     }
 
-    //iphone 内部支付 回调
-    public function iphonePaynotify(){
-        $data = self::$accept_data;
-        $receiptData = $data['receiptData'];
-        $order_number = $data['order_number'];
-        // 验证参数
-        if (strlen($receiptData) < 20) {
-            return response()->json(['code' => 201 , 'msg' => '不能读取你提供的JSON对象']);
-        }
-        // 请求验证【默认向真实环境发请求】
-        $html = $this->acurl($receiptData);
-        $arr = json_decode($html, true);//接收苹果系统返回数据并转换为数组，以便后续处理
-        // 如果是沙盒数据 则验证沙盒模式
-        if ($arr['status'] == '21007') {
-            // 请求验证  1代表向沙箱环境url发送验证请求
-            $html = $this->acurl($receiptData, 1);
-            $arr = json_decode($html, true);
-        }
-        Storage::disk('local')->append('iosnotify.txt', 'time:'.date('Y-m-d H:i:s')."\nresponse:".$html);
-        // 判断是否购买成功  【状态码,0为成功（无论是沙箱环境还是正式环境只要数据正确status都会是：0）】
-        if (intval($arr['status']) === 0) {
-            DB::beginTransaction();
-               $studentprice = Student_price::where(['order_number'=>$order_number])->first()->toArray();
-               if($studentprice['status'] == 1){
-                   return response()->json(['code' => 200 , 'msg' => '支付成功']);
-               }
-               $codearr=[
-                   'tc001'=>6,
-                   'tc003'=>18,
-                   'tc004'=>68,
-                   'tc005'=>168,
-                   'tc006'=>388,
-                   'tc007'=>698,
-                   'tc008'=>1998,
-                   'tc009'=>3998,
-                   'tc0010'=>6498,
-               ];
-               if($studentprice['price'] != $codearr[$arr['receipt']['in_app'][0]['product_id']]){
-                   return response()->json(['code' => 203 , 'msg' => '充值金额不一致，你充不上，气不气']);
-               }
-               //修改订单状态  更改用户余额 加入日志
-              $student = Student::where(['id'=>$studentprice['user_id']])->first()->toArray();
-              $endbalance = $student['balance'] + $studentprice['price'];
-              Student::where(['id'=>$studentprice['user_id']])->update(['balance'=>$endbalance]);
-              Student_price::where(['order_number'=>$order_number])->update(['content'=>$html,'status'=>1,'update_at'=>date('Y-m-d H:i:s')]);
-              Student_pricelog::insert(['user_id'=>$studentprice['user_id'],'price'=>$studentprice['price'],'end_price'=>$endbalance,'status'=>1]);
-              DB::commit();
-        }else{
-            if(in_array('Failed',$arr)){
-                Student_price::where(['order_number'=>$order_number])->update(['content'=>$html,'status'=>2,'update_at'=>date('Y-m-d H:i:s')]);
-                return response()->json(['code' => 207 , 'msg' =>'支付失败']);
-            }
-            if(in_array('Deferred',$arr)){
-                return response()->json(['code' => 207 , 'msg' =>'等待确认，儿童模式需要询问家长同意']);
-            }
-            DB::rollBack();
-        }
-    }
-    //curl【模拟http请求】
-    public function acurl($receiptData, $sandbox = 0){
-        //小票信息
-        $POSTFIELDS = array("receipt-data" => $receiptData);
-        $POSTFIELDS = json_encode($POSTFIELDS);
-        //正式购买地址 沙盒购买地址
-        $urlBuy = "https://buy.itunes.apple.com/verifyReceipt";
-        $urlSandbox = "https://sandbox.itunes.apple.com/verifyReceipt";
-        $url = $sandbox ? $urlSandbox : $urlBuy;//向正式环境url发送请求(默认)
-        //简单的curl
-        $ch = curl_init($url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $POSTFIELDS);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
-        $result = curl_exec($ch);
-        curl_close($ch);
-        return $result;
-    }
     //汇聚签名
     public function hjHmac($arr,$str){
         $newarr = '';
@@ -322,21 +255,5 @@ class OrderController extends Controller
         $result = curl_exec($ch);
         curl_close($ch);
         return $result;
-    }
-    public function hjAlinotify(){
-        $json = file_get_contents("php://input");
-        Storage ::disk('hjAlinotify')->append('hjAlinotify.txt', 'time:'.date('Y-m-d H:i:s')."\nresponse:".$json);
-    }
-    public function hjWxnotify(){
-        $json = file_get_contents("php://input");
-        Storage ::disk('hjAlinotify')->append('hjAlinotify.txt', 'time:'.date('Y-m-d H:i:s')."\nresponse:".$json);
-    }
-    public function wxnotify_url(){
-        $data=[
-            'sdd'=>1,
-            'ssss'=>1
-        ];
-//        Order::wxnotify_url();
-        Storage::disk('local')->append('wxpaynotify.txt', 'time:'.date('Y-m-d H:i:s')."\nresponse:".json_encode($data));
     }
 }
