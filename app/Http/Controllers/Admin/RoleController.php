@@ -167,7 +167,7 @@ class RoleController extends Controller {
                 }
                 $authArr = \App\Models\Authrules::getAuthAlls(['id'=>$auth_id_arr],['id','name','title','parent_id']);
         }   
-        $authArr  = getParentsList($authArr);
+        $authArr  = getAuthArr($authArr);
         $arr = [
             'code'=>200,
             'msg'=>'获取角色成功',
