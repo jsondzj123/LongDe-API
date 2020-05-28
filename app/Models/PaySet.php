@@ -17,6 +17,26 @@ class PaySet extends Model {
     //时间戳设置
     public $timestamps = false;
 
+
+    public static function message()
+    {
+        return [
+            'id.required'  => json_encode(['code'=>'201','msg'=>'列表标识不能为空']),
+            'id.integer'   => json_encode(['code'=>'202','msg'=>'列表标识类型不合法']),
+            'app_id.required' => json_encode(['code'=>'201','msg'=>'app_id不能为空']),
+            'app_public_key.required'  => json_encode(['code'=>'201','msg'=>'应用公钥类型不能为空']),
+            'zfb_public_key.required'  => json_encode(['code'=>'201','msg'=>'公钥类型不能为空']),
+            'shop_number.required'  => json_encode(['code'=>'201','msg'=>'商户号不能为空']),
+            'api_key.required'  => json_encode(['code'=>'201','msg'=>'密钥不能为空']),
+            'md_key.required'  => json_encode(['code'=>'201','msg'=>'md5密钥不能为空']),
+            'wx_deal_shop_number.required'  => json_encode(['code'=>'201','msg'=>'微信交易商户号不能为空']),
+            'wx_state.required'  => json_encode(['code'=>'201','msg'=>'微信支付状态不能为空']),
+            'wx_state.integer'  => json_encode(['code'=>'202','msg'=>'微信支付状态不合法']),
+            'zfb_state.required'  => json_encode(['code'=>'201','msg'=>'支付宝支付状态不能为空']),
+            'zfb_state.integer'  => json_encode(['code'=>'202','msg'=>'支付宝支付状态不合法']),
+            'zfb_deal_shop_number.required'  => json_encode(['code'=>'201','msg'=>'支付宝交易商户号不能为空']),
+        ];
+    }
 			 /*
          * @param  获取分类列表
          * @param  search     搜索条件
