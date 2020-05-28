@@ -16,6 +16,7 @@ class CreateLdCollectionsTable extends Migration
         Schema::create('ld_collections', function (Blueprint $table) {
             $table->integer('student_id')->unsigned()->comment('学员ID');
             $table->integer('lesson_id')->unsigned()->comment('课程ID');
+            $table->tinyInteger('is_del')->default(0)->comment('删除0否1是');
             $table->timestamps();
 
             $table->foreign('lesson_id')->references('id')->on('ld_lessons')->onUpdate('cascade')->onDelete('cascade');  
