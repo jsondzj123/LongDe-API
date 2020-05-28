@@ -39,6 +39,25 @@ class Lesson extends Model {
 
     public function getIsAuthAttribute($value) {
         $user = CurrentAdmin::user();
+        $token = isset($_REQUEST['user_token']) ?: 0;
+        $student = Student::where('token', $token)->first();
+        if(!empty($student) ){
+            $school = LessonSchool::where(['school_id' => $student->school_id, 'lesson_id' => $this->id])->count();
+            $adminIds = Admin::where('school_id', $student->school_id)->pluck('id')->toArray();
+            if($school > 0){
+                //授权
+                return 2;
+            }
+            if(!empty($adminIds)){
+                $flipped_haystack = array_flip($adminIds);
+
+                if ( isset($flipped_haystack[$this->admin_id]) )
+                {
+                    //自增
+                    return  1;
+                }  
+            }
+        }
         if(!empty($user)){
             $school = LessonSchool::where(['school_id' => $user->school_id, 'lesson_id' => $this->id])->count();
             if($school > 0){
@@ -50,6 +69,7 @@ class Lesson extends Model {
                 return  1;
             }
         }
+
         return  0;
     }
 

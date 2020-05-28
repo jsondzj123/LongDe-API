@@ -165,6 +165,7 @@ class Order extends Model {
          * return  array
          */
     public static function orderPayList($arr){
+            DB::beginTransaction();
             if(!$arr || empty($arr)){
                 return ['code' => 201 , 'msg' => '参数错误'];
             }
@@ -173,7 +174,7 @@ class Order extends Model {
                 return ['code' => 201 , 'msg' => '学生id为空或格式不对'];
             }
             //根据用户id查询信息
-            $student = Student::select('balance')->where('id',$arr['student_id'])->first();
+            $student = Student::select('school_id','balance')->where('id','=',$arr['student_id'])->first();
             //判断课程id
             if(!isset($arr['class_id']) || empty($arr['class_id'])){
                 return ['code' => 201 , 'msg' => '课程id为空或格式不对'];
@@ -182,11 +183,20 @@ class Order extends Model {
             if(!isset($arr['type']) || empty($arr['type'] || !in_array($arr['type'],[1,2,3]))){
                 return ['code' => 201 , 'msg' => '机型不匹配'];
             }
-            //根据课程id 查询价格
-            $lesson = Lesson::select('id','title','cover','price','favorable_price')->where(['id'=>$arr['class_id'],'is_del'=>0,'is_forbid'=>0,'status'=>2,'is_public'=>0])->get();
-            if(!$lesson){
-                return ['code' => 204 , 'msg' => '此课程选择无效'];
-            }
+            //判断用户网校，根据网校查询课程信息
+           if($student['school_id'] == 1){
+               //根据课程id 查询价格
+               $lesson = Lesson::select('id','title','cover','price','favorable_price')->where(['id'=>$arr['class_id'],'is_del'=>0,'is_forbid'=>0,'status'=>2,'is_public'=>0])->first()->toArray();
+               if(!$lesson){
+                   return ['code' => 204 , 'msg' => '此课程选择无效'];
+               }
+           }else{
+                //根据课程id 网校id 查询网校课程详情
+               $lesson = LessonSchool::select('id','title','cover','price','favorable_price')->where(['lesson_id'=>$arr['class_id'],'school_id'=>$student['school_id'],'is_del'=>0,'is_forbid'=>0,'status'=>1,'is_public'=>0])->first()->toArray();
+               if(!$lesson){
+                   return ['code' => 204 , 'msg' => '此课程选择无效'];
+               }
+           }
             //查询用户有此类订单没有，有的话直接返回
             $orderfind = self::where(['student_id'=>$arr['student_id'],'class_id'=>$arr['class_id'],'status'=>0])->first();
             if($orderfind){
@@ -207,29 +217,17 @@ class Order extends Model {
             $data['status'] = 0;
             $data['oa_status'] = 0;              //OA状态
             $data['class_id'] = $arr['class_id'];
-            $add = self::insert($data);
-            echo $add;die;
+            $data['school_id'] = $arr['user_info']['school_id'];
+            $add = self::insertGetId($data);
             if($add){
                 $lesson['order_id'] = $add;
-                $lesson['order_number'] = $orderfind['order_number'];
-                if($arr['type'] == 2){
-                    $lesson['user_balance'] = $student['balance'];
-                }
-//                DB::commit();
+                $lesson['order_number'] = $data['order_number'];
+                $lesson['user_balance'] = $student['balance'];
+                DB::commit();
+                //根据分校查询支付方式
                 return ['code' => 200 , 'msg' => '生成预订单成功','data'=>$lesson];
-//                if($arr['pay_type'] == 1){
-//                    $return = app('wx')->getPrePayOrder($data['order_number'],$data['price']);
-//                    if($return['code'] == 200){
-//                        return ['code' => 200 , 'msg' => '生成预订单成功','data'=>$return['list']];
-//                    }else{
-//                        throw new Exception($return['list']);
-//                    }
-//                }else{
-//                    $return = app('ali')->createAppPay($data['order_number'],'商品简介',$data['price']);
-//                    return ['code' => 200 , 'msg' => '生成预订单成功','data'=>$return];
-//                }
             }else{
-//                DB::rollback();
+                DB::rollback();
                 return ['code' => 203 , 'msg' => '生成订单失败'];
             }
     }
@@ -302,14 +300,6 @@ class Order extends Model {
         if(empty($data['order_id'])){
             return ['code' => 201 , 'msg' => '订单id错误'];
         }
-//        $list = self::select('ld_order.order_number','ld_order.create_at','ld_order.price','ld_order.order_type','ld_order.status','ld_order.pay_time','ld_student.real_name','ld_student.phone','ld_school.name','lessons.title','lessons.price as lessprice','lesson_teachers.real_name')
-//            ->leftJoin('ld_student','ld_student.id','=','ld_order.student_id')
-//            ->leftJoin('ld_school','ld_school.id','=','ld_student.school_id')
-//            ->leftJoin('ld_lessons','ld_lessons.id','=','ld_order.class_id')
-//            ->leftJoin('ld_lesson_teachers','ld_lesson_teachers.lesson_id','=','ld_lessons.id')
-//            ->leftJoin('ld_lecturer_educationa','ld_lecturer_educationa.id','=','ld_lesson_teachers.teacher_id')
-//            ->where(['ld_order.id'=>$data['order_id']])
-//            ->first();
         $list = self::select('ld_order.order_number','ld_order.create_at','ld_order.price','ld_order.order_type','ld_order.status','ld_order.pay_time','ld_student.real_name','ld_student.phone','ld_school.name','ld_lessons.title','ld_lecturer_educationa.real_name')
             ->leftJoin('ld_student','ld_student.id','=','ld_order.student_id')
             ->leftJoin('ld_school','ld_school.id','=','ld_student.school_id')
@@ -350,121 +340,4 @@ class Order extends Model {
         }
     }
 
-
-
-
-
-
-
-    /*
-         * @param  微信支付 订单回调，逻辑处理  修改订单状态  添加课程有效期
-         * @param  author  苏振文
-         * @param  ctime   2020/5/6 17:09
-         * return  array
-         */
-    public static function wxnotify_url($xml){
-        if(!$xml) {
-            return ['code' => 201 , 'msg' => '参数错误'];
-        }
-        $data =  self::xmlToArray($xml);
-        Storage ::disk('logs')->append('wxpaynotify.txt', 'time:'.date('Y-m-d H:i:s')."\nresponse:".$data);
-        if($data && $data['result_code']=='SUCCESS') {
-                $where = array(
-                    'order_number'=>$data['attach'],
-                );
-                $orderinfo = self::where($where)->first();
-                if (!$orderinfo) {
-                    return ['code' => 202 , 'msg' => '订单不存在'];
-                }
-                //完成支付
-                if ($orderinfo->status > 0 ) {
-                    return '<xml><return_code><![CDATA[SUCCESS]]></return_code><return_msg><![CDATA[OK]]></return_msg></xml>';
-                }
-            try{
-                DB::beginTransaction();
-                //修改订单状态
-                $arr = array(
-                    'third_party_number'=>$data['transaction_id'],
-                    'status'=>1,
-                    'pay_time'=>date('Y-m-d H:i:s'),
-                    'update_at'=>date('Y-m-d H:i:s')
-                );
-                $res = self::where($where)->update($arr);
-                if (!$res) {
-                    throw new Exception('回调失败');
-                }
-                return '<xml><return_code><![CDATA[SUCCESS]]></return_code><return_msg><![CDATA[OK]]></return_msg></xml>';
-                DB::commit();
-            } catch (Exception $ex) {
-                DB::rollback();
-                return "<xml><return_code><![CDATA[FAIL]]></return_code><return_msg><![CDATA[error]]></return_msg></xml>";
-            }
-        } else {
-            return "<xml><return_code><![CDATA[FAIL]]></return_code><return_msg><![CDATA[error]]></return_msg></xml>";
-        }
-
-    }
-
-    /*
-         * @param  支付宝支付 订单回调 逻辑处理
-         * @param  author  苏振文
-         * @param  ctime   2020/5/6 17:50
-         * return  array
-         */
-    public static function alinotify_url($arr){
-        require_once './App/Providers/Ali/aop/AopClient.php';
-        require_once('./App/Providers/Ali/aop/request/AlipayTradeAppPayRequest.php');
-        $aop = new AopClient();
-        $aop->alipayrsaPublicKey = 'MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAh8I+MABQoa5Lr0hnb9+UeAgHCtZlwJ84+c18Kh/JWO+CAbKqGkmZ6GxrWo2X/vnY2Qf6172drEThHwafNrUqdl/zMMpg16IlwZqDeQuCgSM/4b/0909K+RRtUq48/vRM6denyhvR44fs+d4jZ+4a0v0m0Kk5maMCv2/duWejrEkU7+BG1V+YXKOb0++n8We/ZIrG/OiiXedViwSW3il9/Q5xa21KlcDPjykWyoPolR2MIFqu8PLh2z8uufCPSlFuABMyL+djo8y9RMzTWH+jN2WxcqMSDMIcwGFk3emZKzoy06a5k4Ea8/l3uHq8sbbepvpmC/dZZ0+CZdXgPnVRywIDAQAB';
-        $flag = $aop->rsaCheckV1($arr, NULL, "RSA2");
-        Storage ::disk('logs')->append('alipaynotify.txt', 'time:'.date('Y-m-d H:i:s')."\nresponse:".$arr);
-        if($arr['trade_status'] == 'TRADE_SUCCESS' ){
-            $orders = self::where(['order_number'=>$arr['out_trade_no']])->first();
-            if ($orders['status'] > 0) {
-                //已经支付完成
-                return 'success';
-            }else {
-                try{
-                    DB::beginTransaction();
-                    //修改订单状态
-                    $arr = array(
-                        'third_party_number'=>$arr['transaction_id'],
-                        'status'=>1,
-                        'pay_time'=>date('Y-m-d H:i:s'),
-                        'update_at'=>date('Y-m-d H:i:s')
-                    );
-                    $res = self::where(['order_number'=>$arr['out_trade_no']])->update($arr);
-                    if (!$res) {
-                        throw new Exception('回调失败');
-                    }
-                    DB::commit();
-                } catch (Exception $ex) {
-                    DB::rollback();
-                    return 'fail';
-                }
-            }
-        }else{
-            return 'fail';
-        }
-    }
-    /*
-         * @param  author  苏振文
-         * @param  ctime   2020/5/11 15:15
-         * return  array
-         */
-    public static function pcpay($price){
-        $arr = app('wx')->getPcPayOrder('202005111519301234',$price);
-        return $arr;
-    }
-
-
-
-    /*
-        * xml转换数组
-        */
-    public static function xmlToArray($xml) {
-        //将XML转为array
-        $array_data = json_decode(json_encode(simplexml_load_string($xml, 'SimpleXMLElement', LIBXML_NOCDATA)), true);
-        return $array_data;
-    }
 }

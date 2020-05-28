@@ -36,7 +36,7 @@ $router->group(['prefix' => 'api', 'namespace' => 'Api'], function () use ($rout
     $router->post('doUserLogin','AuthenticateController@doUserLogin');          //APP登录接口
     $router->post('doSendSms','AuthenticateController@doSendSms');              //APP发送短信接口
     $router->post('doUserForgetPassword','AuthenticateController@doUserForgetPassword');              //APP忘记密码接口
-    
+
     //首页相关接口
     $router->group(['prefix' => 'index'], function () use ($router) {
         $router->post('getChartList','IndexController@getChartList');               //APP首页轮播图接口
@@ -44,16 +44,34 @@ $router->group(['prefix' => 'api', 'namespace' => 'Api'], function () use ($rout
         $router->post('getTeacherList','IndexController@getTeacherList');           //APP首页讲师接口
         $router->post('getOpenPublicList','IndexController@getOpenPublicList');     //APP公开课列表接口
         $router->post('checkVersion','IndexController@checkVersion');               //APP版本升级接口
+        $router->post('getSubjectList','IndexController@getSubjectList');               
+        //学科接口
     });
-    
+
     //用户学员相关接口
     $router->group(['prefix' => 'user' , 'middleware'=> ['user']], function () use ($router) {
         $router->post('getUserInfoById','UserController@getUserInfoById');          //APP学员详情接口
         $router->post('doUserUpdateInfo','UserController@doUserUpdateInfo');        //APP用户更新信息接口
     });
     //支付
-    $router->group(['prefix' => 'order'], function () use ($router) {
-        $router->post('createOrder','OrderController@createOrder');
+    $router->group(['prefix' => 'order', 'middleware'=> ['user']], function () use ($router) {
+        $router->post('createOrder','OrderController@createOrder');   //用户生成支付预订单
+        $router->post('orderPay','OrderController@orderPay');   //进行支付
+        $router->post('iphoneTopOrder','OrderController@iphonePayCreateOrder');   //苹果内部支付充值 生成预订单
+        $router->post('iosPolling','OrderController@iosPolling');   //轮询订单信息
+    });
+    //回调
+    $router->group(['prefix' => 'notify'], function () use ($router) {
+        $router->post('iphonePaynotify','NotifyController@iphonePaynotify');   //苹果内部支付
+        $router->post('hjAlinotify','NotifyController@hjAlinotify');   //汇聚支付宝 购买回调地址
+        $router->post('hjWxnotify','NotifyController@hjWxnotify');   //汇聚weixin 购买回调地址
+        $router->post('wxnotify', 'NotifyController@wxnotify');//微信 购买回调
+        $router->post('alinotify', 'NotifyController@alinotify');//支付宝 购买回调
+
+        $router->post('hjAliTopnotify','NotifyController@hjAliTopnotify');   //汇聚支付宝 充值回调地址
+        $router->post('hjWxTopnotify','NotifyController@hjWxTopnotify');   //汇聚weixin 充值回调地址
+        $router->post('wxTopnotify', 'NotifyController@wxTopnotify');//微信 充值回调
+        $router->post('aliTopnotify', 'NotifyController@aliTopnotify');//支付宝 充值回调
     });
 });
 
@@ -98,7 +116,7 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin' , 'middleware'=> ['
     $router->post('lesson/{id}/edit', 'LessonController@edit');
     $router->post('lesson/{id}/status', 'LessonController@editStatus');
     $router->post('lesson/{id}/delete', 'LessonController@destroy');
-    
+
 
     /*
      * 章节模块(sxl)
@@ -280,7 +298,7 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin' , 'middleware'=> ['
         $router->post('orderUpOaForId', 'OrderController@orderUpOaForId');//订单修改oa状态
         $router->post('ExcelExport', 'OrderController@ExcelExport');//订单导出
 //        $router->post('orderPay', 'OrderController@orderPay');//订单在线支付
-//        $router->post('wxnotify_url', 'OrderController@wxnotify_url');//微信回调
+
 //        $router->post('alinotify_url', 'OrderController@alinotify_url');//ali回调
 //        $router->post('Pcpay', 'OrderController@Pcpay');//pc支付
     });

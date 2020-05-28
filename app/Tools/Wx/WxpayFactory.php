@@ -1,5 +1,5 @@
 <?php
-namespace App\Providers\Wx;
+namespace App\Tools;
 use App\Providers\xml\XML2Array;
 use Illuminate\Support\Facades\Storage;
 
@@ -7,11 +7,17 @@ class WxpayFactory{
     public function test(){
         return 12465;
     }
-    public function getPrePayOrder($order_number,$total_fee){
+    //pay_type   1购买2充值
+    public function getPrePayOrder($order_number,$total_fee,$pay_type){
+        if($pay_type == 1){
+            $notifyurl = 'https://'.$_SERVER['HTTP_HOST'].'/Api/notify/wxnotify';
+        }else{
+            $notifyurl = 'https://'.$_SERVER['HTTP_HOST'].'/Api/notify/wxTopnotify';
+        }
         //获取商品名称
-        $shopname = "聚合e家-购买";
+        $shopname = "龙德教育";
         $url = "https://api.mch.weixin.qq.com/pay/unifiedorder";
-        $notify_url = 'https://'.$_SERVER['HTTP_HOST'].'/Admin/order/wxnotify_url';
+        $notify_url = $notifyurl;
         $out_trade_no = $order_number;
         $onoce_str = $this->getRandChar(32);
         $data["appid"] = 'wx7663a456bb43d30b';
@@ -39,10 +45,11 @@ class WxpayFactory{
         }
         return $arr;
     }
+
     //pc扫码支付
     public function getPcPayOrder($order_number,$total_fee){
         //获取商品名称
-        $shopname = "聚合e家-购买";
+        $shopname = "龙德教育";
         $url = "https://api.mch.weixin.qq.com/pay/unifiedorder";
         $notify_url = 'https://'.$_SERVER['HTTP_HOST'].'/Admin/order/wxnotify_url';
         $out_trade_no = $order_number;
@@ -62,7 +69,6 @@ class WxpayFactory{
         $response = $this->postXmlCurl($xml, $url);
         //将微信返回的结果xml转成数组
         $res = $this->xmlstr_to_array($response);
-        print_r($res);die;
         file_put_contents('wxpay.txt', '时间:' . date('Y-m-d H:i:s') . print_r($res, true), FILE_APPEND);
 //        Storage::disk('logs')->append('wxpay.txt', 'time:'.date('Y-m-d H:i:s')."\nresponse:".$res);
         $sign2 = $this->getOrder($res['prepay_id']["@cdata"]);
