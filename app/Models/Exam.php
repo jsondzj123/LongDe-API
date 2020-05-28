@@ -359,7 +359,7 @@ class Exam extends Model {
         }
         
         //key赋值
-        $key = 'exam:delete:'.$body['exam_id'];
+        /*$key = 'exam:delete:'.$body['exam_id'];
 
         //判断此试题是否被请求过一次(防止重复请求,且数据信息不存在)
         if(Redis::get($key)){
@@ -375,7 +375,9 @@ class Exam extends Model {
                 Redis::setex($key , 60 , $body['exam_id']);
                 return ['code' => 204 , 'msg' => '此试题不存在'];
             }
-        }
+        }*/
+        //试题id参数
+        $exam_id = json_decode($body['exam_id'] , true);
         
         //追加更新时间
         $data = [
@@ -433,7 +435,7 @@ class Exam extends Model {
         }
         
         //key赋值
-        $key = 'exam:publish:'.$body['exam_id'];
+        /*$key = 'exam:publish:'.$body['exam_id'];
 
         //判断此试题是否被请求过一次(防止重复请求,且数据信息不存在)
         if(Redis::get($key)){
@@ -449,7 +451,9 @@ class Exam extends Model {
                 Redis::setex($key , 60 , $body['exam_id']);
                 return ['code' => 204 , 'msg' => '此试题不存在'];
             }
-        }
+        }*/
+        //试题id参数
+        $exam_id = json_decode($body['exam_id'] , true);
 
         //追加更新时间
         $data = [
@@ -459,7 +463,7 @@ class Exam extends Model {
         
         //获取后端的操作员id
         $admin_id = isset(AdminLog::getAdminInfo()->admin_user->id) ? AdminLog::getAdminInfo()->admin_user->id : 0;
-        $exam_id  = explode(',',$body['exam_id']);
+        //$exam_id  = explode(',',$body['exam_id']);
         
         //开启事务
         DB::beginTransaction();
