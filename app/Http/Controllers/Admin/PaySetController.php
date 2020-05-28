@@ -48,6 +48,7 @@ class PaySetController extends Controller {
     		return response()->json(['code'=>201,'msg'=>'id缺少或为空']);
     	}
     	$payconfigArr  = PaySet::where(['id'=>$data['id']])->first();
+
         if($payconfigArr['pay_status'] == 1){
             //禁用
             $update['pay_status'] = -1;
@@ -85,6 +86,16 @@ class PaySetController extends Controller {
             return response()->json(['code'=>201,'msg'=>'id缺少或为空']);
         }
         $payconfigArr  = PaySet::where(['id'=>$data['id']])->first();
+        if(!$payconfigArr){
+            return response()->json(['code'=>204,'msg'=>"数据不存在"]);
+        }
+        $schoolArr = School::getSchoolOne(['id'=>$payconfigArr['school_id'],'is_del'=>1],'is_forbid');
+        if($schoolArr['code']!= 200){
+             return response()->json($schoolArr);
+        }
+        if($schoolArr['data']['is_forbid'] != 1){
+             return response()->json(['code'=>208,'msg'=>'请先开启学校状态']);
+        }
         if($payconfigArr['wx_pay_state'] == 1){
                 $update['wx_pay_state'] = -1;//禁用
         }else{
@@ -111,6 +122,16 @@ class PaySetController extends Controller {
             return response()->json(['code'=>201,'msg'=>'id缺少或为空']);
         }
         $payconfigArr  = PaySet::where(['id'=>$data['id']])->first();
+        if(!$payconfigArr){
+            return response()->json(['code'=>204,'msg'=>"数据不存在"]);
+        }
+        $schoolArr = School::getSchoolOne(['id'=>$payconfigArr['school_id'],'is_del'=>1],'is_forbid');
+        if($schoolArr['code']!= 200){
+             return response()->json($schoolArr);
+        }
+        if($schoolArr['data']['is_forbid'] != 1){
+             return response()->json(['code'=>208,'msg'=>'请先开启学校状态']);
+        }
         if($payconfigArr['zfb_pay_state'] == 1){
                 $update['zfb_pay_state'] = -1;//禁用
         }else{
@@ -140,6 +161,17 @@ class PaySetController extends Controller {
         if(!isset($data['hj_state']) || empty($data['hj_state'])){
             return response()->json(['code'=>201,'msg'=>'hj状态类型缺少或为空']);
         }
+        $payconfigArr  = PaySet::where(['id'=>$data['id']])->first();
+        if(!$payconfigArr){
+            return response()->json(['code'=>204,'msg'=>"数据不存在"]);
+        }
+        $schoolArr = School::getSchoolOne(['id'=>$payconfigArr['school_id'],'is_del'=>1],'is_forbid');
+        if($schoolArr['code']!= 200){
+             return response()->json($schoolArr);
+        }
+        if($schoolArr['data']['is_forbid'] != 1){
+             return response()->json(['code'=>208,'msg'=>'请先开启学校状态']);
+        }
         if($data['hj_state'] == 1){
             //禁用
             $update['hj_wx_pay_state'] = -1;
@@ -156,6 +188,22 @@ class PaySetController extends Controller {
             return response()->json(['code'=>203,'msg'=>'更改成功']);
         }
     }
+    // /*
+    //  * @param  description   获取支付添加信息
+    //  * @param  参数说明       body包含以下参数[
+    //         id   列表id
+    //  * ]
+    //  * @param author    lys
+    //  * @param ctime     2020-05-28
+    //  */
+    // public function getzfbConfig(){
+    //     $data = self::$accept_data;
+    //     if(!isset($data['id']) || empty($data['id'])){
+    //         return response()->json(['code'=>201,'msg'=>'id缺少或为空']);
+    //     }
+    //     $payconfigArr  = PaySet::where(['id'=>$data['id']])->select('')->first();
+    //     if($payconfigArr){}
+    // }
 
 
 }
