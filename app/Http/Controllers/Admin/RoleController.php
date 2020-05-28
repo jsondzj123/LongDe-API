@@ -167,7 +167,7 @@ class RoleController extends Controller {
                 }
                 $authArr = \App\Models\Authrules::getAuthAlls(['id'=>$auth_id_arr],['id','name','title','parent_id']);
         }   
-        $authArr  = getParentsList($authArr);
+        $authArr  = getAuthArr($authArr);
         $arr = [
             'code'=>200,
             'msg'=>'获取角色成功',
@@ -207,6 +207,9 @@ class RoleController extends Controller {
         }
         if( !isset($data['auth_id']) ||  empty($data['auth_id'])){
             return response()->json(['code'=>201,'msg'=>'权限组id为空或缺少']);
+        }
+        if(isset($data['admin/role/doRoleAuthUpdate'])){
+            unset($data['admin/role/doRoleAuthUpdate']);
         }
         $admin=CurrentAdmin::user();
         $school_id = $admin['school_id'];

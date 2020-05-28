@@ -262,16 +262,17 @@ class LessonController extends Controller {
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function editStatus($id, Request $request) {
+    public function status(Request $request) {
         $validator = Validator::make($request->all(), [
+            'id'     => 'required',
             'status' => 'required',
         ]);
         if ($validator->fails()) {
             return $this->response($validator->errors()->first(), 202);
         }
-        $lesson = Lesson::findOrFail($id);;
-        $lesson->status = $request->input('status');
         try {
+            $lesson = Lesson::findOrFail($request->input('id'));
+            $lesson->status = $request->input('status');
             $lesson->save();
             return $this->response("修改成功");
         } catch (Exception $e) {

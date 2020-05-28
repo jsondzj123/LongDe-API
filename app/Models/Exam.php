@@ -90,7 +90,7 @@ class Exam extends Model {
             }
 
             //判断文字解析是否为空
-            if(!isset($body['text_analysis']) || empty($body['text_analysis'])){
+            /*if(!isset($body['text_analysis']) || empty($body['text_analysis'])){
                 return ['code' => 201 , 'msg' => '文字解析为空'];
             }
 
@@ -107,7 +107,7 @@ class Exam extends Model {
             //判断章节考点id是否合法
             if((!isset($body['chapter_id']) || empty($body['chapter_id']) || $body['chapter_id'] <= 0) || (!isset($body['joint_id']) || empty($body['joint_id']) || $body['joint_id'] <= 0) || (!isset($body['point_id']) || empty($body['point_id']) || $body['point_id'] <= 0)){
                 return ['code' => 201 , 'msg' => '请选择章节考点'];
-            }
+            }*/
 
             //判断试题难度是否合法
             if(!isset($body['item_diffculty']) || empty($body['item_diffculty']) || !in_array($body['item_diffculty'] , [1,2,3])){
@@ -125,12 +125,12 @@ class Exam extends Model {
                 'parent_id'     =>  $body['exam_id'] ,
                 'exam_content'  =>  $body['exam_content'] ,
                 'answer'        =>  $body['type'] < 7 ? $body['answer'] : '' ,
-                'text_analysis' =>  $body['type'] < 7 ? $body['text_analysis'] : '' ,
-                'audio_analysis'=>  $body['type'] < 7 ? $body['audio_analysis'] : '',
-                'video_analysis'=>  $body['type'] < 7 ? $body['video_analysis'] : '',
-                'chapter_id'    =>  $body['type'] < 7 ? $body['chapter_id'] : 0,
-                'joint_id'      =>  $body['type'] < 7 ? $body['joint_id'] : 0 ,
-                'point_id'      =>  $body['type'] < 7 ? $body['point_id'] : 0 ,
+                'text_analysis' =>  isset($body['text_analysis'])  && !empty($body['text_analysis']) ? $body['text_analysis']   : '' ,
+                'audio_analysis'=>  isset($body['audio_analysis']) && !empty($body['audio_analysis']) ? $body['audio_analysis'] : '' ,
+                'video_analysis'=>  isset($body['video_analysis']) && !empty($body['video_analysis']) ? $body['video_analysis'] : '' ,
+                'chapter_id'    =>  isset($body['chapter_id']) && $body['chapter_id'] > 0 ? $body['chapter_id'] : 0 ,
+                'joint_id'      =>  isset($body['joint_id']) && $body['joint_id'] > 0 ? $body['joint_id'] : 0 ,
+                'point_id'      =>  isset($body['point_id']) && $body['point_id'] > 0 ? $body['point_id'] : 0 ,
                 'type'          =>  $body['type'] ,
                 'item_diffculty'=>  $body['type'] < 7 ? $body['item_diffculty'] : 0,
                 'is_publish'    =>  isset($body['is_publish']) && $body['is_publish'] > 0 ? 1 : 0,
@@ -144,12 +144,12 @@ class Exam extends Model {
                 'bank_id'       =>  $body['bank_id'] ,
                 'exam_content'  =>  $body['exam_content'] ,
                 'answer'        =>  $body['type'] < 7 ? $body['answer'] : '' ,
-                'text_analysis' =>  $body['type'] < 7 ? $body['text_analysis'] : '' ,
-                'audio_analysis'=>  $body['type'] < 7 ? $body['audio_analysis'] : '',
-                'video_analysis'=>  $body['type'] < 7 ? $body['video_analysis'] : '',
-                'chapter_id'    =>  $body['type'] < 7 ? $body['chapter_id'] : 0,
-                'joint_id'      =>  $body['type'] < 7 ? $body['joint_id'] : 0 ,
-                'point_id'      =>  $body['type'] < 7 ? $body['point_id'] : 0 ,
+                'text_analysis' =>  isset($body['text_analysis'])  && !empty($body['text_analysis']) ? $body['text_analysis']   : '' ,
+                'audio_analysis'=>  isset($body['audio_analysis']) && !empty($body['audio_analysis']) ? $body['audio_analysis'] : '' ,
+                'video_analysis'=>  isset($body['video_analysis']) && !empty($body['video_analysis']) ? $body['video_analysis'] : '' ,
+                'chapter_id'    =>  isset($body['chapter_id']) && $body['chapter_id'] > 0 ? $body['chapter_id'] : 0 ,
+                'joint_id'      =>  isset($body['joint_id']) && $body['joint_id'] > 0 ? $body['joint_id'] : 0 ,
+                'point_id'      =>  isset($body['point_id']) && $body['point_id'] > 0 ? $body['point_id'] : 0 ,
                 'type'          =>  $body['type'] ,
                 'item_diffculty'=>  $body['type'] < 7 ? $body['item_diffculty'] : 0,
                 'is_publish'    =>  isset($body['is_publish']) && $body['is_publish'] > 0 ? 1 : 0,
@@ -263,7 +263,7 @@ class Exam extends Model {
             }
             
             //判断文字解析是否为空
-            if(!isset($body['text_analysis']) || empty($body['text_analysis'])){
+            /*if(!isset($body['text_analysis']) || empty($body['text_analysis'])){
                 return ['code' => 201 , 'msg' => '文字解析为空'];
             }
 
@@ -280,7 +280,7 @@ class Exam extends Model {
             //判断章节考点id是否合法
             if((!isset($body['chapter_id']) || empty($body['chapter_id']) || $body['chapter_id'] <= 0) || (!isset($body['joint_id']) || empty($body['joint_id']) || $body['joint_id'] <= 0) || (!isset($body['point_id']) || empty($body['point_id']) || $body['point_id'] <= 0)){
                 return ['code' => 201 , 'msg' => '请选择章节考点'];
-            }
+            }*/
             
             //判断试题难度是否合法
             if(!isset($body['item_diffculty']) || empty($body['item_diffculty']) || !in_array($body['item_diffculty'] , [1,2,3])){
@@ -295,12 +295,12 @@ class Exam extends Model {
         $exam_arr = [
             'exam_content'  =>  $body['exam_content'] ,
             'answer'        =>  $exam_info['type'] < 7 ? $body['answer'] : '' ,
-            'text_analysis' =>  $exam_info['type'] < 7 ? $body['text_analysis'] : '' ,
-            'audio_analysis'=>  $exam_info['type'] < 7 ? $body['audio_analysis'] : '',
-            'video_analysis'=>  $exam_info['type'] < 7 ? $body['video_analysis'] : '',
-            'chapter_id'    =>  $exam_info['type'] < 7 ? $body['chapter_id'] : 0,
-            'joint_id'      =>  $exam_info['type'] < 7 ? $body['joint_id'] : 0 ,
-            'point_id'      =>  $exam_info['type'] < 7 ? $body['point_id'] : 0 ,
+            'text_analysis' =>  isset($body['text_analysis'])  && !empty($body['text_analysis']) ?  $body['text_analysis']   : '' ,
+            'audio_analysis'=>  isset($body['audio_analysis']) && !empty($body['audio_analysis']) ? $body['audio_analysis']  : '' ,
+            'video_analysis'=>  isset($body['video_analysis']) && !empty($body['video_analysis']) ? $body['video_analysis'] : '' ,
+            'chapter_id'    =>  isset($body['chapter_id']) && $body['chapter_id'] > 0 ? $body['chapter_id'] : 0 ,
+            'joint_id'      =>  isset($body['joint_id']) && $body['joint_id'] > 0 ? $body['joint_id'] : 0 ,
+            'point_id'      =>  isset($body['point_id']) && $body['point_id'] > 0 ? $body['point_id'] : 0 ,
             'item_diffculty'=>  $exam_info['type'] < 7 ? $body['item_diffculty'] : 0,
             'is_publish'    =>  isset($body['is_publish']) && $body['is_publish'] > 0 ? 1 : 0,
             'update_at'     =>  date('Y-m-d H:i:s')
@@ -673,6 +673,7 @@ class Exam extends Model {
         //根据科目id获取科目名称
         $subject_info  = QuestionSubject::find($exam_info->subject_id);
         $exam_info['subject_name']  = $subject_info['subject_name'];
+        $exam_info['item_diffculty']= (string)$exam_info->item_diffculty;
         
         //选项赋值
         $exam_info['option_list'] = [];

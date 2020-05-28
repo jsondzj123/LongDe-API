@@ -19,7 +19,6 @@ date_default_timezone_set(env('APP_TIMEZONE', 'UTC'));
 |
 */
 
-
 $app = new Laravel\Lumen\Application(
     dirname(__DIR__)
 );
@@ -43,7 +42,8 @@ $app->withEloquent();
 */
 
 $app->singleton(
-//  Illuminate\Contracts\Debug\ExceptionHandler::class,
+    Illuminate\Contracts\Debug\ExceptionHandler::class,
+
     App\Exceptions\Handler::class
 );
 
@@ -89,16 +89,6 @@ $app->routeMiddleware([
     // 'jwt.role' => App\Http\Middleware\JWTRoleAuth::class,
      'cors' => App\Http\Middleware\Cors::class,
 
-]);
-
-config(['filesystems' => [
-    'disks' => [
-        'local' => [
-            'driver' => 'local',
-            'root' => storage_path('app'),
-           ],
-         ]
-    ]
 ]);
 
 /*
