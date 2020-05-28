@@ -44,7 +44,7 @@ $router->group(['prefix' => 'api', 'namespace' => 'Api'], function () use ($rout
         $router->post('getTeacherList','IndexController@getTeacherList');           //APP首页讲师接口
         $router->post('getOpenPublicList','IndexController@getOpenPublicList');     //APP公开课列表接口
         $router->post('checkVersion','IndexController@checkVersion');               //APP版本升级接口
-        $router->post('getSubjectList','IndexController@getSubjectList');               
+        $router->post('getSubjectList','IndexController@getSubjectList');
         //学科接口
     });
 
@@ -297,10 +297,6 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin' , 'middleware'=> ['
         $router->post('auditToId', 'OrderController@auditToId');//订单审核通过/不通过
         $router->post('orderUpOaForId', 'OrderController@orderUpOaForId');//订单修改oa状态
         $router->post('ExcelExport', 'OrderController@ExcelExport');//订单导出
-//        $router->post('orderPay', 'OrderController@orderPay');//订单在线支付
-
-//        $router->post('alinotify_url', 'OrderController@alinotify_url');//ali回调
-//        $router->post('Pcpay', 'OrderController@Pcpay');//pc支付
     });
     //数据模块（szw）
     $router->group(['prefix' => 'statistics'], function () use ($router) {

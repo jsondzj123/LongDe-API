@@ -18,6 +18,23 @@ class OrderController extends Controller
 {
 
     /*
+         * @param  我的订单
+         * @param  $user_id     参数
+         * @param  author  苏振文
+         * @param  ctime   2020/5/28 10:32
+         * return  array
+         */
+    public function myOrderlist(){
+        $data = self::$accept_data;
+        $count =    Order::where(['student_id'=>$data['user_info']['user_id']])->count();
+        if($count >0){
+            $orderlist =Order::select()
+                ->leftJoin('ld_lessions','ld_school.id','=','ld_article_type.school_id');
+        }else{
+            $orderlist = [];
+        }
+    }
+    /*
          * @param  客户端生成预订单
          * @param  type 1安卓2苹果3h5
          * @param  class_id 课程id
