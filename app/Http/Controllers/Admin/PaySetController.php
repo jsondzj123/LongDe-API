@@ -188,22 +188,103 @@ class PaySetController extends Controller {
             return response()->json(['code'=>203,'msg'=>'更改成功']);
         }
     }
-    // /*
-    //  * @param  description   获取支付添加信息
-    //  * @param  参数说明       body包含以下参数[
-    //         id   列表id
-    //  * ]
-    //  * @param author    lys
-    //  * @param ctime     2020-05-28
-    //  */
-    // public function getzfbConfig(){
-    //     $data = self::$accept_data;
-    //     if(!isset($data['id']) || empty($data['id'])){
-    //         return response()->json(['code'=>201,'msg'=>'id缺少或为空']);
-    //     }
-    //     $payconfigArr  = PaySet::where(['id'=>$data['id']])->select('')->first();
-    //     if($payconfigArr){}
-    // }
+    /*
+     * @param  description   获取支付宝添加信息
+     * @param  参数说明       body包含以下参数[
+            id   列表id
+     * ]
+     * @param author    lys
+     * @param ctime     2020-05-28
+     */
+    public function getZfbConfig(){
+        $data = self::$accept_data;
+        if(!isset($data['id']) || empty($data['id'])){
+            return response()->json(['code'=>201,'msg'=>'id缺少或为空']);
+        }
+        $payconfigArr  = PaySet::where(['id'=>$data['id']])->select('zfb_app_id','zfb_app_public_key','zfb_public_key')->first();
+        if(!$payconfigArr){
+             return response()->json(['code'=>204,'msg'=>"数据不存在"]);
+        } 
+        if(!empty($payconfigArr['zfb_app_id'])){
+            $payconfigArr['zfb_app_ids'] = substr_replace($payconfigArr['zfb_app_id'],'*********','10','15'); 
+        }
+        if(!empty($payconfigArr['zfb_app_public_key'])){
+            $payconfigArr['zfb_app_public_keys'] = substr_replace($payconfigArr['zfb_app_public_key'],'*********','10','25'); 
+        }
+        if(!empty($payconfigArr['zfb_public_key'])){
+            $payconfigArr['zfb_public_keys'] = substr_replace($payconfigArr['zfb_public_key'],'*********','10','25'); 
+        }
+        $arr['code'] = 200;
+        $arr['msg']  = 'success';
+        $arr['data'] = $payconfigArr;
+        return response()->json($arr); 
+    }
+     /*
+     * @param  description   获取微信添加信息
+     * @param  参数说明       body包含以下参数[
+            id   列表id
+     * ]
+     * @param author    lys
+     * @param ctime     2020-05-28
+     */
+    public function getWxConfig(){
+        $data = self::$accept_data;
+        if(!isset($data['id']) || empty($data['id'])){
+            return response()->json(['code'=>201,'msg'=>'id缺少或为空']);
+        }
+        $payconfigArr  = PaySet::where(['id'=>$data['id']])->select('wx_app_id','wx_commercial_tenant_number','wx_api_key')->first();
+        if(!$payconfigArr){
+             return response()->json(['code'=>204,'msg'=>"数据不存在"]);
+        }
+        if(!empty($payconfigArr['wx_app_id'])){
+            $payconfigArr['wx_app_ids'] = substr_replace($payconfigArr['wx_app_id'],'*********','10','15'); 
+        }
+        if(!empty($payconfigArr['wx_commercial_tenant_number'])){
+            $payconfigArr['wx_commercial_tenant_numbers'] = substr_replace($payconfigArr['wx_commercial_tenant_number'],'*********','10','25'); 
+        }
+        if(!empty($payconfigArr['wx_api_key'])){
+            $payconfigArr['wx_api_keys'] = substr_replace($payconfigArr['wx_api_key'],'*********','10','25'); 
+        }
+        $arr['code'] = 200;
+        $arr['msg']  = 'success';
+        $arr['data'] = $payconfigArr;
+        return response()->json($arr); 
+    }
+
+    /*
+     * @param  description   获取汇聚支付添加信息
+     * @param  参数说明       body包含以下参数[
+            id   列表id
+     * ]
+     * @param author    lys
+     * @param ctime     2020-05-28
+     */
+    public function getHjConfig(){
+        $data = self::$accept_data;
+        if(!isset($data['id']) || empty($data['id'])){
+            return response()->json(['code'=>201,'msg'=>'id缺少或为空']);
+        }
+        $payconfigArr  = PaySet::where(['id'=>$data['id']])->select('hj_md_key','hj_commercial_tenant_number','hj_wx_commercial_tenant_deal_number','hj_zfb_commercial_tenant_deal_number','hj_wx_pay_state','hj_zfb_pay_state')->first();
+        if(!$payconfigArr){
+             return response()->json(['code'=>204,'msg'=>"数据不存在"]);
+        }
+        if(!empty($payconfigArr['hj_md_key'])){
+            $payconfigArr['hj_md_keys'] = substr_replace($payconfigArr['hj_md_key'],'*********','10','15'); 
+        }
+        if(!empty($payconfigArr['hj_commercial_tenant_number'])){
+            $payconfigArr['hj_commercial_tenant_numbers'] = substr_replace($payconfigArr['hj_commercial_tenant_number'],'*********','10','25'); 
+        }
+        if(!empty($payconfigArr['hj_wx_commercial_tenant_deal_number'])){
+            $payconfigArr['hj_wx_commercial_tenant_deal_numbers'] = substr_replace($payconfigArr['hj_wx_commercial_tenant_deal_number'],'*********','10','25'); 
+        }
+        if(!empty($payconfigArr['hj_zfb_commercial_tenant_deal_number'])){
+            $payconfigArr['hj_zfb_commercial_tenant_deal_numbers'] = substr_replace($payconfigArr['hj_zfb_commercial_tenant_deal_number'],'*********','10','25'); 
+        }
+        $arr['code'] = 200;
+        $arr['msg']  = 'success';
+        $arr['data'] = $payconfigArr;
+        return response()->json($arr); 
+    }
 
 
 }

@@ -43,6 +43,7 @@ $app->withEloquent();
 
 $app->singleton(
     Illuminate\Contracts\Debug\ExceptionHandler::class,
+
     App\Exceptions\Handler::class
 );
 
@@ -87,7 +88,7 @@ $app->routeMiddleware([
      'user'=> App\Http\Middleware\UserAuthToken::class,
     // 'jwt.role' => App\Http\Middleware\JWTRoleAuth::class,
      'cors' => App\Http\Middleware\Cors::class,
-     
+
 ]);
 
 /*
@@ -106,10 +107,6 @@ $app->register(App\Providers\AuthServiceProvider::class);
 $app->register(App\Providers\EventServiceProvider::class);
 //数据加密IOC容器
 $app->register(App\Providers\Rsa\RsaServiceProvider::class);
-//微信支付
-//$app->register(App\Providers\Wx\WxServiceProvider::class);
-//ali
-//$app->register(App\Providers\Ali\AliServiceProvider::class);
 
 // JWT
 $app->register(\Tymon\JWTAuth\Providers\LumenServiceProvider::class);

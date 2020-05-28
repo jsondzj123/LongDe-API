@@ -673,6 +673,7 @@ class Exam extends Model {
         //根据科目id获取科目名称
         $subject_info  = QuestionSubject::find($exam_info->subject_id);
         $exam_info['subject_name']  = $subject_info['subject_name'];
+        $exam_info['item_diffculty']= (string)$exam_info->item_diffculty;
         
         //选项赋值
         $exam_info['option_list'] = [];
