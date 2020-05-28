@@ -249,7 +249,7 @@ class IndexController extends Controller {
     public function getOpenPublicList() {
         //获取提交的参数
         try{
-            $open_public_list = [
+            /*$open_public_list = [
                 [
                     'open_class_date' => '2020-05-20' ,
                     'open_class_list' => [
@@ -314,8 +314,65 @@ class IndexController extends Controller {
                         ]
                     ]
                 ] 
-            ];
-            return response()->json(['code' => 200 , 'msg' => '获取公开课列表成功' , 'data' => $open_public_list]);
+            ];*/
+            $date_class  = [];
+            $today_class = [];
+            $lession_list= DB::table('ld_lessons')->select(DB::raw("any_value(id) as id") , DB::raw("any_value(cover) as cover") , DB::raw("any_value(start_at) as start_at") , DB::raw("any_value(end_at) as end_at") , DB::raw("from_unixtime(start_at , '%Y-%m-%d') as start_time"))->where('is_public',1)->where('is_del',0)->where('is_forbid',0)->orderBy('start_at' , 'DESC')->groupBy('start_time')->get()->toArray();
+            foreach($lession_list as $k=>$v){
+                //获取当天公开课列表的数据
+                if($v->start_time == date('Y-m-d')){
+                    //根据开始日期和结束日期进行查询
+                    $class_list = DB::table('ld_lessons')->select('id as open_class_id' , 'title' , 'cover' , DB::raw("from_unixtime(start_at , '%H:%i') as start_time") , DB::raw("from_unixtime(end_at , '%H:%i') as end_time") , 'start_at' , 'end_at')->where('start_at' , '>=' , strtotime($v->start_time.' 00:00:00'))->where('end_at' , '<=' , strtotime($v->start_time.' 23:59:59'))->where('is_public',1)->where('is_del',0)->where('is_forbid',0)->orderBy('start_at' , 'ASC')->get()->toArray();
+                    $today_arr = [];
+                    foreach($class_list as $k1=>$v1){
+                        //判断课程状态
+                        if($v1->end_at < time()){
+                            $status = 3;
+                        } elseif($v1->start_at > time()){
+                            $status = 2;
+                        } else {
+                            $status = 1;
+                        }
+                        //封装数组
+                        $today_arr[] = [
+                            'open_class_id'       =>   $v1->open_class_id  ,
+                            'cover'               =>   $v1->cover ,
+                            'start_time'          =>   $v1->start_time ,
+                            'end_time'            =>   $v1->end_time ,
+                            'open_class_name'     =>   $v1->title ,
+                            'status'              =>   $status
+                        ];
+                    }
+                    //课程时间点排序
+                    array_multisort(array_column($today_arr, 'status') , SORT_ASC , $today_arr);
+                    //公开课日期赋值
+                    $today_class[$v->start_time]['open_class_date']   = $v->start_time;
+                    //公开课列表赋值
+                    $today_class[$v->start_time]['open_class_list']   = $today_arr;
+                } else {
+                    //公开课日期赋值
+                    $class_list = DB::table('ld_lessons')->select('id as open_class_id' , 'title' , 'cover' , DB::raw("from_unixtime(start_at , '%H:%i') as start_time") , DB::raw("from_unixtime(end_at , '%H:%i') as end_time") , 'start_at' , 'end_at')->where("start_at" , ">" , strtotime($v->start_time.' 00:00:00'))->where("end_at" , "<" , strtotime($v->start_time.' 23:59:59'))->where('is_public',1)->where('is_del',0)->where('is_forbid',0)->orderBy('start_at' , 'ASC')->get()->toArray();
+                    $date_arr = [];
+                    foreach($class_list as $k2=>$v2){
+                        $date_arr[] = [
+                            'open_class_id'       =>   $v2->open_class_id  ,
+                            'cover'               =>   $v2->cover ,
+                            'start_time'          =>   $v2->start_time ,
+                            'end_time'            =>   $v2->end_time ,
+                            'open_class_name'     =>   $v2->title ,
+                            'status'              =>   $v2->end_at < time() ? 3 : 2
+                        ];
+                    }
+                    //课程时间点排序
+                    array_multisort(array_column($date_arr, 'status') , SORT_ASC , $date_arr);
+                    //公开课日期赋值
+                    $date_class[$v->start_time]['open_class_date']   = $v->start_time;
+                    //公开课列表赋值
+                    $date_class[$v->start_time]['open_class_list']   = $date_arr;
+                }
+            }
+            $arr =  array_merge(array_values($today_class) , array_values($date_class));
+            return response()->json(['code' => 200 , 'msg' => '获取公开课列表成功' , 'data' => $arr]);
         } catch (Exception $ex) {
             return response()->json(['code' => 500 , 'msg' => $ex->getMessage()]);
         }
@@ -336,6 +393,34 @@ class IndexController extends Controller {
             return $this->response($subject);
         } catch (Exception $ex) {
             return response()->json(['code' => 500 , 'msg' => $ex->getMessage()]);
+        }
+    }
+
+    /**
+     * @param  description   首页课程接口
+     * @param author    sxl
+     * @param ctime     2020-05-28
+     * @return string
+     */
+    public function getLessonList() {
+        //获取提交的参数
+        try{
+            $subject = Subject::select('id', 'name')->where('pid', 0)->limit(4)->get();
+            $lessons = [];
+            foreach ($subject as $key => $value) {
+                $lessons[$key]['subject'] = $value;
+                $lessons[$key]['lesson'] = Lesson::select('id', 'title', 'cover', 'buy_num', 'price as old_price', 'favorable_price')
+                                            ->with(['subjects' => function ($query) {
+                                                $query->select('id', 'name');
+                                            }])
+                                            ->whereHas('subjects', function ($query) use ($value)
+                                                {
+                                                    $query->where('id', $value->id);
+                                                })->get();
+            }
+            return $this->response($lessons);
+        } catch (Exception $ex) {
+            return $this->response($ex->getMessage());
         }
     }
 }

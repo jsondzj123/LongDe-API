@@ -159,6 +159,7 @@ class NotifyController extends Controller {
             Student_price::where(['order_number'=>$order_number])->update(['content'=>$html,'status'=>1,'update_at'=>date('Y-m-d H:i:s')]);
             Student_pricelog::insert(['user_id'=>$studentprice['user_id'],'price'=>$studentprice['price'],'end_price'=>$endbalance,'status'=>1]);
             DB::commit();
+            return response()->json(['code' => 200 , 'msg' => '支付成功']);
         }else{
             if(in_array('Failed',$arr)){
                 Student_price::where(['order_number'=>$order_number])->update(['content'=>$html,'status'=>2,'update_at'=>date('Y-m-d H:i:s')]);

@@ -17,7 +17,7 @@ $router->post('/', function () use ($router) {
     return $router->app->version();
 });
 
-//客户端(ios,安卓)路由接口
+//客户端(ios,安卓)不需要登录路由接口
 $router->group(['prefix' => 'api', 'namespace' => 'Api'], function () use ($router) {
     /*
      * 科目模块(sxl)
@@ -44,21 +44,8 @@ $router->group(['prefix' => 'api', 'namespace' => 'Api'], function () use ($rout
         $router->post('getTeacherList','IndexController@getTeacherList');           //APP首页讲师接口
         $router->post('getOpenPublicList','IndexController@getOpenPublicList');     //APP公开课列表接口
         $router->post('checkVersion','IndexController@checkVersion');               //APP版本升级接口
-        $router->post('getSubjectList','IndexController@getSubjectList');               
-        //学科接口
-    });
-
-    //用户学员相关接口
-    $router->group(['prefix' => 'user' , 'middleware'=> ['user']], function () use ($router) {
-        $router->post('getUserInfoById','UserController@getUserInfoById');          //APP学员详情接口
-        $router->post('doUserUpdateInfo','UserController@doUserUpdateInfo');        //APP用户更新信息接口
-    });
-    //支付
-    $router->group(['prefix' => 'order', 'middleware'=> ['user']], function () use ($router) {
-        $router->post('createOrder','OrderController@createOrder');   //用户生成支付预订单
-        $router->post('orderPay','OrderController@orderPay');   //进行支付
-        $router->post('iphoneTopOrder','OrderController@iphonePayCreateOrder');   //苹果内部支付充值 生成预订单
-        $router->post('iosPolling','OrderController@iosPolling');   //轮询订单信息
+        $router->post('getSubjectList','IndexController@getSubjectList');           //APP首页学科接口
+        $router->post('getLessonList','IndexController@getLessonList');             //APP首页课程接口
     });
     //回调
     $router->group(['prefix' => 'notify'], function () use ($router) {
@@ -72,6 +59,27 @@ $router->group(['prefix' => 'api', 'namespace' => 'Api'], function () use ($rout
         $router->post('hjWxTopnotify','NotifyController@hjWxTopnotify');   //汇聚weixin 充值回调地址
         $router->post('wxTopnotify', 'NotifyController@wxTopnotify');//微信 充值回调
         $router->post('aliTopnotify', 'NotifyController@aliTopnotify');//支付宝 充值回调
+    });
+});
+//客户端(ios,安卓)需要登录路由接口
+$router->group(['prefix' => 'api', 'namespace' => 'Api', 'middleware'=> 'user'], function () use ($router) {
+    //收藏模块
+    $router->post('collection','CollectionController@index');          //课程收藏列表
+    $router->post('collectionAdd','CollectionController@store');             //收藏课程
+    
+    //用户学员相关接口
+    $router->group(['prefix' => 'user'], function () use ($router) {
+        $router->post('getUserInfoById','UserController@getUserInfoById');          //APP学员详情接口
+        $router->post('doUserUpdateInfo','UserController@doUserUpdateInfo');        //APP用户更新信息接口
+    });
+    //支付
+    $router->group(['prefix' => 'order'], function () use ($router) {
+        $router->post('createOrder','OrderController@createOrder');   //用户生成支付预订单
+        $router->post('orderPay','OrderController@orderPay');   //进行支付
+        $router->post('iphoneTopOrder','OrderController@iphonePayCreateOrder');   //苹果内部支付充值 生成预订单
+        $router->post('iosPolling','OrderController@iosPolling');   //轮询订单信息
+        $router->post('myOrderlist','OrderController@myOrderlist');   //我的订单
+        $router->post('myPricelist','OrderController@myPricelist');   //我的余额记录
     });
 });
 
@@ -298,10 +306,6 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin' , 'middleware'=> ['
         $router->post('auditToId', 'OrderController@auditToId');//订单审核通过/不通过
         $router->post('orderUpOaForId', 'OrderController@orderUpOaForId');//订单修改oa状态
         $router->post('ExcelExport', 'OrderController@ExcelExport');//订单导出
-//        $router->post('orderPay', 'OrderController@orderPay');//订单在线支付
-
-//        $router->post('alinotify_url', 'OrderController@alinotify_url');//ali回调
-//        $router->post('Pcpay', 'OrderController@Pcpay');//pc支付
     });
     //数据模块（szw）
     $router->group(['prefix' => 'statistics'], function () use ($router) {
