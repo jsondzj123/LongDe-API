@@ -325,13 +325,22 @@ class IndexController extends Controller {
                     $class_list = DB::table('ld_lessons')->select('id as open_class_id' , 'title' , 'cover' , DB::raw("from_unixtime(start_at , '%H:%i') as start_time") , DB::raw("from_unixtime(end_at , '%H:%i') as end_time") , 'start_at' , 'end_at')->where('start_at' , '>=' , strtotime($v->start_time.' 00:00:00'))->where('end_at' , '<=' , strtotime($v->start_time.' 23:59:59'))->where('is_public',1)->where('is_del',0)->where('is_forbid',0)->orderBy('start_at' , 'ASC')->get()->toArray();
                     $today_arr = [];
                     foreach($class_list as $k1=>$v1){
+                        //判断课程状态
+                        if($v1->end_at < time()){
+                            $status = 3;
+                        } elseif($v1->start_at > time()){
+                            $status = 2;
+                        } else {
+                            $status = 1;
+                        }
+                        //封装数组
                         $today_arr[] = [
                             'open_class_id'       =>   $v1->open_class_id  ,
                             'cover'               =>   $v1->cover ,
                             'start_time'          =>   $v1->start_time ,
                             'end_time'            =>   $v1->end_time ,
                             'open_class_name'     =>   $v1->title ,
-                            'status'              =>   $v1->end_at < time() ? 3 : 1
+                            'status'              =>   $status
                         ];
                     }
                     //课程时间点排序
