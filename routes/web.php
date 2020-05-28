@@ -44,6 +44,8 @@ $router->group(['prefix' => 'api', 'namespace' => 'Api'], function () use ($rout
         $router->post('getTeacherList','IndexController@getTeacherList');           //APP首页讲师接口
         $router->post('getOpenPublicList','IndexController@getOpenPublicList');     //APP公开课列表接口
         $router->post('checkVersion','IndexController@checkVersion');               //APP版本升级接口
+        $router->post('getSubjectList','IndexController@getSubjectList');               
+        //学科接口
     });
     
     //用户学员相关接口

@@ -320,4 +320,22 @@ class IndexController extends Controller {
             return response()->json(['code' => 500 , 'msg' => $ex->getMessage()]);
         }
     }
+
+
+    /*
+     * @param  description   首页学科接口
+     * @param author    sxl
+     * @param ctime     2020-05-28
+     * return string
+     */
+    public function getSubjectList() {
+        //获取提交的参数
+        try{
+            $subject = Subject::select('id', 'name')->where('pid', 0)->get();
+            //dd($subject);
+            return response()->json(['code' => 200 , 'msg' => '获取学科列表成功' , 'data' => $subject]);
+        } catch (Exception $ex) {
+            return response()->json(['code' => 500 , 'msg' => $ex->getMessage()]);
+        }
+    }
 }
