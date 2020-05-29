@@ -10,6 +10,8 @@ use App\Models\StudentAccounts;
 use App\Models\StudentAccountlog;
 use App\Tools\AlipayFactory;
 use App\Tools\WxpayFactory;
+use Illuminate\Support\Facades\DB;
+
 class OrderController extends Controller
 {
 
@@ -26,7 +28,15 @@ class OrderController extends Controller
         $pagesize = (int)isset($data['pageSize']) && $data['pageSize'] > 0 ? $data['pageSize'] : 10;
         $page     = isset($data['page']) && $data['page'] > 0 ? $data['page'] : 1;
         $offset   = ($page - 1) * $pagesize;
+        switch($data['type']){
+            //0全部
+            case "0":
+            //1已完成
+            case "1":
+            //未完成
+            case "2":
 
+        }
         $count = Order::where(['student_id'=>$data['user_info']['user_id']])->count(); //全部条数
         $success = Order::where(['student_id'=>$data['user_info']['user_id'],'status'=>2])->count(); //完成
         $fily = Order::where(['student_id'=>$data['user_info']['user_id'],'status'=>'< 2'])->count(); //未完成
@@ -89,9 +99,9 @@ class OrderController extends Controller
          */
     public function createOrder(){
         $data = self::$accept_data;
-        if($data['user_info']['user_type'] ==1){
-            return ['code' => 204 , 'msg' => '请先登录'];
-        }
+//        if($data['user_info']['user_type'] ==1){
+//            return ['code' => 204 , 'msg' => '请先登录'];
+//        }
         $data['student_id'] = $data['user_info']['user_id'];
         $orderid = Order::orderPayList($data);
         return response()->json($orderid);
@@ -115,8 +125,10 @@ class OrderController extends Controller
         $data = self::$accept_data;
         //获取用户信息
         $user_id = $data['user_info']['user_id'];
-        $user_balance = $data['user_info']['balance'];
-        $user_school_id = $data['user_info']['school_id'];
+        //获取用户信息
+        $student = Student::where(['id'=>$user_id])->first()->toArray();
+        $user_school_id = $student['school_id'];
+        $user_balance = $student['balance'];
         //判断支付类型
         if (empty($data['type']) || !isset($data['type']) || !in_array($data['type'], [1, 2])) {
             return ['code' => 201, 'msg' => '请选择类型'];
@@ -131,42 +143,51 @@ class OrderController extends Controller
                 return ['code' => 201, 'msg' => '请选择订单'];
             }
             //获取订单信息
-            $order = Order::where(['id' => $data['order_id'], 'student_id' => $user_id])->first()->toArray();
-            if(!$order){
+            $orders = Order::where(['id' => $data['order_id'], 'student_id' => $user_id])->first();
+            if(!$orders){
                 return ['code' => 201, 'msg' => '订单数据有误'];
             }
+            $order = $orders->toArray();
             if ($order['status'] > 0) {
                 return ['code' => 202, 'msg' => '此订单已支付'];
             }
             //判断用户网校，根据网校查询课程信息
             if ($user_school_id == 1) {
                 //根据课程id 查询价格
-                $lesson = Lesson::select('id', 'title', 'cover', 'price', 'favorable_price')->where(['id' => $order['class_id'], 'is_del' => 0, 'is_forbid' => 0, 'status' => 2, 'is_public' => 0])->first()->toArray();
-                if (!$lesson) {
+                $lessons = Lesson::select('id', 'title', 'cover', 'price', 'favorable_price','buy_num')->where(['id' => $order['class_id'], 'is_del' => 0, 'is_forbid' => 0, 'status' => 2, 'is_public' => 0])->first();
+                if (!$lessons) {
                     return ['code' => 204, 'msg' => '此课程选择无效'];
                 }
             } else {
                 //根据课程id 网校id 查询网校课程详情
-                $lesson = LessonSchool::select('id', 'title', 'cover', 'price', 'favorable_price')->where(['lesson_id' => $order['class_id'], 'school_id' => $user_school_id, 'is_del' => 0, 'is_forbid' => 0, 'status' => 1, 'is_public' => 0])->first()->toArray();
-                if (!$lesson) {
+                $lessons = LessonSchool::select('id', 'title', 'cover', 'price', 'favorable_price','buy_num')->where(['lesson_id' => $order['class_id'], 'school_id' => $user_school_id, 'is_del' => 0, 'is_forbid' => 0, 'status' => 1, 'is_public' => 0])->first();
+                if (!$lessons) {
                     return ['code' => 204, 'msg' => '此课程选择无效'];
                 }
             }
+            $lesson = $lessons->toArray();
             if ($data['pay_type'] == 5) {
                 if ($lesson['favorable_price'] > $user_balance) {
                     return ['code' => 202, 'msg' => '余额不足，请充值！！！！！'];
                 } else {
+                    DB::beginTransaction();
                     //扣除用户余额 修改订单信息 加入用户消费记录日志  商品增加购买基数  用户关联的课程加上起始时间
                     $end_balance = $user_balance - $lesson['favorable_price'];
-                    Student::where(['id' => $user_id])->update(['balance' => $end_balance]);
-                    Order::where(['id' => $data['order_id']])->update(['pay_type' => 5, 'status' => 1, 'pay_time' => date('Y-m-d H:i:s'), 'update_at' => date('Y-m-d H:i:s')]);
-                    StudentAccountlog::insert(['user_id' => $user_id, 'price' => $lesson['favorable_price'], 'end_price' => $end_balance, 'status' => 2, 'class_id' => $order['class_id']]);
+                    $studentstatus = Student::where(['id' => $user_id])->update(['balance' => $end_balance]);
+                    $orderstatus = Order::where(['id' => $data['order_id']])->update(['pay_type' => 5, 'status' => 1, 'pay_time' => date('Y-m-d H:i:s'), 'update_at' => date('Y-m-d H:i:s')]);
+                    $studentlogstatus = StudentAccountlog::insert(['user_id' => $user_id, 'price' => $lesson['favorable_price'], 'end_price' => $end_balance, 'status' => 2, 'class_id' => $order['class_id']]);
                     if ($user_school_id == 1) {
-                        Lesson::where(['id' => $lesson['id']])->update(['buy_num' => $lesson['buy_num'] + 1]);
+                       $lessonstatus = Lesson::where(['id' => $lesson['id']])->update(['buy_num' => $lesson['buy_num'] + 1]);
                     } else {
-                        LessonSchool::where(['id' => $lesson['id']])->update(['buy_num' => $lesson['buy_num'] + 1]);
+                        $lessonstatus = LessonSchool::where(['id' => $lesson['id']])->update(['buy_num' => $lesson['buy_num'] + 1]);
                     }
-                    return response()->json(['code' => 200, 'msg' => '购买成功']);
+                    if($studentstatus && $orderstatus&&$studentlogstatus&&$lessonstatus){
+                        DB::commit();
+                        return response()->json(['code' => 200, 'msg' => '购买成功']);
+                    }else{
+                        DB::rollback();
+                        return ['code' => 203 , 'msg' => '购买失败'];
+                    }
                 }
             } else {
                 $sutdent_price = [

@@ -19,6 +19,12 @@ class LessonSchoolController extends Controller {
      * return  array
      */
     public function index(Request $request){
+        $validator = Validator::make($request->all(), [
+            'school_id' => 'required',
+        ]);
+        if ($validator->fails()) {
+            return $this->response($validator->errors()->first(), 202);
+        }
         $pagesize = $request->input('pagesize') ?: 15;
         $page     = $request->input('page') ?: 1;
         $offset   = ($page - 1) * $pagesize;
@@ -46,6 +52,13 @@ class LessonSchoolController extends Controller {
      * return  array
      */
     public function show($id) {
+        $validator = Validator::make($request->all(), [
+            'lesson_id' => 'required|json',
+            'school_id' => 'required',
+        ]);
+        if ($validator->fails()) {
+            return $this->response($validator->errors()->first(), 202);
+        }
         $lesson = LessonSchool::with('lesson')->find($id);
         if(empty($lesson)){
             return $this->response('不存在', 404);
