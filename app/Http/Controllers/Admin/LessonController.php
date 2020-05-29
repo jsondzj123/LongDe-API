@@ -89,7 +89,14 @@ class LessonController extends Controller {
                 $query->select('id', 'name');
             }])
      */
-    public function show($id) {
+    public function show(Request $request) {
+        $validator = Validator::make($request->all(), [
+            'id' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return $this->response($validator->errors()->first(), 202);
+        }
         $lesson = Lesson::with(['teachers' => function ($query) {
                 $query->select('id', 'real_name');
             }])
@@ -99,7 +106,7 @@ class LessonController extends Controller {
         ->with(['methods' => function ($query) {
                 $query->select('id', 'name');
             }])
-        ->find($id);
+        ->find($request->input('id'));
         if(empty($lesson)){
             return $this->response('课程不存在', 404);
         }
@@ -185,8 +192,9 @@ class LessonController extends Controller {
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update($id, Request $request) {
+    public function update(Request $request) {
         $validator = Validator::make($request->all(), [
+            'id'=> 'required',
             'is_public' => 'required',
         ]);
         if ($validator->fails()) {
@@ -196,7 +204,7 @@ class LessonController extends Controller {
         $subjectIds = json_decode($request->input('subject_id'), true);
         $teacherIds = json_decode($request->input('teacher_id'), true);
         try {
-            $lesson = Lesson::findOrFail($id);
+            $lesson = Lesson::findOrFail($request->input('id'));
             $lesson->title   = $request->input('title') ?: $lesson->title;
             $lesson->keyword = $request->input('keyword') ?: $lesson->keyword;
             $lesson->cover   = $request->input('cover') ?: $lesson->cover;
@@ -239,12 +247,13 @@ class LessonController extends Controller {
      */
     public function edit($id, Request $request) {
         $validator = Validator::make($request->all(), [
+            'id' => 'required',
             'url' => 'required|json',
         ]);
         if ($validator->fails()) {
             return $this->response($validator->errors()->first(), 202);
         }
-        $lesson = Lesson::findOrFail($id);;
+        $lesson = Lesson::findOrFail($request->input('id'));;
         $lesson->url = $request->input('url');
         try {
             $lesson->save();

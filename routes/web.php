@@ -134,9 +134,9 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin' , 'middleware'=> ['
     $router->post('lesson', 'LessonController@index');
     $router->post('lesson/add', 'LessonController@store');
     $router->post('UpdateLessonStatus', 'LessonController@status');
-    $router->post('lesson/{id}', 'LessonController@show');
-    $router->post('lesson/{id}/update', 'LessonController@update');
-    $router->post('lesson/{id}/edit', 'LessonController@edit');
+    $router->post('lessonShow', 'LessonController@show');
+    $router->post('updateLesson', 'LessonController@update');
+    $router->post('addLessonUrl', 'LessonController@edit');
     $router->post('lessonDelete', 'LessonController@destroy');
 
 

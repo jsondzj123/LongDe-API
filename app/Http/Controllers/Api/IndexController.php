@@ -301,7 +301,7 @@ class IndexController extends Controller {
                                 'start_time'          =>   $v2->start_time ,
                                 'end_time'            =>   $v2->end_time ,
                                 'open_class_name'     =>   $v2->title ,
-                                'status'              =>   3
+                                'status'              =>   2
                             ];
                         }
                         //课程时间点排序
