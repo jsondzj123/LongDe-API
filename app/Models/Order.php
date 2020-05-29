@@ -184,13 +184,12 @@ class Order extends Model {
                 return ['code' => 201 , 'msg' => '机型不匹配'];
             }
             //判断用户网校，根据网校查询课程信息
-        print_r($student);die;
            if($student['school_id'] == 1){
                //根据课程id 查询价格
-               $lesson = Lesson::select('id','title','cover','price','favorable_price')->where(['id'=>$arr['class_id'],'is_del'=>0,'is_forbid'=>0,'status'=>2,'is_public'=>0])->first()->toArray();
+               $lesson = Lesson::select('id','title','cover','price','favorable_price')->where(['id'=>$arr['class_id'],'is_del'=>0,'is_forbid'=>0,'status'=>2,'is_public'=>0])->first();
            }else{
                 //根据课程id 网校id 查询网校课程详情
-               $lesson = LessonSchool::select('id','title','cover','price','favorable_price')->where(['lesson_id'=>$arr['class_id'],'school_id'=>$student['school_id'],'is_del'=>0,'is_forbid'=>0,'status'=>1,'is_public'=>0])->first()->toArray();
+               $lesson = LessonSchool::select('id','title','cover','price','favorable_price')->where(['lesson_id'=>$arr['class_id'],'school_id'=>$student['school_id'],'is_del'=>0,'is_forbid'=>0,'status'=>1,'is_public'=>0])->first();
            }
             if(!$lesson){
                 return ['code' => 204 , 'msg' => '此课程选择无效'];
