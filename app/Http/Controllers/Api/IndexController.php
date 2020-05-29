@@ -16,7 +16,7 @@ class IndexController extends Controller {
      * @param author    dzj
      * @param ctime     2020-05-25
      * return string
-     */
+     */ 
     public function getChartList() {
         //获取提交的参数
         try{
