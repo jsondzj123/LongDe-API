@@ -5,8 +5,8 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Models\Student;
-use App\Models\Student_account_log;
-use App\Models\Student_accounts;
+use App\Models\StudentAccountlog;
+use App\Models\StudentAccounts;
 use App\Providers\aop\AopClient\AopClient;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -140,7 +140,7 @@ class NotifyController extends Controller {
         // 判断是否购买成功  【状态码,0为成功（无论是沙箱环境还是正式环境只要数据正确status都会是：0）】
         if (intval($arr['status']) === 0) {
             DB::beginTransaction();
-            $studentprice = Student_accounts::where(['order_number'=>$order_number])->first()->toArray();
+            $studentprice = StudentAccounts::where(['order_number'=>$order_number])->first()->toArray();
             if($studentprice['status'] == 1){
                 return response()->json(['code' => 200 , 'msg' => '支付成功']);
             }
@@ -162,13 +162,13 @@ class NotifyController extends Controller {
             $student = Student::where(['id'=>$studentprice['user_id']])->first()->toArray();
             $endbalance = $student['balance'] + $studentprice['price'];
             Student::where(['id'=>$studentprice['user_id']])->update(['balance'=>$endbalance]);
-            Student_accounts::where(['order_number'=>$order_number])->update(['content'=>$html,'status'=>1,'update_at'=>date('Y-m-d H:i:s')]);
-            Student_account_log::insert(['user_id'=>$studentprice['user_id'],'price'=>$studentprice['price'],'end_price'=>$endbalance,'status'=>1]);
+            StudentAccounts::where(['order_number'=>$order_number])->update(['content'=>$html,'status'=>1,'update_at'=>date('Y-m-d H:i:s')]);
+            StudentAccountlog::insert(['user_id'=>$studentprice['user_id'],'price'=>$studentprice['price'],'end_price'=>$endbalance,'status'=>1]);
             DB::commit();
             return response()->json(['code' => 200 , 'msg' => '支付成功']);
         }else{
             if(in_array('Failed',$arr)){
-                Student_accounts::where(['order_number'=>$order_number])->update(['content'=>$html,'status'=>2,'update_at'=>date('Y-m-d H:i:s')]);
+                StudentAccounts::where(['order_number'=>$order_number])->update(['content'=>$html,'status'=>2,'update_at'=>date('Y-m-d H:i:s')]);
                 return response()->json(['code' => 207 , 'msg' =>'支付失败']);
             }
             if(in_array('Deferred',$arr)){

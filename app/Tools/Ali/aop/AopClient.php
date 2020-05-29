@@ -552,15 +552,17 @@ class AopClient
 
 
         $signData = null;
+        if ("JSON" == $this->format) {
+            $respObject = json_decode($r , true);
+           return $respObject;
 
-        if ("json" == $this->format) {
+//            if (null !== $respObject) {
+//                $respWellFormed = true;
+//                $signData = $this->parserJSONSignData($request, $resp, $respObject);
+//            }
 
-            $respObject = json_decode($r);
-            if (null !== $respObject) {
-                $respWellFormed = true;
-                $signData = $this->parserJSONSignData($request, $resp, $respObject);
-            }
-        } else if ("xml" == $this->format) {
+        } else if ("XML" == $this->format) {
+
             $disableLibxmlEntityLoader = libxml_disable_entity_loader(true);
             $respObject = @ simplexml_load_string($resp);
             if (false !== $respObject) {
@@ -577,21 +579,22 @@ class AopClient
             $this->logCommunicationError($sysParams["method"], $requestUrl, "HTTP_RESPONSE_NOT_WELL_FORMED", $resp);
             return false;
         }
-
+echo  333333;
         // 验签
         $this->checkResponseSign($request, $signData, $resp, $respObject);
+echo 22222;
 
         // 解密
         if (method_exists($request, "getNeedEncrypt") && $request->getNeedEncrypt()) {
-
-            if ("json" == $this->format) {
+            echo  111;
+            if ("JSON" == $this->format) {
 
 
                 $resp = $this->encryptJSONSignSource($request, $resp);
 
                 // 将返回结果转换本地文件编码
                 $r = iconv($this->postCharset, $this->fileCharset . "//IGNORE", $resp);
-                $respObject = json_decode($r);
+                $respObject = json_decode($r,true);
             } else {
 
                 $resp = $this->encryptXMLSignSource($request, $resp);
