@@ -78,7 +78,21 @@ $router->group(['prefix' => 'api', 'namespace' => 'Api'], function () use ($rout
 });
 
 //PC端路由接口
-$router->group(['prefix' => 'web'], function () use ($router) {
+$router->group(['prefix' => 'web' , 'namespace' => 'Web'], function () use ($router) {
+    //pc支付
+    $router->group(['prefix' => 'order'], function () use ($router) {
+        $router->post('aliPcpay','OrderController@aliPcpay');          //支付宝pc
+        $router->post('wxPcpay','OrderController@wxPcpay');          //微信pc
+        $router->post('hjaliPcpay','OrderController@hjaliPcpay');          //汇聚支付宝pc
+        $router->post('hjwxPcpay','OrderController@hjwxPcpay');          //汇聚微信pc
+    });
+    //pc支付回调
+    $router->group(['prefix' => 'notify'], function () use ($router) {
+        $router->post('hjAlinotify','NotifyController@hjAlinotify');          //汇聚支付宝pc回调
+        $router->post('hjWxnotify','NotifyController@hjWxnotify');          //汇聚支付宝pc回调
+        $router->post('Alinotify','NotifyController@Alinotify');          //支付宝pc回调
+        $router->post('Wxnotify','NotifyController@Wxnotify');          //汇聚支付宝pc回调
+    });
 
 });
 
@@ -117,7 +131,7 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin' , 'middleware'=> ['
     $router->post('lesson/{id}', 'LessonController@show');
     $router->post('lesson/{id}/update', 'LessonController@update');
     $router->post('lesson/{id}/edit', 'LessonController@edit');
-    
+
     $router->post('lesson/{id}/delete', 'LessonController@destroy');
 
 
