@@ -191,6 +191,7 @@ class Order extends Model {
                 //根据课程id 网校id 查询网校课程详情
                $lesson = LessonSchool::select('id','title','cover','price','favorable_price')->where(['lesson_id'=>$arr['class_id'],'school_id'=>$student['school_id'],'is_del'=>0,'is_forbid'=>0,'status'=>1,'is_public'=>0])->first()->toArray();
            }
+           print_r($lesson);die;
             if(!$lesson){
                 return ['code' => 204 , 'msg' => '此课程选择无效'];
             }
