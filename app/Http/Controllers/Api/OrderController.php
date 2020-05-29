@@ -62,12 +62,24 @@ class OrderController extends Controller
          */
     public function myPricelist(){
         $data = self::$accept_data;
+        //每页显示的条数
+        $pagesize = (int)isset($data['pageSize']) && $data['pageSize'] > 0 ? $data['pageSize'] : 10;
+        $page     = isset($data['page']) && $data['page'] > 0 ? $data['page'] : 1;
+        $offset   = ($page - 1) * $pagesize;
         $count = Student_account_log::where(['user_id'=>$data['user_info']['user_id']])->count();
         $pricelog = [];
         if($count > 0){
-            $pricelog = Student_account_log::select('price','status','create_at')->where(['user_id'=>$data['user_info']['user_id']])->get()->toArray();
+            $pricelog = Student_account_log::select('price','status','create_at')->where(['user_id'=>$data['user_info']['user_id']])
+                ->orderByDesc('id')
+                ->offset($offset)->limit($pagesize)
+                ->get()->toArray();
         }
-        return ['code' => 200 , 'msg' => '获取成功','data'=>$pricelog];
+        $page=[
+            'pageSize'=>$pagesize,
+            'page' =>$page,
+            'total'=>$count
+        ];
+        return ['code' => 200 , 'msg' => '获取成功','data'=>$pricelog,'page'=>$page];
     }
     /*
          * @param  客户端生成预订单
