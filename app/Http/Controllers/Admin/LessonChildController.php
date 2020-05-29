@@ -19,6 +19,13 @@ class LessonChildController extends Controller {
      * @return  array
      */
     public function index(Request $request){
+        $validator = Validator::make($request->all(), [
+            'lesson_id' => 'required',
+            'pid'       => 'required',
+        ]);
+        if ($validator->fails()) {
+            return $this->response($validator->errors()->first(), 202);
+        }
         $pagesize = $request->input('pagesize') ?: 15;
         $page     = $request->input('page') ?: 1;
         $offset   = ($page - 1) * $pagesize;
