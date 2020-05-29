@@ -163,6 +163,8 @@ class OrderController extends Controller
                 }
             }
             if ($data['pay_type'] == 5) {
+                echo $lesson['favorable_price'].'------------';
+                echo $user_balance;die;
                 if ($lesson['favorable_price'] > $user_balance) {
                     return ['code' => 202, 'msg' => '余额不足，请充值！！！！！'];
                 } else {
