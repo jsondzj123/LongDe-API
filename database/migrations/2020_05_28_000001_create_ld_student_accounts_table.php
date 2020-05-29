@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateLdStudentPriceTable extends Migration
+class CreateLdStudentAccountsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -36,6 +36,6 @@ class CreateLdStudentPriceTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('ld_student_price');
+        Schema::dropIfExists('ld_student_accounts');
     }
 }
