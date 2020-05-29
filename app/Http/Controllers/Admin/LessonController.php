@@ -289,6 +289,9 @@ class LessonController extends Controller {
      */
     public function destroy($id) {
         $lesson = Lesson::findOrFail($id);
+        if($lesson->is_del == 1){
+            return $this->response("已经删除", 404);
+        }
         $lesson->is_del = 1;
         if (!$lesson->save()) {
             return $this->response("删除失败", 500);
