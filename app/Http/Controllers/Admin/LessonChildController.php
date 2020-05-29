@@ -133,12 +133,6 @@ class LessonChildController extends Controller {
     public function update(Request $request) {
         $validator = Validator::make($request->all(), [
             'id'        => 'required',
-            'name'      => 'required',
-            'pid'       => 'required',
-            'category'  => 'required_unless:pid,0',
-            'url'       => 'required_unless:pid,0|json',
-            'size'      => 'required_unless:pid,0',
-            'is_free'   => 'required_unless:pid,0',
         ]);
         if ($validator->fails()) {
             return $this->response($validator->errors()->first(), 202);
@@ -146,6 +140,7 @@ class LessonChildController extends Controller {
         $videoIds = json_decode($request->input('video_id'), true);
         try {
             $lesson = LessonChild::findOrFail($request->input('id'));
+            $lesson->lesson_id = $request->input('lesson_id') ?: $lesson->lesson_id;
             $lesson->name = $request->input('name') ?: $lesson->name;
             $lesson->pid = $request->input('pid') ?: $lesson->pid;
             $lesson->category = $request->input('category') ?: $lesson->category;
