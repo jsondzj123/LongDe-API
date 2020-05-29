@@ -12,6 +12,10 @@ class Student extends Model {
     //时间戳设置
     public $timestamps = false;
 
+    public function collectionLessons() {
+        return $this->belongsToMany('App\Models\Lesson', 'ld_collections');
+    }
+    
     /*
      * @param  description   添加学员方法
      * @param  data          数组数据

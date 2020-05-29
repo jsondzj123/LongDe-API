@@ -287,4 +287,111 @@ class PaySetController extends Controller {
     }
 
 
+    /*
+     * @param  description   添加/修改支付宝配置信息
+     * @param  参数说明       body包含以下参数[
+            id   列表id
+     * ]
+     * @param author    lys
+     * @param ctime     2020-05-28
+     */
+    public function doZfbConfig(){
+        $data = self::$accept_data;
+         $validator = Validator::make($data, 
+                [
+                    'id' => 'required|integer',
+                    'app_id'=>'required',
+                    'app_public_key'=>'required',
+                    'public_key'=>'required',
+                ],
+                PaySet::message());
+        if($validator->fails()) {
+            return response()->json(json_decode($validator->errors()->first(),1));
+        }
+        $payconfigArr  = PaySet::where(['id'=>$data['id']])->select('admin_id')->first();
+        if(!$payconfigArr){
+            return response()->json(['code'=>204,'msg'=>"数据不存在"]);
+        } 
+        $result = PaySet::doUpdate(['id'=>$data['id']],['zfb_app_id'=>$data['app_id'],'zfb_app_public_key'=>$data['app_public_key'],'zfb_public_key'=>$data['public_key'],'update_at'=>date('Y-m-d H:i:s')]);
+        if($result){
+            return response()->json(['code'=>200,'msg'=>"保存成功"]);
+        }else{
+            return response()->json(['code'=>203,'msg'=>'保存成功']);
+        }
+    }
+    /*
+     * @param  description   添加/修改支付宝配置信息
+     * @param  参数说明       body包含以下参数[
+            id   列表id
+     * ]
+     * @param author    lys
+     * @param ctime     2020-05-28
+     */
+    public function doWxConfig(){
+        $data = self::$accept_data;
+         $validator = Validator::make($data, 
+                [
+                    'id' => 'required|integer',
+                    'app_id'=>'required',
+                    'shop_number'=>'required',
+                    'api_key'=>'required',
+                ],
+                PaySet::message());
+        if($validator->fails()) {
+            return response()->json(json_decode($validator->errors()->first(),1));
+        }
+        $payconfigArr  = PaySet::where(['id'=>$data['id']])->select('admin_id')->first();
+        if(!$payconfigArr){
+            return response()->json(['code'=>204,'msg'=>"数据不存在"]);
+        } 
+        $result = PaySet::doUpdate(['id'=>$data['id']],['wx_app_id'=>$data['app_id'],'wx_commercial_tenant_number'=>$data['shop_number'],'wx_api_key'=>$data['api_key'],'update_at'=>date('Y-m-d H:i:s')]);
+        if($result){
+            return response()->json(['code'=>200,'msg'=>"保存成功"]);
+        }else{
+            return response()->json(['code'=>203,'msg'=>'保存成功']);
+        }
+    }
+    /*
+     * @param  description   添加/修改支付宝配置信息
+     * @param  参数说明       body包含以下参数[
+            id   列表id
+     * ]
+     * @param author    lys
+     * @param ctime     2020-05-28
+     */
+    public function doHjConfig(){
+        $data = self::$accept_data;
+         $validator = Validator::make($data, 
+                [
+                    'id' => 'required|integer',
+                    'shop_number'=>'required',
+                    'md_key'=>'required',
+                    'wx_deal_shop_number'=>'required',
+                    'wx_state'=>'required|integer',
+                    'zfb_deal_shop_number'=>'required',
+                    'zfb_state'=>'required|integer',
+                ],
+                PaySet::message());
+        if($validator->fails()) {
+            return response()->json(json_decode($validator->errors()->first(),1));
+        }
+        $payconfigArr  = PaySet::where(['id'=>$data['id']])->select('admin_id')->first();
+        if(!$payconfigArr){
+            return response()->json(['code'=>204,'msg'=>"数据不存在"]);
+        } 
+        $result = PaySet::doUpdate(['id'=>$data['id']],
+                ['hj_commercial_tenant_number'=>$data['shop_number'],
+                    'hj_md_key'=>$data['md_key'],
+                    'hj_wx_commercial_tenant_deal_number'=>$data['wx_deal_shop_number'],
+                    'hj_wx_pay_state'=>$data['wx_state'],
+                    'hj_zfb_commercial_tenant_deal_number'=>$data['zfb_deal_shop_number'],
+                    'hj_zfb_pay_state'=>$data['zfb_state'],
+                    'update_at'=>date('Y-m-d H:i:s')]);
+        if($result){
+            return response()->json(['code'=>200,'msg'=>"保存成功"]);
+        }else{
+            return response()->json(['code'=>203,'msg'=>'保存成功']);
+        }
+    }
+
 }

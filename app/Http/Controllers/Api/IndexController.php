@@ -249,73 +249,97 @@ class IndexController extends Controller {
     public function getOpenPublicList() {
         //获取提交的参数
         try{
-            $open_public_list = [
-                [
-                    'open_class_date' => '2020-05-20' ,
-                    'open_class_list' => [
-                        [
-                            'open_class_id'         =>  1 ,
-                            'cover'                 =>  'https://dss0.bdstatic.com/70cFvHSh_Q1YnxGkpoWK1HF6hhy/it/u=3256100974,305075936&fm=26&gp=0.jpg' ,
-                            'start_time'            =>  '09:00' ,
-                            'end_time'              =>  '10:00' ,
-                            'lession_parent_name'   =>  '大分类名称1' ,
-                            'lession_child_name'    =>  '小分类名称1' ,
-                            'status'                =>  1
-                        ] ,
-                        [
-                            'open_class_id'         =>  2 ,
-                            'cover'                 =>  'https://dss0.bdstatic.com/70cFvHSh_Q1YnxGkpoWK1HF6hhy/it/u=3256100974,305075936&fm=26&gp=0.jpg' ,
-                            'start_time'            =>  '10:30' ,
-                            'end_time'              =>  '12:00' ,
-                            'lession_parent_name'   =>  '大分类名称2' ,
-                            'lession_child_name'    =>  '小分类名称2' ,
-                            'status'                =>  2
-                        ] ,
-                        [
-                            'open_class_id'         =>  3 ,
-                            'cover'                 =>  'https://dss0.bdstatic.com/70cFvHSh_Q1YnxGkpoWK1HF6hhy/it/u=3256100974,305075936&fm=26&gp=0.jpg' ,
-                            'start_time'            =>  '07:30' ,
-                            'end_time'              =>  '09:00' ,
-                            'lession_parent_name'   =>  '大分类名称3' ,
-                            'lession_child_name'    =>  '小分类名称3' ,
-                            'status'                =>  3
-                        ]
-                    ]
-                ], 
-                [
-                    'open_class_date' => '2020-05-21' ,
-                    'open_class_list' => [
-                        [
-                            'open_class_id'         =>  4 ,
-                            'cover'                 =>  'https://dss0.bdstatic.com/70cFvHSh_Q1YnxGkpoWK1HF6hhy/it/u=3256100974,305075936&fm=26&gp=0.jpg' ,
-                            'start_time'            =>  '09:00' ,
-                            'end_time'              =>  '10:00' ,
-                            'lession_parent_name'   =>  '大分类名称4' ,
-                            'lession_child_name'    =>  '小分类名称4' ,
-                            'status'                =>  1
-                        ] ,
-                        [
-                            'open_class_id'         =>  5 ,
-                            'cover'                 =>  'https://dss0.bdstatic.com/70cFvHSh_Q1YnxGkpoWK1HF6hhy/it/u=3256100974,305075936&fm=26&gp=0.jpg' ,
-                            'start_time'            =>  '10:30' ,
-                            'end_time'              =>  '12:00' ,
-                            'lession_parent_name'   =>  '大分类名称5' ,
-                            'lession_child_name'    =>  '小分类名称5' ,
-                            'status'                =>  2
-                        ] ,
-                        [
-                            'open_class_id'         =>  6 ,
-                            'cover'                 =>  'https://dss0.bdstatic.com/70cFvHSh_Q1YnxGkpoWK1HF6hhy/it/u=3256100974,305075936&fm=26&gp=0.jpg' ,
-                            'start_time'            =>  '07:30' ,
-                            'end_time'              =>  '09:00' ,
-                            'lession_parent_name'   =>  '大分类名称6' ,
-                            'lession_child_name'    =>  '小分类名称6' ,
-                            'status'                =>  3
-                        ]
-                    ]
-                ] 
-            ];
-            return response()->json(['code' => 200 , 'msg' => '获取公开课列表成功' , 'data' => $open_public_list]);
+            $pagesize = isset(self::$accept_data['pagesize']) && self::$accept_data['pagesize'] > 0 ? self::$accept_data['pagesize'] : 15;
+            $page     = isset(self::$accept_data['page']) && self::$accept_data['page'] > 0 ? self::$accept_data['page'] : 1;
+            $offset   = ($page - 1) * $pagesize;
+            $today_class     = [];
+            $tomorrow_class  = [];
+            $over_class      = [];
+            $arr             = [];
+            $lession_list= DB::table('ld_lessons')->select(DB::raw("any_value(id) as id") , DB::raw("any_value(cover) as cover") , DB::raw("any_value(start_at) as start_at") , DB::raw("any_value(end_at) as end_at") , DB::raw("from_unixtime(start_at , '%Y-%m-%d') as start_time"))->where('is_public',1)->where('is_del',0)->where('is_forbid',0)->orderBy('start_at' , 'DESC')->groupBy('start_time')->offset($offset)->limit($pagesize)->get()->toArray();
+            //判读公开课列表是否为空
+            if($lession_list && !empty($lession_list)){
+                foreach($lession_list as $k=>$v){
+                    //获取当天公开课列表的数据
+                    if($v->start_time == date('Y-m-d')){
+                        //根据开始日期和结束日期进行查询
+                        $class_list = DB::table('ld_lessons')->select('id as open_class_id' , 'title' , 'cover' , DB::raw("from_unixtime(start_at , '%H:%i') as start_time") , DB::raw("from_unixtime(end_at , '%H:%i') as end_time") , 'start_at' , 'end_at')->where('start_at' , '>=' , strtotime($v->start_time.' 00:00:00'))->where('end_at' , '<=' , strtotime($v->start_time.' 23:59:59'))->where('is_public',1)->where('is_del',0)->where('is_forbid',0)->orderBy('start_at' , 'ASC')->get()->toArray();
+                        $today_arr = [];
+                        foreach($class_list as $k1=>$v1){
+                            //判断课程状态
+                            if($v1->end_at < time()){
+                                $status = 3;
+                            } elseif($v1->start_at > time()){
+                                $status = 2;
+                            } else {
+                                $status = 1;
+                            }
+                            //封装数组
+                            $today_arr[] = [
+                                'open_class_id'       =>   $v1->open_class_id  ,
+                                'cover'               =>   $v1->cover ,
+                                'start_time'          =>   $v1->start_time ,
+                                'end_time'            =>   $v1->end_time ,
+                                'open_class_name'     =>   $v1->title ,
+                                'status'              =>   $status
+                            ];
+                        }
+                        //课程时间点排序
+                        array_multisort(array_column($today_arr, 'start_time') , SORT_ASC , $today_arr);
+                        //公开课日期赋值
+                        $today_class[$v->start_time]['open_class_date']   = $v->start_time;
+                        //公开课列表赋值
+                        $today_class[$v->start_time]['open_class_list']   = $today_arr;
+                    } else if($v->start_time > date('Y-m-d')) {
+                        //公开课日期赋值
+                        $class_list = DB::table('ld_lessons')->select('id as open_class_id' , 'title' , 'cover' , DB::raw("from_unixtime(start_at , '%H:%i') as start_time") , DB::raw("from_unixtime(end_at , '%H:%i') as end_time") , 'start_at' , 'end_at')->where("start_at" , ">" , strtotime($v->start_time.' 00:00:00'))->where("end_at" , "<" , strtotime($v->start_time.' 23:59:59'))->where('is_public',1)->where('is_del',0)->where('is_forbid',0)->orderBy('start_at' , 'ASC')->get()->toArray();
+                        $date2_arr = [];
+                        foreach($class_list as $k2=>$v2){
+                            $date2_arr[] = [
+                                'open_class_id'       =>   $v2->open_class_id  ,
+                                'cover'               =>   $v2->cover ,
+                                'start_time'          =>   $v2->start_time ,
+                                'end_time'            =>   $v2->end_time ,
+                                'open_class_name'     =>   $v2->title ,
+                                'status'              =>   3
+                            ];
+                        }
+                        //课程时间点排序
+                        array_multisort(array_column($date2_arr, 'start_time') , SORT_ASC , $date2_arr);
+                        //公开课日期赋值
+                        $tomorrow_class[$v->start_time]['open_class_date']   = $v->start_time;
+                        //公开课列表赋值
+                        $tomorrow_class[$v->start_time]['open_class_list']   = $date2_arr;
+                    } else {
+                        //公开课日期赋值
+                        $class_list = DB::table('ld_lessons')->select('id as open_class_id' , 'title' , 'cover' , DB::raw("from_unixtime(start_at , '%H:%i') as start_time") , DB::raw("from_unixtime(end_at , '%H:%i') as end_time") , 'start_at' , 'end_at')->where("start_at" , ">" , strtotime($v->start_time.' 00:00:00'))->where("end_at" , "<" , strtotime($v->start_time.' 23:59:59'))->where('is_public',1)->where('is_del',0)->where('is_forbid',0)->orderBy('start_at' , 'ASC')->get()->toArray();
+                        $date_arr = [];
+                        foreach($class_list as $k2=>$v2){
+                            $date_arr[] = [
+                                'open_class_id'       =>   $v2->open_class_id  ,
+                                'cover'               =>   $v2->cover ,
+                                'start_time'          =>   $v2->start_time ,
+                                'end_time'            =>   $v2->end_time ,
+                                'open_class_name'     =>   $v2->title ,
+                                'status'              =>   3
+                            ];
+                        }
+                        //课程时间点排序
+                        array_multisort(array_column($date_arr, 'start_time') , SORT_ASC , $date_arr);
+                        //公开课日期赋值
+                        $over_class[$v->start_time]['open_class_date']   = $v->start_time;
+                        //公开课列表赋值
+                        $over_class[$v->start_time]['open_class_list']   = $date_arr;
+                    }
+                }
+                //判断明天课程是否为空
+                if($tomorrow_class && !empty($tomorrow_class)){
+                    //课程时间点排序
+                    array_multisort(array_column($tomorrow_class, 'open_class_date') , SORT_ASC , $tomorrow_class);
+                }
+                $arr =  array_merge(array_values($today_class) , array_values($tomorrow_class) , array_values($over_class));
+            } 
+            return response()->json(['code' => 200 , 'msg' => '获取公开课列表成功' , 'data' => $arr]);
         } catch (Exception $ex) {
             return response()->json(['code' => 500 , 'msg' => $ex->getMessage()]);
         }
