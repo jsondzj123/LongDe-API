@@ -125,6 +125,7 @@ class OrderController extends Controller
         $user_id = $data['user_info']['user_id'];
         //获取用户信息
         $student = Student::where(['id'=>$user_id])->first()->toArray();
+        print_r($student);die;
         $user_school_id = $student['school_id'];
         $user_balance = $student['balance'];
         //判断支付类型
