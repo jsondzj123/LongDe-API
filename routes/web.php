@@ -131,9 +131,9 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin' , 'middleware'=> ['
     */
     $router->post('lessonChild', 'LessonChildController@index');
     $router->post('lessonChild/add', 'LessonChildController@store');
-    $router->post('lessonChild/{id}', 'LessonChildController@show');
-    $router->post('lessonChild/{id}/update', 'LessonChildController@update');
-    $router->post('lessonChild/{id}/delete', 'LessonChildController@destroy');
+    $router->post('lessonChildShow', 'LessonChildController@show');
+    $router->post('updateLessonChild', 'LessonChildController@update');
+    $router->post('lessonChildDelete', 'LessonChildController@destroy');
 
     /*
      * 分校课程(sxl)

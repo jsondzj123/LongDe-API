@@ -54,8 +54,14 @@ class LessonChildController extends Controller {
      * @param  ctime   2020/5/1 
      * @return  \Illuminate\Http\Response
      */
-    public function show($id) {
-        $lesson = LessonChild::select('id', 'name', 'description')->find($id);
+    public function show(Request $request) {
+        $validator = Validator::make($request->all(), [
+            'id'        => 'required',
+        ]);
+        if ($validator->fails()) {
+            return $this->response($validator->errors()->first(), 202);
+        }
+        $lesson = LessonChild::select('id', 'name', 'description')->find($request->input('id'));
         $lesson['childs'] = LessonChild::select('id', 'name', 'category', 'description' ,'url', 'is_free')->where('pid', $id)->get();
         if(empty($lesson)){
             return $this->response('课程不存在', 404);
@@ -117,8 +123,9 @@ class LessonChildController extends Controller {
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update($id, Request $request) {
+    public function update(Request $request) {
         $validator = Validator::make($request->all(), [
+            'id'        => 'required',
             'name'      => 'required',
             'pid'       => 'required',
             'category'  => 'required_unless:pid,0',
@@ -131,7 +138,7 @@ class LessonChildController extends Controller {
         }
         $videoIds = json_decode($request->input('video_id'), true);
         try {
-            $lesson = LessonChild::findOrFail($id);
+            $lesson = LessonChild::findOrFail($request->input('id'));
             $lesson->name = $request->input('name') ?: $lesson->name;
             $lesson->pid = $request->input('pid') ?: $lesson->pid;
             $lesson->category = $request->input('category') ?: $lesson->category;
@@ -157,8 +164,14 @@ class LessonChildController extends Controller {
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id) {
-        $lesson = LessonChild::findOrFail($id);
+    public function destroy(Request $request) {
+        $validator = Validator::make($request->all(), [
+            'id'        => 'required',
+        ]);
+        if ($validator->fails()) {
+            return $this->response($validator->errors()->first(), 202);
+        }
+        $lesson = LessonChild::findOrFail($request->input('id'));
         if($lesson->is_del == 1){
             return $this->response("已经删除", 205);
         }
