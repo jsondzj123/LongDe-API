@@ -97,9 +97,9 @@ class OrderController extends Controller
          */
     public function createOrder(){
         $data = self::$accept_data;
-        if($data['user_info']['user_type'] ==1){
-            return ['code' => 204 , 'msg' => '请先登录'];
-        }
+//        if($data['user_info']['user_type'] ==1){
+//            return ['code' => 204 , 'msg' => '请先登录'];
+//        }
         $data['student_id'] = $data['user_info']['user_id'];
         $orderid = Order::orderPayList($data);
         return response()->json($orderid);
