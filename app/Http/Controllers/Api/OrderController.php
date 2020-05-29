@@ -10,8 +10,6 @@ use App\Models\StudentAccounts;
 use App\Models\StudentAccountlog;
 use App\Tools\AlipayFactory;
 use App\Tools\WxpayFactory;
-
-
 class OrderController extends Controller
 {
 
@@ -62,7 +60,7 @@ class OrderController extends Controller
         return ['code' => 200 , 'msg' => '获取成功','data'=>$orderlist,'arrcount'=>$arrcount,'page'=>$page];
     }
     /*
-         * @param  descriptsion 作用
+         * @param 我的余额日志
          * @param  $user_id     参数
          * @param  author  苏振文
          * @param  ctime   2020/5/28 15:07
