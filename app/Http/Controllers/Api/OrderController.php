@@ -28,15 +28,7 @@ class OrderController extends Controller
         $pagesize = (int)isset($data['pageSize']) && $data['pageSize'] > 0 ? $data['pageSize'] : 10;
         $page     = isset($data['page']) && $data['page'] > 0 ? $data['page'] : 1;
         $offset   = ($page - 1) * $pagesize;
-        switch($data['type']){
-            //0全部
-            case "0":
-            //1已完成
-            case "1":
-            //未完成
-            case "2":
-
-        }
+        $type = isset($data['type'])?$data['type']:0;
         $count = Order::where(['student_id'=>$data['user_info']['user_id']])->count(); //全部条数
         $success = Order::where(['student_id'=>$data['user_info']['user_id'],'status'=>2])->count(); //完成
         $fily = Order::where(['student_id'=>$data['user_info']['user_id'],'status'=>'< 2'])->count(); //未完成
@@ -45,6 +37,14 @@ class OrderController extends Controller
             $orderlist =Order::select('ld_order.id','ld_order.order_number','ld_order.create_at','ld_order.price','ld_order.status','ld_order.pay_time','ld_lessons.title')
                 ->leftJoin('ld_lessons','ld_order.class_id','=','ld_lessons.id')
                 ->where(['ld_order.student_id'=>$data['user_info']['user_id']])
+                ->where(function($query) use ($type) {
+                    if($type == 1){
+                        $query->where('ld_order.status','=',$type);
+                    }
+                    if($type == 2){
+                        $query->where('ld_order.status','<',$type);
+                    }
+                })
                 ->orderByDesc('ld_order.id')
                 ->offset($offset)->limit($pagesize)
                 ->get()->toArray();
