@@ -119,6 +119,7 @@ class NotifyController extends Controller {
         $data = self::$accept_data;
         $receiptData = $data['receiptData'];
         $order_number = $data['order_number'];
+        file_put_contents('iphonePaynotify.txt', '时间:' . date('Y-m-d H:i:s') . print_r($data, true), FILE_APPEND);
         // 验证参数
         if (strlen($receiptData) < 20) {
             return response()->json(['code' => 201 , 'msg' => '不能读取你提供的JSON对象']);
