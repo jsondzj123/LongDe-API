@@ -26,7 +26,15 @@ class OrderController extends Controller
         $pagesize = (int)isset($data['pageSize']) && $data['pageSize'] > 0 ? $data['pageSize'] : 10;
         $page     = isset($data['page']) && $data['page'] > 0 ? $data['page'] : 1;
         $offset   = ($page - 1) * $pagesize;
+        switch($data['type']){
+            //0全部
+            case "0":
+            //1已完成
+            case "1":
+            //未完成
+            case "2":
 
+        }
         $count = Order::where(['student_id'=>$data['user_info']['user_id']])->count(); //全部条数
         $success = Order::where(['student_id'=>$data['user_info']['user_id'],'status'=>2])->count(); //完成
         $fily = Order::where(['student_id'=>$data['user_info']['user_id'],'status'=>'< 2'])->count(); //未完成
