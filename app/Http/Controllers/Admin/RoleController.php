@@ -256,13 +256,15 @@ class RoleController extends Controller {
             ]);
 
             if(Roleauth::where('id','=',$data['id'])->update($data)){
+                  DB::commit();
                 return response()->json(['code'=>200,'msg'=>'更改成功']); 
             }else{
+                 DB::rollBack();
                 return response()->json(['code'=>200,'msg'=>'更改成功']); 
             }
-            DB::commit();
+          
         } catch (Exception $e) {
-            DB::rollBack();
+           
             return response()->json(['code'=>500,'msg'=>$e->getMessage()]);
         }
     }   
