@@ -141,7 +141,7 @@ class OrderController extends Controller
                 return ['code' => 201, 'msg' => '请选择订单'];
             }
             //获取订单信息
-            $order = Order::where(['id' => $data['order_id'], 'student_id' => $user_id])->first()->toArray();
+            $order = Order::where(['id' => $data['order_id'], 'student_id' => $user_id])->first();
             if(!$order){
                 return ['code' => 201, 'msg' => '订单数据有误'];
             }
