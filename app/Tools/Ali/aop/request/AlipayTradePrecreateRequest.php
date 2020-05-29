@@ -1,4 +1,5 @@
 <?php
+namespace App\Providers\aop\AlipayTradePrecreateRequest;
 /**
  * ALIPAY API: alipay.trade.precreate request
  *
@@ -7,7 +8,7 @@
  */
 class AlipayTradePrecreateRequest
 {
-	/** 
+	/**
 	 * 收银员通过收银台或商户后台调用支付宝接口，生成二维码后，展示给伤脑筋户，由用户扫描二维码完成订单支付。
 修改路由策略到R
 	 **/
@@ -22,7 +23,7 @@ class AlipayTradePrecreateRequest
 	private $returnUrl;
     private $needEncrypt=false;
 
-	
+
 	public function setBizContent($bizContent)
 	{
 		$this->bizContent = $bizContent;

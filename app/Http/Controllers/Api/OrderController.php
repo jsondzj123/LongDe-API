@@ -6,12 +6,10 @@ use App\Models\Lesson;
 use App\Models\LessonSchool;
 use App\Models\Order;
 use App\Models\Student;
-use App\Models\Student_accounts;
-use App\Models\Student_account_log;
+use App\Models\StudentAccounts;
+use App\Models\StudentAccountlog;
 use App\Tools\AlipayFactory;
 use App\Tools\WxpayFactory;
-
-
 class OrderController extends Controller
 {
 
@@ -54,7 +52,7 @@ class OrderController extends Controller
         return ['code' => 200 , 'msg' => '获取成功','data'=>$orderlist,'arrcount'=>$arrcount,'page'=>$page];
     }
     /*
-         * @param  descriptsion 作用
+         * @param 我的余额日志
          * @param  $user_id     参数
          * @param  author  苏振文
          * @param  ctime   2020/5/28 15:07
@@ -62,12 +60,24 @@ class OrderController extends Controller
          */
     public function myPricelist(){
         $data = self::$accept_data;
-        $count = Student_account_log::where(['user_id'=>$data['user_info']['user_id']])->count();
+        //每页显示的条数
+        $pagesize = (int)isset($data['pageSize']) && $data['pageSize'] > 0 ? $data['pageSize'] : 10;
+        $page     = isset($data['page']) && $data['page'] > 0 ? $data['page'] : 1;
+        $offset   = ($page - 1) * $pagesize;
+        $count = StudentAccountlog::where(['user_id'=>$data['user_info']['user_id']])->count();
         $pricelog = [];
         if($count > 0){
-            $pricelog = Student_account_log::select('price','status','create_at')->where(['user_id'=>$data['user_info']['user_id']])->get()->toArray();
+            $pricelog = StudentAccountlog::select('price','status','create_at')->where(['user_id'=>$data['user_info']['user_id']])
+                ->orderByDesc('id')
+                ->offset($offset)->limit($pagesize)
+                ->get()->toArray();
         }
-        return ['code' => 200 , 'msg' => '获取成功','data'=>$pricelog];
+        $page=[
+            'pageSize'=>$pagesize,
+            'page' =>$page,
+            'total'=>$count
+        ];
+        return ['code' => 200 , 'msg' => '获取成功','data'=>$pricelog,'page'=>$page];
     }
     /*
          * @param  客户端生成预订单
@@ -150,7 +160,7 @@ class OrderController extends Controller
                     $end_balance = $user_balance - $lesson['favorable_price'];
                     Student::where(['id' => $user_id])->update(['balance' => $end_balance]);
                     Order::where(['id' => $data['order_id']])->update(['pay_type' => 5, 'status' => 1, 'pay_time' => date('Y-m-d H:i:s'), 'update_at' => date('Y-m-d H:i:s')]);
-                    Student_account_log::insert(['user_id' => $user_id, 'price' => $lesson['favorable_price'], 'end_price' => $end_balance, 'status' => 2, 'class_id' => $order['class_id']]);
+                    StudentAccountlog::insert(['user_id' => $user_id, 'price' => $lesson['favorable_price'], 'end_price' => $end_balance, 'status' => 2, 'class_id' => $order['class_id']]);
                     if ($user_school_id == 1) {
                         Lesson::where(['id' => $lesson['id']])->update(['buy_num' => $lesson['buy_num'] + 1]);
                     } else {
@@ -167,7 +177,7 @@ class OrderController extends Controller
                     'order_type' => 2,
                     'status' => 0
                 ];
-                Student_accounts::insert($sutdent_price);
+                StudentAccounts::insert($sutdent_price);
                 $return = $this->payStatus($order['order_number'], $data['pay_type'], $lesson['favorable_price'],$user_school_id,1);
                 return response()->json(['code' => 200, 'msg' => '生成预订单成功', 'data' => $return]);
             }
@@ -180,7 +190,7 @@ class OrderController extends Controller
                 'order_type' => 1,
                 'status' => 0
             ];
-            $add = Student_accounts::insert($sutdent_price);
+            $add = StudentAccounts::insert($sutdent_price);
             if ($add) {
                 $return = self::payStatus($sutdent_price['order_number'], $data['type'], $data['price'],$user_school_id,2);
                 return response()->json(['code' => 200, 'msg' => '生成预订单成功', 'data' => $return]);
@@ -269,14 +279,14 @@ class OrderController extends Controller
             'order_type' => 1,
             'status' => 0
         ];
-        Student_accounts::insert($sutdent_price);
+        StudentAccounts::insert($sutdent_price);
         return response()->json(['code' => 200, 'msg' => '生成预订单成功', 'data' => $sutdent_price]);
     }
     // ios轮询查看订单是否成功
     public function iosPolling(){
         $data = self::$accept_data;
         $user_id = $data['user_info']['user_id'];
-        $list = Student_accounts::where(['user_id'=>$user_id,'order_number'=>$data['order_number']])->first()->toArray();
+        $list = StudentAccounts::where(['user_id'=>$user_id,'order_number'=>$data['order_number']])->first()->toArray();
         if($list['status'] == 0){
             return response()->json(['code' => 202, 'msg' => '暂未支付']);
         }
