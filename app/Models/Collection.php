@@ -20,8 +20,4 @@ class Collection extends Model {
         'updated_at',
         'is_del'
     ];
-
-    public function lessons() {
-        return $this->belongsToMany('App\Models\Lesson', 'ld_lesson_methods');
-    }
 }
