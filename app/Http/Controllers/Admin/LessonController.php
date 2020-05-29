@@ -287,8 +287,14 @@ class LessonController extends Controller {
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id) {
-        $lesson = Lesson::findOrFail($id);
+    public function destroy(Request $request) {
+        $validator = Validator::make($request->all(), [
+            'id'     => 'required',
+        ]);
+        if ($validator->fails()) {
+            return $this->response($validator->errors()->first(), 202);
+        }
+        $lesson = Lesson::findOrFail($request->input('id'));
         if($lesson->is_del == 1){
             return $this->response("已经删除", 404);
         }
