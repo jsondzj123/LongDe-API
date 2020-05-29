@@ -35,8 +35,14 @@ class SubjectController extends Controller {
      * @param  ctime   2020/5/1 
      * return  array
      */
-    public function show($id) {
-        $subject = Subject::find($id);
+    public function show(Request $request) {
+        $validator = Validator::make($request->all(), [
+            'id' => 'required',
+        ]);
+        if ($validator->fails()) {
+            return $this->response($validator->errors()->first(), 202);
+        }
+        $subject = Subject::find($request->input('id'));
         $subject['childs'] = $subject->childs(); 
         if(empty($subject)){
             return $this->response('科目不存在', 404);
@@ -86,8 +92,9 @@ class SubjectController extends Controller {
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update($id, Request $request) {
+    public function update(Request $request) {
         $validator = Validator::make($request->all(), [
+            'id' => 'required',
             'name' => 'required',
             'cover' => 'required',
             'description' => 'required',
@@ -95,7 +102,7 @@ class SubjectController extends Controller {
         if ($validator->fails()) {
             return $this->response($validator->errors()->first(), 202);
         }
-        $subject = Subject::findOrFail($id);;
+        $subject = Subject::findOrFail($request->input('id'));
         $subject->name = $request->input('name') ?: $subject->name;
         $subject->cover = $request->input('cover') ?: $subject->cover;
         $subject->description = $request->input('description') ?: $subject->description;
@@ -115,8 +122,14 @@ class SubjectController extends Controller {
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id) {
-        $subject = Subject::findOrFail($id);
+    public function destroy(Request $request) {
+        $validator = Validator::make($request->all(), [
+            'id' => 'required',
+        ]);
+        if ($validator->fails()) {
+            return $this->response($validator->errors()->first(), 202);
+        }
+        $subject = Subject::findOrFail($request->input('id'));
         $subject->is_del = 1;
         if (!$subject->save()) {
             return $this->response("删除失败", 500);
