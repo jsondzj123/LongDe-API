@@ -35,7 +35,7 @@ class Lesson extends Model {
         'pivot'
     ];
 
-    protected $appends = ['is_auth'];
+    protected $appends = ['is_auth', 'is_collection'];
 
     public function getIsAuthAttribute($value) {
         $user = CurrentAdmin::user();
@@ -73,6 +73,24 @@ class Lesson extends Model {
         return  0;
     }
 
+    /**
+     * @param  description   是否收藏
+     * @param  data          数组数据
+     * @param  author        sxl
+     * @param  ctime         2020-05-29
+     * @return  int          0未收藏1已收藏
+     */
+    public function getIsCollectionAttribute($value)
+    {
+        $token = isset($_REQUEST['user_token']) ? $_REQUEST['user_token'] : 0;
+        $studentIds = Student::where('token', $token)->first()->collectionLessons->pluck('id')->toArray();
+        $flipped_haystack = array_flip($studentIds);
+        if(isset($flipped_haystack[$this->id]))
+        {
+            return 1;
+        }
+            return 0;
+    }
     public function getUrlAttribute($value) {
         if ($value) {
             $photos = json_decode($value, true);
