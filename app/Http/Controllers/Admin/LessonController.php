@@ -135,8 +135,6 @@ class LessonController extends Controller {
             'nickname' => 'required_if:is_public,1',
             'start_at' => 'required_if:is_public,1',
             'end_at' => 'required_if:is_public,1',
-            'barrage' => 'required_if:is_public,1',
-            'modetype' => 'required_if:is_public,1',
             'teacher_id' => 'required_if:is_public,1',
         ]);
 
