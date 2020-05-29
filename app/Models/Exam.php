@@ -169,7 +169,7 @@ class Exam extends Model {
                 ExamOption::insertGetId([
                     'admin_id'       =>   $admin_id ,
                     'exam_id'        =>   $exam_id ,
-                    'option_content' =>   json_encode($body['option_list']),
+                    'option_content' =>   $body['option_list'] ,
                     'create_at'      =>   date('Y-m-d H:i:s')
                 ]);
             }
@@ -315,7 +315,7 @@ class Exam extends Model {
             //判断是否为(1单选题2多选题3不定项5填空题)
             if(in_array($exam_info['type'] , [1,2,3,5]) && !empty($body['option_list'])){
                 //更新试题的id更新试题选项
-                ExamOption::where("exam_id" , $body['exam_id'])->update(['option_content' => json_encode($body['option_list']) , 'update_at' => date('Y-m-d H:i:s')]);
+                ExamOption::where("exam_id" , $body['exam_id'])->update(['option_content' => $body['option_list'] , 'update_at' => date('Y-m-d H:i:s')]);
             }
             
             //添加日志操作
