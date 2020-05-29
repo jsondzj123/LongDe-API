@@ -78,7 +78,8 @@ class AuthenticateController extends Controller {
             }
             
             //生成随机唯一的token
-            $token = sha1(uniqid().$body['phone'].$body['password'].time().rand(1000,9999));
+            //$token = sha1(uniqid().$body['phone'].$body['password'].time().rand(1000,9999));
+            $token = self::setAppLoginToken($body['phone']);
 
             //开启事务
             DB::beginTransaction();
@@ -161,7 +162,8 @@ class AuthenticateController extends Controller {
             }
             
             //生成随机唯一的token
-            $token = sha1(uniqid().$body['phone'].$body['password'].time().rand(1000,9999));
+            //$token = sha1(uniqid().$body['phone'].$body['password'].time().rand(1000,9999));
+            $token = self::setAppLoginToken($body['phone']);
             
             //开启事务
             DB::beginTransaction();
@@ -237,7 +239,8 @@ class AuthenticateController extends Controller {
             }
             
             //生成随机唯一的token
-            $token = sha1(uniqid().$body['device'].time().rand(1000,9999));
+            //$token = sha1(uniqid().$body['device'].time().rand(1000,9999));
+            $token = self::setAppLoginToken($body['device']);
             
             //通过设备唯一标识判断是否注册过
             $student_info = User::where("device" , $body['device'])->first();

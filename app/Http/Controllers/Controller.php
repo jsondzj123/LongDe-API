@@ -204,4 +204,16 @@ class Controller extends BaseController {
         //$papers_id = array_search($name, $arr);
         return $arr[$val];
     }
+    
+    /*
+     * @param  description   生成唯一性token得方法
+     * @param $login_logo    唯一标识符
+     * @param author    dzj
+     * @param ctime     2020-05-29
+     * return string
+     */
+    public static function setAppLoginToken($login_logo){
+        $str   = md5(uniqid(md5(microtime(true)),true));
+        return sha1($str.$login_logo);
+    }
 }
