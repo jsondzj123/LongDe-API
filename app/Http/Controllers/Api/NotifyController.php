@@ -7,8 +7,6 @@ use App\Models\Order;
 use App\Models\Student;
 use App\Models\Student_account_log;
 use App\Models\Student_accounts;
-use App\Models\Student_price;
-use App\Models\Student_pricelog;
 use App\Providers\aop\AopClient\AopClient;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -116,12 +114,15 @@ class NotifyController extends Controller {
 
     //iphone 内部支付 回调
     public function iphonePaynotify(){
-        $aaaa=['0'=>11111];
-        file_put_contents('iphonePaynotify.txt', '时间:' . date('Y-m-d H:i:s') . print_r($aaaa, true), FILE_APPEND);
         $data = self::$accept_data;
         $receiptData = $data['receiptData'];
         $order_number = $data['order_number'];
-        file_put_contents('iphonePaynotify.txt', '时间:' . date('Y-m-d H:i:s') . print_r($data, true), FILE_APPEND);
+        if(!isset($data['receiptData']) ||empty($receiptData)){
+            return response()->json(['code' => 201 , 'msg' => 'receiptData没有']);
+        }
+        if(!isset($data['order_number']) ||empty($order_number)){
+            return response()->json(['code' => 201 , 'msg' => 'order_number没有']);
+        }
         // 验证参数
         if (strlen($receiptData) < 20) {
             return response()->json(['code' => 201 , 'msg' => '不能读取你提供的JSON对象']);
