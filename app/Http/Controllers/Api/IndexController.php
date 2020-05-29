@@ -256,14 +256,14 @@ class IndexController extends Controller {
             $tomorrow_class  = [];
             $over_class      = [];
             $arr             = [];
-            $lession_list= DB::table('ld_lessons')->select(DB::raw("any_value(id) as id") , DB::raw("any_value(cover) as cover") , DB::raw("any_value(start_at) as start_at") , DB::raw("any_value(end_at) as end_at") , DB::raw("from_unixtime(start_at , '%Y-%m-%d') as start_time"))->where('is_public',1)->where('is_del',0)->where('is_forbid',0)->orderBy('start_at' , 'DESC')->groupBy('start_time')->offset($offset)->limit($pagesize)->get()->toArray();
+            $lession_list= DB::table('ld_lessons')->select(DB::raw("any_value(id) as id") , DB::raw("any_value(cover) as cover") , DB::raw("any_value(start_at) as start_at") , DB::raw("any_value(end_at) as end_at") , DB::raw("from_unixtime(start_at , '%Y-%m-%d') as start_time"))->where('is_public',1)->where('is_del',0)->where('is_forbid',0)->where('status',2)->orderBy('start_at' , 'DESC')->groupBy('start_time')->offset($offset)->limit($pagesize)->get()->toArray();
             //判读公开课列表是否为空
             if($lession_list && !empty($lession_list)){
                 foreach($lession_list as $k=>$v){
                     //获取当天公开课列表的数据
                     if($v->start_time == date('Y-m-d')){
                         //根据开始日期和结束日期进行查询
-                        $class_list = DB::table('ld_lessons')->select('id as open_class_id' , 'title' , 'cover' , DB::raw("from_unixtime(start_at , '%H:%i') as start_time") , DB::raw("from_unixtime(end_at , '%H:%i') as end_time") , 'start_at' , 'end_at')->where('start_at' , '>=' , strtotime($v->start_time.' 00:00:00'))->where('end_at' , '<=' , strtotime($v->start_time.' 23:59:59'))->where('is_public',1)->where('is_del',0)->where('is_forbid',0)->orderBy('start_at' , 'ASC')->get()->toArray();
+                        $class_list = DB::table('ld_lessons')->select('id as open_class_id' , 'title' , 'cover' , DB::raw("from_unixtime(start_at , '%H:%i') as start_time") , DB::raw("from_unixtime(end_at , '%H:%i') as end_time") , 'start_at' , 'end_at')->where('start_at' , '>=' , strtotime($v->start_time.' 00:00:00'))->where('end_at' , '<=' , strtotime($v->start_time.' 23:59:59'))->where('is_public',1)->where('is_del',0)->where('is_forbid',0)->where('status',2)->orderBy('start_at' , 'ASC')->get()->toArray();
                         $today_arr = [];
                         foreach($class_list as $k1=>$v1){
                             //判断课程状态
@@ -292,7 +292,7 @@ class IndexController extends Controller {
                         $today_class[$v->start_time]['open_class_list']   = $today_arr;
                     } else if($v->start_time > date('Y-m-d')) {
                         //公开课日期赋值
-                        $class_list = DB::table('ld_lessons')->select('id as open_class_id' , 'title' , 'cover' , DB::raw("from_unixtime(start_at , '%H:%i') as start_time") , DB::raw("from_unixtime(end_at , '%H:%i') as end_time") , 'start_at' , 'end_at')->where("start_at" , ">" , strtotime($v->start_time.' 00:00:00'))->where("end_at" , "<" , strtotime($v->start_time.' 23:59:59'))->where('is_public',1)->where('is_del',0)->where('is_forbid',0)->orderBy('start_at' , 'ASC')->get()->toArray();
+                        $class_list = DB::table('ld_lessons')->select('id as open_class_id' , 'title' , 'cover' , DB::raw("from_unixtime(start_at , '%H:%i') as start_time") , DB::raw("from_unixtime(end_at , '%H:%i') as end_time") , 'start_at' , 'end_at')->where("start_at" , ">" , strtotime($v->start_time.' 00:00:00'))->where("end_at" , "<" , strtotime($v->start_time.' 23:59:59'))->where('is_public',1)->where('is_del',0)->where('is_forbid',0)->where('status',2)->orderBy('start_at' , 'ASC')->get()->toArray();
                         $date2_arr = [];
                         foreach($class_list as $k2=>$v2){
                             $date2_arr[] = [
@@ -312,7 +312,7 @@ class IndexController extends Controller {
                         $tomorrow_class[$v->start_time]['open_class_list']   = $date2_arr;
                     } else {
                         //公开课日期赋值
-                        $class_list = DB::table('ld_lessons')->select('id as open_class_id' , 'title' , 'cover' , DB::raw("from_unixtime(start_at , '%H:%i') as start_time") , DB::raw("from_unixtime(end_at , '%H:%i') as end_time") , 'start_at' , 'end_at')->where("start_at" , ">" , strtotime($v->start_time.' 00:00:00'))->where("end_at" , "<" , strtotime($v->start_time.' 23:59:59'))->where('is_public',1)->where('is_del',0)->where('is_forbid',0)->orderBy('start_at' , 'ASC')->get()->toArray();
+                        $class_list = DB::table('ld_lessons')->select('id as open_class_id' , 'title' , 'cover' , DB::raw("from_unixtime(start_at , '%H:%i') as start_time") , DB::raw("from_unixtime(end_at , '%H:%i') as end_time") , 'start_at' , 'end_at')->where("start_at" , ">" , strtotime($v->start_time.' 00:00:00'))->where("end_at" , "<" , strtotime($v->start_time.' 23:59:59'))->where('is_public',1)->where('is_del',0)->where('is_forbid',0)->where('status',2)->orderBy('start_at' , 'ASC')->get()->toArray();
                         $date_arr = [];
                         foreach($class_list as $k2=>$v2){
                             $date_arr[] = [
