@@ -35,7 +35,22 @@ class Lesson extends Model {
         'pivot'
     ];
 
-    protected $appends = ['is_auth', 'is_collection'];
+    protected $appends = ['is_auth', 'is_collection', 'method_id', 'teacher_id', 'subject_id'];
+
+    public function getMethodIdAttribute($value)
+    {
+        return $this->belongsToMany('App\Models\Method', 'ld_lesson_methods')->pluck('id');
+    }
+
+    public function getTeacherIdAttribute($value)
+    {
+        return $this->belongsToMany('App\Models\Teacher', 'ld_lesson_teachers')->pluck('id');
+    }
+
+    public function getSubjectIdAttribute($value)
+    {
+        return $this->belongsToMany('App\Models\Subject', 'ld_subject_lessons')->pluck('id');
+    }
 
     public function getIsAuthAttribute($value) {
         $user = CurrentAdmin::user();
