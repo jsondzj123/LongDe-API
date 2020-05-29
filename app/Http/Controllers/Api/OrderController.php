@@ -141,29 +141,29 @@ class OrderController extends Controller
                 return ['code' => 201, 'msg' => '请选择订单'];
             }
             //获取订单信息
-            $order = Order::where(['id' => $data['order_id'], 'student_id' => $user_id])->first();
-            if(!$order){
+            $orders = Order::where(['id' => $data['order_id'], 'student_id' => $user_id])->first();
+            if(!$orders){
                 return ['code' => 201, 'msg' => '订单数据有误'];
             }
-            $orders = $order->toArray();
-            print_r($orders);die;
+            $order = $orders->toArray();
             if ($order['status'] > 0) {
                 return ['code' => 202, 'msg' => '此订单已支付'];
             }
             //判断用户网校，根据网校查询课程信息
             if ($user_school_id == 1) {
                 //根据课程id 查询价格
-                $lesson = Lesson::select('id', 'title', 'cover', 'price', 'favorable_price')->where(['id' => $order['class_id'], 'is_del' => 0, 'is_forbid' => 0, 'status' => 2, 'is_public' => 0])->first()->toArray();
-                if (!$lesson) {
+                $lessons = Lesson::select('id', 'title', 'cover', 'price', 'favorable_price')->where(['id' => $order['class_id'], 'is_del' => 0, 'is_forbid' => 0, 'status' => 2, 'is_public' => 0])->first();
+                if (!$lessons) {
                     return ['code' => 204, 'msg' => '此课程选择无效'];
                 }
             } else {
                 //根据课程id 网校id 查询网校课程详情
-                $lesson = LessonSchool::select('id', 'title', 'cover', 'price', 'favorable_price')->where(['lesson_id' => $order['class_id'], 'school_id' => $user_school_id, 'is_del' => 0, 'is_forbid' => 0, 'status' => 1, 'is_public' => 0])->first()->toArray();
-                if (!$lesson) {
+                $lessons = LessonSchool::select('id', 'title', 'cover', 'price', 'favorable_price')->where(['lesson_id' => $order['class_id'], 'school_id' => $user_school_id, 'is_del' => 0, 'is_forbid' => 0, 'status' => 1, 'is_public' => 0])->first();
+                if (!$lessons) {
                     return ['code' => 204, 'msg' => '此课程选择无效'];
                 }
             }
+            $lesson = $lessons->toArray();
             if ($data['pay_type'] == 5) {
                 echo $lesson['favorable_price'].'------------';
                 echo $user_balance;die;
