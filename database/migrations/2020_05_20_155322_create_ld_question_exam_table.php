@@ -44,7 +44,7 @@ class CreateLdQuestionExamTable extends Migration
             $table->engine  = 'InnoDB';
         });
         //设置表注释
-        DB::statement("alter table `ld_question_exam` comment '题库表'");
+        DB::statement("alter table `ld_question_exam` comment '题库试题表'");
         //增加全文索引
         DB::statement('alter table `ld_question_exam` add fulltext index index_content(exam_content)');
     }

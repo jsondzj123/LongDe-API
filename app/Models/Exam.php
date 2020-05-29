@@ -310,8 +310,8 @@ class Exam extends Model {
         DB::beginTransaction();
 
         //根据试题的id更新试题内容
-        $exam_info = self::where("id" , $body['exam_id'])->update($exam_arr);
-        if($exam_info && !empty($exam_info)){
+        $update_exam_info = self::where("id" , $body['exam_id'])->update($exam_arr);
+        if($update_exam_info && !empty($update_exam_info)){
             //判断是否为(1单选题2多选题3不定项5填空题)
             if(in_array($exam_info['type'] , [1,2,3,5]) && !empty($body['option_list'])){
                 //更新试题的id更新试题选项

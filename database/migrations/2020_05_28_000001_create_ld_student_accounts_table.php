@@ -24,7 +24,8 @@ class CreateLdStudentAccountsTable extends Migration
             $table->text('content')->nullable()->comment('返回的数据');
             $table->smallInteger('status')->default(0)->comment('0未支付1支付成功2支付失败');
             $table->integer('class_id')->default(0)->comment('课程ID');
-            $table->timestamps();
+            $table->timestamp('create_at')->comment('创建时间')->default(DB::raw('CURRENT_TIMESTAMP'));
+            $table->dateTime('update_at')->nullable()->comment('修改时间');
         });
 
     }
