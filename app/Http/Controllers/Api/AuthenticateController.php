@@ -97,7 +97,7 @@ class AuthenticateController extends Controller {
             //将数据插入到表中
             $user_id = User::insertGetId($user_data);
             if($user_id && $user_id > 0){
-                $user_info = ['user_id' => $user_id , 'user_token' => $token , 'user_type' => 0  , 'head_icon' => '' , 'real_name' => '' , 'phone' => $body['phone'] , 'nickname' => '' , 'sign' => '' , 'papers_type' => '' , 'papers_name' => '' , 'papers_num' => '' , 'balance' => 0 , 'school_id' => 1];
+                $user_info = ['user_id' => $user_id , 'user_token' => $token , 'user_type' => 1  , 'head_icon' => '' , 'real_name' => '' , 'phone' => $body['phone'] , 'nickname' => '' , 'sign' => '' , 'papers_type' => '' , 'papers_name' => '' , 'papers_num' => '' , 'balance' => 0 , 'school_id' => 1];
                 //redis存储信息
                 Redis::hMset("user:regtoken:".$token , $user_info);
                 
@@ -180,7 +180,7 @@ class AuthenticateController extends Controller {
                 $user_info = [
                     'user_id'    => $user_login->id ,
                     'user_token' => $token , 
-                    'user_type'  => 0 ,
+                    'user_type'  => 1 ,
                     'head_icon'  => $user_login->head_icon , 
                     'real_name'  => $user_login->real_name , 
                     'phone'      => $user_login->phone , 
@@ -254,7 +254,7 @@ class AuthenticateController extends Controller {
                 $user_info = [
                     'user_id'    => $student_info->id ,
                     'user_token' => $token , 
-                    'user_type'  => 0 ,
+                    'user_type'  => 2 ,
                     'head_icon'  => $student_info->head_icon , 
                     'real_name'  => $student_info->real_name , 
                     'phone'      => $student_info->phone , 
@@ -292,7 +292,7 @@ class AuthenticateController extends Controller {
                     'reg_source'=>    1 ,
                     'school_id' =>    1 ,
                     'nickname'  =>    $nickname ,
-                    'user_type' =>    1 ,
+                    'user_type' =>    2 ,
                     'create_at' =>    date('Y-m-d H:i:s')
                 ];
 
@@ -302,7 +302,7 @@ class AuthenticateController extends Controller {
                     $user_info = [
                         'user_id'    => $user_id ,
                         'user_token' => $token , 
-                        'user_type'  => 1 ,
+                        'user_type'  => 2 ,
                         'head_icon'  => '' , 
                         'real_name'  => '' , 
                         'phone'      => '' , 
