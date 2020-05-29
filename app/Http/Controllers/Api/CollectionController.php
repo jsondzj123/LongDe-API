@@ -5,21 +5,19 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Validator;
 use App\Models\Collection;
-
+use App\Models\Student;
 
 class CollectionController extends Controller {
 
     //收藏列表
-    public function index(){
+    public function index(Request $request){
         $pagesize = $request->input('pagesize') ?: 15;
         $page     = $request->input('page') ?: 1;
         $offset   = ($page - 1) * $pagesize;
-        $collection =  Collection::where('is_del', 0)
-                ->orderBy('created_at', 'desc');
-        $total = $collection->count();
-        $collections = $collection->skip($offset)->take($pagesize)->get();
+        $student = Student::find(self::$accept_data['user_info']['user_id'])->collectionLessons->skip($offset)->take($pagesize);
+        $total = $student->count();
         $data = [
-            'page_data' => $collections,
+            'page_data' => $student,
             'total' => $total,
         ];
         return $this->response($data);
@@ -45,10 +43,10 @@ class CollectionController extends Controller {
                 'lesson_id' => $request->input('lesson_id'),
             ]);
         } catch (Exception $e) {
-            Log::error('创建失败:'.$e->getMessage());
+            Log::error('收藏失败:'.$e->getMessage());
             return $this->response($e->getMessage(), 500);
         }
-        return $this->response('创建成功');
+        return $this->response('收藏成功');
     }
     
 }
