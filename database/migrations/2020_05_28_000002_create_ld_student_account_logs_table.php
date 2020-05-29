@@ -17,10 +17,11 @@ class CreateLdStudentAccountlogsTable extends Migration
             $table->increments('id');
             $table->integer('user_id')->default(0)->comment('用户ID');
             $table->decimal('price', 10, 2)->comment('金额');
-            $table->decimal('endprice', 10, 2)->comment('修改后金额');
+            $table->decimal('end_price', 10, 2)->comment('修改后金额');
             $table->tinyInteger('status')->default(0)->comment('1充值2消费');
             $table->integer('class_id')->default(0)->comment('课程ID');
-            $table->timestamps();
+            $table->timestamp('create_at')->comment('创建时间')->default(DB::raw('CURRENT_TIMESTAMP'));
+            $table->dateTime('update_at')->nullable()->comment('修改时间');
         });
     }
 
