@@ -123,8 +123,10 @@ class OrderController extends Controller
         $data = self::$accept_data;
         //获取用户信息
         $user_id = $data['user_info']['user_id'];
-        $user_balance = $data['user_info']['balance'];
-        $user_school_id = $data['user_info']['school_id'];
+        //获取用户信息
+        $student = Student::where(['id'=>$user_id])->first()->toArray();
+        $user_school_id = $student['school_id'];
+        $user_balance = $student['balance'];
         //判断支付类型
         if (empty($data['type']) || !isset($data['type']) || !in_array($data['type'], [1, 2])) {
             return ['code' => 201, 'msg' => '请选择类型'];
@@ -161,8 +163,6 @@ class OrderController extends Controller
                 }
             }
             if ($data['pay_type'] == 5) {
-                echo $lesson['favorable_price'].'------------';
-                echo $user_balance;die;
                 if ($lesson['favorable_price'] > $user_balance) {
                     return ['code' => 202, 'msg' => '余额不足，请充值！！！！！'];
                 } else {
