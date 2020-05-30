@@ -7,19 +7,25 @@ use App\Tools\AlipayFactory;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class OrderController extends Controller {
-    //支付pc
+    //微信pc支付
+    public function wxPcpay(){
+
+    }
+    //支付宝支付pc
     public function aliPcpay(){
         $alipay = new AlipayFactory();
         $return = $alipay->createPcPay();
         if($return['alipay_trade_precreate_response']['code'] == 10000){
             echo $return['alipay_trade_precreate_response']['code'];
             //生成二维码
-            $qrcode = new \App\Tools\QRcode();
+            $qrcode = new QrCode();
+
+
             $value = $return['alipay_trade_precreate_response']['qr_code']; //二维码内容
             $errorCorrectionLevel = 'L';//容错级别
             $matrixPointSize = 6; // 生成图片大小
             //生成二维码图片
-            $img = $qrcode::png($value);
+            $img = $qrcode->png($value);
             echo $img;
         }else{
 
@@ -50,7 +56,7 @@ class OrderController extends Controller {
         $aaa = $this->hjpost($arr);
         print_r($aaa);die;
     }
-    //汇聚支付宝支付
+    //汇聚微信支付
     public function hjwxPcpay(){
 //        if($pay_type == 1){
 //            $notify = "http://".$_SERVER['HTTP_HOST']."/Api/notify/hjAlinotify";
