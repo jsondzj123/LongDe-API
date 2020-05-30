@@ -204,8 +204,8 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin' , 'middleware'=> ['
     */
     $router->post('liveChild', 'LiveChildController@index');
     $router->post('liveChild/add', 'LiveChildController@store');
-    $router->post('liveChild/{id}/update', 'LiveChildController@update');
-    $router->post('liveChild/{id}/delete', 'LiveChildController@destroy');
+    $router->post('deleteLiveChild', 'LiveChildController@destroy');
+    $router->post('editLiveChildStatus', 'LiveChildController@edit');
 
 
     //用户学员相关模块(dzj)
