@@ -125,8 +125,8 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin' , 'middleware'=> ['
     */
     $router->post('method', 'MethodController@index');
     $router->post('method/add', 'MethodController@store');
-    $router->post('method/{id}/update', 'MethodController@update');
-    $router->post('method/{id}/delete', 'MethodController@destroy');
+    $router->post('updateMethod', 'MethodController@update');
+    $router->post('deleteMethod', 'MethodController@destroy');
 
     /*
      * 课程模块(sxl)
@@ -147,7 +147,7 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin' , 'middleware'=> ['
     $router->post('lessonChild/add', 'LessonChildController@store');
     $router->post('lessonChildShow', 'LessonChildController@show');
     $router->post('updateLessonChild', 'LessonChildController@update');
-    $router->post('lessonChildDelete', 'LessonChildController@destroy');
+    $router->post('deleteLessonChild', 'LessonChildController@destroy');
 
     /*
      * 分校课程(sxl)
@@ -180,9 +180,11 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin' , 'middleware'=> ['
     */
     $router->post('video', 'VideoController@index');
     $router->post('video/add', 'VideoController@store');
-    $router->post('video/{id}', 'VideoController@show');
-    $router->post('video/{id}/update', 'VideoController@update');
-    $router->post('video/{id}/edit', 'VideoController@edit');
+    $router->post('videoShow', 'VideoController@show');
+    $router->post('updateVideo', 'VideoController@update');
+    $router->post('updateVideoStatus', 'VideoController@edit');
+    $router->post('deleteVideo', 'VideoController@destroy');
+
 
 
     /*
