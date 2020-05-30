@@ -1,7 +1,5 @@
 <?php
 namespace App\Tools;
-use App\Providers\xml\XML2Array;
-use Illuminate\Support\Facades\Storage;
 
 class WxpayFactory{
     public function test(){
@@ -36,12 +34,15 @@ class WxpayFactory{
         //将微信返回的结果xml转成数组
         $res = $this->xmlstr_to_array($response);
         file_put_contents('wxpay.txt', '时间:' . date('Y-m-d H:i:s') . print_r($res, true), FILE_APPEND);
-//        Storage::disk('logs')->append('wxpay.txt', 'time:'.date('Y-m-d H:i:s')."\nresponse:".$res);
-        $sign2 = $this->getOrder($res['prepay_id']["@cdata"]);
-        if(!empty($sign2)){
-            $arr = array('code'=>200,'list'=>$sign2);
+        if($res['return_code'] != 'Success'){
+            $arr = array('code'=>204,'msg'=>$res['return_msg']);
         }else{
-          $arr = array('code'=>1001,'list'=>"请确保参数合法性！");
+            $sign2 = $this->getOrder($res['prepay_id']);
+            if(!empty($sign2)){
+                $arr = array('code'=>200,'list'=>$sign2);
+            }else{
+              $arr = array('code'=>1001,'list'=>"请确保参数合法性！");
+            }
         }
         return $arr;
     }
@@ -69,13 +70,15 @@ class WxpayFactory{
         $response = $this->postXmlCurl($xml, $url);
         //将微信返回的结果xml转成数组
         $res = $this->xmlstr_to_array($response);
-        file_put_contents('wxpay.txt', '时间:' . date('Y-m-d H:i:s') . print_r($res, true), FILE_APPEND);
-//        Storage::disk('logs')->append('wxpay.txt', 'time:'.date('Y-m-d H:i:s')."\nresponse:".$res);
-        $sign2 = $this->getOrder($res['prepay_id']["@cdata"]);
-        if(!empty($sign2)){
-            $arr = array('code'=>200,'list'=>$sign2);
+        if($res['return_code'] != 'Success'){
+            $arr = array('code'=>204,'msg'=>$res['return_msg']);
         }else{
-            $arr = array('code'=>1001,'list'=>"请确保参数合法性！");
+            $sign2 = $this->getOrder($res['prepay_id']);
+            if(!empty($sign2)){
+                $arr = array('code'=>200,'list'=>$sign2);
+            }else{
+                $arr = array('code'=>1001,'list'=>"请确保参数合法性！");
+            }
         }
         return $arr;
     }
@@ -144,17 +147,12 @@ class WxpayFactory{
         }
         return $cip;
     }
-
-    // function xmlstr_to_array($xmlstr) {
-    //   $doc = new DOMDocument();
-    //   $doc->loadXML($xmlstr);
-    //   return $this->domnode_to_array($doc->documentElement);
-    // }
-    function xmlstr_to_array($xmlstr) {
-      include 'XMl2Array.php';
-      $wxpay = new XML2Array();
-      $array = $wxpay->createArray($xmlstr);
-      return $array['xml'];
+   //xml转数组
+    function xmlstr_to_array($xml){
+        //禁止引用外部xml实体
+        libxml_disable_entity_loader(true);
+        $values = json_decode(json_encode(simplexml_load_string($xml, 'SimpleXMLElement', LIBXML_NOCDATA)), true);
+        return $values;
     }
     //数组转xml
     function arrayToXml($arr)

@@ -4,31 +4,26 @@ namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
 use App\Tools\AlipayFactory;
-use SimpleSoftwareIO\QrCode\Facades\QrCode;
+use App\Tools\WxpayFactory;
 
 class OrderController extends Controller {
     //微信pc支付
     public function wxPcpay(){
-
+        $wxpay = new WxpayFactory();
+        $number = date('YmdHis', time()) . rand(1111, 9999);
+        $price = 0.01;
+        $return = $wxpay->getPcPayOrder($number,$price);
     }
     //支付宝支付pc
     public function aliPcpay(){
+        //redis 缓存 有效期1天
         $alipay = new AlipayFactory();
         $return = $alipay->createPcPay();
         if($return['alipay_trade_precreate_response']['code'] == 10000){
-            echo $return['alipay_trade_precreate_response']['code'];
-            //生成二维码
-            $qrcode = new QrCode();
-
-
-            $value = $return['alipay_trade_precreate_response']['qr_code']; //二维码内容
-            $errorCorrectionLevel = 'L';//容错级别
-            $matrixPointSize = 6; // 生成图片大小
-            //生成二维码图片
-            $img = $qrcode->png($value);
-            echo $img;
+          $img = $this->generateQRfromGoogle($return['alipay_trade_precreate_response']['qr_code']);
+          echo $img;
         }else{
-
+            echo 11111;die;
         }
     }
     //汇聚支付宝支付
@@ -120,6 +115,22 @@ class OrderController extends Controller {
         $result = curl_exec($ch);
         curl_close($ch);
         return $result;
+    }
+    /**
+     * google api 二维码生成【QRcode可以存储最多4296个字母数字类型的任意文本，具体可以查看二维码数据格式】
+     * @param string $chl 二维码包含的信息，可以是数字、字符、二进制信息、汉字。
+    不能混合数据类型，数据必须经过UTF-8 URL-encoded
+     * @param int $widhtHeight 生成二维码的尺寸设置
+     * @param string $EC_level 可选纠错级别，QR码支持四个等级纠错，用来恢复丢失的、读错的、模糊的、数据。
+     *                            L-默认：可以识别已损失的7%的数据
+     *                            M-可以识别已损失15%的数据
+     *                            Q-可以识别已损失25%的数据
+     *                            H-可以识别已损失30%的数据
+     * @param int $margin 生成的二维码离图片边框的距离
+     */
+    function generateQRfromGoogle($chl,$widhtHeight ='150',$EC_level='L',$margin='0'){
+        $chl = urlencode($chl);
+        echo 'http://chart.apis.google.com/chart?chs='.$widhtHeight.'x'.$widhtHeight.'&cht=qr&chld='.$EC_level.'|'.$margin.'&chl='.$chl;
     }
 }
 
