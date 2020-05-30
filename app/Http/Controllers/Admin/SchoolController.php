@@ -422,21 +422,29 @@ class SchoolController extends Controller {
                 return response()->json(['code'=>203,'msg'=>'网络错误，请重试']);
             }
         }else{
-            //有
+            //有             
             $super  = Roleauth::where(['id'=>$data['role_id']])->select('is_super')->first();
-            if($super['is_super']<1){
+            if($super['is_super']<1){ //判断是否为超管
                 return response()->json(['code'=>404,'msg'=>'非法请求']);
             }
-            //判断是否为超管，如果删除权限判断分校超管是否在使用，如果存在就不能删除，如果强删联系技术
-            $fen_role_auth_arr = Roleauth::where(['is_del'=>1,'is_super'=>0])->where('school_id',$data['id'])->select('auth_id')->get();
+            //如果是超管，那么删除权限，那么其他角色权限也都有被删除，不管是否正在使用中。
+            $fen_role_auth_arr = Roleauth::where(['is_del'=>1,'is_super'=>0])->where('school_id',$data['id'])->select('auth_id','id')->get()->toArray();
             foreach ($fen_role_auth_arr as $k => $v) {
                 $fen_roles_id = explode(",", $v['auth_id']); 
                 $new_arr = array_diff($fen_roles_id,$arr);
-                foreach ($new_arr as $vv) {
-                    if(in_array($vv,$fen_roles_id)){
-                        return response()->json(['code'=>204,'msg'=>'该校其他角色在使用中，不能修改']);
+                $new_qita_role_ids = array_diff($fen_roles_id,$new_arr);
+                if(!empty($new_qita_role_ids)){
+                    $res = Roleauth::where(['id'=>$v['id']])->update(['auth_id'=>implode(",", $new_qita_role_ids),'update_time'=>date('Y-m-d H:i:s')]);
+                    if(!$res){
+                        DB::rollBack();
+                        return response()->json(['code'=>203,'msg'=>'赋权成功']);
                     }
                 }
+                // foreach ($new_arr as $vv) {
+                //     if(in_array($vv,$fen_roles_id)){
+                //         return response()->json(['code'=>204,'msg'=>'该校其他角色在使用中，不能修改']);
+                //     }
+                // }
             }
             AdminLog::insertAdminLog([
                 'admin_id'       =>   CurrentAdmin::user()['id'] ,
@@ -454,8 +462,7 @@ class SchoolController extends Controller {
                 DB::rollBack();
                 return response()->json(['code'=>203,'msg'=>'网络错误，请重试']);
             }
-        }
-        
+        } 
     }
 
 
