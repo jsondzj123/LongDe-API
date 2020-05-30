@@ -67,6 +67,7 @@ class PaySetController extends Controller {
         $update['update_at'] = date('Y-m-d H:i:s');
 
         if(PaySet::doUpdate(['id'=>$data['id']],$update)){
+
             return response()->json(['code'=>200,'msg'=>"更改成功"]);
         }else{
             return response()->json(['code'=>203,'msg'=>'更改成功']);
@@ -103,6 +104,15 @@ class PaySetController extends Controller {
         }
         $update['update_at'] = date('Y-m-d H:i:s');
         if(PaySet::doUpdate(['id'=>$data['id']],$update)){
+             AdminLog::insertAdminLog([
+                'admin_id'       =>   CurrentAdmin::user()['id'] ,
+                'module_name'    =>  'Adminuser' ,
+                'route_url'      =>  'admin/adminuser/upUserForbidStatus' , 
+                'operate_method' =>  'update' ,
+                'content'        =>  json_encode($data),
+                'ip'             =>  $_SERVER["REMOTE_ADDR"] ,
+                'create_at'      =>  date('Y-m-d H:i:s')
+            ]);
             return response()->json(['code'=>200,'msg'=>"更改成功"]);
         }else{
             return response()->json(['code'=>203,'msg'=>'更改成功']);

@@ -227,22 +227,6 @@ class RoleController extends Controller {
         }
         try {  //5.15  
             DB::beginTransaction();
-            $RoleauthArr = Roleauth::where('id',$data['id'])->first();
-            if($RoleauthArr['is_super'] == 1){   
-                if($admin['school_status'] ==1 ){
-                   //总校超级   //判断是否为总校超管，如果删除权限判断分校超管是否在使用，如果存在就不能删除，如果强删联系技术
-                    $fen_role_auth_arr = Roleauth::where(['is_del'=>1,'is_super'=>1])->where('school_id','!=',$school_id)->select('auth_id')->get();
-                    foreach ($fen_role_auth_arr as $k => $v) {
-                        $fen_roles_id = explode(",", $v['auth_id']); 
-                        $new_arr = array_diff($fen_roles_id,$arr);
-                        foreach ($new_arr as $vv) {
-                            if(in_array($vv,$fen_roles_id)){
-                                  return response()->json(['code'=>205,'msg'=>'分校正在使用不能修改']);
-                            }
-                        }
-                    }
-                }
-            }
             $data['update_time'] = date('Y-m-d H:i:s');
             $data['auth_id'] = implode(',', $arr);
             AdminLog::insertAdminLog([
@@ -254,13 +238,12 @@ class RoleController extends Controller {
                 'ip'             =>  $_SERVER["REMOTE_ADDR"] ,
                 'create_at'      =>  date('Y-m-d H:i:s')
             ]);
-
             if(Roleauth::where('id','=',$data['id'])->update($data)){
                   DB::commit();
                 return response()->json(['code'=>200,'msg'=>'更改成功']); 
             }else{
                  DB::rollBack();
-                return response()->json(['code'=>200,'msg'=>'更改成功']); 
+                return response()->json(['code'=>203,'msg'=>'更改成功']); 
             }
           
         } catch (Exception $e) {
