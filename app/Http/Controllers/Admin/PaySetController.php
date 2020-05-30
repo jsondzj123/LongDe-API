@@ -106,10 +106,10 @@ class PaySetController extends Controller {
         if(PaySet::doUpdate(['id'=>$data['id']],$update)){
              AdminLog::insertAdminLog([
                 'admin_id'       =>   CurrentAdmin::user()['id'] ,
-                'module_name'    =>  'Adminuser' ,
-                'route_url'      =>  'admin/adminuser/upUserForbidStatus' , 
+                'module_name'    =>  'PyaSet' ,
+                'route_url'      =>  'admin/payset/doUpdateWxState' , 
                 'operate_method' =>  'update' ,
-                'content'        =>  json_encode($data),
+                'content'        =>  json_encode($data).json_encode($update),
                 'ip'             =>  $_SERVER["REMOTE_ADDR"] ,
                 'create_at'      =>  date('Y-m-d H:i:s')
             ]);
@@ -149,6 +149,15 @@ class PaySetController extends Controller {
         }
         $update['update_at'] = date('Y-m-d H:i:s');
         if(PaySet::doUpdate(['id'=>$data['id']],$update)){
+             AdminLog::insertAdminLog([
+                    'admin_id'       =>   CurrentAdmin::user()['id'] ,
+                    'module_name'    =>  'PaySet' ,
+                    'route_url'      =>  'admin/payset/doUpdateZfbState' , 
+                    'operate_method' =>  'update',
+                    'content'        =>  json_encode($data).json_encode($update),
+                    'ip'             =>  $_SERVER["REMOTE_ADDR"] ,
+                    'create_at'      =>  date('Y-m-d H:i:s')
+                ]);
             return response()->json(['code'=>200,'msg'=>"更改成功"]);
         }else{
             return response()->json(['code'=>203,'msg'=>'更改成功']);
@@ -164,6 +173,7 @@ class PaySetController extends Controller {
      * @param ctime     2020-05-27
      */
     public function doUpdateHjState(){
+
         $data = self::$accept_data;
         if(!isset($data['id']) || empty($data['id'])){
             return response()->json(['code'=>201,'msg'=>'id缺少或为空']);
@@ -193,6 +203,15 @@ class PaySetController extends Controller {
         }
         $update['update_at'] = date('Y-m-d H:i:s');
         if(PaySet::doUpdate(['id'=>$data['id']],$update)){
+             AdminLog::insertAdminLog([
+                    'admin_id'       =>   CurrentAdmin::user()['id'] ,
+                    'module_name'    =>  'PaySet' ,
+                    'route_url'      =>  'admin/payset/doUpdateHjState' , 
+                    'operate_method' =>  'update',
+                    'content'        =>  json_encode($data).json_encode($update),
+                    'ip'             =>  $_SERVER["REMOTE_ADDR"] ,
+                    'create_at'      =>  date('Y-m-d H:i:s')
+                ]);
             return response()->json(['code'=>200,'msg'=>"更改成功"]);
         }else{
             return response()->json(['code'=>203,'msg'=>'更改成功']);
@@ -324,6 +343,15 @@ class PaySetController extends Controller {
         } 
         $result = PaySet::doUpdate(['id'=>$data['id']],['zfb_app_id'=>$data['app_id'],'zfb_app_public_key'=>$data['app_public_key'],'zfb_public_key'=>$data['public_key'],'update_at'=>date('Y-m-d H:i:s')]);
         if($result){
+             AdminLog::insertAdminLog([
+                    'admin_id'       =>   CurrentAdmin::user()['id'] ,
+                    'module_name'    =>  'Payset' ,
+                    'route_url'      =>  'admin/payset/doZfbUpdate' , 
+                    'operate_method' =>  'update',
+                    'content'        =>  json_encode($data),
+                    'ip'             =>  $_SERVER["REMOTE_ADDR"] ,
+                    'create_at'      =>  date('Y-m-d H:i:s')
+                ]);
             return response()->json(['code'=>200,'msg'=>"保存成功"]);
         }else{
             return response()->json(['code'=>203,'msg'=>'保存成功']);
@@ -356,6 +384,15 @@ class PaySetController extends Controller {
         } 
         $result = PaySet::doUpdate(['id'=>$data['id']],['wx_app_id'=>$data['app_id'],'wx_commercial_tenant_number'=>$data['shop_number'],'wx_api_key'=>$data['api_key'],'update_at'=>date('Y-m-d H:i:s')]);
         if($result){
+             AdminLog::insertAdminLog([
+                    'admin_id'       =>   CurrentAdmin::user()['id'] ,
+                    'module_name'    =>  'Payset' ,
+                    'route_url'      =>  'admin/payset/doWxUpdate' , 
+                    'operate_method' =>  'update',
+                    'content'        =>  json_encode($data),
+                    'ip'             =>  $_SERVER["REMOTE_ADDR"] ,
+                    'create_at'      =>  date('Y-m-d H:i:s')
+                ]);
             return response()->json(['code'=>200,'msg'=>"保存成功"]);
         }else{
             return response()->json(['code'=>203,'msg'=>'保存成功']);
@@ -371,7 +408,7 @@ class PaySetController extends Controller {
      */
     public function doHjConfig(){
         $data = self::$accept_data;
-         $validator = Validator::make($data, 
+        $validator = Validator::make($data, 
                 [
                     'id' => 'required|integer',
                     'shop_number'=>'required',
@@ -398,6 +435,15 @@ class PaySetController extends Controller {
                     'hj_zfb_pay_state'=>$data['zfb_state'],
                     'update_at'=>date('Y-m-d H:i:s')]);
         if($result){
+             AdminLog::insertAdminLog([
+                    'admin_id'       =>   CurrentAdmin::user()['id'] ,
+                    'module_name'    =>  'Payset' ,
+                    'route_url'      =>  'admin/payset/doHjUpdate' , 
+                    'operate_method' =>  'update',
+                    'content'        =>  json_encode($data),
+                    'ip'             =>  $_SERVER["REMOTE_ADDR"] ,
+                    'create_at'      =>  date('Y-m-d H:i:s')
+                ]);
             return response()->json(['code'=>200,'msg'=>"保存成功"]);
         }else{
             return response()->json(['code'=>203,'msg'=>'保存成功']);
