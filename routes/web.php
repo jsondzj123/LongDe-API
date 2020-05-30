@@ -29,7 +29,7 @@ $router->group(['prefix' => 'api', 'namespace' => 'Api'], function () use ($rout
     */
     $router->post('lesson', 'LessonController@index');
     $router->post('publicLesson', 'LessonController@publicList');
-    $router->post('lesson/{id}', 'LessonController@show');
+    $router->post('lessonShow', 'LessonController@show');
 
     $router->post('doUserRegister','AuthenticateController@doUserRegister');    //APP注册接口
     $router->post('doVisitorLogin','AuthenticateController@doVisitorLogin');    //APP游客登录接口
