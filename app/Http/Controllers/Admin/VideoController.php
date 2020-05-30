@@ -46,13 +46,19 @@ class VideoController extends Controller {
      * return  array
      */
     public function show($id) {
-        $video = Video::with('subject')->findOrFail($id);
+        $validator = Validator::make($request->all(), [
+            'id' => 'required',
+        ]);
+        if ($validator->fails()) {
+            return $this->response($validator->errors()->first(), 202);
+        }
+        $video = Video::with('subject')->findOrFail($request->input('id'));
         return $this->response($video);
     }
 
 
     /**
-     * 添加资源.
+     * 添加录播资源.
      *
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
@@ -86,25 +92,31 @@ class VideoController extends Controller {
     }
 
     /**
-     * Update the specified resource in storage.
+     * @param 修改录播资源
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  Request  $request
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return json
      */
     public function update(Request $request) {
-        $video = new Video();
-        $video->name = $request->input('name') ?: $video->name;
-        $video->subject_id = $request->input('subject_id') ?: $video->subject_id;
-        $video->category = $request->input('category') ?: $video->category;
-        $video->url = $request->input('url') ?: $video->url;
+        $validator = Validator::make($request->all(), [
+            'id' => 'required',
+        ]);
+        if ($validator->fails()) {
+            return $this->response($validator->errors()->first(), 202);
+        }
         try {
+            $video = Video::findOrFail($request->input('id'));
+            $video->name = $request->input('name') ?: $video->name;
+            $video->subject_id = $request->input('subject_id') ?: $video->subject_id;
+            $video->category = $request->input('category') ?: $video->category;
+            $video->url = $request->input('url') ?: $video->url;
             $video->save();
-            return $this->response("修改成功");
         } catch (Exception $e) {
-            Log::error('修改课程信息失败' . $e->getMessage());
+            Log::error('修改失败' . $e->getMessage());
             return $this->response("修改成功");
         }
+        return $this->response("修改成功");
     }
 
 
@@ -114,13 +126,18 @@ class VideoController extends Controller {
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id) {
-        $video = Video::findOrFail($id);
-        if($video->status == 1){
-            $video->status = 0;
-        }else{
-            $video->status = 1;
+    public function edit(Request $request) {
+        $validator = Validator::make($request->all(), [
+            'id' => 'required',
+        ]);
+        if ($validator->fails()) {
+            return $this->response($validator->errors()->first(), 202);
         }
+        $video = Video::findOrFail($request->input('id'));
+        if($video->status == 1){
+            return $this->response("已经禁用", 404);
+        }
+        $video->status = 1;
         if (!$video->save()) {
             return $this->response("操作失败", 500);
         }
@@ -133,8 +150,17 @@ class VideoController extends Controller {
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id) {
-        $video = Video::findOrFail($id);
+    public function destroy(Request $request) {
+        $validator = Validator::make($request->all(), [
+            'id' => 'required',
+        ]);
+        if ($validator->fails()) {
+            return $this->response($validator->errors()->first(), 202);
+        }
+        $video = Video::findOrFail($request->input('id'));
+        if($video->id_del == 1){
+            return $this->response("已经删除", 404);
+        }
         $video->id_del = 1;
         if (!$video->save()) {
             return $this->response("删除失败", 500);
