@@ -192,12 +192,12 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin' , 'middleware'=> ['
     */
     $router->post('live', 'LiveController@index');
     $router->post('live/add', 'LiveController@store');
-    $router->post('live/{id}/classNumberList', 'LiveController@classList');
-    $router->post('live/{id}', 'LiveController@show');
-    $router->post('live/{id}/update', 'LiveController@update');
-    $router->post('live/{id}/delete', 'LiveController@destroy');
-    $router->post('live/{id}/edit', 'LiveController@edit');
-    $router->post('live/{id}/lesson', 'LiveController@lesson');
+    $router->post('liveClassList', 'LiveController@classList');
+    $router->post('liveShow', 'LiveController@show');
+    $router->post('updateLive', 'LiveController@update');
+    $router->post('deleteLive', 'LiveController@destroy');
+    $router->post('editLiveStatus', 'LiveController@edit');
+    $router->post('liveRelationLesson', 'LiveController@lesson');
 
     /*
      * 直播课次模块(sxl)

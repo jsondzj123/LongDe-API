@@ -51,8 +51,14 @@ class LiveController extends Controller {
      * @param  ctime   2020/5/18 
      * return  array
      */
-    public function show($id) {
-        $live = Live::with('subject')->findOrFail($id);
+    public function show(Request $request) {
+        $validator = Validator::make($request->all(), [
+            'id' => 'required',
+        ]);
+        if ($validator->fails()) {
+            return $this->response($validator->errors()->first(), 202);
+        }
+        $live = Live::with('subject')->findOrFail($request->input('id'));
         return $this->response($live);
     }
 
@@ -64,8 +70,14 @@ class LiveController extends Controller {
      * @param  ctime   2020/5/18 
      * return  array
      */
-    public function classList($id) {
-        $lesson_id = LessonLive::where('live_id', $id)->first()['lesson_id'];
+    public function classList(Request $request) {
+        $validator = Validator::make($request->all(), [
+            'id' => 'required',
+        ]);
+        if ($validator->fails()) {
+            return $this->response($validator->errors()->first(), 202);
+        }
+        $lesson_id = LessonLive::where('live_id', $request->input('id'))->first()['lesson_id'];
         $lessons = LessonChild::select('id', 'name', 'description', 'url', 'is_forbid')->where(['lesson_id' => $lesson_id, 'pid' => 0])->get();
         foreach ($lessons as $key => $value) {
             $childs = LiveChild::select('id', 'course_name', 'start_time', 'end_time', 'account')->whereIn('id' ,LiveClassChild::where('lesson_child_id', $value->id)->pluck('live_child_id'))->get();
@@ -117,21 +129,21 @@ class LiveController extends Controller {
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function lesson($id, Request $request)
+    public function lesson(Request $request)
     {
         $validator = Validator::make($request->all(), [
+            'id' => 'required',
             'lesson_id' => 'required|json',
         ]);
         if ($validator->fails()) {
             return $this->response($validator->errors()->first(), 202);
         }
-        $user = CurrentAdmin::user();
         $lessonIds = json_decode($request->input('lesson_id'), true);
-        $live = Live::find($id);
         try {
-                if(!empty($lessonIds)){
-                    $live->lessons()->attach($lessonIds); 
-                }
+            $live = Live::find($request->input('id'));
+            if(!empty($lessonIds)){
+                $live->lessons()->attach($lessonIds); 
+            }
         } catch (Exception $e) {
             Log::error('创建失败:'.$e->getMessage());
             return $this->response($e->getMessage(), 500);
@@ -148,9 +160,14 @@ class LiveController extends Controller {
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request) {
+        $validator = Validator::make($request->all(), [
+            'id' => 'required',
+        ]);
+        if ($validator->fails()) {
+            return $this->response($validator->errors()->first(), 202);
+        }
         $user = CurrentAdmin::user();
-        $live = new Live();
-        $live->admin_id = $user->id;
+        $live = Live::findOrFail($request->input('id'));
         $live->subject_id = $request->input('subject_id') ?: $live->subject_id;
         $live->name = $request->input('name') ?: $live->name;
         $live->description = $request->input('description') ?: $live->description;
@@ -170,8 +187,14 @@ class LiveController extends Controller {
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id) {
-        $live = Live::findOrFail($id);
+    public function edit(Request $request) {
+        $validator = Validator::make($request->all(), [
+            'id' => 'required',
+        ]);
+        if ($validator->fails()) {
+            return $this->response($validator->errors()->first(), 202);
+        }
+        $live = Live::findOrFail($request->input('id'));
         if($live->is_forbid == 1){
             $live->is_forbid = 0;
         }else{
@@ -189,8 +212,14 @@ class LiveController extends Controller {
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id) {
-        $live = Live::findOrFail($id);
+    public function destroy(Request $request) {
+        $validator = Validator::make($request->all(), [
+            'id' => 'required',
+        ]);
+        if ($validator->fails()) {
+            return $this->response($validator->errors()->first(), 202);
+        }
+        $live = Live::findOrFail($request->input('id'));
         $live->id_del = 1;
         if (!$live->save()) {
             return $this->response("删除失败", 500);
