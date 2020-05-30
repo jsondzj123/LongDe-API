@@ -62,15 +62,16 @@ class MethodController extends Controller {
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update($id, Request $request) {
+    public function update(Request $request) {
         $validator = Validator::make($request->all(), [
+            'id'   => 'required',
             'name' => 'required',
         ]);
         if ($validator->fails()) {
             return $this->response($validator->errors()->first(), 202);
         }
         try {
-            $method = Method::findOrFail($id);
+            $method = Method::findOrFail($request->input('id'));
             $method->name = $request->input('name') ?: $method->name;
             $method->is_forbid = $request->input('is_forbid') ?: $method->is_forbid;
             $method->save();
@@ -88,8 +89,14 @@ class MethodController extends Controller {
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id) {
-        $method = Method::findOrFail($id);
+    public function destroy(Request $request) {
+        $validator = Validator::make($request->all(), [
+            'id' => 'required',
+        ]);
+        if ($validator->fails()) {
+            return $this->response($validator->errors()->first(), 202);
+        }
+        $method = Method::findOrFail($request->input('id'));
         if($method->is_del == 1){
             return $this->response("已经删除", 404);
         }
