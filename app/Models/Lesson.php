@@ -11,6 +11,7 @@ class Lesson extends Model {
     public $table = 'ld_lessons';
 
     protected $fillable = [
+        'id',
         'admin_id',
     	'title',
         'keyword',
@@ -106,6 +107,7 @@ class Lesson extends Model {
         }
             return 0;
     }
+
     public function getUrlAttribute($value) {
         if ($value) {
             $photos = json_decode($value, true);
@@ -133,5 +135,9 @@ class Lesson extends Model {
 
     public function schools() {
         return $this->belongsTo('App\Models\LessonSchool');
+    }
+
+    public function lessonChilds() {
+        return $this->hasMany('App\Models\LessonChild', 'lesson_id', 'id')->where('pid', 0);
     }
 }
