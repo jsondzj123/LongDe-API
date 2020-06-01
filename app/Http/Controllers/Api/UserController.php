@@ -125,4 +125,39 @@ class UserController extends Controller {
             return response()->json(['code' => 500 , 'msg' => $ex->getMessage()]);
         }
     }
+    
+    
+    /*
+     * @param  description   用户退出登录接口
+     * @param author    dzj
+     * @param ctime     2020-06-01
+     * return string
+     */
+    public function doLoginOut(){
+        try {
+            //获取用户token
+            $token   =   self::$accept_data['user_info']['user_token'];
+            
+            //开启事务
+            DB::beginTransaction();
+            
+            //通过用户token删除表中对应的记录
+            $delete_token = Student::where("token" , $token)->update(["token" => ""]);
+            if($delete_token && !empty($delete_token)){
+                //删除redis中用户token
+                Redis::del("user:regtoken:".$token);
+                
+                //事务提交
+                DB::commit();
+                return response()->json(['code' => 200 , 'msg' => '退出成功']);
+            } else {
+                //事务回滚
+                DB::rollBack();
+                return response()->json(['code' => 203 , 'msg' => '退出失败']);
+            }
+        } catch (Exception $ex) {
+            return response()->json(['code' => 500 , 'msg' => $ex->getMessage()]);
+        }
+        
+    }
 }

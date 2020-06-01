@@ -72,6 +72,7 @@ $router->group(['prefix' => 'api', 'namespace' => 'Api', 'middleware'=> 'user'],
     $router->group(['prefix' => 'user'], function () use ($router) {
         $router->post('getUserInfoById','UserController@getUserInfoById');          //APP学员详情接口
         $router->post('doUserUpdateInfo','UserController@doUserUpdateInfo');        //APP用户更新信息接口
+        $router->post('doLoginOut','UserController@doLoginOut');                    //APP用户退出登录接口
     });
     //支付
     $router->group(['prefix' => 'order'], function () use ($router) {
