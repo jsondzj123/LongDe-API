@@ -400,12 +400,17 @@ class AuthenticateController extends Controller {
                 return response()->json(['code' => 204 , 'msg' => '此手机号未注册']);
             } else {
                 //判断用户手机号是否注册过
-                $student_count = User::where("phone" , $body['phone'])->count();
-                if($student_count <= 0){
+                $student_info = User::where("phone" , $body['phone'])->first();
+                if(!$student_info || empty($student_info)){
                     //存储学员的手机号值并且保存60s
                     Redis::setex($key , 60 , $body['phone']);
                     return response()->json(['code' => 204 , 'msg' => '此手机号未注册']);
                 }
+            }
+            
+            //判断此手机号是否被禁用了
+            if($student_info->is_forbid == 2){
+                return response()->json(['code' => 207 , 'msg' => '您已被禁用,请联系管理员']);
             }
             
             //开启事务
@@ -465,8 +470,8 @@ class AuthenticateController extends Controller {
             $template_code = 'SMS_180053367';
             
             //判断用户手机号是否注册过
-            $student_count = User::where("phone" , $body['phone'])->count();
-            if($student_count > 0){
+            $student_info = User::where("phone" , $body['phone'])->first();
+            if($student_info && !empty($student_info)){
                 return response()->json(['code' => 205 , 'msg' => '此手机号已被注册']);
             }
         } else {
@@ -478,9 +483,14 @@ class AuthenticateController extends Controller {
             $template_code = 'SMS_190727799';
             
             //判断用户手机号是否注册过
-            $student_count = User::where("phone" , $body['phone'])->count();
-            if($student_count <= 0){
+            $student_info = User::where("phone" , $body['phone'])->first();
+            if(!$student_info || empty($student_info)){
                 return response()->json(['code' => 204 , 'msg' => '此手机号未注册']);
+            }
+            
+            //判断此手机号是否被禁用了
+            if($student_info->is_forbid == 2){
+                return response()->json(['code' => 207 , 'msg' => '您已被禁用,请联系管理员']);
             }
         }
         
