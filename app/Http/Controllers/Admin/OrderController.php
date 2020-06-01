@@ -107,6 +107,7 @@ class OrderController extends Controller {
             'payStatus' => 1,
             'payType' =>'PAY_OFFLINE_INPUT'
         ];
+        print_r($newarr);die;
         $res = $this->curl($newarr);
         print_r($res);die;
     }
