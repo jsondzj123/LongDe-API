@@ -158,6 +158,5 @@ class UserController extends Controller {
         } catch (Exception $ex) {
             return response()->json(['code' => 500 , 'msg' => $ex->getMessage()]);
         }
-        
     }
 }
