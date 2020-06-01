@@ -171,7 +171,7 @@ class OrderController extends Controller
                     return ['code' => 202, 'msg' => '余额不足，请充值！！！！！'];
                 } else {
                     DB::beginTransaction();
-                    //扣除用户余额 修改订单信息 加入用户消费记录日志  商品增加购买基数  用户关联的课程加上起始时间
+                    //扣除用户余额 修改订单信息 加入用户消费记录日志  商品增加购买基数  订单里面增加用户课程起始时间
                     $end_balance = $user_balance - $lesson['favorable_price'];
                     $studentstatus = Student::where(['id' => $user_id])->update(['balance' => $end_balance]);
                     $orderstatus = Order::where(['id' => $data['order_id']])->update(['pay_type' => 5, 'status' => 1, 'pay_time' => date('Y-m-d H:i:s'), 'update_at' => date('Y-m-d H:i:s')]);
