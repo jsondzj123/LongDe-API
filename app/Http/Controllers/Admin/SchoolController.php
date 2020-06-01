@@ -290,6 +290,10 @@ class SchoolController extends Controller {
         if(School::where(['name'=>$data['name'],'is_del'=>1])->where('id','!=',$data['id'])->count()>0){
              return response()->json(['code' => 422 , 'msg' => '学校已存在']);
         }
+        if(isset($data['/admin/school/doSchoolUpdate'])){
+            unset($data['/admin/school/doSchoolUpdate']);
+        }
+        $data['update_time'] = date('Y-m-d H:i:s');
         if(School::where('id',$data['id'])->update($data)){
                 AdminLog::insertAdminLog([
                     'admin_id'       =>   CurrentAdmin::user()['id'] ,
