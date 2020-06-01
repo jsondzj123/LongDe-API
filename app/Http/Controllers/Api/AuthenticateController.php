@@ -125,7 +125,7 @@ class AuthenticateController extends Controller {
      * @param ctime     2020-05-23
      * return string
      */
-    public static function doUserLogin() {
+    public function doUserLogin() {
         try {
             $body = self::$accept_data;
             //判断传过来的数组数据是否为空
@@ -171,6 +171,11 @@ class AuthenticateController extends Controller {
             //根据手机号和密码进行登录验证
             $user_login = User::where("phone",$body['phone'])->where("password",md5($body['password']))->first();
             if($user_login && !empty($user_login)){
+                //判断此手机号是否被禁用了
+                if($user_login->is_forbid == 2){
+                    return response()->json(['code' => 207 , 'msg' => '您已被禁用,请联系管理员']);
+                }
+                
                 //判断redis中值是否存在
                 $hash_len = Redis::hLen("user:regtoken:".$user_login->token);
                 if($hash_len && $hash_len > 0){
@@ -225,7 +230,7 @@ class AuthenticateController extends Controller {
      * @param ctime     2020-05-23
      * return string
      */
-    public static function doVisitorLogin() {
+    public function doVisitorLogin() {
         try {
             $body = self::$accept_data;
             //判断传过来的数组数据是否为空
@@ -250,6 +255,11 @@ class AuthenticateController extends Controller {
             
             //判断是否是存在用户信息
             if($student_info && !empty($student_info)){
+                //判断此手机号是否被禁用了
+                if($student_info->is_forbid == 2){
+                    return response()->json(['code' => 207 , 'msg' => '您已被禁用,请联系管理员']);
+                }
+                
                 //清除老的redis的key值
                 Redis::del("user:regtoken:".$student_info->token);
                 
@@ -346,7 +356,7 @@ class AuthenticateController extends Controller {
      * @param ctime     2020-05-23
      * return string
      */
-    public static function doUserForgetPassword() {
+    public function doUserForgetPassword() {
         try {
             $body = self::$accept_data;
             //判断传过来的数组数据是否为空
@@ -426,7 +436,7 @@ class AuthenticateController extends Controller {
      * @param ctime     2020-05-22
      * return string
      */
-    public static function doSendSms(){
+    public function doSendSms(){
         $body = self::$accept_data;
         //判断传过来的数组数据是否为空
         if(!$body || !is_array($body)){
@@ -496,9 +506,17 @@ class AuthenticateController extends Controller {
     }
     
     //删除redis指定key的所有键值信息
-    public static function doDelRedisKeys($prefix){
+    public function doDelRedisKeys(){
         //获取所有的指定的前缀的信息列表
-        $key_list = Redis::keys($prefix . '*');
+        $key_list = Redis::keys('user:regtoken:*');
         Redis::del($key_list);
+        return response()->json(['code' => 200 , 'msg' => '删除成功']);
+    }
+    
+    //删除redis指定key的所有键值信息
+    public function getRedisKeys(){
+        //获取所有的指定的前缀的信息列表
+        $key_list =  Redis::keys('user:regtoken:*');
+        return response()->json(['code' => 200 , 'msg' => '获取成功' , 'data'=> $key_list]);
     }
 }
