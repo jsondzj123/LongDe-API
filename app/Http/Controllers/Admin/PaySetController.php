@@ -50,15 +50,13 @@ class PaySetController extends Controller {
     	$payconfigArr  = PaySet::where(['id'=>$data['id']])->first();
 
         if($payconfigArr['pay_status'] == 1){
-            //禁用
-            $update['pay_status'] = -1;
+            //禁用 
             $update['wx_pay_state'] = -1;
             $update['zfb_pay_state'] = -1;
             $update['hj_wx_pay_state'] = -1;
             $update['hj_zfb_pay_state'] = -1;
         }else{
             //启用
-            $update['pay_status'] = 1;
             $update['wx_pay_state'] = 1;
             $update['zfb_pay_state'] = 1;
             $update['hj_wx_pay_state'] = 1;
@@ -235,13 +233,13 @@ class PaySetController extends Controller {
              return response()->json(['code'=>204,'msg'=>"数据不存在"]);
         } 
         if(!empty($payconfigArr['zfb_app_id'])){
-            $payconfigArr['zfb_app_ids'] = substr_replace($payconfigArr['zfb_app_id'],'*********','10','15'); 
+            $payconfigArr['zfb_app_ids'] = substr_replace($payconfigArr['zfb_app_id'],'*********',4,-4); 
         }
         if(!empty($payconfigArr['zfb_app_public_key'])){
-            $payconfigArr['zfb_app_public_keys'] = substr_replace($payconfigArr['zfb_app_public_key'],'*********','10','25'); 
+            $payconfigArr['zfb_app_public_keys'] = substr_replace($payconfigArr['zfb_app_public_key'],'…………',8,-8); 
         }
         if(!empty($payconfigArr['zfb_public_key'])){
-            $payconfigArr['zfb_public_keys'] = substr_replace($payconfigArr['zfb_public_key'],'*********','10','25'); 
+            $payconfigArr['zfb_public_keys'] = substr_replace($payconfigArr['zfb_public_key'],'…………',8,-8); 
         }
         $arr['code'] = 200;
         $arr['msg']  = 'success';
@@ -266,13 +264,13 @@ class PaySetController extends Controller {
              return response()->json(['code'=>204,'msg'=>"数据不存在"]);
         }
         if(!empty($payconfigArr['wx_app_id'])){
-            $payconfigArr['wx_app_ids'] = substr_replace($payconfigArr['wx_app_id'],'*********','10','15'); 
+            $payconfigArr['wx_app_ids'] = substr_replace($payconfigArr['wx_app_id'],'*********',4,-4); 
         }
         if(!empty($payconfigArr['wx_commercial_tenant_number'])){
-            $payconfigArr['wx_commercial_tenant_numbers'] = substr_replace($payconfigArr['wx_commercial_tenant_number'],'*********','10','25'); 
+            $payconfigArr['wx_commercial_tenant_numbers'] = substr_replace($payconfigArr['wx_commercial_tenant_number'],'*********',4,-4); 
         }
         if(!empty($payconfigArr['wx_api_key'])){
-            $payconfigArr['wx_api_keys'] = substr_replace($payconfigArr['wx_api_key'],'*********','10','25'); 
+            $payconfigArr['wx_api_keys'] = substr_replace($payconfigArr['wx_api_key'],'*********',8,-8); 
         }
         $arr['code'] = 200;
         $arr['msg']  = 'success';
@@ -298,16 +296,16 @@ class PaySetController extends Controller {
              return response()->json(['code'=>204,'msg'=>"数据不存在"]);
         }
         if(!empty($payconfigArr['hj_md_key'])){
-            $payconfigArr['hj_md_keys'] = substr_replace($payconfigArr['hj_md_key'],'*********','10','15'); 
+            $payconfigArr['hj_md_keys'] = substr_replace($payconfigArr['hj_md_key'],'*********',4,-4); 
         }
         if(!empty($payconfigArr['hj_commercial_tenant_number'])){
-            $payconfigArr['hj_commercial_tenant_numbers'] = substr_replace($payconfigArr['hj_commercial_tenant_number'],'*********','10','25'); 
+            $payconfigArr['hj_commercial_tenant_numbers'] = substr_replace($payconfigArr['hj_commercial_tenant_number'],'…………',8,-8); 
         }
         if(!empty($payconfigArr['hj_wx_commercial_tenant_deal_number'])){
-            $payconfigArr['hj_wx_commercial_tenant_deal_numbers'] = substr_replace($payconfigArr['hj_wx_commercial_tenant_deal_number'],'*********','10','25'); 
+            $payconfigArr['hj_wx_commercial_tenant_deal_numbers'] = substr_replace($payconfigArr['hj_wx_commercial_tenant_deal_number'],'*********',8,-10); 
         }
         if(!empty($payconfigArr['hj_zfb_commercial_tenant_deal_number'])){
-            $payconfigArr['hj_zfb_commercial_tenant_deal_numbers'] = substr_replace($payconfigArr['hj_zfb_commercial_tenant_deal_number'],'*********','10','25'); 
+            $payconfigArr['hj_zfb_commercial_tenant_deal_numbers'] = substr_replace($payconfigArr['hj_zfb_commercial_tenant_deal_number'],'*********',8,-10); 
         }
         $arr['code'] = 200;
         $arr['msg']  = 'success';
