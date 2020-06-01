@@ -94,7 +94,6 @@ class OrderController extends Controller {
     public function buttOa(){
         $data = self::$accept_data;
         $order = Order::where(['id'=>$data['order_id']])->first();
-        print_r($order);die;
         //根据订单  查询用户信息  课程信息
         $student = Student::where(['id'=>$order['student_id'],'is_forbid'=>1])->first();
         $lession = Lesson::where(['id'=>$order['class_id'],'is_del'=>0,'is_forbid'=>0])->first();
@@ -108,6 +107,7 @@ class OrderController extends Controller {
             'payStatus' => 1,
             'payType' =>'PAY_OFFLINE_INPUT'
         ];
+        print_r($newarr);die;
         $res = $this->curl($newarr);
         print_r($res);die;
     }
