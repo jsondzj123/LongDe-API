@@ -20,5 +20,9 @@ class Method extends Model {
         'is_del',
         'is_forbid'
     ];
+
+    protected $casts = [
+        'id' => 'string'
+    ];
 }
 

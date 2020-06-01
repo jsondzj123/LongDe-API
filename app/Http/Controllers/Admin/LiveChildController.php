@@ -23,6 +23,12 @@ class LiveChildController extends Controller {
      * @return  array
      */
     public function index(Request $request){
+        $validator = Validator::make($request->all(), [
+            'live_id' => 'required',
+        ]);
+        if ($validator->fails()) {
+            return $this->response($validator->errors()->first(), 202);
+        }
         $pagesize = $request->input('pagesize') ?: 15;
         $page     = $request->input('page') ?: 1;
         $offset   = ($page - 1) * $pagesize;
@@ -59,13 +65,11 @@ class LiveChildController extends Controller {
         $validator = Validator::make($request->all(), [
             'class_id' => 'required',
             'live_id' => 'required',
-            'course_name' => 'required',
+            'lesson_name' => 'required',
             'teacher_id' => 'required',
             'start_time' => 'required',
             'end_time' => 'required',
             'nickname' => 'required',
-            'modetype' => 'required',
-            'barrage'  => 'required',
         ]);
         if ($validator->fails()) {
             return $this->response($validator->errors()->first(), 202);
@@ -74,19 +78,15 @@ class LiveChildController extends Controller {
         try{
             $MTCloud = new MTCloud();
             $res = $MTCloud->courseAdd(
-                        $request->input('course_name'),
+                        $request->input('lesson_name'),
                         $request->input('teacher_id'),
-                        $request->input('start_time'),
-                        $request->input('end_time'),
+                        strtotime($request->input('start_time')),
+                        strtotime($request->input('end_time')),
                         $request->input('nickname'),
                         '',
-                        [   //'departmentId' => 6, 
-                            'barrage' => $request->input('barrage'), 
-                            'modetype' => $request->input('modetype'),
-                            //'isPublic' => 1, 
-                            //'robotNumber' => 1, 
-                            //'robotType' => 1, 
-                            //'pptDisplay' => 1
+                        [   
+                            'barrage' => $request->input('barrage') ?: 0, 
+                            'modetype' => $request->input('modetype') ?: 3,
                         ]
                     );
             if(!array_key_exists('code', $res) && !$res["code"] == 0){
@@ -96,7 +96,7 @@ class LiveChildController extends Controller {
             $livechild =  LiveChild::create([
                             'admin_id' => $user->id,
                             'live_id' => $request->input('live_id'),
-                            'course_name' => $request->input('course_name'),
+                            'course_name' => $request->input('lesson_name'),
                             'account'=> $request->input('teacher_id'),
                             'start_time'=> $request->input('start_time'),
                             'end_time' => $request->input('end_time'),
@@ -137,8 +137,14 @@ class LiveChildController extends Controller {
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id) {
-        $live = Live::findOrFail($id);
+    public function edit(Request $request) {
+        $validator = Validator::make($request->all(), [
+            'id' => 'required',
+        ]);
+        if ($validator->fails()) {
+            return $this->response($validator->errors()->first(), 202);
+        }
+        $live = LiveChild::findOrFail($request->input('id'));
         if($live->is_forbid == 1){
             $live->is_forbid = 0;
         }else{
@@ -156,7 +162,13 @@ class LiveChildController extends Controller {
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id) {
+    public function destroy(Request $request) {
+        $validator = Validator::make($request->all(), [
+            'id' => 'required',
+        ]);
+        if ($validator->fails()) {
+            return $this->response($validator->errors()->first(), 202);
+        }
         $live = LiveChild::findOrFail($id);
         $live->is_del = 1;
         if (!$live->save()) {

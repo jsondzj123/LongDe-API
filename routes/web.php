@@ -29,7 +29,7 @@ $router->group(['prefix' => 'api', 'namespace' => 'Api'], function () use ($rout
     */
     $router->post('lesson', 'LessonController@index');
     $router->post('publicLesson', 'LessonController@publicList');
-    $router->post('lesson/{id}', 'LessonController@show');
+    $router->post('lessonShow', 'LessonController@show');
 
     $router->post('doUserRegister','AuthenticateController@doUserRegister');    //APP注册接口
     $router->post('doVisitorLogin','AuthenticateController@doVisitorLogin');    //APP游客登录接口
@@ -65,7 +65,8 @@ $router->group(['prefix' => 'api', 'namespace' => 'Api'], function () use ($rout
 $router->group(['prefix' => 'api', 'namespace' => 'Api', 'middleware'=> 'user'], function () use ($router) {
     //收藏模块
     $router->post('collection','CollectionController@index');          //课程收藏列表
-    $router->post('collectionAdd','CollectionController@store');             //收藏课程
+    $router->post('addCollection','CollectionController@store');       //添加收藏课程
+    $router->post('cancelCollection','CollectionController@cancel');   //取消收藏课程
 
     //用户学员相关接口
     $router->group(['prefix' => 'user'], function () use ($router) {
@@ -125,8 +126,8 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin' , 'middleware'=> ['
     */
     $router->post('method', 'MethodController@index');
     $router->post('method/add', 'MethodController@store');
-    $router->post('method/{id}/update', 'MethodController@update');
-    $router->post('method/{id}/delete', 'MethodController@destroy');
+    $router->post('updateMethod', 'MethodController@update');
+    $router->post('deleteMethod', 'MethodController@destroy');
 
     /*
      * 课程模块(sxl)
@@ -147,7 +148,7 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin' , 'middleware'=> ['
     $router->post('lessonChild/add', 'LessonChildController@store');
     $router->post('lessonChildShow', 'LessonChildController@show');
     $router->post('updateLessonChild', 'LessonChildController@update');
-    $router->post('lessonChildDelete', 'LessonChildController@destroy');
+    $router->post('deleteLessonChild', 'LessonChildController@destroy');
 
     /*
      * 分校课程(sxl)
@@ -180,9 +181,11 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin' , 'middleware'=> ['
     */
     $router->post('video', 'VideoController@index');
     $router->post('video/add', 'VideoController@store');
-    $router->post('video/{id}', 'VideoController@show');
-    $router->post('video/{id}/update', 'VideoController@update');
-    $router->post('video/{id}/edit', 'VideoController@edit');
+    $router->post('videoShow', 'VideoController@show');
+    $router->post('updateVideo', 'VideoController@update');
+    $router->post('updateVideoStatus', 'VideoController@edit');
+    $router->post('deleteVideo', 'VideoController@destroy');
+
 
 
     /*
@@ -190,20 +193,20 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin' , 'middleware'=> ['
     */
     $router->post('live', 'LiveController@index');
     $router->post('live/add', 'LiveController@store');
-    $router->post('live/{id}/classNumberList', 'LiveController@classList');
-    $router->post('live/{id}', 'LiveController@show');
-    $router->post('live/{id}/update', 'LiveController@update');
-    $router->post('live/{id}/delete', 'LiveController@destroy');
-    $router->post('live/{id}/edit', 'LiveController@edit');
-    $router->post('live/{id}/lesson', 'LiveController@lesson');
+    $router->post('liveClassList', 'LiveController@classList');
+    $router->post('liveShow', 'LiveController@show');
+    $router->post('updateLive', 'LiveController@update');
+    $router->post('deleteLive', 'LiveController@destroy');
+    $router->post('editLiveStatus', 'LiveController@edit');
+    $router->post('liveRelationLesson', 'LiveController@lesson');
 
     /*
      * 直播课次模块(sxl)
     */
     $router->post('liveChild', 'LiveChildController@index');
     $router->post('liveChild/add', 'LiveChildController@store');
-    $router->post('liveChild/{id}/update', 'LiveChildController@update');
-    $router->post('liveChild/{id}/delete', 'LiveChildController@destroy');
+    $router->post('deleteLiveChild', 'LiveChildController@destroy');
+    $router->post('editLiveChildStatus', 'LiveChildController@edit');
 
 
     //用户学员相关模块(dzj)
