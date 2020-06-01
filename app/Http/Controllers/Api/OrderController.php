@@ -203,8 +203,7 @@ class OrderController extends Controller
                     $studentstatus = Student::where(['id' => $user_id])->update(['balance' => $end_balance]);
                     //计算用户购买课程有效期
                     $pay_time = date('Y-m-d H:i:s');
-                    $validity = date('Y-m-d H:i:s',strtotime('+'.$lessons['ttl'].' day'));
-                    $orderstatus = Order::where(['id' => $data['order_id']])->update(['pay_type' => 5, 'status' => 1, 'pay_time' => $pay_time,'validity_time'=>$validity,'update_at' => $pay_time]);
+                    $orderstatus = Order::where(['id' => $data['order_id']])->update(['pay_type' => 5, 'status' => 1, 'pay_time' => $pay_time,'update_at' => $pay_time]);
                     $studentlogstatus = StudentAccountlog::insert(['user_id' => $user_id, 'price' => $lesson['favorable_price'], 'end_price' => $end_balance, 'status' => 2, 'class_id' => $order['class_id']]);
                     if ($user_school_id == 1) {
                        $lessonstatus = Lesson::where(['id' => $lesson['id']])->update(['buy_num' => $lesson['buy_num'] + 1]);

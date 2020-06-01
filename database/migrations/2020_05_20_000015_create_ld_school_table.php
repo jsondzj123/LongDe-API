@@ -23,7 +23,7 @@ class CreateLdSchoolTable extends Migration
             $table->smallInteger('is_del')->default(1)->comment('是否删除：0是1否');
             $table->smallInteger('is_forbid')->default(1)->comment('是否禁用：0是1否');
             $table->dateTime('create_time')->comment('创建时间');
-            $table->dateTime('update_time')->comment('更新时间');
+            $table->dateTime('update_time')->nullable()->comment('更新时间');
         });
     }
 

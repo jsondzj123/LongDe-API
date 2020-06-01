@@ -255,15 +255,17 @@ class Order extends Model {
         if($find['status'] == 1){
             if($data['status'] == 2){
                 DB::beginTransaction();
-                //审核通过
-                $order = self::where(['id'=>$data['order_id']])->first()->toArray();
-                $lessons = Lesson::where(['id'=>$order['class_id']])->first()->toArray();
-                //计算用户购买课程到期时间
-                $validity = date('Y-m-d H:i:s',strtotime('+'.$lessons['ttl'].' day'));
-                //修改订单状态 课程有效期 oa状态
-                $update = self::where(['id'=>$data['order_id']])->update(['status'=>2,'validity_time'=>$validity,'oa_status'=>1,'update_at'=>date('Y-m-d H:i:s')]);
-                //修改用户报名状态
-                Student::where(['id'=>$order['student_id']])->update(['enroll_status'=>1]);
+                if($order['pay_status'] == 3 || $order['pay_status'] == 4){
+                    $lessons = Lesson::where(['id'=>$order['class_id']])->first()->toArray();
+                    //计算用户购买课程到期时间
+                    $validity = date('Y-m-d H:i:s',strtotime('+'.$lessons['ttl'].' day'));
+                    //修改订单状态 课程有效期 oa状态
+                    $update = self::where(['id'=>$data['order_id']])->update(['status'=>2,'validity_time'=>$validity,'oa_status'=>1,'update_at'=>date('Y-m-d H:i:s')]);
+                    //修改用户报名状态
+                    Student::where(['id'=>$order['student_id']])->update(['enroll_status'=>1]);
+                }else{
+                    $update = self::where(['id'=>$data['order_id']])->update(['status'=>2,'oa_status'=>1,'update_at'=>date('Y-m-d H:i:s')]);
+                }
                 if($update){
                     DB::commit();
                     //添加日志操作
