@@ -32,7 +32,6 @@ $router->group(['prefix' => 'api', 'namespace' => 'Api'], function () use ($rout
     $router->post('lessonShow', 'LessonController@show');
     $router->post('lessonChild', 'LessonChildController@index');
 
-
     $router->post('doUserRegister','AuthenticateController@doUserRegister');    //APP注册接口
     $router->post('doVisitorLogin','AuthenticateController@doVisitorLogin');    //APP游客登录接口
     $router->post('doUserLogin','AuthenticateController@doUserLogin');          //APP登录接口
@@ -74,6 +73,7 @@ $router->group(['prefix' => 'api', 'namespace' => 'Api', 'middleware'=> 'user'],
     $router->group(['prefix' => 'user'], function () use ($router) {
         $router->post('getUserInfoById','UserController@getUserInfoById');          //APP学员详情接口
         $router->post('doUserUpdateInfo','UserController@doUserUpdateInfo');        //APP用户更新信息接口
+        $router->post('doLoginOut','UserController@doLoginOut');                    //APP用户退出登录接口 
     });
     //支付
     $router->group(['prefix' => 'order'], function () use ($router) {
@@ -188,6 +188,7 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin' , 'middleware'=> ['
     $router->post('updateVideo', 'VideoController@update');
     $router->post('updateVideoStatus', 'VideoController@edit');
     $router->post('deleteVideo', 'VideoController@destroy');
+
 
     /*
      * 直播模块(sxl)

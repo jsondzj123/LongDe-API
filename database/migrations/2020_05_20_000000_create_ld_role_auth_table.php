@@ -20,7 +20,7 @@ class CreateLdRoleAuthTable extends Migration
             $table->string('auth_id')->comment('权限组ID');
             $table->integer('admin_id')->comment('操作员ID');
             $table->dateTime('create_time')->comment('创建时间');
-            $table->dateTime('update_time')->nullable()->comment('修改时间');
+            $table->dateTime('update_time')->comment('修改时间');
             $table->smallInteger('is_super')->default(1)->comment('超级管理员0否1是');
             $table->smallInteger('is_del')->default(1)->comment('删除0是1否');
             $table->integer('school_id')->comment('学校ID');

@@ -18,14 +18,6 @@ class Teacher extends Model {
         'teacher_header_pic',
         'subject_id'
     ];
-
-    protected $appends = ['checked'];
-
-    public function getCheckedAttribute($value)
-    {
-        return true;
-    }
-
     /*
      * @param  description   添加教师/教务方法
      * @param  data          数组数据

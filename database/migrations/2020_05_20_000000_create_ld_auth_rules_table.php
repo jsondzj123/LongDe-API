@@ -21,9 +21,9 @@ class CreateLdAuthRulesTable extends Migration
             $table->string('icon', 50)->nullable()->comment('图标');
             $table->smallInteger('sort')->default(0)->comment('排序');
             $table->string('condition', 100)->nullable()->comment('身份');
-            $table->smallInteger('is_show')->default(1)->comment('状态0否1是');
-            $table->smallInteger('is_del')->default(1)->comment('删除0否1是');
-            $table->smallInteger('is_forbid')->default(1)->comment('启用0否1是');
+            $table->smallInteger('is_show')->default(0)->comment('状态0否1是');
+            $table->smallInteger('is_del')->default(0)->comment('删除0否1是');
+            $table->smallInteger('is_forbid')->default(0)->comment('启用0否1是');
 
             $table->index('name');
         });

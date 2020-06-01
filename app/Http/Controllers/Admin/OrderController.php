@@ -112,6 +112,13 @@ class OrderController extends Controller {
     }
     //curl【模拟http请求】
     public function curl($receiptData){
+        //小票信息
+//        $POSTFIELDS = array("receipt-data" => $receiptData);
+//        $POSTFIELDS = json_encode($POSTFIELDS);
+        //正式购买地址 沙盒购买地址
+//        $urlBuy = "https://buy.itunes.apple.com/verifyReceipt";
+//        $urlSandbox = "https://sandbox.itunes.apple.com/verifyReceipt";
+//        $url = $sandbox ? $urlSandbox : $urlBuy;//向正式环境url发送请求(默认)
         $url = "47.110.127.119:8082/front/pay/syncOrder";
         //简单的curl
         $ch = curl_init($url);

@@ -25,9 +25,9 @@ class CreateLdAdminTable extends Migration
             $table->string('email')->nullable()->comment('邮箱');
             $table->integer('teacher_id')->nullable()->comment('教师ID');
             $table->smallInteger('school_id')->comment('学校ID');
-            $table->smallInteger('school_status')->default(0)->comment('学校状态ID 0 分校 1是总校');
-            $table->smallInteger('is_forbid')->default(1)->comment('禁用0是1否');
-            $table->smallInteger('is_del')->default(1)->comment('删除0是1否');
+            $table->smallInteger('school_status')->default(0)->comment('学校状态ID');
+            $table->smallInteger('is_forbid')->default(0)->comment('禁用0是1否');
+            $table->smallInteger('is_del')->default(0)->comment('删除0是1否');
             $table->timestamps();
 
 

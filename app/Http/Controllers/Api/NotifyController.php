@@ -23,7 +23,6 @@ class NotifyController extends Controller {
         $json = file_get_contents("php://input");
         Storage ::disk('hjAlinotify')->append('hjAlinotify.txt', 'time:'.date('Y-m-d H:i:s')."\nresponse:".$json);
     }
-
     //微信 购买 回调接口
     public function wxnotify($xml){
         if(!$xml) {
@@ -42,7 +41,7 @@ class NotifyController extends Controller {
             }
             try{
                 DB::beginTransaction();
-                    //修改订单状态
+                    //修改订单状态  增加用户购买课程有效期
                     $arr = array(
                         'third_party_number'=>$data['transaction_id'],
                         'status'=>1,
@@ -53,8 +52,8 @@ class NotifyController extends Controller {
                     if (!$res) {
                         throw new Exception('回调失败');
                     }
-                DB::commit();
                 return '<xml><return_code><![CDATA[SUCCESS]]></return_code><return_msg><![CDATA[OK]]></return_msg></xml>';
+                DB::commit();
             } catch (Exception $ex) {
                 DB::rollback();
                 return "<xml><return_code><![CDATA[FAIL]]></return_code><return_msg><![CDATA[error]]></return_msg></xml>";
@@ -68,7 +67,7 @@ class NotifyController extends Controller {
         require_once './App/Tools/Ali/aop/AopClient.php';
         require_once('./App/Tools/Ali/aop/request/AlipayTradeAppPayRequest.php');
         $aop = new AopClient();
-        $aop->alipayrsaPublicKey = 'MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAlTAdFGs8uzPYG3akYT1qs3gEFtjkuRIjP2i7FHUiF52/FVTSzOiYwy9n4qQYovyP/lKxtFWTlKMZfjy1G8EYJBbcb/5dIdDbgm40yaactPaeGkAvykzw5az0PhYTUFJ7PSewZyTJeqETT8ROpuIY5rxgNVHciASiNvrSOMudHfUtqvS7mUPX/Kcpl9q0ryW6BJUIb5SnFouVmh0x6ZAyb+cXVqPXrBTLlQucT3RKuvR+zMkT9IeFFn9fIsCBGhVg8eHfacKUjOWT00CILyoLk6rIZF+PRDX32kvxLKAlfq1puupT2BZxDpH3+LvcMj0Cpl0jmXylEqAxM6qh5+sdjwIDAQAB';
+        $aop->alipayrsaPublicKey = 'MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAh8I+MABQoa5Lr0hnb9+UeAgHCtZlwJ84+c18Kh/JWO+CAbKqGkmZ6GxrWo2X/vnY2Qf6172drEThHwafNrUqdl/zMMpg16IlwZqDeQuCgSM/4b/0909K+RRtUq48/vRM6denyhvR44fs+d4jZ+4a0v0m0Kk5maMCv2/duWejrEkU7+BG1V+YXKOb0++n8We/ZIrG/OiiXedViwSW3il9/Q5xa21KlcDPjykWyoPolR2MIFqu8PLh2z8uufCPSlFuABMyL+djo8y9RMzTWH+jN2WxcqMSDMIcwGFk3emZKzoy06a5k4Ea8/l3uHq8sbbepvpmC/dZZ0+CZdXgPnVRywIDAQAB';
         $flag = $aop->rsaCheckV1($arr, NULL, "RSA2");
         Storage ::disk('logs')->append('alipaynotify.txt', 'time:'.date('Y-m-d H:i:s')."\nresponse:".$arr);
         if($arr['trade_status'] == 'TRADE_SUCCESS'){
@@ -78,7 +77,7 @@ class NotifyController extends Controller {
             }else {
                 try{
                     DB::beginTransaction();
-                    //修改订单状态 课程有效期 增加课程 修改用户报名状态
+                    //修改订单状态   增加课程
                     $arr = array(
                         'third_party_number'=>$arr['transaction_id'],
                         'status'=>1,
@@ -86,7 +85,6 @@ class NotifyController extends Controller {
                         'update_at'=>date('Y-m-d H:i:s')
                     );
                     $res = Order::where(['order_number'=>$arr['out_trade_no']])->update($arr);
-
                     if (!$res) {
                         throw new Exception('回调失败');
                     }
