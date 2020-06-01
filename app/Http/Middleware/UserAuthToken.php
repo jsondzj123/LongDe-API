@@ -20,24 +20,46 @@ class UserAuthToken {
         if($redis_token && $redis_token > 0) {
             //解析json获取用户详情信息
             $json_info = Redis::hGetAll("user:regtoken:".$token);
-
-            //根据手机号获取用户详情
-            if($json_info['phone'] && !empty($json_info['phone'])){
+            
+            //判断是正常用户还是游客用户
+            if($json_info['user_type'] && $json_info['user_type'] == 1){
+                //根据手机号获取用户详情
                 $user_info = User::where("phone" , $json_info['phone'])->first();
                 if(!$user_info || empty($user_info)){
                     return ['code' => 204 , 'msg' => '此用户不存在'];
                 }
-
+                
                 //判断用户是否在其他设备登录
                 if($user_info['token'] != $token){
                     return ['code' => 206 , 'msg' => '您已在其他设备上登录'];
                 }
+                
+                //判断用户是否被禁用
+                if($user_info['is_forbid'] == 2){
+                    return response()->json(['code' => 207 , 'msg' => '您已被禁用,请联系管理员']);
+                }
+            } else {
+                //通过token获取用户信息
+                $user_info = User::select("id as user_id" , "is_forbid")->where("token" , $token)->first();
+                if(!$user_info || empty($user_info)){
+                    return ['code' => 202 , 'msg' => 'token值非法'];
+                }
+                
+                //判断用户是否被禁用
+                if($user_info['is_forbid'] == 2){
+                    return response()->json(['code' => 207 , 'msg' => '您已被禁用,请联系管理员']);
+                }
             }
         } else {
             //通过token获取用户信息
-            $user_info = User::select("id as user_id")->where("token" , $token)->first();
+            $user_info = User::select("id as user_id" , "is_forbid")->where("token" , $token)->first();
             if(!$user_info || empty($user_info)){
                 return ['code' => 202 , 'msg' => 'token值非法'];
+            }
+            
+            //判断用户是否被禁用
+            if($user_info['is_forbid'] == 2){
+                return response()->json(['code' => 207 , 'msg' => '您已被禁用,请联系管理员']);
             }
             $json_info = $user_info->toArray();
         }
