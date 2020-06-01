@@ -28,6 +28,7 @@ class CreateLdOrderTable extends Migration
             $table->dateTime('pay_time')->nullable()->comment('支付时间');
             $table->smallInteger('oa_status')->default(0)->comment('OA状态1成功0失败');
             $table->integer('class_id')->comment('课程ID');
+            $table->dateTime('validity_time')->nullable()->comment('课程到期时间');
             $table->integer('school_id')->comment('分校ID');
             $table->dateTime('refund_time')->nullable()->comment('退款时间');
             $table->timestamp('create_at')->comment('创建时间')->default(DB::raw('CURRENT_TIMESTAMP'));

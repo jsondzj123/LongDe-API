@@ -14,7 +14,6 @@ use Illuminate\Support\Facades\DB;
 
 class OrderController extends Controller
 {
-
     /*
          * @param  我的订单
          * @param  $type    参数
@@ -90,6 +89,37 @@ class OrderController extends Controller
         return ['code' => 200 , 'msg' => '获取成功','data'=>$pricelog,'page'=>$page];
     }
     /*
+         * @param  我的课程
+         * @param  author  苏振文
+         * @param  ctime   2020/6/1 10:33
+         * return  array
+         */
+    public function myLessionlist(){
+        $data = self::$accept_data;
+        //每页显示的条数
+        $pagesize = (int)isset($data['pageSize']) && $data['pageSize'] > 0 ? $data['pageSize'] : 10;
+        $page     = isset($data['page']) && $data['page'] > 0 ? $data['page'] : 1;
+        $offset   = ($page - 1) * $pagesize;
+
+        $count = Order::where(['student_id'=>$data['user_info']['user_id'],'status'=>2,'oa_status'=>1])->count();
+        $orderlist = [];
+        if($count > 0){
+            //根据订单 查询我购买的课程
+            $orderlist = Order::select('ld_lessions.id','ld_lessions.title','ld_lessions.cover','ld_lessions.method','ld_lessions.buy_num')
+                ->leftJoin('ld_lessions','ld_lessions.id','=','ld_order.class_id')
+                ->where(['ld_order.student_id'=>$data['user_info']['user_id'],'ld_order.status'=>2,'ld_order.oa_status'=>1,'ld_lessions.status'=>2,'ld_lessions.is_del'=>0,'ld_lessions.is_forbid'=>0])
+                ->orderByDesc('ld_order.id')
+                ->offset($offset)->limit($pagesize)
+                ->get()->toArray();
+        }
+        $page=[
+            'pageSize'=>$pagesize,
+            'page' =>$page,
+            'total'=>$count
+        ];
+        return ['code' => 200 , 'msg' => '获取成功','data'=>$orderlist,'page'=>$page];
+    }
+    /*
          * @param  客户端生成预订单
          * @param  type 1安卓2苹果3h5
          * @param  class_id 课程id
@@ -99,9 +129,6 @@ class OrderController extends Controller
          */
     public function createOrder(){
         $data = self::$accept_data;
-//        if($data['user_info']['user_type'] ==1){
-//            return ['code' => 204 , 'msg' => '请先登录'];
-//        }
         $data['student_id'] = $data['user_info']['user_id'];
         $orderid = Order::orderPayList($data);
         return response()->json($orderid);
@@ -154,13 +181,13 @@ class OrderController extends Controller
             //判断用户网校，根据网校查询课程信息
             if ($user_school_id == 1) {
                 //根据课程id 查询价格
-                $lessons = Lesson::select('id', 'title', 'cover', 'price', 'favorable_price','buy_num')->where(['id' => $order['class_id'], 'is_del' => 0, 'is_forbid' => 0, 'status' => 2, 'is_public' => 0])->first();
+                $lessons = Lesson::select('id', 'title', 'cover', 'price', 'favorable_price','buy_num','ttl')->where(['id' => $order['class_id'], 'is_del' => 0, 'is_forbid' => 0, 'status' => 2, 'is_public' => 0])->first();
                 if (!$lessons) {
                     return ['code' => 204, 'msg' => '此课程选择无效'];
                 }
             } else {
                 //根据课程id 网校id 查询网校课程详情
-                $lessons = LessonSchool::select('id', 'title', 'cover', 'price', 'favorable_price','buy_num')->where(['lesson_id' => $order['class_id'], 'school_id' => $user_school_id, 'is_del' => 0, 'is_forbid' => 0, 'status' => 1, 'is_public' => 0])->first();
+                $lessons = LessonSchool::select('id', 'title', 'cover', 'price', 'favorable_price','buy_num','ttl')->where(['lesson_id' => $order['class_id'], 'school_id' => $user_school_id, 'is_del' => 0, 'is_forbid' => 0, 'status' => 1, 'is_public' => 0])->first();
                 if (!$lessons) {
                     return ['code' => 204, 'msg' => '此课程选择无效'];
                 }
@@ -171,10 +198,13 @@ class OrderController extends Controller
                     return ['code' => 202, 'msg' => '余额不足，请充值！！！！！'];
                 } else {
                     DB::beginTransaction();
-                    //扣除用户余额 修改订单信息 加入用户消费记录日志  商品增加购买基数  用户关联的课程加上起始时间
+                    //扣除用户余额 修改订单信息 加入用户消费记录日志  商品增加购买基数  订单里面增加用户课程起始时间
                     $end_balance = $user_balance - $lesson['favorable_price'];
                     $studentstatus = Student::where(['id' => $user_id])->update(['balance' => $end_balance]);
-                    $orderstatus = Order::where(['id' => $data['order_id']])->update(['pay_type' => 5, 'status' => 1, 'pay_time' => date('Y-m-d H:i:s'), 'update_at' => date('Y-m-d H:i:s')]);
+                    //计算用户购买课程有效期
+                    $pay_time = date('Y-m-d H:i:s');
+                    $validity = date('Y-m-d H:i:s',strtotime('+'.$lessons['ttl'].' day'));
+                    $orderstatus = Order::where(['id' => $data['order_id']])->update(['pay_type' => 5, 'status' => 1, 'pay_time' => $pay_time,'validity_time'=>$validity,'update_at' => $pay_time]);
                     $studentlogstatus = StudentAccountlog::insert(['user_id' => $user_id, 'price' => $lesson['favorable_price'], 'end_price' => $end_balance, 'status' => 2, 'class_id' => $order['class_id']]);
                     if ($user_school_id == 1) {
                        $lessonstatus = Lesson::where(['id' => $lesson['id']])->update(['buy_num' => $lesson['buy_num'] + 1]);
