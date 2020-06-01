@@ -265,8 +265,8 @@ class AdminUserController extends Controller {
         if($data['password'] != $data['pwd']){
             return response()->json(['code'=>206,'msg'=>'登录密码不一致']);
         }
-        if(isset($data['admin/adminuser/doAdminUserUpdate'])){
-            unset($data['admin/adminuser/doAdminUserUpdate']);
+        if(isset($data['/admin/adminuser/doAdminUserUpdate'])){
+            unset($data['/admin/adminuser/doAdminUserUpdate']);
         }
         $where['school_id'] = $data['school_id'];
         $where['username']   = $data['username'];
