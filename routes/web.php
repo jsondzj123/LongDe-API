@@ -81,6 +81,7 @@ $router->group(['prefix' => 'api', 'namespace' => 'Api', 'middleware'=> 'user'],
         $router->post('iosPolling','OrderController@iosPolling');   //轮询订单信息
         $router->post('myOrderlist','OrderController@myOrderlist');   //我的订单
         $router->post('myPricelist','OrderController@myPricelist');   //我的余额记录
+        $router->post('myLessionlist','OrderController@myLessionlist');   //我的课程
     });
 });
 

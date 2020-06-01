@@ -332,6 +332,7 @@ class Order extends Model {
         if(!in_array($data['status'],['0,1'])){
             return ['code' => 201 , 'msg' => '状态传输错误'];
         }
+        //修改学员报名
         $up = self::where(['id'=>$data['order_id'],'order_type'=>1])->update(['oa_status'=>$data['status'],'update_at'=>date('Y-m-d H:i:s')]);
         if($up){
             return ['code' => 200 , 'msg' => '修改成功'];
