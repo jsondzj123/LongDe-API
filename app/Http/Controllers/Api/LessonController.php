@@ -5,6 +5,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Lesson;
 use Illuminate\Http\Request;
 use DB;
+use Validator;
 
 class LessonController extends Controller {
 
@@ -117,17 +118,11 @@ class LessonController extends Controller {
         if ($validator->fails()) {
             return $this->response($validator->errors()->first(), 202);
         }
-        $lesson = Lesson::with(['teachers' => function ($query) {
-                $query->select('id', 'real_name');
-            }])
-        ->with(['subjects' => function ($query) {
-                $query->select('id', 'name');
-            }])
-        ->find($request->input('id'));
+        $lesson = Lesson::with('lessonChilds')->find($request->input('id'));
         if(empty($lesson)){
             return $this->response('课程不存在', 404);
         }
-        Lesson::where('id', $id)->update(['watch_num' => DB::raw('watch_num + 1')]);
+        Lesson::where('id', $request->input('id'))->update(['watch_num' => DB::raw('watch_num + 1')]);
         return $this->response($lesson);
     }
 }

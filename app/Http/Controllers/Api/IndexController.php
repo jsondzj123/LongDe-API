@@ -355,7 +355,7 @@ class IndexController extends Controller {
     public function getSubjectList() {
         //获取提交的参数
         try{
-            $subject = Subject::select('id', 'name')->where('pid', 0)->get();
+            $subject = Subject::select('id', 'name')->where('pid', 0)->limit(6)->get();
             //dd($subject);
             return $this->response($subject);
         } catch (Exception $ex) {

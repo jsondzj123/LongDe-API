@@ -78,7 +78,6 @@ class AuthenticateController extends Controller {
             }
             
             //生成随机唯一的token
-            //$token = sha1(uniqid().$body['phone'].$body['password'].time().rand(1000,9999));
             $token = self::setAppLoginToken($body['phone']);
 
             //开启事务
@@ -87,7 +86,7 @@ class AuthenticateController extends Controller {
             //封装成数组
             $user_data = [
                 'phone'     =>    $body['phone'] ,
-                'password'  =>    md5($body['password']) ,
+                'password'  =>    password_hash($body['password'] , PASSWORD_DEFAULT) ,
                 'token'     =>    $token ,
                 'device'    =>    isset($body['device']) && !empty($body['device']) ? $body['device'] : '' ,
                 'reg_source'=>    1 ,
@@ -125,7 +124,7 @@ class AuthenticateController extends Controller {
      * @param ctime     2020-05-23
      * return string
      */
-    public static function doUserLogin() {
+    public function doUserLogin() {
         try {
             $body = self::$accept_data;
             //判断传过来的数组数据是否为空
@@ -162,55 +161,64 @@ class AuthenticateController extends Controller {
             }
             
             //生成随机唯一的token
-            //$token = sha1(uniqid().$body['phone'].$body['password'].time().rand(1000,9999));
             $token = self::setAppLoginToken($body['phone']);
             
             //开启事务
             DB::beginTransaction();
 
             //根据手机号和密码进行登录验证
-            $user_login = User::where("phone",$body['phone'])->where("password",md5($body['password']))->first();
-            if($user_login && !empty($user_login)){
-                //判断redis中值是否存在
-                $hash_len = Redis::hLen("user:regtoken:".$user_login->token);
-                if($hash_len && $hash_len > 0){
-                    //清除老的redis的key值
-                    Redis::del("user:regtoken:".$user_login->token);
-                }
-                
-                //用户详细信息赋值
-                $user_info = [
-                    'user_id'    => $user_login->id ,
-                    'user_token' => $token , 
-                    'user_type'  => 1 ,
-                    'head_icon'  => $user_login->head_icon , 
-                    'real_name'  => $user_login->real_name , 
-                    'phone'      => $user_login->phone , 
-                    'nickname'   => $user_login->nickname , 
-                    'sign'       => $user_login->sign , 
-                    'papers_type'=> $user_login->papers_type , 
-                    'papers_name'=> $user_login->papers_type > 0 ? parent::getPapersNameByType($user_login->papers_type) : '',
-                    'papers_num' => $user_login->papers_num ,
-                    'balance'    => $user_login->balance > 0 ? floatval($user_login->balance) : 0 ,
-                    'school_id'  => $user_login->school_id
-                ];
-                
-                //redis存储信息
-                Redis::hMset("user:regtoken:".$token , $user_info);
-                
-                //更新token
-                $rs = User::where("phone" , $body['phone'])->update(["token" => $token , "update_at" => date('Y-m-d H:i:s')]);
-                if($rs && !empty($rs)){
-                    //事务提交
-                    DB::commit();
-                } else {
-                    //事务回滚
-                    DB::rollBack();
-                }
-                return response()->json(['code' => 200 , 'msg' => '登录成功' , 'data' => ['user_info' => $user_info]]);
-            } else {
-                return response()->json(['code' => 203 , 'msg' => '手机号或密码错误']);
+            $user_login = User::where("phone",$body['phone'])->first();
+            if(!$user_login || empty($user_login)){
+                return response()->json(['code' => 204 , 'msg' => '此手机号未注册']);
             }
+            
+            //验证密码是否合法
+            if(password_verify($body['password']  , $user_login->password) === false){
+                return response()->json(['code' => 203 , 'msg' => '密码错误']);
+            }
+
+            //判断此手机号是否被禁用了
+            if($user_login->is_forbid == 2){
+                return response()->json(['code' => 207 , 'msg' => '您已被禁用,请联系管理员']);
+            }
+
+            //判断redis中值是否存在
+            $hash_len = Redis::hLen("user:regtoken:".$user_login->token);
+            if($hash_len && $hash_len > 0){
+                //清除老的redis的key值
+                Redis::del("user:regtoken:".$user_login->token);
+            }
+
+            //用户详细信息赋值
+            $user_info = [
+                'user_id'    => $user_login->id ,
+                'user_token' => $token , 
+                'user_type'  => 1 ,
+                'head_icon'  => $user_login->head_icon , 
+                'real_name'  => $user_login->real_name , 
+                'phone'      => $user_login->phone , 
+                'nickname'   => $user_login->nickname , 
+                'sign'       => $user_login->sign , 
+                'papers_type'=> $user_login->papers_type , 
+                'papers_name'=> $user_login->papers_type > 0 ? parent::getPapersNameByType($user_login->papers_type) : '',
+                'papers_num' => $user_login->papers_num ,
+                'balance'    => $user_login->balance > 0 ? floatval($user_login->balance) : 0 ,
+                'school_id'  => $user_login->school_id
+            ];
+
+            //redis存储信息
+            Redis::hMset("user:regtoken:".$token , $user_info);
+
+            //更新token
+            $rs = User::where("phone" , $body['phone'])->update(["token" => $token , "password" => password_hash($body['password'] , PASSWORD_DEFAULT) , "update_at" => date('Y-m-d H:i:s')]);
+            if($rs && !empty($rs)){
+                //事务提交
+                DB::commit();
+            } else {
+                //事务回滚
+                DB::rollBack();
+            }
+            return response()->json(['code' => 200 , 'msg' => '登录成功' , 'data' => ['user_info' => $user_info]]);
         } catch (Exception $ex) {
             return response()->json(['code' => 500 , 'msg' => $ex->getMessage()]);
         }
@@ -225,7 +233,7 @@ class AuthenticateController extends Controller {
      * @param ctime     2020-05-23
      * return string
      */
-    public static function doVisitorLogin() {
+    public function doVisitorLogin() {
         try {
             $body = self::$accept_data;
             //判断传过来的数组数据是否为空
@@ -239,7 +247,6 @@ class AuthenticateController extends Controller {
             }
             
             //生成随机唯一的token
-            //$token = sha1(uniqid().$body['device'].time().rand(1000,9999));
             $token = self::setAppLoginToken($body['device']);
             
             //通过设备唯一标识判断是否注册过
@@ -250,6 +257,11 @@ class AuthenticateController extends Controller {
             
             //判断是否是存在用户信息
             if($student_info && !empty($student_info)){
+                //判断此手机号是否被禁用了
+                if($student_info->is_forbid == 2){
+                    return response()->json(['code' => 207 , 'msg' => '您已被禁用,请联系管理员']);
+                }
+                
                 //清除老的redis的key值
                 Redis::del("user:regtoken:".$student_info->token);
                 
@@ -346,7 +358,7 @@ class AuthenticateController extends Controller {
      * @param ctime     2020-05-23
      * return string
      */
-    public static function doUserForgetPassword() {
+    public function doUserForgetPassword() {
         try {
             $body = self::$accept_data;
             //判断传过来的数组数据是否为空
@@ -390,19 +402,24 @@ class AuthenticateController extends Controller {
                 return response()->json(['code' => 204 , 'msg' => '此手机号未注册']);
             } else {
                 //判断用户手机号是否注册过
-                $student_count = User::where("phone" , $body['phone'])->count();
-                if($student_count <= 0){
+                $student_info = User::where("phone" , $body['phone'])->first();
+                if(!$student_info || empty($student_info)){
                     //存储学员的手机号值并且保存60s
                     Redis::setex($key , 60 , $body['phone']);
                     return response()->json(['code' => 204 , 'msg' => '此手机号未注册']);
                 }
             }
             
+            //判断此手机号是否被禁用了
+            if($student_info->is_forbid == 2){
+                return response()->json(['code' => 207 , 'msg' => '您已被禁用,请联系管理员']);
+            }
+            
             //开启事务
             DB::beginTransaction();
 
             //将数据插入到表中
-            $update_user_password = User::where("phone" , $body['phone'])->update(['password' => md5($body['password']) , 'update_at' => date('Y-m-d H:i:s')]);
+            $update_user_password = User::where("phone" , $body['phone'])->update(['password' => password_hash($body['password'] , PASSWORD_DEFAULT) , 'update_at' => date('Y-m-d H:i:s')]);
             if($update_user_password && !empty($update_user_password)){
                 //事务提交
                 DB::commit();
@@ -426,7 +443,7 @@ class AuthenticateController extends Controller {
      * @param ctime     2020-05-22
      * return string
      */
-    public static function doSendSms(){
+    public function doSendSms(){
         $body = self::$accept_data;
         //判断传过来的数组数据是否为空
         if(!$body || !is_array($body)){
@@ -455,8 +472,8 @@ class AuthenticateController extends Controller {
             $template_code = 'SMS_180053367';
             
             //判断用户手机号是否注册过
-            $student_count = User::where("phone" , $body['phone'])->count();
-            if($student_count > 0){
+            $student_info = User::where("phone" , $body['phone'])->first();
+            if($student_info && !empty($student_info)){
                 return response()->json(['code' => 205 , 'msg' => '此手机号已被注册']);
             }
         } else {
@@ -468,9 +485,14 @@ class AuthenticateController extends Controller {
             $template_code = 'SMS_190727799';
             
             //判断用户手机号是否注册过
-            $student_count = User::where("phone" , $body['phone'])->count();
-            if($student_count <= 0){
+            $student_info = User::where("phone" , $body['phone'])->first();
+            if(!$student_info || empty($student_info)){
                 return response()->json(['code' => 204 , 'msg' => '此手机号未注册']);
+            }
+            
+            //判断此手机号是否被禁用了
+            if($student_info->is_forbid == 2){
+                return response()->json(['code' => 207 , 'msg' => '您已被禁用,请联系管理员']);
             }
         }
         
@@ -496,9 +518,17 @@ class AuthenticateController extends Controller {
     }
     
     //删除redis指定key的所有键值信息
-    public static function doDelRedisKeys($prefix){
+    public function doDelRedisKeys(){
         //获取所有的指定的前缀的信息列表
-        $key_list = Redis::keys($prefix . '*');
+        $key_list = Redis::keys('user:regtoken:*');
         Redis::del($key_list);
+        return response()->json(['code' => 200 , 'msg' => '删除成功']);
+    }
+    
+    //删除redis指定key的所有键值信息
+    public function getRedisKeys(){
+        //获取所有的指定的前缀的信息列表
+        $key_list =  Redis::keys('user:regtoken:*');
+        return response()->json(['code' => 200 , 'msg' => '获取成功' , 'data'=> $key_list]);
     }
 }

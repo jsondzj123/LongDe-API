@@ -65,7 +65,8 @@ $router->group(['prefix' => 'api', 'namespace' => 'Api'], function () use ($rout
 $router->group(['prefix' => 'api', 'namespace' => 'Api', 'middleware'=> 'user'], function () use ($router) {
     //收藏模块
     $router->post('collection','CollectionController@index');          //课程收藏列表
-    $router->post('collectionAdd','CollectionController@store');             //收藏课程
+    $router->post('addCollection','CollectionController@store');       //添加收藏课程
+    $router->post('cancelCollection','CollectionController@cancel');   //取消收藏课程
 
     //用户学员相关接口
     $router->group(['prefix' => 'user'], function () use ($router) {
@@ -80,6 +81,7 @@ $router->group(['prefix' => 'api', 'namespace' => 'Api', 'middleware'=> 'user'],
         $router->post('iosPolling','OrderController@iosPolling');   //轮询订单信息
         $router->post('myOrderlist','OrderController@myOrderlist');   //我的订单
         $router->post('myPricelist','OrderController@myPricelist');   //我的余额记录
+        $router->post('myLessionlist','OrderController@myLessionlist');   //我的课程
     });
 });
 
@@ -319,6 +321,7 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin' , 'middleware'=> ['
         $router->post('auditToId', 'OrderController@auditToId');//订单审核通过/不通过
         $router->post('orderUpOaForId', 'OrderController@orderUpOaForId');//订单修改oa状态
         $router->post('ExcelExport', 'OrderController@ExcelExport');//订单导出
+        $router->post('buttOa', 'OrderController@buttOa');//对接oa
     });
     //数据模块（szw）
     $router->group(['prefix' => 'statistics'], function () use ($router) {

@@ -3,7 +3,9 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\AdminLog;
+use App\Models\Lesson;
 use App\Models\Order;
+use App\Models\Student;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
 class OrderController extends Controller {
@@ -49,11 +51,7 @@ class OrderController extends Controller {
         //获取提交的参数
         try{
             $data = Order::exitForIdStatus(self::$accept_data);
-            if($data['code'] == 200){
-                return response()->json($data);
-            } else {
-                return response()->json($data);
-            }
+            return response()->json($data);
         } catch (Exception $ex) {
             return response()->json(['code' => 500 , 'msg' => $ex->getMessage()]);
         }
@@ -86,68 +84,51 @@ class OrderController extends Controller {
             return Excel::download(new \App\Exports\OrderExport(self::$accept_data), 'order.xlsx');
     }
 
-
-
-
-
-
-
-
-
-
-
     /*
-         * @param  app支付
-         * @param
+         * @param  对接oa
+         * @param  $order_id
          * @param  author  苏振文
-         * @param  ctime   2020/5/6 11:35
+         * @param  ctime   2020/6/1 14:46
          * return  array
          */
-    public function orderPay(){
-        try{
-            $orderlist = Order::orderPayList(self::$accept_data);
-            return response()->json($orderlist);
-        } catch (Exception $ex) {
-            return response()->json(['code' => 500 , 'msg' => $ex->getMessage()]);
-        }
+    public function buttOa(){
+        $data = self::$accept_data;
+        $order = Order::where(['id'=>$data['order_id']])->first();
+        //根据订单  查询用户信息  课程信息
+        $student = Student::where(['id'=>$order['student_id'],'is_forbid'=>1])->first();
+        $lession = Lesson::where(['id'=>$order['class_id'],'is_del'=>0,'is_forbid'=>0])->first();
+        $newarr = [
+            'orderNo' => $order['order_number'],
+            'mobile' => empty($student['phone'])?'17319397103':$student['phone'],
+            'price' => $order['price'],
+            'courseName' => $lession['title'],
+            'createTime' => $order['create_time'],
+            'payTime' => $order['pay_time'],
+            'payStatus' => 1,
+            'payType' =>'PAY_OFFLINE_INPUT'
+        ];
+        $res = $this->curl($newarr);
+        print_r($res);die;
     }
-
-    /*
-         * @param  pc端支付
-         * @param
-         * @param  author  苏振文
-         * @param  ctime   2020/5/6 11:42
-         * return  array
-         */
-    public function Pcpay(){
-        try{
-            $price = 0.01;
-            $orderlist = Order::pcpay($price);
-//            $orderlist = Order::orderPayList(self::$accept_data);
-            return response()->json($orderlist);
-        } catch (Exception $ex) {
-            return response()->json(['code' => 500 , 'msg' => $ex->getMessage()]);
-        }
-    }
-    /*
-         * @param  微信回调地址
-         * @param  author  苏振文
-         * @param  ctime   2020/5/6 17:08
-         * return  array
-         */
-    public function wxnotify_url(){
-        $xml = file_get_contents("php://input");
-        $notify = Order::wxnotify_url($xml);
-        return response()->json($notify);
-    }
-    /*
-         * @param 支付宝回调地址
-         * @param  author  苏振文
-         * @param  ctime   2020/5/6 17:09
-         * return  array
-         */
-    public function alinotify_url(){
-        $notify = Order::alinotify_url($_POST);
-        return response()->json($notify);
+    //curl【模拟http请求】
+    public function curl($receiptData){
+        //小票信息
+//        $POSTFIELDS = array("receipt-data" => $receiptData);
+//        $POSTFIELDS = json_encode($POSTFIELDS);
+        //正式购买地址 沙盒购买地址
+//        $urlBuy = "https://buy.itunes.apple.com/verifyReceipt";
+//        $urlSandbox = "https://sandbox.itunes.apple.com/verifyReceipt";
+//        $url = $sandbox ? $urlSandbox : $urlBuy;//向正式环境url发送请求(默认)
+        $url = "47.110.127.119:8082/front/pay/syncOrder";
+        //简单的curl
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $receiptData);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+        $result = curl_exec($ch);
+        curl_close($ch);
+        return $result;
     }
 }
