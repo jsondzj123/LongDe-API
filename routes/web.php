@@ -65,7 +65,8 @@ $router->group(['prefix' => 'api', 'namespace' => 'Api'], function () use ($rout
 $router->group(['prefix' => 'api', 'namespace' => 'Api', 'middleware'=> 'user'], function () use ($router) {
     //收藏模块
     $router->post('collection','CollectionController@index');          //课程收藏列表
-    $router->post('collectionAdd','CollectionController@store');             //收藏课程
+    $router->post('addCollection','CollectionController@store');       //添加收藏课程
+    $router->post('cancelCollection','CollectionController@cancel');   //取消收藏课程
 
     //用户学员相关接口
     $router->group(['prefix' => 'user'], function () use ($router) {
