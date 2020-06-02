@@ -203,7 +203,7 @@ class Order extends Model {
                 $lesson['order_id'] = $orderfind['id'];
                 $lesson['order_number'] = $orderfind['order_number'];
                 $lesson['user_balance'] = $student['balance'];
-                return ['code' => 200 , 'msg' => '生成预订单成功','data'=>$lesson];
+                return ['code' => 200 , 'msg' => '生成预订单成功1','data'=>$lesson];
             }
             //数据入库，生成订单
             $data['order_number'] = date('YmdHis', time()) . rand(1111, 9999);
