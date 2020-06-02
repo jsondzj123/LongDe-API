@@ -226,6 +226,7 @@ class Order extends Model {
                 DB::commit();
                 //根据分校查询支付方式
                 $payList = PaySet::where(['school_id'=>$student['school_id']])->first();
+                print_r($payList);die;
                 if(empty($payList)) {
                     $payList = PaySet::where(['school_id' => 1])->first();
                 }
