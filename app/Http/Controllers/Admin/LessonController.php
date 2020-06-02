@@ -289,6 +289,36 @@ class LessonController extends Controller {
         }
     }
 
+
+    /**
+     * 修改课程推荐状态
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function isRecommend(Request $request) {
+        $validator = Validator::make($request->all(), [
+            'id'     => 'required',
+        ]);
+        if ($validator->fails()) {
+            return $this->response($validator->errors()->first(), 202);
+        }
+        try {
+            $lesson = Lesson::findOrFail($request->input('id'));
+            if($lesson->is_recommend == 1){
+                $lesson->is_recommend = 0;
+            }else{
+                $lesson->is_recommend = 1;
+            }
+            $lesson->save();
+            return $this->response("修改成功");
+        } catch (Exception $e) {
+            Log::error('修改课程信息失败' . $e->getMessage());
+            return $this->response("修改成功");
+        }
+    }
+
     /**
      * 删除课程
      *

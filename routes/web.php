@@ -142,7 +142,7 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin' , 'middleware'=> ['
     $router->post('updateLesson', 'LessonController@update');
     $router->post('addLessonUrl', 'LessonController@edit');
     $router->post('lessonDelete', 'LessonController@destroy');
-
+    $router->post('lessonIsRecommend', 'LessonController@isRecommend');
 
     /*
      * 章节模块(sxl)
