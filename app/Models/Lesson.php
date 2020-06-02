@@ -36,7 +36,19 @@ class Lesson extends Model {
         'pivot'
     ];
 
-    protected $appends = ['is_auth', 'is_collection', 'method_id', 'teacher_id', 'subject_id'];
+    protected $appends = [
+        'is_auth',
+        'is_collection',
+        'method_id',
+        'teacher_id',
+        'subject_id',
+        'sold_num',
+    ];
+
+    public function getSoldNumAttribute($value)
+    {
+        return $this->hasMany('App\Models\Order', 'class_id')->where('status', 1)->count();
+    }
 
     public function getMethodIdAttribute($value)
     {
@@ -135,7 +147,7 @@ class Lesson extends Model {
     public function schools() {
         return $this->belongsTo('App\Models\LessonSchool');
     }
-    
+
     public function lessonChilds() {
         return $this->hasMany('App\Models\LessonChild', 'lesson_id', 'id')->where('pid', 0);
     }

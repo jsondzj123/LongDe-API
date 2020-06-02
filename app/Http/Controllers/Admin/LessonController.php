@@ -208,6 +208,7 @@ class LessonController extends Controller {
             $lesson->cover   = $request->input('cover') ?: $lesson->cover;
             $lesson->price   = $request->input('price') ?: $lesson->price;
             $lesson->favorable_price = $request->input('favorable_price') ?: $lesson->favorable_price;
+            $lesson->introduction = $request->input('introduction') ?: $lesson->introduction;
             $lesson->description = $request->input('description') ?: $lesson->description;
             $lesson->buy_num = $request->input('buy_num') ?: $lesson->buy_num;
             $lesson->ttl     = $request->input('ttl') ?: $lesson->ttl;
@@ -280,6 +281,36 @@ class LessonController extends Controller {
         try {
             $lesson = Lesson::findOrFail($request->input('id'));
             $lesson->status = $request->input('status');
+            $lesson->save();
+            return $this->response("修改成功");
+        } catch (Exception $e) {
+            Log::error('修改课程信息失败' . $e->getMessage());
+            return $this->response("修改成功");
+        }
+    }
+
+
+    /**
+     * 修改课程推荐状态
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function isRecommend(Request $request) {
+        $validator = Validator::make($request->all(), [
+            'id'     => 'required',
+        ]);
+        if ($validator->fails()) {
+            return $this->response($validator->errors()->first(), 202);
+        }
+        try {
+            $lesson = Lesson::findOrFail($request->input('id'));
+            if($lesson->is_recommend == 1){
+                $lesson->is_recommend = 0;
+            }else{
+                $lesson->is_recommend = 1;
+            }
             $lesson->save();
             return $this->response("修改成功");
         } catch (Exception $e) {

@@ -93,7 +93,10 @@ class OrderController extends Controller {
          */
     public function buttOa(){
         $data = self::$accept_data;
-        $order = Order::where(['id'=>$data['order_id']])->first();
+        $order = Order::where(['id'=>$data['order_id']])->first()->toArray();
+        if($order['status'] < 1){
+            return ['code' => 201 , 'msg' => '订单未支付，怎么对接OA'];
+        }
         //根据订单  查询用户信息  课程信息
         $student = Student::where(['id'=>$order['student_id'],'is_forbid'=>1])->first();
         $lession = Lesson::where(['id'=>$order['class_id'],'is_del'=>0,'is_forbid'=>0])->first();
@@ -102,23 +105,21 @@ class OrderController extends Controller {
             'mobile' => empty($student['phone'])?'17319397103':$student['phone'],
             'price' => $order['price'],
             'courseName' => $lession['title'],
-            'createTime' => $order['create_time'],
-            'payTime' => $order['pay_time'],
-            'payStatus' => 1,
-            'payType' =>'PAY_OFFLINE_INPUT'
+            'createTime' => $order['create_at'],
+            'payTime' =>$order['pay_time'],
+            'payStatus' => 'PAY_SUCCESS',
+            'payType' =>'PAY_OFFLINE_INPUT',
         ];
         $res = $this->curl($newarr);
-        print_r($res);die;
+        $return = json_decode($res,true);
+        if($return['code'] == 0){
+            return ['code' => 200 , 'msg' => '请求成功'];
+        }else{
+            return ['code' => 201 , 'msg' => '请求第三方出错','data'=>$return['code']];
+        }
     }
     //curl【模拟http请求】
     public function curl($receiptData){
-        //小票信息
-//        $POSTFIELDS = array("receipt-data" => $receiptData);
-//        $POSTFIELDS = json_encode($POSTFIELDS);
-        //正式购买地址 沙盒购买地址
-//        $urlBuy = "https://buy.itunes.apple.com/verifyReceipt";
-//        $urlSandbox = "https://sandbox.itunes.apple.com/verifyReceipt";
-//        $url = $sandbox ? $urlSandbox : $urlBuy;//向正式环境url发送请求(默认)
         $url = "47.110.127.119:8082/front/pay/syncOrder";
         //简单的curl
         $ch = curl_init($url);

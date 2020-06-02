@@ -250,6 +250,7 @@ class Order extends Model {
         if($find['status'] != 1){
             return ['code' => 201 , 'msg' => '订单无法审核'];
         }
+        $order = $find->toArray();
         //获取后端的操作员id
         $admin_id = isset(AdminLog::getAdminInfo()->admin_user->id) ? AdminLog::getAdminInfo()->admin_user->id : 0;
         if($find['status'] == 1){
@@ -343,24 +344,24 @@ class Order extends Model {
         if(!$data || empty($data)){
             return ['code' => 201 , 'msg' => '参数为空或格式错误'];
         }
-        if(empty($data['order_id'])){
-            return ['code' => 201 , 'msg' => '订单id错误'];
+        if(empty($data['order_number'])){
+            return ['code' => 201 , 'msg' => '订单号错误'];
         }
         if(!in_array($data['status'],['0,1'])){
             return ['code' => 201 , 'msg' => '状态传输错误'];
         }
+        $order = self::where(['order_number'=>$data['order_number']])->first()->toArray();
         if($data['status'] == 1){
             //修改学员报名  订单状态 课程有效期
-            $order = self::where(['id'=>$data['order_id']])->first()->toArray();
             $lessons = Lesson::where(['id'=>$order['class_id']])->first()->toArray();
             //计算用户购买课程到期时间
             $validity = date('Y-m-d H:i:s',strtotime('+'.$lessons['ttl'].' day'));
             //修改订单状态 课程有效期 oa状态
-            $update = self::where(['id'=>$data['order_id'],'order_type'=>1])->update(['status'=>2,'validity_time'=>$validity,'oa_status'=>1,'update_at'=>date('Y-m-d H:i:s')]);
+            $update = self::where(['id'=>$order['id'],'order_type'=>1])->update(['status'=>2,'validity_time'=>$validity,'oa_status'=>1,'update_at'=>date('Y-m-d H:i:s')]);
             //修改用户报名状态
             Student::where(['id'=>$order['student_id']])->update(['enroll_status'=>1]);
         }else{
-            $update = self::where(['id'=>$data['order_id'],'order_type'=>1])->update(['status'=>3,'oa_status'=>$data['status'],'update_at'=>date('Y-m-d H:i:s')]);
+            $update = self::where(['id'=>$order['id'],'order_type'=>1])->update(['status'=>3,'oa_status'=>$data['status'],'update_at'=>date('Y-m-d H:i:s')]);
         }
         if($update){
             DB::commit();
