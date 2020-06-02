@@ -5,13 +5,15 @@ use Illuminate\Database\Eloquent\Model;
 
 class Video extends Model {
       
+
+    public $table = 'ld_videos';
 	/**
      * The attributes that are mass assignable.
      *
      * @var array
      */
     protected $fillable = [
-        'admin_id', 'subject_id', 'name', 'category', 'url', 'size', 'status'
+        'admin_id', 'name', 'category', 'url', 'size', 'status'
     ];
  
     /**
@@ -27,8 +29,8 @@ class Video extends Model {
     ];
 
 
-    public function subject() {
-        return $this->belongsTo('App\Models\Subject');
+    public function subjects() {
+        return $this->belongsToMany('App\Models\Subject', 'ld_subject_videos');
     }
 
 
