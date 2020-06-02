@@ -2,7 +2,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\lessonChild;
+use App\Models\LessonChild;
 use Illuminate\Http\Request;
 use DB;
 use Validator;
@@ -29,10 +29,16 @@ class LessonChildController extends Controller {
         $offset   = ($page - 1) * $pagesize;
         $lesson_id = $request->input('lesson_id') ?: 0;
         $pid = $request->input('pid') ?: 0;
-        $lesson =  LessonChild::select('id', 'name', 'pid', 'is_del', 'is_forbid')->where(['is_del'=> 0, 'is_forbid' => 0, 'pid' => $pid])
+        $lesson =  LessonChild::where(['is_del'=> 0, 'is_forbid' => 0, 'pid' => $pid])
                 ->orderBy('created_at', 'desc');
         $total = $lesson->count();
         $lessons = $lesson->skip($offset)->take($pagesize)->get();
+        if($pid == 0){
+            foreach ($lessons as $key => $value) {
+                $value['childs'] = LessonChild::where('pid', $value->id)->get();
+            }
+        }
+
         $data = [
             'page_data' => $lessons,
             'total' => $total,
