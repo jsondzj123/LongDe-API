@@ -136,15 +136,15 @@ class Lesson extends Model {
     }
 
     public function teachers() {
-        return $this->belongsToMany('App\Models\Teacher', 'ld_lesson_teachers');
+        return $this->belongsToMany('App\Models\Teacher', 'ld_lesson_teachers')->withTimestamps();
     }
 
     public function subjects() {
-        return $this->belongsToMany('App\Models\Subject', 'ld_subject_lessons');
+        return $this->belongsToMany('App\Models\Subject', 'ld_subject_lessons')->withTimestamps();
     }
 
     public function methods() {
-        return $this->belongsToMany('App\Models\Method', 'ld_lesson_methods');
+        return $this->belongsToMany('App\Models\Method', 'ld_lesson_methods')->withTimestamps();
     }
 
     public function schools() {

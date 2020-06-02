@@ -30,7 +30,7 @@ class Video extends Model {
 
 
     public function subjects() {
-        return $this->belongsToMany('App\Models\Subject', 'ld_subject_videos');
+        return $this->belongsToMany('App\Models\Subject', 'ld_subject_videos')->withTimestamps();
     }
 
 }
