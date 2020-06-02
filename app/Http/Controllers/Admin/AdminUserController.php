@@ -212,13 +212,15 @@ class AdminUserController extends Controller {
         $adminUserArr['data']['school_name']  = School::getSchoolOne(['id'=>$adminUserArr['data']['school_id'],'is_forbid'=>1,'is_del'=>1],['name'])['data']['name'];
         $roleAuthArr = Roleauth::getRoleAuthAlls(['school_id'=>$adminUserArr['data']['school_id'],'is_del'=>1],['id','role_name']);
         $teacherArr = [];
+        $adminUserArr['data']['teacher_name'] = '';
         if(!empty($adminUserArr['data']['teacher_id'])){
-            $teacher_id_arr = explode(',', $adminUserArr['data']['teacher_id']);
-             $teacherArr= Teacher::whereIn('id',$teacher_id_arr)->where('is_del','!=',1)->where('is_forbid','!=',1)->select('id','real_name','type')->get();
+            // $teacher_id_arr = explode(',', $adminUserArr['data']['teacher_id']);
+             // $teacherArr= Teacher::whereIn('id',$teacher_id_arr)->where('is_del','!=',1)->where('is_forbid','!=',1)->select('id as teacher_id','real_name','type')->get();
+            $adminUserArr['data']['teacher_name'] = Teacher::where('id',$adminUserArr['data']['teacher_id'])->where('is_del','!=',1)->where('is_forbid','!=',1)->select('real_name')->get();
         }
         $arr = [
             'admin_user'=> $adminUserArr['data'],
-            'teacher' =>   $teacherArr,  //讲师组
+            // 'teacher' =>   $teacherArr,  //讲师组
             'role_auth' => $roleAuthArr, //权限组
         ];
         return response()->json(['code'=>200,'msg'=>'获取信息成功','data'=>$arr]);
@@ -265,8 +267,8 @@ class AdminUserController extends Controller {
         if($data['password'] != $data['pwd']){
             return response()->json(['code'=>206,'msg'=>'登录密码不一致']);
         }
-        if(isset($data['admin/adminuser/doAdminUserUpdate'])){
-            unset($data['admin/adminuser/doAdminUserUpdate']);
+        if(isset($data['/admin/adminuser/doAdminUserUpdate'])){
+            unset($data['/admin/adminuser/doAdminUserUpdate']);
         }
         $where['school_id'] = $data['school_id'];
         $where['username']   = $data['username'];

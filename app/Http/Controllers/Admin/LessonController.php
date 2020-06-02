@@ -98,7 +98,7 @@ class LessonController extends Controller {
             return $this->response($validator->errors()->first(), 202);
         }
         $lesson = Lesson::with(['teachers' => function ($query) {
-                $query->select('id', 'real_name');
+                $query->select('id as teacher_id', 'real_name');
             }])
         ->with(['subjects' => function ($query) {
                 $query->select('id', 'name');

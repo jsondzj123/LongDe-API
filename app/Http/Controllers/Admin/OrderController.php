@@ -104,8 +104,8 @@ class OrderController extends Controller {
             'courseName' => $lession['title'],
             'createTime' => $order['create_time'],
             'payTime' => $order['pay_time'],
-            'payStatus' => 1,
-            'payType' =>'PAY_OFFLINE_INPUT'
+            'payStatus' => 'PAY_SUCCESS',
+            'payType' =>'PAY_OFFLINE_INPUT',
         ];
         $res = $this->curl($newarr);
         print_r($res);die;
