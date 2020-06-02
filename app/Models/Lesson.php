@@ -11,6 +11,7 @@ class Lesson extends Model {
     public $table = 'ld_lessons';
 
     protected $fillable = [
+        'id',
         'admin_id',
     	'title',
         'keyword',
@@ -133,5 +134,9 @@ class Lesson extends Model {
 
     public function schools() {
         return $this->belongsTo('App\Models\LessonSchool');
+    }
+    
+    public function lessonChilds() {
+        return $this->hasMany('App\Models\LessonChild', 'lesson_id', 'id')->where('pid', 0);
     }
 }
