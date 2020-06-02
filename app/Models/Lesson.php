@@ -110,14 +110,17 @@ class Lesson extends Model {
      */
     public function getIsCollectionAttribute($value)
     {
-        $token = isset($_REQUEST['user_token']) ? $_REQUEST['user_token'] : 0;
-        $studentIds = Student::where('token', $token)->first()->collectionLessons->pluck('id')->toArray();
-        $flipped_haystack = array_flip($studentIds);
-        if(isset($flipped_haystack[$this->id]))
-        {
-            return 1;
+        $token = isset($_REQUEST['user_token']) ? $_REQUEST['user_token'] : '';
+        if($token && !empty($token)){
+            $studentIds = Student::where('token', $token)->first()->collectionLessons->pluck('id')->toArray();
+            $flipped_haystack = array_flip($studentIds);
+            if(isset($flipped_haystack[$this->id]))
+            {
+                return 1;
+            }
+                return 0;
         }
-            return 0;
+        return 0;
     }
     public function getUrlAttribute($value) {
         if ($value) {
