@@ -203,7 +203,7 @@ class Order extends Model {
                 $lesson['order_id'] = $orderfind['id'];
                 $lesson['order_number'] = $orderfind['order_number'];
                 $lesson['user_balance'] = $student['balance'];
-                return ['code' => 200 , 'msg' => '生成预订单成功','data'=>$lesson];
+                return ['code' => 200 , 'msg' => '生成预订单成功1','data'=>$lesson];
             }
             //数据入库，生成订单
             $data['order_number'] = date('YmdHis', time()) . rand(1111, 9999);
@@ -226,21 +226,21 @@ class Order extends Model {
                 DB::commit();
                 //根据分校查询支付方式
                 $payList = PaySet::where(['school_id'=>$student['school_id']])->first();
-                if(empty($payList)){
-                    $pay = PaySet::where(['school_id'=>1])->first()->toArray();
-                    $newpay=[];
-                    if($pay['wx_pay_state'] == 1){
-                        $newpay=array_push($newpay,'1');
-                    }
-                    if($pay['zfb_pay_state'] == 1){
-                        $newpay=array_push($newpay,'2');
-                    }
-                    if($pay['hj_wx_pay_state'] == 1){
-                        $newpay=array_push($newpay,'3');
-                    }
-                    if($pay['hj_zfb_pay_state'] == 1){
-                        $newpay=array_push($newpay,'4');
-                    }
+                if(empty($payList)) {
+                    $payList = PaySet::where(['school_id' => 1])->first();
+                }
+                $newpay=[];
+                if($payList['wx_pay_state'] == 1){
+                    $newpay=array_push($newpay,'1');
+                }
+                if($payList['zfb_pay_state'] == 1){
+                    $newpay=array_push($newpay,'2');
+                }
+                if($payList['hj_wx_pay_state'] == 1){
+                    $newpay=array_push($newpay,'3');
+                }
+                if($payList['hj_zfb_pay_state'] == 1){
+                    $newpay=array_push($newpay,'4');
                 }
                 return ['code' => 200 , 'msg' => '生成预订单成功','data'=>$lesson,'paylist'=>$newpay];
             }else{
