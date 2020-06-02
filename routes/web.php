@@ -40,14 +40,18 @@ $router->group(['prefix' => 'api', 'namespace' => 'Api'], function () use ($rout
 
     //首页相关接口
     $router->group(['prefix' => 'index'], function () use ($router) {
-        $router->post('getChartList','IndexController@getChartList');               //APP首页轮播图接口
-        $router->post('getOpenClassList','IndexController@getOpenClassList');       //APP首页公开课接口
-        $router->post('getTeacherList','IndexController@getTeacherList');           //APP首页讲师接口
-        $router->post('getOpenPublicList','IndexController@getOpenPublicList');     //APP公开课列表接口
-        $router->post('checkVersion','IndexController@checkVersion');               //APP版本升级接口
-        $router->post('getSubjectList','IndexController@getSubjectList');           //APP首页学科接口
-        $router->post('getLessonList','IndexController@getLessonList');             //APP首页课程接口
+        $router->post('getChartList','IndexController@getChartList');                             //APP首页轮播图接口
+        $router->post('getOpenClassList','IndexController@getOpenClassList');                     //APP首页公开课接口
+        $router->post('getTeacherList','IndexController@getTeacherList');                         //APP首页讲师接口
+        $router->post('getOpenPublicList','IndexController@getOpenPublicList');                   //APP公开课列表接口
+        $router->post('checkVersion','IndexController@checkVersion');                             //APP版本升级接口
+        $router->post('getSubjectList','IndexController@getSubjectList');                         //APP首页学科接口
+        $router->post('getLessonList','IndexController@getLessonList');                           //APP首页课程接口
+        $router->post('getFamousTeacherList','IndexController@getFamousTeacherList');             //APP名师列表接口
+        $router->post('getFamousTeacherInfo','IndexController@getFamousTeacherInfo');             //APP名师详情接口
+        $router->post('getTeacherLessonList','IndexController@getTeacherLessonList');             //APP名师课程列表接口
     });
+    
     //回调
     $router->group(['prefix' => 'notify'], function () use ($router) {
         $router->post('iphonePaynotify','NotifyController@iphonePaynotify');   //苹果内部支付

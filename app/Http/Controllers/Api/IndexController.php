@@ -344,6 +344,115 @@ class IndexController extends Controller {
             return response()->json(['code' => 500 , 'msg' => $ex->getMessage()]);
         }
     }
+    
+    /*
+     * @param  description   名师列表接口
+     * @param author    dzj
+     * @param ctime     2020-06-02
+     * return string
+     */ 
+    public function getFamousTeacherList(){
+        //获取提交的参数
+        try{
+            $famous_teacher_list = [
+                [
+                    'teacher_id'     =>   1 ,
+                    'teacher_icon'   =>   'https://dss0.bdstatic.com/70cFvHSh_Q1YnxGkpoWK1HF6hhy/it/u=3256100974,305075936&fm=26&gp=0.jpg' ,
+                    'teacher_name'   =>   '张老师' ,
+                    'star_num'       =>   5 ,
+                    'lesson_number'  =>   10 ,
+                    'student_number' =>   20
+                ] , 
+                [
+                    'teacher_id'     =>   2 ,
+                    'teacher_icon'   =>   'https://dss0.bdstatic.com/70cFvHSh_Q1YnxGkpoWK1HF6hhy/it/u=3256100974,305075936&fm=26&gp=0.jpg' ,
+                    'teacher_name'   =>   '梁老师' ,
+                    'star_num'       =>   7 ,
+                    'lesson_number'  =>   12 ,
+                    'student_number' =>   100
+                ] ,
+                [
+                    'teacher_id'     =>   3 ,
+                    'teacher_icon'   =>   'https://dss0.bdstatic.com/70cFvHSh_Q1YnxGkpoWK1HF6hhy/it/u=3256100974,305075936&fm=26&gp=0.jpg' ,
+                    'teacher_name'   =>   '刘老师' ,
+                    'star_num'       =>   9 ,
+                    'lesson_number'  =>   9 ,
+                    'student_number' =>   29
+                ]
+            ];
+            return response()->json(['code' => 200 , 'msg' => '获取名师列表成功' , 'data' => $famous_teacher_list]);
+        } catch (Exception $ex) {
+            return response()->json(['code' => 500 , 'msg' => $ex->getMessage()]);
+        }
+    }
+    
+    /*
+     * @param  description   名师详情接口
+     * @param author    dzj
+     * @param ctime     2020-06-02
+     * return string
+     */ 
+    public function getFamousTeacherInfo(){
+        //获取提交的参数
+        try{
+            //获取名师id
+            $teacher_id  = isset(self::$accept_data['teacher_id']) && !empty(self::$accept_data['teacher_id']) && self::$accept_data['teacher_id'] > 0 ? self::$accept_data['teacher_id'] : 0;
+            if(!$teacher_id || $teacher_id <= 0 || !is_numeric($teacher_id)){
+                return response()->json(['code' => 202 , 'msg' => '名师id不合法']);
+            }
+            
+            //空数组赋值
+            $teacher_array = "";
+            
+            //根据名师的id获取名师的详情信息
+            $teacher_info  =  Teacher::where('id' , $teacher_id)->where('type' , 2)->where('is_del' , 0)->where('is_forbid' , 0)->first();
+            if($teacher_info && !empty($teacher_info)){
+                //名师数组信息
+                $teacher_array = [
+                    'teacher_icon'   =>   $teacher_info->head_icon  ,
+                    'teacher_name'   =>   $teacher_info->real_name  ,
+                    'teacher_content'=>   $teacher_info->content
+                ];
+            }
+            return response()->json(['code' => 200 , 'msg' => '获取名师详情成功' , 'data' => $teacher_array]);
+        } catch (Exception $ex) {
+            return response()->json(['code' => 500 , 'msg' => $ex->getMessage()]);
+        }
+    }
+    
+    /*
+     * @param  description   名师课程列表接口
+     * @param author    dzj
+     * @param ctime     2020-06-02
+     * return string
+     */ 
+    public function getTeacherLessonList(){
+        //获取提交的参数
+        try{
+            //获取名师id
+            $teacher_id  = isset(self::$accept_data['teacher_id']) && !empty(self::$accept_data['teacher_id']) && self::$accept_data['teacher_id'] > 0 ? self::$accept_data['teacher_id'] : 0;
+            if(!$teacher_id || $teacher_id <= 0 || !is_numeric($teacher_id)){
+                return response()->json(['code' => 202 , 'msg' => '名师id不合法']);
+            }
+            
+            //分页相关的参数
+            $pagesize = isset(self::$accept_data['pagesize']) && self::$accept_data['pagesize'] > 0 ? self::$accept_data['pagesize'] : 15;
+            $page     = isset(self::$accept_data['page']) && self::$accept_data['page'] > 0 ? self::$accept_data['page'] : 1;
+            $offset   = ($page - 1) * $pagesize;
+            
+            //获取名师课程列表
+            $teacher_lesson_list = DB::table('ld_lessons as l')->select("l.id as lesson_id","l.title","l.cover","l.price","l.favorable_price","l.method")->leftJoin('ld_lesson_teachers as t' , function($join){
+                        $join->on('l.id', '=', 't.lesson_id');
+                    })->where("t.teacher_id",$teacher_id)->where("l.is_public" , 0)->where("l.is_del" , 0)->where("l.is_forbid" , 0)->offset($offset)->limit($pagesize)->get()->toArray();
+            if($teacher_lesson_list && !empty($teacher_lesson_list)){
+                return response()->json(['code' => 200 , 'msg' => '获取名师课程列表成功' , 'data' => $teacher_lesson_list]);
+            } else {
+                return response()->json(['code' => 200 , 'msg' => '获取名师课程列表成功' , 'data' => ""]);
+            }
+        } catch (Exception $ex) {
+            return response()->json(['code' => 500 , 'msg' => $ex->getMessage()]);
+        }
+    }
 
 
     /**
