@@ -74,16 +74,18 @@ class VideoController extends Controller {
         if ($validator->fails()) {
             return $this->response($validator->errors()->first(), 202);
         }
+        $subjectIds = json_decode($request->input('subject_id'), true);
         $user = CurrentAdmin::user();
         try {
-            Video::create([
-                'admin_id' => intval($user->id),
-                'name' => $request->input('name'),
-                'subject_id' => $request->input('subject_id'),
-                'category' => $request->input('category'),
-                'url' => $request->input('url'),
-            ]);
-
+            $video = Video::create([
+                        'admin_id' => intval($user->id),
+                        'name' => $request->input('name'),
+                        'category' => $request->input('category'),
+                        'url' => $request->input('url'),
+                    ]);
+            if(!empty($subjectIds)){
+                $video->subjects()->attach($subjectIds);
+            }
         } catch (Exception $e) {
             Log::error('创建失败:'.$e->getMessage());
             return $this->response($e->getMessage(), 500);
