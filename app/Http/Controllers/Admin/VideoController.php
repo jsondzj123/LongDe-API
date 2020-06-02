@@ -82,6 +82,7 @@ class VideoController extends Controller {
                         'name' => $request->input('name'),
                         'category' => $request->input('category'),
                         'url' => $request->input('url'),
+                        'size' => $request->input('size') ?: 0,
                     ]);
             if(!empty($subjectIds)){
                 $video->subjects()->attach($subjectIds);
@@ -113,6 +114,7 @@ class VideoController extends Controller {
             $video->subject_id = $request->input('subject_id') ?: $video->subject_id;
             $video->category = $request->input('category') ?: $video->category;
             $video->url = $request->input('url') ?: $video->url;
+            $video->size = $request->input('size') ?: $video->size;
             $video->save();
         } catch (Exception $e) {
             Log::error('修改失败' . $e->getMessage());

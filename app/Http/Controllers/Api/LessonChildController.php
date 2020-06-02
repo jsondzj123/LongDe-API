@@ -24,26 +24,16 @@ class LessonChildController extends Controller {
         if ($validator->fails()) {
             return $this->response($validator->errors()->first(), 202);
         }
-        $pagesize = $request->input('pagesize') ?: 15;
-        $page     = $request->input('page') ?: 1;
-        $offset   = ($page - 1) * $pagesize;
         $lesson_id = $request->input('lesson_id') ?: 0;
         $pid = $request->input('pid') ?: 0;
-        $lesson =  LessonChild::where(['is_del'=> 0, 'is_forbid' => 0, 'pid' => $pid])
-                ->orderBy('created_at', 'desc');
-        $total = $lesson->count();
-        $lessons = $lesson->skip($offset)->take($pagesize)->get();
+        $lessons =  LessonChild::where(['is_del'=> 0, 'is_forbid' => 0, 'pid' => $pid])
+                ->orderBy('created_at', 'desc')->get();
         if($pid == 0){
             foreach ($lessons as $key => $value) {
                 $value['childs'] = LessonChild::where('pid', $value->id)->get();
             }
         }
-
-        $data = [
-            'page_data' => $lessons,
-            'total' => $total,
-        ];
-        return $this->response($data);
+        return $this->response($lessons);
     }
 
 
