@@ -70,7 +70,7 @@ class IndexController extends Controller {
     public function getOpenClassList() { 
         //获取提交的参数
         try{
-            $open_class_list = [
+            /*$open_class_list = [
                 [
                     'open_class_id'     =>   1 ,
                     'cover'             =>   "https://dss0.bdstatic.com/70cFvHSh_Q1YnxGkpoWK1HF6hhy/it/u=3256100974,305075936&fm=26&gp=0.jpg" ,
@@ -96,15 +96,15 @@ class IndexController extends Controller {
                     'end_time'          =>   '12:00' ,
                 ]
             ];
-            return response()->json(['code' => 200 , 'msg' => '获取公开课列表成功' , 'data' => $open_class_list]);
+            return response()->json(['code' => 200 , 'msg' => '获取公开课列表成功' , 'data' => $open_class_list]);*/
             //echo strtotime('2020-05-28 11:00:00').'-'.strtotime('2020-05-28 12:00:00');
             
             //判断公开课列表是否为空
-            /*$open_class_count = Lesson::where('is_public' , 1)->where('status' , 2)->where('is_del' , 0)->where('is_forbid' , 0)->where('end_at', '>=' , time())->count();
+            $open_class_count = Lesson::where('is_public' , 1)->where('status' , 2)->where('is_del' , 0)->where('is_forbid' , 0)->where('is_recommend', 1)->count();
             if($open_class_count && $open_class_count > 0){
                 //获取公开课列表
                 $open_class_list = Lesson::select('id' , 'cover' , 'start_at' , 'end_at')->where('is_public' , 1)
-                        ->where('status' , 2)->where('is_del' , 0)->where('is_forbid' , 0)->where('end_at', '>=' , time())
+                        ->where('status' , 2)->where('is_del' , 0)->where('is_forbid' , 0)->where('is_recommend', 1)
                         ->orderBy('start_at' , 'ASC')->offset(0)->limit(3)->get()->toArray();
                 
                 //新数组赋值
@@ -119,6 +119,15 @@ class IndexController extends Controller {
                         $join->on('ld_live_teachers.teacher_id', '=', 'ld_lecturer_educationa.id')->where("ld_lecturer_educationa.type" , 2);
                     })->first();
                     
+                    //判断课程状态
+                    if($v['end_at'] < time()){
+                        $status = 3;
+                    } elseif($v['start_at'] > time()){
+                        $status = 2;
+                    } else {
+                        $status = 1;
+                    }
+                    
                     //新数组赋值
                     $lession_array[] = [
                         'open_class_id'  =>  $v['id'] ,
@@ -126,13 +135,14 @@ class IndexController extends Controller {
                         'teacher_name'   =>  $info && !empty($info) ? $info->real_name : '' ,
                         'start_date'     =>  date('Y-m-d' , $v['start_at']) ,
                         'start_time'     =>  date('H:i' , $v['start_at']) ,
-                        'end_time'       =>  date('H:i' , $v['end_at']) 
+                        'end_time'       =>  date('H:i' , $v['end_at']) ,
+                        'status'         =>  $status
                     ];
                 }
                 return response()->json(['code' => 200 , 'msg' => '获取公开课列表成功' , 'data' => $lession_array]);
             } else {
                 return response()->json(['code' => 200 , 'msg' => '获取公开课列表成功' , 'data' => ""]);
-            }*/
+            }
         } catch (Exception $ex) {
             return response()->json(['code' => 500 , 'msg' => $ex->getMessage()]);
         }
