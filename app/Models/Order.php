@@ -225,7 +225,24 @@ class Order extends Model {
                 $lesson['user_balance'] = $student['balance'];
                 DB::commit();
                 //根据分校查询支付方式
-                return ['code' => 200 , 'msg' => '生成预订单成功','data'=>$lesson];
+                $payList = PaySet::where(['school_id'=>$student['school_id']])->first();
+                if(empty($payList)){
+                    $pay = PaySet::where(['school_id'=>1])->first()->toArray();
+                    $newpay=[];
+                    if($pay['wx_pay_state'] == 1){
+                        $newpay=array_push($newpay,'1');
+                    }
+                    if($pay['zfb_pay_state'] == 1){
+                        $newpay=array_push($newpay,'2');
+                    }
+                    if($pay['hj_wx_pay_state'] == 1){
+                        $newpay=array_push($newpay,'3');
+                    }
+                    if($pay['hj_zfb_pay_state'] == 1){
+                        $newpay=array_push($newpay,'4');
+                    }
+                }
+                return ['code' => 200 , 'msg' => '生成预订单成功','data'=>$lesson,'paylist'=>$newpay];
             }else{
                 DB::rollback();
                 return ['code' => 203 , 'msg' => '生成订单失败'];
