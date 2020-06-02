@@ -10,7 +10,6 @@ class Live extends Model {
 
     protected $fillable = [
         'admin_id',
-        'subject_id',
         'name',
         'description',
         'is_use',

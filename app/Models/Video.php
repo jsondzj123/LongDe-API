@@ -33,6 +33,5 @@ class Video extends Model {
         return $this->belongsToMany('App\Models\Subject', 'ld_subject_videos');
     }
 
-
 }
 
