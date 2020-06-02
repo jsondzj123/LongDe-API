@@ -175,6 +175,9 @@ class Order extends Model {
             }
             //根据用户id查询信息
             $student = Student::select('school_id','balance')->where('id',$arr['student_id'])->first()->toArray();
+            $payList = PaySet::where(['school_id'=>$student['school_id']])->first();
+            print_r($payList);
+            print_r($student);die;
             //判断课程id
             if(!isset($arr['class_id']) || empty($arr['class_id'])){
                 return ['code' => 201 , 'msg' => '课程id为空或格式不对'];
@@ -223,9 +226,8 @@ class Order extends Model {
                 $lesson['order_id'] = $add;
                 $lesson['order_number'] = $data['order_number'];
                 $lesson['user_balance'] = $student['balance'];
-                DB::commit();
                 //根据分校查询支付方式
-                $payList = PaySet::where(['school_id'=>$student['school_id']])->first();
+
                 if(empty($payList)) {
                     $payList = PaySet::where(['school_id' => 1])->first();
                 }
@@ -242,6 +244,7 @@ class Order extends Model {
                 if($payList['hj_zfb_pay_state'] == 1){
                     $newpay=array_push($newpay,'4');
                 }
+                DB::commit();
                 return ['code' => 200 , 'msg' => '生成预订单成功','data'=>$lesson,'paylist'=>$newpay];
             }else{
                 DB::rollback();
