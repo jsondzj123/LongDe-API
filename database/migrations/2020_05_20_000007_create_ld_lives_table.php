@@ -16,7 +16,6 @@ class CreateLdLivesTable extends Migration
         Schema::create('ld_lives', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('admin_id')->comment('操作员ID');
-            $table->integer('subject_id')->comment('科目ID');
             $table->string('name')->nullable()->comment('名称');
             $table->string('description')->nullable()->comment('介绍');
             $table->integer('is_del')->default(0)->comment('是否删除：0否1是');
