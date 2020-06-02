@@ -208,6 +208,7 @@ class LessonController extends Controller {
             $lesson->cover   = $request->input('cover') ?: $lesson->cover;
             $lesson->price   = $request->input('price') ?: $lesson->price;
             $lesson->favorable_price = $request->input('favorable_price') ?: $lesson->favorable_price;
+            $lesson->introduction = $request->input('introduction') ?: $lesson->introduction;
             $lesson->description = $request->input('description') ?: $lesson->description;
             $lesson->buy_num = $request->input('buy_num') ?: $lesson->buy_num;
             $lesson->ttl     = $request->input('ttl') ?: $lesson->ttl;
