@@ -11,6 +11,27 @@ use Validator;
 
 class LessonSchoolController extends Controller {
 
+
+    /**
+     * @param  授权课程ID
+     * @param  school_id
+     * @param  author  孙晓丽
+     * @param  ctime   2020/6/2 
+     * @return  array
+     */
+    public function lessonIdList(Request $request){
+        $validator = Validator::make($request->all(), [
+            'school_id' => 'required',
+        ]);
+        if ($validator->fails()) {
+            return $this->response($validator->errors()->first(), 202);
+        }
+        $school_id = $request->input('school_id');
+        $lessonIds = LessonSchool::where('school_id', $school_id)
+                ->pluck('lesson_id');
+        return $this->response($lessonIds);
+    }
+
     /**
      * @param  分校授权课程列表
      * @param  current_count   count

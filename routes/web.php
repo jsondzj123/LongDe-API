@@ -165,6 +165,7 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin' , 'middleware'=> ['
     $router->post('lessonSchoolShow', 'LessonSchoolController@show');
     $router->post('updateLessonSchool', 'LessonSchoolController@update');
     $router->post('deleteLessonSchool', 'LessonSchoolController@destroy');
+    $router->post('lessonIdList', 'LessonSchoolController@lessonIdList');
 
 
     /*
