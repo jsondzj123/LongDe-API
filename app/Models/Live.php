@@ -40,5 +40,9 @@ class Live extends Model {
     public function lessons() {
         return $this->belongsToMany('App\Models\Lesson', 'ld_lesson_lives');
     }
+
+    public function subjects() {
+        return $this->belongsToMany('App\Models\Subject', 'ld_subject_videos');
+    }
 }
 

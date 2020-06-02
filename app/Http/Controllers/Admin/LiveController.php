@@ -106,15 +106,17 @@ class LiveController extends Controller {
         if ($validator->fails()) {
             return $this->response($validator->errors()->first(), 202);
         }
+        $subjectIds = json_decode($request->input('subject_id'), true);
         $user = CurrentAdmin::user();
         try {
-            Live::create([
-                'admin_id' => intval($user->id),
-                'subject_id' => $request->input('subject_id'),
-                'name' => $request->input('name'),
-                'description' => $request->input('description'),
-            ]);
-
+            $live = Live::create([
+                        'admin_id' => intval($user->id),
+                        'name' => $request->input('name'),
+                        'description' => $request->input('description'),
+                    ]);
+            if(!empty($subjectIds)){
+                $live->subjects()->attach($subjectIds);
+            }
         } catch (Exception $e) {
             Log::error('创建失败:'.$e->getMessage());
             return $this->response($e->getMessage(), 500);
