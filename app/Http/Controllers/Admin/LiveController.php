@@ -58,7 +58,7 @@ class LiveController extends Controller {
         if ($validator->fails()) {
             return $this->response($validator->errors()->first(), 202);
         }
-        $live = Live::with('subject')->findOrFail($request->input('id'));
+        $live = Live::with('subjects')->findOrFail($request->input('id'));
         return $this->response($live);
     }
 
@@ -168,13 +168,16 @@ class LiveController extends Controller {
         if ($validator->fails()) {
             return $this->response($validator->errors()->first(), 202);
         }
-        $user = CurrentAdmin::user();
-        $live = Live::findOrFail($request->input('id'));
-        $live->subject_id = $request->input('subject_id') ?: $live->subject_id;
-        $live->name = $request->input('name') ?: $live->name;
-        $live->description = $request->input('description') ?: $live->description;
+        $subjectIds = json_decode($request->input('subject_id'), true);
         try {
+            $live = Live::findOrFail($request->input('id'));
+            $live->name = $request->input('name') ?: $live->name;
+            $live->description = $request->input('description') ?: $live->description;
             $live->save();
+            if(!empty($subjectIds)){
+                $live->subjects()->detach(); 
+                $live->subjects()->attach($subjectIds); 
+            }
             return $this->response("修改成功");
         } catch (Exception $e) {
             Log::error('修改课程信息失败' . $e->getMessage());

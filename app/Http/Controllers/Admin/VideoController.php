@@ -108,14 +108,18 @@ class VideoController extends Controller {
         if ($validator->fails()) {
             return $this->response($validator->errors()->first(), 202);
         }
+        $subjectIds = json_decode($request->input('subject_id'), true);
         try {
             $video = Video::findOrFail($request->input('id'));
             $video->name = $request->input('name') ?: $video->name;
-            $video->subject_id = $request->input('subject_id') ?: $video->subject_id;
             $video->category = $request->input('category') ?: $video->category;
             $video->url = $request->input('url') ?: $video->url;
             $video->size = $request->input('size') ?: $video->size;
             $video->save();
+            if(!empty($subjectIds)){
+                $video->subjects()->detach(); 
+                $video->subjects()->attach($subjectIds); 
+            }
         } catch (Exception $e) {
             Log::error('修改失败' . $e->getMessage());
             return $this->response("修改成功");

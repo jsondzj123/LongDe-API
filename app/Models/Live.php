@@ -25,10 +25,6 @@ class Live extends Model {
 
     protected $appends = ['is_use'];
 
-    public function subject() {
-        return $this->belongsTo('App\Models\Subject');
-    }
-
     public function getIsUseAttribute($value) {
         $num = LessonLive::where('live_id', $this->id)->count();
         if($num > 0){
