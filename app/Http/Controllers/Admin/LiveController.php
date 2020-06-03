@@ -32,9 +32,6 @@ class LiveController extends Controller {
         $live = Live::with(['subjects' => function ($query) {
                 $query->select('id', 'name', 'pid');
             }])
-            ->with(['admin' => function ($query) {
-                $query->select('id', 'username');
-            }])
             ->where(['is_del'=> 0, 'is_forbid' => 0])
             ->orderBy('created_at', 'desc')
             ->skip($offset)->take($pagesize)
@@ -228,7 +225,7 @@ class LiveController extends Controller {
             return $this->response($validator->errors()->first(), 202);
         }
         $live = Live::findOrFail($request->input('id'));
-        $live->id_del = 1;
+        $live->is_del = 1;
         if (!$live->save()) {
             return $this->response("删除失败", 500);
         }

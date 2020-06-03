@@ -166,10 +166,10 @@ class VideoController extends Controller {
             return $this->response($validator->errors()->first(), 202);
         }
         $video = Video::findOrFail($request->input('id'));
-        if($video->id_del == 1){
+        if($video->is_del == 1){
             return $this->response("已经删除", 404);
         }
-        $video->id_del = 1;
+        $video->is_del = 1;
         if (!$video->save()) {
             return $this->response("删除失败", 500);
         }
