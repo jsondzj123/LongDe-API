@@ -16,14 +16,16 @@ class Live extends Model {
     ];
 
     protected $hidden = [
-        'subject_id',
         'created_at',
         'updated_at',
-        'is_del',
-        'is_forbid'
     ];
 
-    protected $appends = ['is_use'];
+    protected $appends = ['is_use', 'admin', 'subject_id'];
+
+    public function getSubjectIdAttribute($value)
+    {
+        return $this->belongsToMany('App\Models\Subject', 'ld_subject_lives')->pluck('id');
+    }
 
     public function getIsUseAttribute($value) {
         $num = LessonLive::where('live_id', $this->id)->count();
@@ -33,8 +35,8 @@ class Live extends Model {
         return  0;
     }
 
-    public function admin() {
-        return $this->belongsTo('App\Models\Admin', 'admin_id');
+    public function getAdminAttribute($value) {
+        return Admin::find($this->admin_id)->username;
     }
 
     public function lessons() {
