@@ -43,7 +43,13 @@ class Lesson extends Model {
         'teacher_id',
         'subject_id',
         'sold_num',
+        'stock_num'
     ];
+
+    public function getStockNumAttribute($value)
+    {
+        return (int)LessonStock::where(['lesson_id' => $this->id])->sum('add_number');
+    }
 
     public function getSoldNumAttribute($value)
     {
