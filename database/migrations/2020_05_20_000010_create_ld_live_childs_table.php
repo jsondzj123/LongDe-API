@@ -38,15 +38,15 @@ class CreateLdLiveChildsTable extends Migration
             $table->integer('like_num')->default(0)->comment('点赞人数');
             $table->integer('online_num')->default(0)->comment('在线人数');
                 
-            $table->integer('is_free')->default(0)->comment('是否收费：0否1是');
-            $table->integer('is_public')->default(0)->comment('是否公开课：0否1是');
-            $table->integer('modetype')->default(0)->comment('模式：1语音云3大班5小班6大班互动');
-            $table->integer('barrage')->default(0)->comment('是否开启弹幕：0关闭1开启');
+            $table->tinyInteger('is_free')->default(0)->comment('是否收费：0否1是');
+            $table->tinyInteger('is_public')->default(0)->comment('是否公开课：0否1是');
+            $table->tinyInteger('modetype')->default(0)->comment('模式：1语音云3大班5小班6大班互动');
+            $table->tinyInteger('barrage')->default(0)->comment('是否开启弹幕：0关闭1开启');
             $table->string('robot')->nullable()->comment('虚拟用户数据');
 
-            $table->integer('status')->default(0)->comment('直播状态');
-            $table->integer('is_del')->default(0)->comment('是否删除：0否1是');
-            $table->integer('is_forbid')->default(0)->comment('是否禁用：0否1是');
+            $table->tinyInteger('status')->default(0)->comment('直播状态');
+            $table->tinyInteger('is_del')->default(0)->comment('是否删除：0否1是');
+            $table->tinyInteger('is_forbid')->default(0)->comment('是否禁用：0否1是');
             $table->timestamps();
         });
     }
