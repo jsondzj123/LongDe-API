@@ -20,9 +20,5 @@ class LessonVideo extends Model {
         'is_del',
         'is_forbid'
     ];
-
-    public function videos() {
-        return $this->belongsToMany('App\Models\Video', 'lesson_videos');
-    }
 }
 
