@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\LessonSchool;
 use App\Models\Lesson;
+use App\Models\Admin;
 use Illuminate\Http\Request;
 use App\Tools\CurrentAdmin;
 use DB;
@@ -103,16 +104,19 @@ class LessonSchoolController extends Controller {
         if ($validator->fails()) {
             return $this->response($validator->errors()->first(), 202);
         }
+        //分校管理员列表
+        $schoolAdminIds = Admin::where('school_id', $request->input('school_id'))->pluck('id');
         $user = CurrentAdmin::user();
-        // $lessonIds = json_decode($request->input('lesson_id'), true);
-        // $userIds = Lesson::whereIn('id', $lessonIds)->pluck('admin_id');
-
-        // $flipped_haystack = array_flip($userIds->toArray());
-
-        // if ( isset($flipped_haystack[$user->id]) )
-        // {
-        //     return $this->response('自增课程无法再次授权', 202);
-        // }
+        $lessonIds = json_decode($request->input('lesson_id'), true);
+        //课程创建管理员
+        $userIds = Lesson::whereIn('id', $lessonIds)->distinct()->pluck('admin_id');
+        foreach ($userIds as $key => $value) {
+            $flipped_haystack = array_flip($schoolAdminIds->toArray());
+            if(isset($flipped_haystack[$value]))
+            {
+                return $this->response('自增课程无法再次授权', 202);
+            }
+        }
         try {
                 foreach ($lessonIds as $value) {
                     LessonSchool::create([
