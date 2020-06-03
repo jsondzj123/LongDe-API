@@ -24,8 +24,8 @@ class CreateLdLessonSchoolsTable extends Migration
             $table->text('description')->nullable()->comment('描述');
             $table->text('introduction')->nullable()->comment('简介');
             $table->string('url')->nullable()->comment('课程资料');
-            $table->decimal('price', 12, 2)->comment('定价');
-            $table->decimal('favorable_price', 12, 2)->comment('优惠价');
+            $table->decimal('price', 12, 2)->default(0)->comment('定价');
+            $table->decimal('favorable_price', 12, 2)->default(0)->comment('优惠价');
             $table->tinyInteger('is_public')->default(0)->comment('是否公开:0否1是');
             $table->tinyInteger('status')->default(0)->comment('课程状态:0未上架1已上架');
             $table->tinyInteger('is_del')->default(0)->comment('是否删除：0否1是');
