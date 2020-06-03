@@ -91,7 +91,7 @@ class LessonChildController extends Controller {
             'pid'       => 'required',
             'is_free'   => 'required_unless:pid,0',
             'category'  => 'required_unless:pid,0',
-            'url'       => 'required_unless:pid,0|json',
+            'url'       => 'required_unless:pid,0',
             'size'      => 'required_unless:pid,0',
             'video_id'  => 'json'
         ]);
