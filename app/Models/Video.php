@@ -22,10 +22,16 @@ class Video extends Model {
      * @var array
      */
     protected $hidden = [
-        'created_at',
         'updated_at'
     ];
 
+
+    protected $appends = ['subject_id'];
+
+    public function getSubjectIdAttribute($value)
+    {
+        return $this->belongsToMany('App\Models\Subject', 'ld_subject_videos')->pluck('id');
+    }
 
     public function subjects() {
         return $this->belongsToMany('App\Models\Subject', 'ld_subject_videos')->withTimestamps();

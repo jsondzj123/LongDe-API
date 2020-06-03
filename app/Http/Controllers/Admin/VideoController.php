@@ -21,15 +21,11 @@ class VideoController extends Controller {
         $pagesize = $request->input('pagesize') ?: 15;
         $page     = $request->input('page') ?: 1;
         $offset   = ($page - 1) * $pagesize;
-        $total = Video::where('is_del', 0)->count();
-        $video = Video::with('subject')
-            ->where('is_del', 0)
-            ->orderBy('id', 'desc')
+        $total = Video::where(['is_del'=> 0, 'is_forbid' => 0])->count();
+        $video = Video::where(['is_del'=> 0, 'is_forbid' => 0])
+            ->orderBy('created_at', 'desc')
             ->skip($offset)->take($pagesize)
             ->get();
-        foreach ($video as $value) {
-            $value->subject->parent = Subject::find($value->subject->pid);
-        }
         $data = [
             'page_data' => $video,
             'total' => $total,
