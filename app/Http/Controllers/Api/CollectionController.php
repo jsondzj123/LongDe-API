@@ -37,11 +37,15 @@ class CollectionController extends Controller {
         if ($validator->fails()) {
             return $this->response($validator->errors()->first(), 202);
         }
+        $student = Student::find(self::$accept_data['user_info']['user_id']);
+        $lessonIds = $student->collectionLessons()->pluck('lesson_id');
+        $flipped_haystack = array_flip($lessonIds->toArray());
+        if ( isset($flipped_haystack[$request->input('lesson_id')]) )
+        {
+            return $this->response('已经收藏', 202);
+        }
         try {
-            Collection::create([
-                'student_id' => intval(self::$accept_data['user_info']['user_id']),
-                'lesson_id' => $request->input('lesson_id'),
-            ]);
+            $student->collectionLessons()->attach($request->input('lesson_id'));
         } catch (Exception $e) {
             Log::error('收藏失败:'.$e->getMessage());
             return $this->response($e->getMessage(), 500);
@@ -63,8 +67,14 @@ class CollectionController extends Controller {
         if ($validator->fails()) {
             return $this->response($validator->errors()->first(), 202);
         }
+        $student = Student::find(self::$accept_data['user_info']['user_id']);
+        $lessonIds = $student->collectionLessons()->pluck('lesson_id');
+        $flipped_haystack = array_flip($lessonIds->toArray());
+        if (!isset($flipped_haystack[$request->input('lesson_id')]) )
+        {
+            return $this->response('已经取消', 202);
+        }
         try {
-            $student = Student::find(self::$accept_data['user_info']['user_id']);
             $student->collectionLessons()->detach($request->input('lesson_id'));
         } catch (Exception $e) {
             Log::error('取消失败:'.$e->getMessage());
