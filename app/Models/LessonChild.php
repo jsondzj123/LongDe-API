@@ -42,5 +42,10 @@ class LessonChild extends Model {
     public function videos() {
         return $this->belongsToMany('App\Models\Video', 'ld_lesson_videos', 'child_id');
     }
+
+    public function lives() {
+
+        return $this->belongsToMany('App\Models\Live', 'ld_live_class_childs', 'lesson_child_id', 'live_child_id');
+    }
 }
 
