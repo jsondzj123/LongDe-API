@@ -13,7 +13,7 @@ class Student extends Model {
     public $timestamps = false;
 
     public function collectionLessons() {
-        return $this->belongsToMany('App\Models\Lesson', 'ld_collections');
+        return $this->belongsToMany('App\Models\Lesson', 'ld_collections')->withTimestamps();
     }
     
     /*

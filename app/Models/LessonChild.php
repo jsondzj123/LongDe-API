@@ -18,7 +18,6 @@ class LessonChild extends Model {
         'description',
         'category', 
         'url',
-        'size',
         'is_free'
     ];
 
@@ -26,22 +25,20 @@ class LessonChild extends Model {
         'created_at',
         'updated_at',
         'is_del',
-        'is_forbid'
+        'is_forbid',
+        'size',
+        'start_at',
+        'end_at'
     ];
 
     public function getUrlAttribute($value) {
         if ($value) {
             $photos = json_decode($value, true);
-            foreach ($photos as $k => $v) {
-                if (!empty($v) && strpos($v, 'http://') === false && strpos($v, 'https://') === false) {
-                    $photos[$k] = $v;
-                }
-            }
             return $photos;
         }
         return $value;
     }
-    
+        
     public function videos() {
         return $this->belongsToMany('App\Models\Video', 'ld_lesson_videos', 'child_id');
     }
