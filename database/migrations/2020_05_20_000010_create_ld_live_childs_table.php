@@ -26,27 +26,27 @@ class CreateLdLiveChildsTable extends Migration
             $table->string('options')->nullable()->comment('其它可选参数');
             $table->string('url')->nullable()->comment('资源地址');
             
-            $table->integer('partner_id')->nullable()->comment('课程ID');
-            $table->integer('bid')->nullable()->comment('课程ID');
-            $table->integer('course_id')->nullable()->comment('课程ID');
-            $table->string('zhubo_key')->nullable()->comment('观看地址');
-            $table->string('admin_key')->nullable()->comment('推流地址');
-            $table->string('user_key')->nullable()->comment('回放地址');
+            $table->integer('partner_id')->default(0)->comment('合作方ID');
+            $table->integer('bid')->default(0)->comment('欢拓系统的主播ID');
+            $table->integer('course_id')->default(0)->comment('课程ID');
+            $table->string('zhubo_key')->nullable()->comment('主播登录秘钥');
+            $table->string('admin_key')->nullable()->comment('助教登录秘钥');
+            $table->string('user_key')->nullable()->comment('学生登录秘钥');
             $table->integer('add_time')->nullable()->comment('课程创建时间');
 
-            $table->integer('watch_num')->nullable()->default(0)->comment('观看人数');
-            $table->integer('like_num')->nullable()->default(0)->comment('点赞人数');
-            $table->integer('online_num')->nullable()->default(0)->comment('在线人数');
+            $table->integer('watch_num')->default(0)->comment('观看人数');
+            $table->integer('like_num')->default(0)->comment('点赞人数');
+            $table->integer('online_num')->default(0)->comment('在线人数');
                 
-            $table->integer('is_free')->nullable()->default(0)->comment('是否收费：0否1是');
-            $table->integer('isPublic')->nullable()->default(0)->comment('是否公开课：0否1是');
-            $table->integer('modetype')->nullable()->default(0)->comment('模式：1语音云3大班5小班6大班互动');
-            $table->integer('barrage')->nullable()->default(0)->comment('是否开启弹幕：0关闭1开启');
+            $table->integer('is_free')->default(0)->comment('是否收费：0否1是');
+            $table->integer('is_public')->default(0)->comment('是否公开课：0否1是');
+            $table->integer('modetype')->default(0)->comment('模式：1语音云3大班5小班6大班互动');
+            $table->integer('barrage')->default(0)->comment('是否开启弹幕：0关闭1开启');
             $table->string('robot')->nullable()->comment('虚拟用户数据');
 
-            $table->integer('status')->nullable()->default(0)->comment('直播状态');
-            $table->integer('is_del')->nullable()->default(0)->comment('是否删除：0否1是');
-            $table->integer('is_forbid')->nullable()->default(0)->comment('是否禁用：0否1是');
+            $table->integer('status')->default(0)->comment('直播状态');
+            $table->integer('is_del')->default(0)->comment('是否删除：0否1是');
+            $table->integer('is_forbid')->default(0)->comment('是否禁用：0否1是');
             $table->timestamps();
         });
     }
