@@ -79,7 +79,7 @@ class StatisticsController extends Controller {
                $count++;
            }
        }
-       if($data['type'] == 2){
+       if(!empty($data['type']) && $data['type'] == 2){
            //根据时间分组，查询出人数 ，时间列表
            $lists = Student::select(DB::raw("date_format(ld_student.create_at,'%Y-%m-%d') as time"),DB::raw('count(*) as num'))
                ->leftJoin('ld_school','ld_school.id','=','ld_student.school_id')
