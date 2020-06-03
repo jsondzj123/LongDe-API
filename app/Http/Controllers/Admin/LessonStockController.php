@@ -26,10 +26,13 @@ class LessonStockController extends Controller {
         $school_id = $request->input('school_id');
         $data =  LessonStock::where(['lesson_id' => $lesson_id, 'school_id' => $school_id]);
         $total = $data->count();
-        $stock = $data->orderBy('created_at', 'desc')->skip($offset)->take($pagesize)->get();
+        $stock = $data->select('current_number', 'add_number', 'created_at')->orderBy('created_at', 'desc')->skip($offset)->take($pagesize)->get();
+
         $data = [
             'page_data' => $stock,
             'total' => $total,
+            'current_stock_number' => 0,
+            'stock_number' => (int)$data->sum('add_number'),
         ];
         return $this->response($data);
     }
