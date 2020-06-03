@@ -22,11 +22,32 @@ class Video extends Model {
      * @var array
      */
     protected $hidden = [
+        'status',
         'updated_at'
     ];
 
 
-    protected $appends = ['subject_id'];
+    protected $appends = ['subject_id', 'subject_first_name', 'subject_second_name'];
+
+    public function getSubjectFirstNameAttribute($value) {
+        $subjects = $this->belongsToMany('App\Models\Subject', 'ld_subject_videos')->where('pid', 0)->first();
+        if(!empty($subjects)){
+            $name = $subjects['name'];
+        }else{
+            $name = '';
+        }
+        return $name;
+    }
+
+    public function getSubjectSecondNameAttribute($value) {
+        $subjects = $this->belongsToMany('App\Models\Subject', 'ld_subject_videos')->where('pid', '!=', 0)->first();
+        if(!empty($subjects)){
+            $name = $subjects['name'];
+        }else{
+            $name = '';
+        }
+        return $name;
+    }
 
     public function getSubjectIdAttribute($value)
     {
