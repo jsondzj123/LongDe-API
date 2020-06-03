@@ -3,6 +3,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\LessonSchool;
+use App\Models\School;
 use App\Models\Lesson;
 use App\Models\Admin;
 use Illuminate\Http\Request;
@@ -115,6 +116,14 @@ class LessonSchoolController extends Controller {
             if(isset($flipped_haystack[$value]))
             {
                 return $this->response('自增课程无法再次授权', 202);
+            }
+        }
+        $schoolLessonIds = School::find($request->input('school_id'))->lessons->pluck('id');
+        foreach ($lessonIds as $k => $val) {
+            $res = array_flip($schoolLessonIds->toArray());
+            if(isset($res[$val]))
+            {
+                return $this->response('已经授权', 202);
             }
         }
         try {

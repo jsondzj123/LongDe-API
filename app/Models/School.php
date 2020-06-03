@@ -14,6 +14,10 @@ class School extends Model {
     //时间戳设置
     public $timestamps = false;
 
+    public function lessons() {
+        return $this->belongsToMany('App\Models\Lesson', 'ld_lesson_schools', 'school_id');
+    }
+
     //错误信息
      public static function message()
     {
