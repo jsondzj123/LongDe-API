@@ -33,6 +33,7 @@ class LessonController extends Controller {
         $status = $request->input('status') ?: 0;
         $auth = (int)$request->input('auth') ?: 0;
         $public = (int)$request->input('public') ?: 0;
+        $keyWord = $request->input('keyword') ?: 0;
         $user = CurrentAdmin::user();   
         $data =  Lesson::with('subjects', 'methods')->select('id', 'admin_id', 'title', 'cover', 'price', 'favorable_price', 'buy_num', 'status', 'is_del', 'is_forbid')
                 ->where(['is_del' => 0, 'is_forbid' => 0])
@@ -54,6 +55,11 @@ class LessonController extends Controller {
                         $query->whereIn("status", [1, 2, 3]);
                     }else{
                         $query->where("status", $status);
+                    }
+                })
+                ->where(function($query) use ($keyWord){
+                    if(!empty($keyWord)){
+                        $query->where('title', 'like', '%'.$keyWord.'%');
                     }
                 });
         $lessons = [];
