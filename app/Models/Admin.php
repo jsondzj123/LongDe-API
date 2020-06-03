@@ -209,13 +209,13 @@ class Admin extends Model implements AuthenticatableContract, AuthorizableContra
         if($admin_count >0){
             $adminUserData =  self::leftjoin('ld_role_auth','ld_role_auth.id', '=', 'ld_admin.role_id')
                 ->where(function($query) use ($body,$school_id){
-                if(!empty($body['search'])){
-                    $query->where('ld_admin.realname','like','%'.$body['search'].'%')
-                        ->orWhere('ld_admin.username','like','%'.$body['search'].'%')
-                        ->orWhere('ld_admin.mobile','like','%'.$body['search'].'%');
-                }
                     $query->where('ld_admin.is_del',1);
                     $query->where('ld_admin.school_id',$school_id);
+                    if(!empty($body['search'])){
+                        $query->where('ld_admin.realname','like','%'.$body['search'].'%')
+                        ->orWhere('ld_admin.username','like','%'.$body['search'].'%')
+                        ->orWhere('ld_admin.mobile','like','%'.$body['search'].'%');
+                    }
                 })->select('ld_admin.id as adminid','ld_admin.username','ld_admin.realname','ld_admin.sex','ld_admin.mobile','ld_role_auth.role_name','ld_role_auth.auth_desc','ld_admin.is_forbid')->offset($offset)->limit($pagesize)->get();
                
         }
