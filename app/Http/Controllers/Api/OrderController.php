@@ -212,15 +212,6 @@ class OrderController extends Controller
                     }
                 }
             } else {
-                $sutdent_price = [
-                    'user_id' => $user_id,
-                    'order_number' => $order['order_number'],
-                    'price' => $lesson['favorable_price'],
-                    'pay_type' => $data['pay_type'],
-                    'order_type' => 2,
-                    'status' => 0
-                ];
-                StudentAccounts::insert($sutdent_price);
                 $return = $this->payStatus($order['order_number'], $data['pay_type'], $lesson['favorable_price'],$user_school_id,1);
                 return response()->json(['code' => 200, 'msg' => '生成预订单成功', 'data' => $return]);
             }
@@ -242,45 +233,49 @@ class OrderController extends Controller
     }
     //$type  1微信2支付宝3汇聚微信4汇聚支付宝
     //pay_type   1购买2充值
+    //$price 钱
+    //$school_id学校id
+    //$pay_type 1购买2充值
     public function payStatus($order_number, $type, $price,$school_id,$pay_type){
-        switch($type){
+        switch($type) {
             case "1":
                 //根据分校查询对应信息
                 $wxpay = new WxpayFactory();
-                return $return = $wxpay->getPrePayOrder($order_number, $price,$pay_type);
+                return $return = $wxpay->getPrePayOrder($order_number, $price, $pay_type);
             case "2":
                 $alipay = new AlipayFactory();
-                $return = $alipay->createAppPay($order_number, '龙德产品', 0.01,$pay_type);
+                $return = $alipay->createAppPay($order_number, '龙德产品', 0.01, $pay_type);
                 $alipay = [
                     'alipay' => $return
                 ];
                 return $alipay;
             case "3":
                 //根据分校查询对应信息
-                if($pay_type == 1){
-                    $notify = "http://".$_SERVER['HTTP_HOST']."/Api/notify/hjWxnotify";
-                }else{
-                    $notify = "http://".$_SERVER['HTTP_HOST']."/Api/notify/hjWxTopnotify";
+                if ($pay_type == 1) {
+                    $notify = "http://" . $_SERVER['HTTP_HOST'] . "/Api/notify/hjWxnotify";
+                } else {
+                    $notify = "http://" . $_SERVER['HTTP_HOST'] . "/Api/notify/hjWxTopnotify";
                 }
-                $arr=[
-                    'p0_Version'=>'1.0',
-                    'p1_MerchantNo'=>'888108900009969',
-                    'p2_OrderNo'=>$order_number,
-                    'p3_Amount'=>$price,
-                    'p4_Cur'=>1,
-                    'p5_ProductName'=>"龙德产品",
-                    'p9_NotifyUrl'=>$notify,
-                    'q1_FrpCode'=>'WEIXIN_APP',
-                    'q7_AppId'=>'',
-                    'qa_TradeMerchantNo'=>'777170100269422'
+                $arr = [
+                    'p0_Version' => '1.0',
+                    'p1_MerchantNo' => '888108900009969',
+                    'p2_OrderNo' => $order_number,
+                    'p3_Amount' => $price,
+                    'p4_Cur' => 1,
+                    'p5_ProductName' => "龙德产品",
+                    'p9_NotifyUrl' => $notify,
+                    'q1_FrpCode' => 'WEIXIN_APP',
+                    'q7_AppId' => '',
+                    'qa_TradeMerchantNo' => '777170100269422'
                 ];
                 $str = "15f8014fee1642fbb123fb5684cda48b";
-                $token = $this->hjHmac($arr,$str);
+                $token = $this->hjHmac($arr, $str);
                 $arr['hmac'] = $token;
-                if(strlen($token) ==32){
+                if (strlen($token) == 32) {
                     $aaa = $this->hjpost($arr);
                     print_r($aaa);die;
                 }
+                return $arr;
             case "4":
                 //根据分校查询对应信息
                 if($pay_type == 1){
@@ -308,7 +303,6 @@ class OrderController extends Controller
                 }
         }
     }
-
     //  苹果内购 充值余额 生成预订单
     public function iphonePayCreateOrder(){
         $data = self::$accept_data;
@@ -340,7 +334,6 @@ class OrderController extends Controller
             return response()->json(['code' => 201, 'msg' => '支付失败']);
         }
     }
-
     //汇聚签名
     public function hjHmac($arr,$str){
         $newarr = '';
