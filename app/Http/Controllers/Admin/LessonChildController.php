@@ -69,7 +69,7 @@ class LessonChildController extends Controller {
             return $this->response($validator->errors()->first(), 202);
         }
         $lesson = LessonChild::select('id', 'name', 'description')->find($request->input('id'));
-        $lesson['childs'] = LessonChild::select('id', 'name', 'category', 'description' ,'url', 'is_free')->where('pid', $id)->get();
+        $lesson['childs'] = LessonChild::select('id', 'name', 'category', 'description' ,'url', 'is_free')->where('pid', $request->input('id'))->get();
         if(empty($lesson)){
             return $this->response('课程不存在', 404);
         }
