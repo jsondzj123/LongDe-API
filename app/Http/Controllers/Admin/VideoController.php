@@ -48,7 +48,7 @@ class VideoController extends Controller {
         if ($validator->fails()) {
             return $this->response($validator->errors()->first(), 202);
         }
-        $video = Video::with('subject')->findOrFail($request->input('id'));
+        $video = Video::with('subjects')->findOrFail($request->input('id'));
         return $this->response($video);
     }
 
