@@ -22,8 +22,6 @@ class Video extends Model {
      * @var array
      */
     protected $hidden = [
-        'is_del',
-        'is_forbid' ,
         'created_at',
         'updated_at'
     ];
