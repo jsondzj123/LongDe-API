@@ -35,30 +35,23 @@ class LessonStockController extends Controller {
     }
 
     /**
-     * 授权课程.
+     * 授权课程添加库存.
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'lesson_id' => 'required',
-            'school_pid' => 'required',
+            'lesson_id' => 'required|integer',
             'school_id' => 'required',
-            'type' => 'required',
-            'add_number' => 'required_if:type,2',
+            'add_number' => 'required',
+            'current_number' => 'required',
 
         ]);
         if ($validator->fails()) {
             return $this->response($validator->errors()->first(), 202);
         }
         $data = $request->all();
-        if($request->input('type') == 2){
-            $data['current_number'] = '10';
-        }else{
-            $data['current_number'] = '0';
-            $data['add_number'] = '0';
-        }
         try {
             $this->create($data);
         } catch (Exception $e) {
@@ -73,9 +66,9 @@ class LessonStockController extends Controller {
     {
         $user = CurrentAdmin::user();
         return LessonStock::create([
-            'admin_id' => intval($user->id),
+            'admin_id' => $user->id,
             'lesson_id' => $data['lesson_id'],
-            'school_pid' =>$data['school_pid'],
+            'school_pid' =>$user->school_id,
             'school_id' => $data['school_id'],
             'current_number' => $data['current_number'],
             'add_number' => $data['add_number'],
