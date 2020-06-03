@@ -16,6 +16,7 @@ class Live extends Model {
     ];
 
     protected $hidden = [
+        'subject_id',
         'created_at',
         'updated_at',
         'is_del',
@@ -30,6 +31,10 @@ class Live extends Model {
             return 1;
         }
         return  0;
+    }
+
+    public function admin() {
+        return $this->belongsTo('App\Models\Admin', 'admin_id');
     }
 
     public function lessons() {
