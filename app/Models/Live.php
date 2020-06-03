@@ -17,6 +17,7 @@ class Live extends Model {
 
     protected $hidden = [
         'updated_at',
+        'pivot'
     ];
 
     protected $appends = ['is_use', 'admin', 'subject_first_name', 'subject_second_name'];
@@ -64,6 +65,10 @@ class Live extends Model {
 
     public function subjects() {
         return $this->belongsToMany('App\Models\Subject', 'ld_subject_lives')->withTimestamps();
+    }
+
+    public function childs() {
+        return $this->hasMany('App\Models\LiveChild', 'live_id');
     }
 }
 

@@ -23,7 +23,8 @@ class Video extends Model {
      */
     protected $hidden = [
         'status',
-        'updated_at'
+        'updated_at',
+        'pivot'
     ];
 
 
