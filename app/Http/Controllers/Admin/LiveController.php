@@ -32,6 +32,9 @@ class LiveController extends Controller {
         $live = Live::with(['subjects' => function ($query) {
                 $query->select('id', 'name', 'pid');
             }])
+            ->with(['admin' => function ($query) {
+                $query->select('id', 'username');
+            }])
             ->where(['is_del'=> 0, 'is_forbid' => 0])
             ->orderBy('created_at', 'desc')
             ->skip($offset)->take($pagesize)
