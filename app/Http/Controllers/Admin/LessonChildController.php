@@ -91,13 +91,12 @@ class LessonChildController extends Controller {
             'pid'       => 'required',
             'is_free'   => 'required_unless:pid,0',
             'category'  => 'required_unless:pid,0',
-            'url'       => 'required_unless:pid,0',
-            'size'      => 'required_unless:pid,0',
+            'url'       => 'json',
         ]);
         if ($validator->fails()) {
             return $this->response($validator->errors()->first(), 202);
         }
-        $videoIds = json_decode($request->input('video_id'), true);
+        $videoIds = $request->input('video_id'); 
         $user = CurrentAdmin::user();
         try {
             $lesson = LessonChild::create([
@@ -107,9 +106,9 @@ class LessonChildController extends Controller {
                     'pid'       => $request->input('pid'),
                     'category'  => $request->input('category') ?: 0, 
                     'url'       => $request->input('url'),
-                    'size'      => $request->input('size') ?: 0,
                     'is_free'   => $request->input('is_free') ?: 0,
                 ]);
+
             if(!empty($videoIds)){
                 $lesson->videos()->attach($videoIds); 
             }
@@ -136,7 +135,7 @@ class LessonChildController extends Controller {
         if ($validator->fails()) {
             return $this->response($validator->errors()->first(), 202);
         }
-        $videoIds = json_decode($request->input('video_id'), true);
+        $videoIds = $request->input('video_id');
         try {
             $lesson = LessonChild::findOrFail($request->input('id'));
             $lesson->lesson_id = $request->input('lesson_id') ?: $lesson->lesson_id;
@@ -144,7 +143,6 @@ class LessonChildController extends Controller {
             $lesson->pid = $request->input('pid') ?: $lesson->pid;
             $lesson->category = $request->input('category') ?: $lesson->category;
             $lesson->url = $request->input('url') ?: $lesson->url;
-            $lesson->size = $request->input('size') ?: $lesson->size;
             $lesson->is_free = $request->input('is_free') ?: $lesson->is_free;
             $lesson->save();
             if(!empty($videoIds)){
