@@ -29,10 +29,7 @@ class LiveController extends Controller {
         $page     = $request->input('page') ?: 1;
         $offset   = ($page - 1) * $pagesize;
         $total = Live::where(['is_del'=> 0, 'is_forbid' => 0])->count();
-        $live = Live::with(['subjects' => function ($query) {
-                $query->select('id', 'name', 'pid');
-            }])
-            ->where(['is_del'=> 0, 'is_forbid' => 0])
+        $live = Live::where(['is_del'=> 0, 'is_forbid' => 0])
             ->orderBy('created_at', 'desc')
             ->skip($offset)->take($pagesize)
             ->get();
