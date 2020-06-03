@@ -93,7 +93,6 @@ class LessonChildController extends Controller {
             'category'  => 'required_unless:pid,0',
             'url'       => 'required_unless:pid,0',
             'size'      => 'required_unless:pid,0',
-            'video_id'  => 'json'
         ]);
         if ($validator->fails()) {
             return $this->response($validator->errors()->first(), 202);
