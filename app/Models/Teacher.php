@@ -18,6 +18,10 @@ class Teacher extends Model {
         'teacher_header_pic',
         'subject_id'
     ];
+
+    protected $hidden = [
+        'pivot'
+    ];
     
     protected $appends = ['checked'];
 

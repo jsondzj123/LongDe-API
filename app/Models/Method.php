@@ -18,7 +18,8 @@ class Method extends Model {
         'created_at',
         'updated_at',
         'is_del',
-        'is_forbid'
+        'is_forbid',
+        'pivot'
     ];
 
     protected $casts = [
