@@ -175,9 +175,6 @@ class Order extends Model {
             }
             //根据用户id查询信息
             $student = Student::select('school_id','balance')->where('id',$arr['student_id'])->first()->toArray();
-            $payList = PaySet::where(['school_id'=>$student['school_id']])->first();
-            print_r($payList);
-            print_r($student);die;
             //判断课程id
             if(!isset($arr['class_id']) || empty($arr['class_id'])){
                 return ['code' => 201 , 'msg' => '课程id为空或格式不对'];
@@ -200,13 +197,32 @@ class Order extends Model {
             if(empty($lesson['favorable_price']) || empty($lesson['price'])){
                 return ['code' => 204 , 'msg' => '此课程信息有误选择无效'];
             }
+
+            //根据分校查询支付方式
+            $payList = PaySet::where(['school_id'=>$student['school_id']])->first();
+            if(empty($payList)) {
+                $payList = PaySet::where(['school_id' => 1])->first();
+            }
+            $newpay=[];
+            if($payList['wx_pay_state'] == 1){
+                array_push($newpay,1);
+            }
+            if($payList['zfb_pay_state'] == 1){
+                array_push($newpay,2);
+            }
+            if($payList['hj_wx_pay_state'] == 1){
+                array_push($newpay,3);
+            }
+            if($payList['hj_zfb_pay_state'] == 1){
+                array_push($newpay,4);
+            }
             //查询用户有此类订单没有，有的话直接返回
             $orderfind = self::where(['student_id'=>$arr['student_id'],'class_id'=>$arr['class_id'],'status'=>0])->first();
             if($orderfind){
                 $lesson['order_id'] = $orderfind['id'];
                 $lesson['order_number'] = $orderfind['order_number'];
                 $lesson['user_balance'] = $student['balance'];
-                return ['code' => 200 , 'msg' => '生成预订单成功1','data'=>$lesson];
+                return ['code' => 200 , 'msg' => '生成预订单成功1','data'=>$lesson,'paylist'=>$newpay];
             }
             //数据入库，生成订单
             $data['order_number'] = date('YmdHis', time()) . rand(1111, 9999);
@@ -226,24 +242,6 @@ class Order extends Model {
                 $lesson['order_id'] = $add;
                 $lesson['order_number'] = $data['order_number'];
                 $lesson['user_balance'] = $student['balance'];
-                //根据分校查询支付方式
-
-                if(empty($payList)) {
-                    $payList = PaySet::where(['school_id' => 1])->first();
-                }
-                $newpay=[];
-                if($payList['wx_pay_state'] == 1){
-                    $newpay=array_push($newpay,'1');
-                }
-                if($payList['zfb_pay_state'] == 1){
-                    $newpay=array_push($newpay,'2');
-                }
-                if($payList['hj_wx_pay_state'] == 1){
-                    $newpay=array_push($newpay,'3');
-                }
-                if($payList['hj_zfb_pay_state'] == 1){
-                    $newpay=array_push($newpay,'4');
-                }
                 DB::commit();
                 return ['code' => 200 , 'msg' => '生成预订单成功','data'=>$lesson,'paylist'=>$newpay];
             }else{
