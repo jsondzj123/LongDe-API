@@ -92,6 +92,7 @@ class LessonChildController extends Controller {
             'is_free'   => 'required_unless:pid,0',
             'category'  => 'required_unless:pid,0',
             'url'       => 'json',
+            'video_id'  => 'integer'
         ]);
         if ($validator->fails()) {
             return $this->response($validator->errors()->first(), 202);
@@ -131,6 +132,8 @@ class LessonChildController extends Controller {
     public function update(Request $request) {
         $validator = Validator::make($request->all(), [
             'id'        => 'required',
+            'url'       => 'json',
+            'video_id'  => 'integer'
         ]);
         if ($validator->fails()) {
             return $this->response($validator->errors()->first(), 202);
