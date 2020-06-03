@@ -3,8 +3,9 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\LessonChild;
+use App\Models\LessonVideo;
+use App\Models\Video;
 use Illuminate\Http\Request;
-use DB;
 use Validator;
 
 class LessonChildController extends Controller {
@@ -26,11 +27,15 @@ class LessonChildController extends Controller {
         }
         $lesson_id = $request->input('lesson_id') ?: 0;
         $pid = $request->input('pid') ?: 0;
-        $lessons =  LessonChild::where(['is_del'=> 0, 'is_forbid' => 0, 'pid' => $pid])
+        $lessons =  LessonChild::select('id', 'name', 'description', 'pid')->where(['is_del'=> 0, 'is_forbid' => 0, 'pid' => $pid])
                 ->orderBy('created_at', 'desc')->get();
         if($pid == 0){
             foreach ($lessons as $key => $value) {
-                $value['childs'] = LessonChild::where('pid', $value->id)->get();
+                
+                $childs = LessonChild::with('videos')->with(['lives' => function ($query) {
+                            $query->with('childs');
+                        }])->where('pid', $value->id)->get();
+                $value['childs'] = $childs;
             }
         }
         return $this->response($lessons);
@@ -51,7 +56,9 @@ class LessonChildController extends Controller {
         if ($validator->fails()) {
             return $this->response($validator->errors()->first(), 202);
         }
-        $lesson = LessonChild::find($request->input('id'));
+        $lesson = LessonChild::with(['lives' => function ($query) {
+                $query->with('childs');
+            }])->find($request->input('id'));
         if(empty($lesson)){
             return $this->response('课程小节不存在', 404);
         }
