@@ -31,6 +31,11 @@ class LessonChild extends Model {
         'end_at'
     ];
 
+    protected $casts = [
+        'is_free' => 'string',
+        'category' => 'string'
+    ];
+
     public function getUrlAttribute($value) {
         if ($value) {
             $photos = json_decode($value, true);
