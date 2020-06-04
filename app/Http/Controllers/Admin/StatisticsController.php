@@ -192,7 +192,7 @@ class StatisticsController extends Controller {
            'mobile'=>$mobile,
            'count' => $count
        ];
-       return response()->json(['code'=>200,'msg'=>'获取成功','data'=>$studentList,'studentcount'=>$studentcount,'page'=>$page,'schoolList'=>$schoolList]);
+       return response()->json(['code'=>200,'msg'=>'获取成功','data'=>$studentList,'studentcount'=>$studentcount,'page'=>$page,'schoolList'=>$schoolList[0]]);
    }
    /*
         * @param  课时统计
