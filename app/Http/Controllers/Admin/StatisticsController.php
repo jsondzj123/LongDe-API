@@ -3,9 +3,11 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\AdminLog;
+use App\Models\Article;
 use App\Models\Lecturer;
 use App\Models\Lesson;
 use App\Models\LessonTeacher;
+use App\Models\School;
 use App\Models\Student;
 use App\Models\Subject;
 use App\Models\SubjectLesson;
@@ -35,6 +37,8 @@ class StatisticsController extends Controller {
        if($role_id !=1 ){
            $data['school_id'] = isset(AdminLog::getAdminInfo()->admin_user->school_id) ? AdminLog::getAdminInfo()->admin_user->school_id : 0;
        }
+       //网校列表
+       $schoolList = Article::schoolANDtype($role_id);
        //每页显示的条数
        $pagesize = (int)isset($data['pageSize']) && $data['pageSize'] > 0 ? $data['pageSize'] : 20;
        $page     = isset($data['page']) && $data['page'] > 0 ? $data['page'] : 1;
@@ -188,7 +192,7 @@ class StatisticsController extends Controller {
            'mobile'=>$mobile,
            'count' => $count
        ];
-       return response()->json(['code'=>200,'msg'=>'获取成功','data'=>$studentList,'studentcount'=>$studentcount,'page'=>$page]);
+       return response()->json(['code'=>200,'msg'=>'获取成功','data'=>$studentList,'studentcount'=>$studentcount,'page'=>$page,'schoolList'=>$schoolList[0]]);
    }
    /*
         * @param  课时统计
