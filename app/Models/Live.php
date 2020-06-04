@@ -22,6 +22,11 @@ class Live extends Model {
 
     protected $appends = ['is_use', 'admin', 'subject_id', 'subject_first_name', 'subject_second_name'];
 
+    protected $casts = [
+        'created_at' => 'datetime:Y-m-d H:i:s',
+        'updated_at' => 'datetime:Y-m-d H:i:s',
+    ];
+    
     public function getSubjectFirstNameAttribute($value) {
         $subjects = $this->belongsToMany('App\Models\Subject', 'ld_subject_lives')->where('pid', 0)->first();
         if(!empty($subjects)){
