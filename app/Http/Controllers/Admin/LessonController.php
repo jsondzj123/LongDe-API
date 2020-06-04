@@ -13,10 +13,70 @@ use App\Tools\MTCloud;
 use App\Models\LiveChild;
 use App\Models\LiveTeacher;
 use App\Models\Live;
-
+use App\Models\School;
 
 class LessonController extends Controller {
 
+
+
+    public function schoolLesson(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'school_id' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return $this->response($validator->errors()->first(), 202);
+        }
+        $pagesize = $request->input('pagesize') ?: 15;
+        $page     = $request->input('page') ?: 1;
+        $offset   = ($page - 1) * $pagesize;
+        $subject_id = $request->input('subject_id') ?: 0;
+        $method = $request->input('method') ?: 0;
+        //授权课程ID
+        $authLessonIds = LessonSchool::where('school_id', $request->input('school_id'))->pluck('lesson_id');
+        //自增课程ID
+        $adminIds = School::find($request->input('school_id'))->admins->pluck('id');
+        $lessonIds = Lesson::whereIn('admin_id', $adminIds)->pluck('id');
+        if(!empty($lessonIds) && !empty($authLessonIds)){
+            $resIda = array_merge($lessonIds->toArray(), $authLessonIds->toArray());
+        }
+        $data =  Lesson::with('subjects', 'methods')
+                ->whereIn('id', $resIda)
+                ->whereHas('subjects', function ($query) use ($subject_id)
+                    {
+                       if($subject_id != 0){
+                            $query->where('id', $subject_id);
+                        }
+                    })
+                ->whereHas('methods', function ($query) use ($method)
+                    {
+                        if($method != 0){
+                            $query->where('id', $method);
+                        }
+                    });
+        $lessons = [];
+        foreach ($data->get()->toArray() as $key=>$value) {
+            
+            $flipped_haystack = array_flip($authLessonIds->toArray());
+            if(isset($flipped_haystack[$value['id']]))
+            {
+                $value['is_auto'] = 1;
+            }else{
+                $value['is_auto'] = 0;
+            }
+            $lessons[] = $value;
+        }
+
+        $total = collect($lessons)->count();
+        $lesson = collect($lessons)->skip($offset)->take($pagesize);
+        $data = [
+            'page_data' => $lesson,
+            'total' => $total,
+        ];
+        return $this->response($data);
+        
+    }
     /**
      * @param  课程列表
      * @param  pagesize   count
