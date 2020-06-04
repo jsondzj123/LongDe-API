@@ -474,8 +474,7 @@ class IndexController extends Controller {
     public function getSubjectList() {
         //获取提交的参数
         try{
-            $subject = Subject::select('id', 'name')->where('pid', 0)->limit(6)->get();
-            //dd($subject);
+            $subject = Subject::select('id', 'name')->where(['is_del' => 0, 'is_forbid' => 0, 'pid' => 0])->limit(6)->get();
             return $this->response($subject);
         } catch (Exception $ex) {
             return response()->json(['code' => 500 , 'msg' => $ex->getMessage()]);
@@ -491,18 +490,23 @@ class IndexController extends Controller {
     public function getLessonList() {
         //获取提交的参数
         try{
-            $subject = Subject::select('id', 'name')->where('pid', 0)->limit(4)->get();
+            $subject = Subject::select('id', 'name')
+                        ->where(['is_del' => 0, 'is_forbid' => 0, 'pid' => 0])
+                        ->limit(4)
+                        ->get();
             $lessons = [];
             foreach ($subject as $key => $value) {
                 $lessons[$key]['subject'] = $value;
                 $lessons[$key]['lesson'] = Lesson::select('id', 'title', 'cover', 'buy_num', 'price as old_price', 'favorable_price')
+                                            ->where(['is_del' => 0, 'is_forbid' => 0, 'is_public' => 0])
                                             ->with(['subjects' => function ($query) {
                                                 $query->select('id', 'name');
                                             }])
                                             ->whereHas('subjects', function ($query) use ($value)
                                                 {
                                                     $query->where('id', $value->id);
-                                                })->get();
+                                                })
+                                            ->get();
             }
             return $this->response($lessons);
         } catch (Exception $ex) {
