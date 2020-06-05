@@ -18,12 +18,9 @@ class SubjectController extends Controller {
      * return  array
      */
     public function index(Request $request){
-        $pagesize = $request->input('pagesize') ?: 15;
-        $page     = $request->input('page') ?: 1;
-        $offset   = ($page - 1) * $pagesize;
         $data = Subject::where(['is_del'=> 0, 'pid' => 0]);
         $total = $data->count();
-        $subject = $data->skip($offset)->take($pagesize)->get();
+        $subject = $data->get();
         foreach ($subject as $value) {
             $value['childs'] = Subject::select('id', 'name', 'is_del', 'is_forbid')->where(['is_del'=> 0, 'pid' => $value->id])->get();
         }
