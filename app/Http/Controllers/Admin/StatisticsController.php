@@ -43,8 +43,6 @@ class StatisticsController extends Controller {
        $pagesize = (int)isset($data['pageSize']) && $data['pageSize'] > 0 ? $data['pageSize'] : 20;
        $page     = isset($data['page']) && $data['page'] > 0 ? $data['page'] : 1;
        $offset   = ($page - 1) * $pagesize;
-
-       $data['num'] = isset($data['num'])?$data['num']:20;
        $stime = (!empty($data['state_time']))?$data['state_time']:date('Y-m-d');
        $etime = ((!empty($data['end_time']))?$data['end_time']:date('Y-m-d'));
        $statetime = $stime." 00:00:00";

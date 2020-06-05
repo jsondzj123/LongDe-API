@@ -16,7 +16,7 @@ class IndexController extends Controller {
      * @param author    dzj
      * @param ctime     2020-05-25
      * return string
-     */ 
+     */
     public function getChartList() {
         //获取提交的参数
         try{
@@ -31,7 +31,7 @@ class IndexController extends Controller {
                         'lession_id'  => 1 ,
                         'lession_name'=> '课程名称1'
                     ]
-                ] , 
+                ] ,
                 [
                     'chart_id'     =>   2 ,
                     'title'        =>   '轮播图2' ,
@@ -60,14 +60,14 @@ class IndexController extends Controller {
             return response()->json(['code' => 500 , 'msg' => $ex->getMessage()]);
         }
     }
-    
+
     /*
      * @param  description   首页公开课接口
      * @param author    dzj
      * @param ctime     2020-05-25
      * return string
      */
-    public function getOpenClassList() { 
+    public function getOpenClassList() {
         //获取提交的参数
         try{
             /*$open_class_list = [
@@ -78,7 +78,7 @@ class IndexController extends Controller {
                     'start_date'        =>   '2020-05-25' ,
                     'start_time'        =>   '09:00' ,
                     'end_time'          =>   '12:00' ,
-                ] , 
+                ] ,
                 [
                     'open_class_id'     =>   2 ,
                     'cover'             =>   "https://dss0.bdstatic.com/70cFvHSh_Q1YnxGkpoWK1HF6hhy/it/u=3256100974,305075936&fm=26&gp=0.jpg" ,
@@ -98,7 +98,7 @@ class IndexController extends Controller {
             ];
             return response()->json(['code' => 200 , 'msg' => '获取公开课列表成功' , 'data' => $open_class_list]);*/
             //echo strtotime('2020-05-28 11:00:00').'-'.strtotime('2020-05-28 12:00:00');
-            
+
             //判断公开课列表是否为空
             $open_class_count = Lesson::where('is_public' , 1)->where('status' , 2)->where('is_del' , 0)->where('is_forbid' , 0)->where('is_recommend', 1)->count();
             if($open_class_count && $open_class_count > 0){
@@ -106,10 +106,10 @@ class IndexController extends Controller {
                 $open_class_list = Lesson::select('id' , 'cover' , 'start_at' , 'end_at')->where('is_public' , 1)
                         ->where('status' , 2)->where('is_del' , 0)->where('is_forbid' , 0)->where('is_recommend', 1)
                         ->orderBy('start_at' , 'ASC')->offset(0)->limit(3)->get()->toArray();
-                
+
                 //新数组赋值
                 $lession_array = [];
-                
+
                 //循环公开课列表
                 foreach($open_class_list as $k=>$v){
                     //根据课程id获取讲师姓名
@@ -118,7 +118,7 @@ class IndexController extends Controller {
                     })->leftJoin("ld_lecturer_educationa" , function($join){
                         $join->on('ld_live_teachers.teacher_id', '=', 'ld_lecturer_educationa.id')->where("ld_lecturer_educationa.type" , 2);
                     })->first();
-                    
+
                     //判断课程状态
                     if($v['end_at'] < time()){
                         $status = 3;
@@ -127,7 +127,7 @@ class IndexController extends Controller {
                     } else {
                         $status = 1;
                     }
-                    
+
                     //新数组赋值
                     $lession_array[] = [
                         'open_class_id'  =>  $v['id'] ,
@@ -147,7 +147,7 @@ class IndexController extends Controller {
             return response()->json(['code' => 500 , 'msg' => $ex->getMessage()]);
         }
     }
-    
+
     /*
      * @param  description   首页讲师接口
      * @param author    dzj
@@ -164,7 +164,7 @@ class IndexController extends Controller {
                     'head_icon'             =>   'https://dss0.bdstatic.com/70cFvHSh_Q1YnxGkpoWK1HF6hhy/it/u=3256100974,305075936&fm=26&gp=0.jpg' ,
                     'lession_parent_name'   =>   '大分类名称1' ,
                     'lession_child_name'    =>   '小分类名称1'
-                ] , 
+                ] ,
                 [
                     'teacher_id'            =>   2 ,
                     'real_name'             =>   "刘老师" ,
@@ -180,13 +180,13 @@ class IndexController extends Controller {
                     'lession_child_name'    =>   '小分类名称3'
                 ]
             ];*/
-            
+
             //判断讲师列表是否为空
             $teacher_count = Teacher::where("is_del" , 0)->where("is_forbid" , 0)->where("is_recommend" , 1)->where("type" , 2)->count();
             if($teacher_count && $teacher_count > 0){
                 //新数组赋值
                 $teacher_array = [];
-                
+
                 //获取讲师列表
                 $teacher_list  = Teacher::where("is_del" , 0)->where("is_forbid" , 0)->where("is_recommend" , 1)->where("type" , 2)->offset(0)->limit(6)->get()->toArray();
                 foreach($teacher_list as $k=>$v){
@@ -194,7 +194,7 @@ class IndexController extends Controller {
                     if($v['parent_id'] && $v['parent_id'] > 0){
                         $lession_parent_name = Subject::where("id" , $v['parent_id'])->where("status" , 1)->where("is_del" , 0)->where("is_forbid" , 0)->value("name");
                     }
-                    
+
                     //根据小分类的id获取小分类的名称
                     if($v['child_id'] && $v['child_id'] > 0){
                         $lession_child_name  = Subject::where("id" , $v['child_id'])->where("status" , 1)->where("is_del" , 0)->where("is_forbid" , 0)->value("name");
@@ -217,8 +217,8 @@ class IndexController extends Controller {
             return response()->json(['code' => 500 , 'msg' => $ex->getMessage()]);
         }
     }
-    
-    
+
+
     /*
      * @param  description   APP版本升级接口
      * @param author    dzj
@@ -240,7 +240,7 @@ class IndexController extends Controller {
                 ],
                 'download_url'      => "http://www.baidu.com"
             ];*/
-            
+
             //获取版本的最新更新信息
             $version_info = DB::table('ld_version')->select('is_online','is_mustup','version','content','download_url')->orderBy('create_at' , 'DESC')->first();
             $version_info->content = json_decode($version_info->content , true);
@@ -249,7 +249,7 @@ class IndexController extends Controller {
             return response()->json(['code' => 500 , 'msg' => $ex->getMessage()]);
         }
     }
-    
+
     /*
      * @param  description   公开课列表接口
      * @param author    dzj
@@ -348,19 +348,19 @@ class IndexController extends Controller {
                     array_multisort(array_column($tomorrow_class, 'open_class_date') , SORT_ASC , $tomorrow_class);
                 }
                 $arr =  array_merge(array_values($today_class) , array_values($tomorrow_class) , array_values($over_class));
-            } 
+            }
             return response()->json(['code' => 200 , 'msg' => '获取公开课列表成功' , 'data' => $arr]);
         } catch (Exception $ex) {
             return response()->json(['code' => 500 , 'msg' => $ex->getMessage()]);
         }
     }
-    
+
     /*
      * @param  description   名师列表接口
      * @param author    dzj
      * @param ctime     2020-06-02
      * return string
-     */ 
+     */
     public function getFamousTeacherList(){
         //获取提交的参数
         try{
@@ -372,7 +372,7 @@ class IndexController extends Controller {
                     'star_num'       =>   5 ,
                     'lesson_number'  =>   10 ,
                     'student_number' =>   20
-                ] , 
+                ] ,
                 [
                     'teacher_id'     =>   2 ,
                     'teacher_icon'   =>   'https://dss0.bdstatic.com/70cFvHSh_Q1YnxGkpoWK1HF6hhy/it/u=3256100974,305075936&fm=26&gp=0.jpg' ,
@@ -395,13 +395,13 @@ class IndexController extends Controller {
             return response()->json(['code' => 500 , 'msg' => $ex->getMessage()]);
         }
     }
-    
+
     /*
      * @param  description   名师详情接口
      * @param author    dzj
      * @param ctime     2020-06-02
      * return string
-     */ 
+     */
     public function getFamousTeacherInfo(){
         //获取提交的参数
         try{
@@ -410,10 +410,10 @@ class IndexController extends Controller {
             if(!$teacher_id || $teacher_id <= 0 || !is_numeric($teacher_id)){
                 return response()->json(['code' => 202 , 'msg' => '名师id不合法']);
             }
-            
+
             //空数组赋值
             $teacher_array = "";
-            
+
             //根据名师的id获取名师的详情信息
             $teacher_info  =  Teacher::where('id' , $teacher_id)->where('type' , 2)->where('is_del' , 0)->where('is_forbid' , 0)->first();
             if($teacher_info && !empty($teacher_info)){
@@ -429,13 +429,13 @@ class IndexController extends Controller {
             return response()->json(['code' => 500 , 'msg' => $ex->getMessage()]);
         }
     }
-    
+
     /*
      * @param  description   名师课程列表接口
      * @param author    dzj
      * @param ctime     2020-06-02
      * return string
-     */ 
+     */
     public function getTeacherLessonList(){
         //获取提交的参数
         try{
@@ -444,12 +444,12 @@ class IndexController extends Controller {
             if(!$teacher_id || $teacher_id <= 0 || !is_numeric($teacher_id)){
                 return response()->json(['code' => 202 , 'msg' => '名师id不合法']);
             }
-            
+
             //分页相关的参数
             $pagesize = isset(self::$accept_data['pagesize']) && self::$accept_data['pagesize'] > 0 ? self::$accept_data['pagesize'] : 15;
             $page     = isset(self::$accept_data['page']) && self::$accept_data['page'] > 0 ? self::$accept_data['page'] : 1;
             $offset   = ($page - 1) * $pagesize;
-            
+
             //获取名师课程列表
             $teacher_lesson_list = DB::table('ld_lessons as l')->select("l.id as lesson_id","l.title","l.cover","l.price","l.favorable_price","l.method")->leftJoin('ld_lesson_teachers as t' , function($join){
                         $join->on('l.id', '=', 't.lesson_id');

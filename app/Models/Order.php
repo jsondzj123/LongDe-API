@@ -11,6 +11,7 @@ class Order extends Model {
     public $table = 'ld_order';
     //时间戳设置
     public $timestamps = false;
+
     /*
          * @param  订单列表
          * @param  $school_id  分校id
@@ -332,21 +333,36 @@ class Order extends Model {
          * return  array
          */
     public static function findOrderForId($data){
-        if(empty($data['order_id'])){
-            return ['code' => 201 , 'msg' => '订单id错误'];
+        if (empty($data['order_id'])) {
+            return ['code' => 201, 'msg' => '订单id错误'];
         }
-        $list = self::select('ld_order.order_number','ld_order.create_at','ld_order.price','ld_order.order_type','ld_order.status','ld_order.pay_time','ld_student.real_name','ld_student.phone','ld_school.name','ld_lessons.title','ld_lecturer_educationa.real_name')
-            ->leftJoin('ld_student','ld_student.id','=','ld_order.student_id')
-            ->leftJoin('ld_school','ld_school.id','=','ld_student.school_id')
-            ->leftJoin('ld_lessons','ld_lessons.id','=','ld_order.class_id')
-            ->leftJoin('ld_lesson_teachers','ld_lesson_teachers.lesson_id','=','ld_lessons.id')
-            ->leftJoin('ld_lecturer_educationa','ld_lecturer_educationa.id','=','ld_lesson_teachers.teacher_id')
-            ->where(['ld_order.id'=>$data['order_id']])
-            ->first();
-        if($list){
-            return ['code' => 200 , 'msg' => '查询成功','data'=>$list];
-        }else{
-            return ['code' => 202 , 'msg' => '查询失败'];
+        $order_info = self::select('order_number', 'create_at', 'price', 'order_type', 'status', 'pay_time', 'student_id', 'class_id')->where(['id' => $data['order_id']])->first();
+        if (!empty($order_info)) {
+            if ($order_info['student_id'] != '') {
+                $student = Student::select('real_name', 'phone', 'school_id')->where(['id' => $order_info['student_id']])->first();
+                $order_info['real_name'] = $student['real_name'];
+                $order_info['phone'] = $student['phone'];
+                if ($student['school_id'] != '') {
+                    $school = School::select('name')->where(['id' => $student['school_id']])->first();
+                    $order_info['name'] = $school['name'];
+                }
+            }
+            if ($order_info['class_id'] != '') {
+                $lesson = Lesson::select('id', 'title')->where(['id' => $order_info['class_id']])->first();
+                if (!empty($lesson)) {
+                    $order_info['name'] = $lesson['title'];
+                    $teacher = LessonTeacher::where(['lesson_id' => $lesson['id']])->first();
+                    if (!empty($teacher)) {
+                        $lecturer_educationa = Lecturer::select('real_name')->where(['id' => $teacher['teacher_id']])->first();
+                        $order_info['name'] = $lecturer_educationa['real_name'];
+                    }
+                }
+            }
+            if ($order_info) {
+                return ['code' => 200, 'msg' => '查询成功', 'data' => $order_info];
+            } else {
+                return ['code' => 202, 'msg' => '查询失败'];
+            }
         }
     }
     /*
@@ -365,13 +381,13 @@ class Order extends Model {
         if(empty($data['order_number'])){
             return ['code' => 201 , 'msg' => '订单号错误'];
         }
-        if(!in_array($data['status'],['0,1'])){
+        if(!in_array($data['status'],['0','1'])){
             return ['code' => 201 , 'msg' => '状态传输错误'];
         }
-        $order = self::where(['order_number'=>$data['order_number']])->first()->toArray();
+        $order = self::where(['order_number'=>$data['order_number']])->first();
         if($data['status'] == 1){
             //修改学员报名  订单状态 课程有效期
-            $lessons = Lesson::where(['id'=>$order['class_id']])->first()->toArray();
+            $lessons = Lesson::where(['id'=>$order['class_id']])->first();
             //计算用户购买课程到期时间
             $validity = date('Y-m-d H:i:s',strtotime('+'.$lessons['ttl'].' day'));
             //修改订单状态 课程有效期 oa状态
