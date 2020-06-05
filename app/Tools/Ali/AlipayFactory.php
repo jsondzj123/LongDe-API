@@ -12,7 +12,7 @@ class AlipayFactory{
     public function __construct(){
         require_once 'aop/AopClient.php';
         require_once 'aop/request/AlipayTradeAppPayRequest.php';
-        echo $this->schoolid;die;
+        return $this->schoolid;
         $this->aop    =    new AopClient();
         $this->aop->gatewayUrl             = "https://openapi.alipay.com/gateway.do";
         $this->aop->appId                 =  "2021001105658113";
