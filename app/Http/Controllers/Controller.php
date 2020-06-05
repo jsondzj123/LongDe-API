@@ -37,7 +37,7 @@ class Controller extends BaseController {
         if ($statusCode == 200 && is_string($data)) {
             return response()->json(['code' => $statusCode, 'msg' => 'success', 'data' => $data]);
         } elseif (is_string($data)) {
-            return response()->json(['code' => $statusCode, 'msg' => 'success', 'data' => $data]);
+            return response()->json(['code' => $statusCode, 'msg' => $data]);
         } else {
             return response()->json(['code' => $statusCode, 'msg' => 'success', 'data' => $data]);
         }

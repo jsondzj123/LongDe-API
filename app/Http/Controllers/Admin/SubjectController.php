@@ -63,6 +63,7 @@ class SubjectController extends Controller {
             'name' => 'required',
             'cover' => 'required',
             'description' => 'required',
+            'pid' => 'required', 
         ]);
         if ($validator->fails()) {
             return $this->response($validator->errors()->first(), 202);
@@ -72,7 +73,7 @@ class SubjectController extends Controller {
         try {
             $subject = Subject::create([
                     'admin_id' => intval($user->id),
-                    'pid' => $request->input('pid') ?: 0,
+                    'pid' => $request->input('pid'),
                     'name' => $request->input('name'),
                     'cover' => $request->input('cover'),
                     'description' => $request->input('description'),
@@ -95,14 +96,12 @@ class SubjectController extends Controller {
     public function update(Request $request) {
         $validator = Validator::make($request->all(), [
             'id' => 'required',
-            'name' => 'required',
-            'cover' => 'required',
-            'description' => 'required',
         ]);
         if ($validator->fails()) {
             return $this->response($validator->errors()->first(), 202);
         }
         $subject = Subject::findOrFail($request->input('id'));
+        $subject->pid = $request->input('pid') ?: $subject->pid;
         $subject->name = $request->input('name') ?: $subject->name;
         $subject->cover = $request->input('cover') ?: $subject->cover;
         $subject->description = $request->input('description') ?: $subject->description;
@@ -130,6 +129,9 @@ class SubjectController extends Controller {
             return $this->response($validator->errors()->first(), 202);
         }
         $subject = Subject::findOrFail($request->input('id'));
+        if($subject->is_del == 1){
+            return $this->response("已经删除", 202);
+        }
         $subject->is_del = 1;
         if (!$subject->save()) {
             return $this->response("删除失败", 500);

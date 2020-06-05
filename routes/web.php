@@ -140,7 +140,9 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin' , 'middleware'=> ['
     /*
      * 课程模块(sxl)
     */
+    
     $router->post('lesson', 'LessonController@index');
+    $router->post('schoolLesson', 'LessonController@schoolLesson');
     $router->post('lesson/add', 'LessonController@store');
     $router->post('UpdateLessonStatus', 'LessonController@status');
     $router->post('lessonShow', 'LessonController@show');
@@ -208,6 +210,7 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin' , 'middleware'=> ['
     $router->post('editLiveStatus', 'LiveController@edit');
     $router->post('liveRelationLesson', 'LiveController@lesson');
 
+
     /*
      * 直播课次模块(sxl)
     */
@@ -220,6 +223,7 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin' , 'middleware'=> ['
     $router->post('getImageOssConfig', 'CommonController@getImageOssConfig');
     //上传到本地图片接口
     $router->post('doUpdateImage', 'CommonController@doUpdateImage');
+    $router->post('courseAccess', 'LiveChildController@courseAccess');
 
 
     //用户学员相关模块(dzj)
