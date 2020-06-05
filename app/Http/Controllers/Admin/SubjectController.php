@@ -12,15 +12,35 @@ class SubjectController extends Controller {
 
     /*
      * @param  科目列表
-     * @param  current_count   count
+     * @param  pagesize   page
      * @param  author  孙晓丽
-     * @param  ctime   2020/5/1 
+     * @param  ctime   2020/6/5 
      * return  array
      */
     public function index(Request $request){
-        $total = Subject::where('pid', 0)->count();
-        $subject = Subject::where('pid', 0)->orderBy('status', 'desc')
-            ->get();
+        $pagesize = $request->input('pagesize') ?: 15;
+        $page     = $request->input('page') ?: 1;
+        $offset   = ($page - 1) * $pagesize;
+        $data = Subject::where(['is_del'=> 0, 'is_forbid' => 0, 'pid' => 0]);
+        $total = $data->count();
+        $subject = $data->skip($offset)->take($pagesize)->get();
+        foreach ($subject as $value) {
+            $value['childs'] = Subject::select('id', 'name', 'is_del', 'is_forbid')->where(['is_del'=> 0, 'is_forbid' => 0, 'pid' => $value->id])->get();
+        }
+        return $this->response($subject);
+    }
+
+
+    /*
+     * @param  搜索科目列表
+     * @param  author  孙晓丽
+     * @param  ctime   2020/6/5 
+     * return  array
+     */
+    public function searchList(Request $request){
+        $data = Subject::select('id', 'name', 'is_del', 'is_forbid')->where(['is_del'=> 0, 'is_forbid' => 0, 'pid' => 0]);
+        $total = $data->count();
+        $subject = $data->get();
         foreach ($subject as $value) {
             $value['childs'] = $value->childs();
         }
