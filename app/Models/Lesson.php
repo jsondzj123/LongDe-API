@@ -164,4 +164,8 @@ class Lesson extends Model {
     public function lessonChilds() {
         return $this->hasMany('App\Models\LessonChild', 'lesson_id', 'id')->where('pid', 0);
     }
+
+    public function lives() {
+        return $this->belongsToMany('App\Models\Live', 'ld_lesson_lives');
+    }
 }

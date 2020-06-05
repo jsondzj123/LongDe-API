@@ -71,6 +71,7 @@ $router->group(['prefix' => 'api', 'namespace' => 'Api'], function () use ($rout
 $router->group(['prefix' => 'api', 'namespace' => 'Api', 'middleware'=> 'user'], function () use ($router) {
     //直播课程
     $router->post('courseAccess', 'LiveChildController@courseAccess');
+    $router->post('live', 'LiveChildController@index');
 
 
     //收藏模块
