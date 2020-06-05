@@ -18,12 +18,12 @@ class MTCloud{
     /*
     *  合作方ID：欢拓平台的唯一ID
     */
-    private $openID = env('MT_OPENID');
+    private $openID = '';
 
     /*
     *  合作方秘钥：欢拓平台唯一ID对应的加密秘钥
     */
-    private $openToken = env('MT_OPENTOKEN');
+    private $openToken = '';
 
     /*
     *   欢拓API接口地址
