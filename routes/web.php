@@ -191,6 +191,7 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin' , 'middleware'=> ['
     $router->post('subjectShow', 'SubjectController@show');
     $router->post('updateSubject', 'SubjectController@update');
     $router->post('deleteSubject', 'SubjectController@destroy');
+    $router->post('updateSubjectStatus', 'SubjectController@status');
 
     /*
      * 录播模块(sxl)

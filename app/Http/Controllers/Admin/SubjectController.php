@@ -159,4 +159,29 @@ class SubjectController extends Controller {
         }
         return $this->response("删除成功");
     }
+
+    /**
+     * 修改禁用状态
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function status(Request $request) {
+        $validator = Validator::make($request->all(), [
+            'id' => 'required',
+        ]);
+        if ($validator->fails()) {
+            return $this->response($validator->errors()->first(), 202);
+        }
+        $subject = Subject::findOrFail($request->input('id'));
+        if($subject->is_forbid == 1){
+            return $this->response("已经禁用", 202);
+        }
+        $subject->is_forbid = 1;
+        if (!$subject->save()) {
+            return $this->response("禁用失败", 500);
+        }
+        return $this->response("禁用成功");
+    }
 }
