@@ -229,7 +229,7 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin' , 'middleware'=> ['
     //上传图片OSS公共参数接口
     $router->post('getImageOssConfig', 'CommonController@getImageOssConfig');
     //上传到本地图片接口
-    $router->post('doUpdateImage', 'CommonController@doUpdateImage');
+    $router->post('doUploadImage', 'CommonController@doUploadImage');
     //上传到OSS图片接口
     $router->post('doUploadOssImage', 'CommonController@doUploadOssImage');
 
