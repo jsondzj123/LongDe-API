@@ -14,7 +14,7 @@ class AlipayFactory{
         require_once 'aop/AopClient.php';
         require_once 'aop/request/AlipayTradeAppPayRequest.php';
         //根据学校查询支付信息
-//        $payinfo = PaySet::select('zfb_app_id','zfb_app_public_key','zfb_public_key')->where(['school_id'=>$this->schoolid])->first();
+
         $this->aop    =    new AopClient();
         $this->aop->gatewayUrl             = "https://openapi.alipay.com/gateway.do";
         $this->aop->appId                 =  "2021001105658113";
@@ -27,16 +27,18 @@ class AlipayFactory{
         $this->aop->apiVersion = '1.0';
         $this->aop->alipayPublicKey ="MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAlTAdFGs8uzPYG3akYT1qs3gEFtjkuRIjP2i7FHUiF52/FVTSzOiYwy9n4qQYovyP/lKxtFWTlKMZfjy1G8EYJBbcb/5dIdDbgm40yaactPaeGkAvykzw5az0PhYTUFJ7PSewZyTJeqETT8ROpuIY5rxgNVHciASiNvrSOMudHfUtqvS7mUPX/Kcpl9q0ryW6BJUIb5SnFouVmh0x6ZAyb+cXVqPXrBTLlQucT3RKuvR+zMkT9IeFFn9fIsCBGhVg8eHfacKUjOWT00CILyoLk6rIZF+PRDX32kvxLKAlfq1puupT2BZxDpH3+LvcMj0Cpl0jmXylEqAxM6qh5+sdjwIDAQAB";//商户公钥（步骤二中生成的商户公钥）
 //        $this->aop->alipayPublicKey = $payinfo['zfb_public_key'];
+        $payinfo = PaySet::select('zfb_app_id','zfb_app_public_key','zfb_public_key')->where(['school_id'=>$this->schoolid])->first();
+        if($payinfo['zfb_app_public_key'] === $this->aop->rsaPrivateKey){
+            return "1111-"."<br>".$payinfo['zfb_app_public_key'];
+        }else{
+            return 222222;
+        }
     }
     public function createAppPay($title,$order_number, $total_amount,$schoolid,$pay_type){
         require_once 'aop/request/AlipayTradeAppPayRequest.php';
         $this->schoolid = $schoolid;
         $payinfo = PaySet::select('zfb_app_id','zfb_app_public_key','zfb_public_key')->where(['school_id'=>$this->schoolid])->first();
-        if($payinfo['zfb_app_public_key'] === $this->aop->rsaPrivateKey){
-            return 11111;
-        }else{
-            return 222222;
-        }
+
         //实例化具体API对应的request类,类名称和接口名称对应,当前调用接口名称：alipay.trade.app.pay
         $request = new AlipayTradeAppPayRequest();
         //SDK已经封装掉了公共参数，这里只需要传入业务参数
