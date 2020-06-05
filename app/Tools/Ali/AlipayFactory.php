@@ -32,7 +32,7 @@ class AlipayFactory{
         require_once 'aop/request/AlipayTradeAppPayRequest.php';
         $this->schoolid = $schoolid;
         $payinfo = PaySet::select('zfb_app_id','zfb_app_public_key','zfb_public_key')->where(['school_id'=>$this->schoolid])->first();
-        if($payinfo['zfb_app_public_key'] == $this->aop->rsaPrivateKey){
+        if($payinfo['zfb_app_public_key'] === $this->aop->rsaPrivateKey){
             return 11111;
         }else{
             return 222222;
