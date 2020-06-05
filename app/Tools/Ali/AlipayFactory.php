@@ -8,13 +8,13 @@ use App\Providers\aop\AopClient\AopClient;
 
 class AlipayFactory{
     protected $aop;
-    protected $schoolid;
+    //protected $schoolid;
     //公共参数
-    public function __construct(){
+    public function __construct($schoolid){
         require_once 'aop/AopClient.php';
         require_once 'aop/request/AlipayTradeAppPayRequest.php';
         //根据学校查询支付信息
-        $payinfo = PaySet::select('zfb_app_id','zfb_app_public_key','zfb_public_key')->where(['school_id'=>$this->schoolid])->first();
+        $payinfo = PaySet::select('zfb_app_id','zfb_app_public_key','zfb_public_key')->where(['school_id'=>$schoolid])->first();
         $this->aop    =    new AopClient();
         $this->aop->gatewayUrl             = "https://openapi.alipay.com/gateway.do";
 //        $this->aop->appId                 =  "2021001105658113";
@@ -36,7 +36,7 @@ class AlipayFactory{
     }
     public function createAppPay($title,$order_number, $total_amount,$schoolid,$pay_type){
         require_once 'aop/request/AlipayTradeAppPayRequest.php';
-        $this->schoolid = $schoolid;
+        //$this->schoolid = $schoolid;
         //实例化具体API对应的request类,类名称和接口名称对应,当前调用接口名称：alipay.trade.app.pay
         $request = new AlipayTradeAppPayRequest();
         //SDK已经封装掉了公共参数，这里只需要传入业务参数
