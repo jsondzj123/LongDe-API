@@ -8,6 +8,7 @@ use App\Tools\MTCloud;
 use Log;
 use App\Models\Lesson;
 use App\Models\LessonLive;
+use App\Models\LiveChild;
 
 class LiveChildController extends Controller {
 
@@ -20,10 +21,14 @@ class LiveChildController extends Controller {
         if ($validator->fails()) {
             return $this->response($validator->errors()->first(), 202);
         }
-        $lesson = Lesson::find($request->input('lesson_id'))->lives->childs->toArray();
-        dd($lesson);
-        dd(LessonLive::where('lesson_id', $request->input('lesson_id'))->get());
-        return $this->response($lesson);
+        $lives = Lesson::find($request->input('lesson_id'))->lives->toArray();
+        $childs = [];
+        if(!empty($lives)){
+            foreach ($lives as $key => $value) {
+                $childs = LiveChild::where('live_id', $value['id'])->get();
+            }
+        }
+        return $this->response($childs);
     }
 
 
