@@ -7,10 +7,12 @@ use App\Providers\aop\AopClient\AopClient;
 
 class AlipayFactory{
     protected $aop;
+    protected $schoolid;
     //公共参数
     public function __construct(){
         require_once 'aop/AopClient.php';
         require_once 'aop/request/AlipayTradeAppPayRequest.php';
+        echo $this->schoolid;die;
         $this->aop    =    new AopClient();
         $this->aop->gatewayUrl             = "https://openapi.alipay.com/gateway.do";
         $this->aop->appId                 =  "2021001105658113";
@@ -21,19 +23,15 @@ class AlipayFactory{
         $this->aop->apiVersion = '1.0';
         $this->aop->alipayPublicKey ="MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAlTAdFGs8uzPYG3akYT1qs3gEFtjkuRIjP2i7FHUiF52/FVTSzOiYwy9n4qQYovyP/lKxtFWTlKMZfjy1G8EYJBbcb/5dIdDbgm40yaactPaeGkAvykzw5az0PhYTUFJ7PSewZyTJeqETT8ROpuIY5rxgNVHciASiNvrSOMudHfUtqvS7mUPX/Kcpl9q0ryW6BJUIb5SnFouVmh0x6ZAyb+cXVqPXrBTLlQucT3RKuvR+zMkT9IeFFn9fIsCBGhVg8eHfacKUjOWT00CILyoLk6rIZF+PRDX32kvxLKAlfq1puupT2BZxDpH3+LvcMj0Cpl0jmXylEqAxM6qh5+sdjwIDAQAB";//商户公钥（步骤二中生成的商户公钥）
     }
-
-    public function text(){
-        return 123;
-    }
-    public function createAppPay($order_sn, $subject, $total_amount,$pay_type){
+    public function createAppPay($title,$order_number, $total_amount,$schoolid,$pay_type){
         require_once 'aop/request/AlipayTradeAppPayRequest.php';
+        $this->schoolid = $schoolid;
         //实例化具体API对应的request类,类名称和接口名称对应,当前调用接口名称：alipay.trade.app.pay
         $request = new AlipayTradeAppPayRequest();
         //SDK已经封装掉了公共参数，这里只需要传入业务参数
         $bizcontent    =    [
-            'body'                =>    "商品购买",
-            'subject'            =>    $subject,
-            'out_trade_no'        =>    $order_sn,
+            'subject'            =>    $title,
+            'out_trade_no'        =>    $order_number,
             'timeout_express'    =>    '1d',//失效时间为 1天
             'total_amount'        =>    $total_amount,//价格
             'product_code'        =>    'QUICK_MSECURITY_PAY',
@@ -48,7 +46,6 @@ class AlipayFactory{
         //这里和普通的接口调用不同，使用的是sdkExecute
         $response = $this->aop->sdkExecute($request);
         return $response;
-        //htmlspecialchars是为了输出到页面时防止被浏览器将关键参数html转义，实际打印到日志以及http传输不会有这个问题
     }
 
     //支付宝扫码支付
@@ -70,8 +67,5 @@ class AlipayFactory{
         $request->setNotifyUrl("http://".$_SERVER['HTTP_HOST'].'/Web/notify/Alinotify');
         $result =  $this->aop->execute($request);
         return $result;
-//        $responseNode = str_replace(".", "_", $request->getApiMethodName()) . "_response";
-//        $resultCode = $result->$responseNode->code;
-//        return $result;
     }
 }
