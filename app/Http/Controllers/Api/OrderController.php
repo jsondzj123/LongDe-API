@@ -5,6 +5,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Lesson;
 use App\Models\LessonSchool;
 use App\Models\Order;
+use App\Models\PaySet;
 use App\Models\Student;
 use App\Models\StudentAccounts;
 use App\Models\StudentAccountlog;
@@ -237,6 +238,13 @@ class OrderController extends Controller
     //$school_id学校id
     //$pay_type 1购买2充值
     public function payStatus($title,$order_number, $type, $price,$school_id,$pay_type){
+        //判断分校是否开通支付
+        if($school_id != 1){
+            $branchChool = PaySet::where(['school_id'=>$school_id])->first();
+            if(empty($branchChool)){
+                $school_id ==1;
+            }
+        }
         switch($type) {
             case "1":
                 $wxpay = new WxpayFactory();
