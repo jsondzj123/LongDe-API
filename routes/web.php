@@ -69,6 +69,10 @@ $router->group(['prefix' => 'api', 'namespace' => 'Api'], function () use ($rout
 });
 //客户端(ios,安卓)需要登录路由接口
 $router->group(['prefix' => 'api', 'namespace' => 'Api', 'middleware'=> 'user'], function () use ($router) {
+    //直播课程
+    $router->post('courseAccess', 'LiveChildController@courseAccess');
+
+
     //收藏模块
     $router->post('collection','CollectionController@index');          //课程收藏列表
     $router->post('addCollection','CollectionController@store');       //添加收藏课程
@@ -181,7 +185,8 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin' , 'middleware'=> ['
     /*
      * 科目模块(sxl)
     */
-    $router->post('subject', 'SubjectController@index');
+    $router->post('subject', 'SubjectController@searchList');
+    $router->post('subjectList', 'SubjectController@index');
     $router->post('subject/add', 'SubjectController@store');
     $router->post('subjectShow', 'SubjectController@show');
     $router->post('updateSubject', 'SubjectController@update');
@@ -218,14 +223,12 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin' , 'middleware'=> ['
     $router->post('liveChild/add', 'LiveChildController@store');
     $router->post('deleteLiveChild', 'LiveChildController@destroy');
     $router->post('editLiveChildStatus', 'LiveChildController@edit');
-    $router->post('courseAccess', 'LiveChildController@courseAccess');
+
     
     //上传图片OSS公共参数接口
     $router->post('getImageOssConfig', 'CommonController@getImageOssConfig');
     //上传到本地图片接口
-    $router->post('doUploadImage', 'CommonController@doUploadImage');
-    //上传到OSS图片接口
-    $router->post('doUploadOssImage', 'CommonController@doUploadOssImage');
+    $router->post('doUpdateImage', 'CommonController@doUpdateImage');
 
 
     //用户学员相关模块(dzj)
