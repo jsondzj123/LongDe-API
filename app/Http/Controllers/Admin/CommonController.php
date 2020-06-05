@@ -82,4 +82,81 @@ class CommonController extends BaseController {
             return response()->json(['code' => 500 , 'msg' => $ex->getMessage()]);
         }   
     }
+    
+    /*
+     * @param  description   OSS公共参数配置接口
+     * @param author    dzj
+     * @param ctime     2020-06-05
+     * return string
+     */
+    public function getImageOssConfig(){
+        //oss图片公共参数配置部分
+        $image_config = [
+            'accessKeyId'     =>   env('OSS_IMAGE_ACCESSKEYID') ,
+            'accessKeySecret' =>   env('OSS_IMAGE_ACCESSKEYSECRET') ,
+            'bucket'          =>   env('OSS_IMAGE_BUCKET') ,
+            'oss_url'         =>   env('OSS_IMAGE_URL')
+        ];
+        
+        //返回json部分
+        return response()->json(['code' => 200 , 'msg' => '获取图片配置参数成功' , 'data' => $image_config]);
+    }
+    
+    
+    /*
+     * @param  description   上传图片方法
+     * @param author    dzj
+     * @param ctime     2020-06-05
+     * return string
+     */
+    public function doUpdateImage(){
+        //获取提交的参数
+        try{
+            //获取上传文件
+            $file = isset($_FILES['file']) && !empty($_FILES['file']) ? $_FILES['file'] : '';
+
+            //判断是否有文件上传
+            if(!isset($_FILES['file']) || empty($_FILES['file']['tmp_name'])){
+                return ['code' => 201 , 'msg' => '请上传图片文件'];
+            }
+            
+            //获取上传文件的文件后缀
+            $is_correct_ext = \App\Http\Controllers\Controller::detectUploadFileMIME($file);
+            if($is_correct_ext <= 0){
+                return ['code' => 202 , 'msg' => '上传图片格式非法'];
+            }
+            
+            //判断图片上传大小是否大于3M
+            $image_size = filesize($_FILES['file']['tmp_name']);
+            if($image_size > 3145728){
+                return ['code' => 202 , 'msg' => '上传图片不能大于3M'];
+            }
+
+            //存放文件路径
+            $file_path= app()->basePath() . "/upload/editor/" . date('Y-m-d') . '/';
+            //判断上传的文件夹是否建立
+            if(!file_exists($file_path)){
+                mkdir($file_path , 0777 , true);
+            }
+
+            //重置文件名
+            $filename = time() . rand(1,10000) . uniqid() . substr($file['name'], stripos($file['name'], '.'));
+            $path     = $file_path.$filename;
+            
+            //判断文件是否是通过 HTTP POST 上传的
+            if(is_uploaded_file($_FILES['file']['tmp_name'])){
+                //上传文件方法
+                $rs =  move_uploaded_file($_FILES['file']['tmp_name'], $path);
+                if($rs && !empty($rs)){
+                    return ['code' => 200 , 'msg' => '上传图片成功' , 'data' => "/upload/editor/" . date('Y-m-d') . '/'.$filename];
+                } else {
+                    return ['code' => 203 , 'msg' => '上传图片失败'];
+                }
+            } else {
+                return ['code' => 202 , 'msg' => '上传方式非法'];
+            }
+        } catch (Exception $ex) {
+            return ['code' => 500 , 'msg' => $ex->getMessage()];
+        }
+    }
 }
