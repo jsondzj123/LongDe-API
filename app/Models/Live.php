@@ -20,7 +20,24 @@ class Live extends Model {
         'pivot'
     ];
 
-    protected $appends = ['is_use', 'admin', 'subject_id', 'subject_first_name', 'subject_second_name'];
+    protected $appends = [
+        'is_use', 
+        'admin', 
+        'subject_id', 
+        'subject_first_name', 
+        'subject_second_name',
+        'class_num'
+    ];
+
+    protected $casts = [
+        'created_at' => 'datetime:Y-m-d H:i:s',
+        'updated_at' => 'datetime:Y-m-d H:i:s',
+    ];
+    
+    public function getClassNumAttribute($value)
+    {
+        return $this->belongsToMany('App\Models\Lesson', 'ld_lesson_lives')->count();
+    }
 
     public function getSubjectFirstNameAttribute($value) {
         $subjects = $this->belongsToMany('App\Models\Subject', 'ld_subject_lives')->where('pid', 0)->first();

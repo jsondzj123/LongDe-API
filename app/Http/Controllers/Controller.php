@@ -37,7 +37,7 @@ class Controller extends BaseController {
         if ($statusCode == 200 && is_string($data)) {
             return response()->json(['code' => $statusCode, 'msg' => 'success', 'data' => $data]);
         } elseif (is_string($data)) {
-            return response()->json(['code' => $statusCode, 'msg' => 'success', 'data' => $data]);
+            return response()->json(['code' => $statusCode, 'msg' => $data]);
         } else {
             return response()->json(['code' => $statusCode, 'msg' => 'success', 'data' => $data]);
         }
@@ -134,6 +134,51 @@ class Controller extends BaseController {
                 }
                 if ($typecode == "504b34") {
                     $flag = 1;
+                }
+                break;
+            case "jpg" :
+                $fh  = fopen($file["tmp_name"], "rb");
+                $bin = fread($fh, 2);
+                fclose($fh);
+                $strinfo = @unpack("C2chars", $bin);
+                $typecode = "";
+                if($strinfo && !empty($strinfo)){
+                    foreach ($strinfo as $num) {
+                        $typecode .= dechex ($num);
+                    }
+                    if ($typecode == "ffd8") {
+                        $flag = 1;
+                    }
+                }
+                break;
+            case "gif" :
+                $fh  = fopen($file["tmp_name"], "rb");
+                $bin = fread($fh, 2);
+                fclose($fh);
+                $strinfo = @unpack("C2chars", $bin);
+                $typecode = "";
+                if($strinfo && !empty($strinfo)){
+                    foreach ($strinfo as $num) {
+                        $typecode .= dechex ($num);
+                    }
+                    if ($typecode == "4749") {
+                        $flag = 1;
+                    }
+                }
+                break;
+            case "png" :
+                $fh  = fopen($file["tmp_name"], "rb");
+                $bin = fread($fh, 2);
+                fclose($fh);
+                $strinfo = @unpack("C2chars", $bin);
+                $typecode = "";
+                if($strinfo && !empty($strinfo)){
+                    foreach ($strinfo as $num) {
+                        $typecode .= dechex ($num);
+                    }
+                    if ($typecode == "8950") {
+                        $flag = 1;
+                    }
                 }
                 break;
         }

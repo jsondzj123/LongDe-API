@@ -175,7 +175,7 @@ class Order extends Model {
                 return ['code' => 201 , 'msg' => '学生id为空或格式不对'];
             }
             //根据用户id查询信息
-            $student = Student::select('school_id','balance')->where('id',$arr['student_id'])->first()->toArray();
+            $student = Student::select('school_id','balance')->where('id',$arr['student_id'])->first();
             //判断课程id
             if(!isset($arr['class_id']) || empty($arr['class_id'])){
                 return ['code' => 201 , 'msg' => '课程id为空或格式不对'];
@@ -237,7 +237,7 @@ class Order extends Model {
             $data['status'] = 0;
             $data['oa_status'] = 0;              //OA状态
             $data['class_id'] = $arr['class_id'];
-            $data['school_id'] = $arr['user_info']['school_id'];
+            $data['school_id'] = $student['school_id'];
             $add = self::insertGetId($data);
             if($add){
                 $lesson['order_id'] = $add;

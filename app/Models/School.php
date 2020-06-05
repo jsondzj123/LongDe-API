@@ -18,6 +18,9 @@ class School extends Model {
         return $this->belongsToMany('App\Models\Lesson', 'ld_lesson_schools', 'school_id');
     }
 
+    public function admins() {
+        return $this->hasMany('App\Models\Admin');
+    }
     //错误信息
      public static function message()
     {
