@@ -34,7 +34,7 @@ class LessonChildController extends Controller {
                 
                 $childs = LessonChild::with('videos')->with(['lives' => function ($query) {
                             $query->with('childs');
-                        }])->where('pid', $value->id)->get();
+                        }])->where(['is_del'=> 0, 'is_forbid' => 0, 'pid' => $value->id])->get();
                 $value['childs'] = $childs;
             }
         }
