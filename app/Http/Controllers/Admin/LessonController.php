@@ -67,9 +67,9 @@ class LessonController extends Controller {
             $flipped_haystack = array_flip($authLessonIds->toArray());
             if(isset($flipped_haystack[$value['id']]))
             {
-                $value['is_auto'] = 1;
+                $value['is_auto'] = 2;
             }else{
-                $value['is_auto'] = 0;
+                $value['is_auto'] = 1;
             }
             $lessons[] = $value;
         }
