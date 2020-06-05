@@ -14,7 +14,7 @@ class AlipayFactory{
         require_once 'aop/AopClient.php';
         require_once 'aop/request/AlipayTradeAppPayRequest.php';
         //根据学校查询支付信息
-        $payinfo = PaySet::select('zfb_app_id','zfb_app_public_key','zfb_public_key')->where(['school_id'=>1])->first();
+        $payinfo = PaySet::select('zfb_app_id','zfb_app_public_key','zfb_public_key')->where(['school_id'=>$this->schoolid])->first();
         $this->aop    =    new AopClient();
         $this->aop->gatewayUrl             = "https://openapi.alipay.com/gateway.do";
 //        $this->aop->appId                 =  "2021001105658113";
