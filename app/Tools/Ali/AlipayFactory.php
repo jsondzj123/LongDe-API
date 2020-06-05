@@ -42,25 +42,25 @@ class AlipayFactory{
         $payinfo = PaySet::select('zfb_app_id','zfb_app_public_key','zfb_public_key')->where(['school_id'=>$this->schoolid])->first();
 
         //实例化具体API对应的request类,类名称和接口名称对应,当前调用接口名称：alipay.trade.app.pay
-        $request = new AlipayTradeAppPayRequest();
-        //SDK已经封装掉了公共参数，这里只需要传入业务参数
-        $bizcontent    =    [
-            'subject'            =>    $title,
-            'out_trade_no'        =>    $order_number,
-            'timeout_express'    =>    '1d',//失效时间为 1天
-            'total_amount'        =>    $total_amount,//价格
-            'product_code'        =>    'QUICK_MSECURITY_PAY',
-        ];
-        //商户外网可以访问的异步地址 (异步回掉地址，根据自己需求写)
-        if($pay_type == 1){
-            $request->setNotifyUrl("http://".$_SERVER['HTTP_HOST'].'/Api/notify/alinotify');
-        }else{
-            $request->setNotifyUrl("http://".$_SERVER['HTTP_HOST'].'/Api/notify/aliTopnotify');
-        }
-        $request->setBizContent(json_encode($bizcontent));
-        //这里和普通的接口调用不同，使用的是sdkExecute
-        $response = $this->aop->sdkExecute($request);
-        return $response;
+//        $request = new AlipayTradeAppPayRequest();
+//        //SDK已经封装掉了公共参数，这里只需要传入业务参数
+//        $bizcontent    =    [
+//            'subject'            =>    $title,
+//            'out_trade_no'        =>    $order_number,
+//            'timeout_express'    =>    '1d',//失效时间为 1天
+//            'total_amount'        =>    $total_amount,//价格
+//            'product_code'        =>    'QUICK_MSECURITY_PAY',
+//        ];
+//        //商户外网可以访问的异步地址 (异步回掉地址，根据自己需求写)
+//        if($pay_type == 1){
+//            $request->setNotifyUrl("http://".$_SERVER['HTTP_HOST'].'/Api/notify/alinotify');
+//        }else{
+//            $request->setNotifyUrl("http://".$_SERVER['HTTP_HOST'].'/Api/notify/aliTopnotify');
+//        }
+//        $request->setBizContent(json_encode($bizcontent));
+//        //这里和普通的接口调用不同，使用的是sdkExecute
+//        $response = $this->aop->sdkExecute($request);
+//        return $response;
     }
 
     //支付宝扫码支付
