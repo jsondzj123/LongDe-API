@@ -245,12 +245,11 @@ class OrderController extends Controller
                 $school_id ==1;
             }
         }
-        print_r($type);die;
         switch($type) {
             case "1":
                 $wxpay = new WxpayFactory();
                 return $return = $wxpay->getPrePayOrder($title,$order_number, $price,$school_id, $pay_type);
-            case "2":
+            case 2:
                 $alipay = new AlipayFactory();
                 $return = $alipay->createAppPay($title,$order_number, 0.01,$school_id, $pay_type);
                 $alipay = [
