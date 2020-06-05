@@ -22,15 +22,13 @@ class Subject extends Model {
     protected $hidden = [
         'created_at',
         'updated_at',
-        'is_del',
-        'is_forbid',
         'pivot'
     ];
 
 
     public function childs()
     {
-    	return $this->select('id', 'name')->where('pid', $this->id)->get();
+    	return $this->select('id', 'name')->where(['is_del'=> 0, 'is_forbid' => 0, 'pid' =>$this->id])->get();
     }
 }
 
