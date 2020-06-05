@@ -230,6 +230,8 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin' , 'middleware'=> ['
     $router->post('getImageOssConfig', 'CommonController@getImageOssConfig');
     //上传到本地图片接口
     $router->post('doUpdateImage', 'CommonController@doUpdateImage');
+    //上传到OSS图片接口
+    $router->post('doUploadOssImage', 'CommonController@doUploadOssImage');
 
 
     //用户学员相关模块(dzj)
