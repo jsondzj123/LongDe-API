@@ -122,7 +122,8 @@ class CommonController extends BaseController {
             
             //获取上传文件的文件后缀
             $is_correct_ext = \App\Http\Controllers\Controller::detectUploadFileMIME($file);
-            if($is_correct_ext <= 0){
+            $image_extension= substr($_FILES['file']['name'], strrpos($_FILES['file']['name'], '.')+1);   //获取图片后缀名
+            if($is_correct_ext <= 0 || !in_array($image_extension , ['jpg' , 'jpeg' , 'gif' , 'png'])){
                 return ['code' => 202 , 'msg' => '上传图片格式非法'];
             }
             

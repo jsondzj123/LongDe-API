@@ -109,6 +109,7 @@ class RoleController extends Controller {
              return response()->json(['code'=>205,'msg'=>'角色已存在']);
         }
         $role = Roleauth::where(['school_id'=> $data['school_id'],'is_super'=>'1'])->first();
+        $data['create_time'] = date('Y-m-d H:i:s');
         if($role){  $data['is_super'] = 0; }
         else{       $data['is_super'] = 1; }
         if(Roleauth::create($data)){
