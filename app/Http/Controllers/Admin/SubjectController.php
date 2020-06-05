@@ -80,10 +80,11 @@ class SubjectController extends Controller {
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
+            'pid' => 'required',
             'name' => 'required',
-            'cover' => 'required',
-            'description' => 'required',
-            'pid' => 'required', 
+            'cover' => 'required_if:pid,0',
+            'description' => 'required_if:pid,0',
+             
         ]);
         if ($validator->fails()) {
             return $this->response($validator->errors()->first(), 202);
