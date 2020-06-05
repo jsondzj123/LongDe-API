@@ -19,8 +19,8 @@ class SchoolController extends Controller {
      /*
      * @param  description 获取分校列表  
      * @param  参数说明       body包含以下参数[
-     *     name       搜索条件
-     *     dns        分校域名
+     *     school_name       搜索条件
+     *     school_dns        分校域名
      *     page         当前页码  
      *     limit        每页显示条数
      * ]
@@ -64,7 +64,7 @@ class SchoolController extends Controller {
     /*
      * @param  description 修改分校状态 (删除)
      * @param  参数说明       body包含以下参数[
-     *     id      分校id
+     *     school_id      分校id
      * ]
      * @param author    lys
      * @param ctime     2020-05-06
@@ -78,9 +78,14 @@ class SchoolController extends Controller {
             return response()->json(json_decode($validator->errors()->first(),1));
         }
         try{
+            DB::beginTransaction();
             $school = School::find($data['school_id']);
             $school->is_del = 0; 
-            if( $school->save() &&Adminuser::upUserStatus(['school_id'=>$school['id']],['is_del'=>0])){
+            if(!$school->save()){
+                DB::rollBack();
+                return response()->json(['code' => 203 , 'msg' => '删除失败,请重试']);
+            }
+            if(Adminuser::upUserStatus(['school_id'=>$school['id']],['is_del'=>0])){
                 AdminLog::insertAdminLog([
                     'admin_id'       =>   CurrentAdmin::user()['id'] ,
                     'module_name'    =>  'School' ,
@@ -90,9 +95,11 @@ class SchoolController extends Controller {
                     'ip'             =>  $_SERVER["REMOTE_ADDR"] ,
                     'create_at'      =>  date('Y-m-d H:i:s')
                 ]);
+                DB::commit();
                 return response()->json(['code' => 200 , 'msg' => '删除成功']);
             } else {
-                return response()->json(['code' => 203 , 'msg' => '删除失败']);
+                DB::rollBack();
+                return response()->json(['code' => 203 , 'msg' => '删除失败,请重试']);
             }
         } catch (Exception $ex) {
             return response()->json(['code' => 203 , 'msg' => $ex->getMessage()]);
@@ -102,7 +109,7 @@ class SchoolController extends Controller {
     /*
      * @param  description 修改分校状态 (启禁)
      * @param  参数说明       body包含以下参数[
-     *     id      分校id
+     *     school_id      分校id
      * ]
      * @param author    lys
      * @param ctime     2020-05-06
@@ -116,6 +123,7 @@ class SchoolController extends Controller {
             return response()->json(json_decode($validator->errors()->first(),1));
         }
         try{
+            DB::beginTransaction();
             $school = School::find($data['school_id']);
             if($school['is_forbid'] != 1){
                 $school->is_forbid = 1; 
@@ -136,7 +144,15 @@ class SchoolController extends Controller {
                 $hj_wx_pay_state = -1;
                 $hj_zfb_pay_state = -1;
             }   
-            if( $school->save() && Adminuser::upUserStatus(['school_id'=>$school['id']],['is_forbid'=>$is_forbid]) && PaySet::where('school_id',$school['id'])->update(['pay_status'=>$pay_status,'wx_pay_state'=>$wx_pay_state,'zfb_pay_state'=>$zfb_pay_state,'hj_wx_pay_state'=>$hj_wx_pay_state,'hj_zfb_pay_state'=>$hj_zfb_pay_state,'update_at'=>date('Y-m-d H:i:s')] ) ){
+            if(!$school->save()){
+                DB::rollBack();
+                return response()->json(['code' => 203 , 'msg' => '更新失败']);
+            }
+            if(!Adminuser::upUserStatus(['school_id'=>$school['id']],['is_forbid'=>$is_forbid])){
+                 DB::rollBack();
+                return response()->json(['code' => 203 , 'msg' => '更新失败']);
+            }
+            if(PaySet::where('school_id',$school['id'])->update(['pay_status'=>$pay_status,'wx_pay_state'=>$wx_pay_state,'zfb_pay_state'=>$zfb_pay_state,'hj_wx_pay_state'=>$hj_wx_pay_state,'hj_zfb_pay_state'=>$hj_zfb_pay_state,'update_at'=>date('Y-m-d H:i:s')] ) ){
                 AdminLog::insertAdminLog([
                     'admin_id'       =>   CurrentAdmin::user()['id'] ,
                     'module_name'    =>  'School' ,
@@ -146,8 +162,10 @@ class SchoolController extends Controller {
                     'ip'             =>  $_SERVER["REMOTE_ADDR"] ,
                     'create_at'      =>  date('Y-m-d H:i:s')
                 ]);
+                DB::commit();
                 return response()->json(['code' => 200 , 'msg' => '更新成功']);
             } else {
+                DB::rollBack();
                 return response()->json(['code' => 203 , 'msg' => '更新失败']);
             }
         } catch (Exception $ex) {
@@ -256,7 +274,7 @@ class SchoolController extends Controller {
         if($validator->fails()) {
             return response()->json(json_decode($validator->errors()->first(),1));
         }
-        $school = School::where('id',$data['school_id'])->select('id','name','dns','logo_url','introduce')->get()->toArray();
+        $school = School::where('id',$data['school_id'])->select('id','name','dns','logo_url','introduce')->first();
         return response()->json(['code' => 200 , 'msg' => 'Success','data'=>$school]);
     }
     /*
@@ -384,7 +402,7 @@ class SchoolController extends Controller {
         }
         $arr = [];
         if(!empty($data['auth_id'])){
-            $auths_id = Authrules::where(['is_del'=>1,'is_show'=>1,'is_forbid'=>1])->pluck('id')->toarray();
+            $auths_id = Authrules::where(['is_del'=>1,'is_show'=>1,'is_forbid'=>1])->pluck('id')->toArray();
             $auth_id = explode(',', $data['auth_id']);
             foreach ($auth_id as $v) {
                 if(in_array($v,$auths_id)){
