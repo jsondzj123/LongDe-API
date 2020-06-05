@@ -215,6 +215,11 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin' , 'middleware'=> ['
     $router->post('liveChild/add', 'LiveChildController@store');
     $router->post('deleteLiveChild', 'LiveChildController@destroy');
     $router->post('editLiveChildStatus', 'LiveChildController@edit');
+    
+    //上传图片OSS公共参数接口
+    $router->post('getImageOssConfig', 'CommonController@getImageOssConfig');
+    //上传到本地图片接口
+    $router->post('doUpdateImage', 'CommonController@doUpdateImage');
 
 
     //用户学员相关模块(dzj)

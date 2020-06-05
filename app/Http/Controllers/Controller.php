@@ -136,6 +136,51 @@ class Controller extends BaseController {
                     $flag = 1;
                 }
                 break;
+            case "jpg" :
+                $fh  = fopen($file["tmp_name"], "rb");
+                $bin = fread($fh, 2);
+                fclose($fh);
+                $strinfo = @unpack("C2chars", $bin);
+                $typecode = "";
+                if($strinfo && !empty($strinfo)){
+                    foreach ($strinfo as $num) {
+                        $typecode .= dechex ($num);
+                    }
+                    if ($typecode == "ffd8") {
+                        $flag = 1;
+                    }
+                }
+                break;
+            case "gif" :
+                $fh  = fopen($file["tmp_name"], "rb");
+                $bin = fread($fh, 2);
+                fclose($fh);
+                $strinfo = @unpack("C2chars", $bin);
+                $typecode = "";
+                if($strinfo && !empty($strinfo)){
+                    foreach ($strinfo as $num) {
+                        $typecode .= dechex ($num);
+                    }
+                    if ($typecode == "4749") {
+                        $flag = 1;
+                    }
+                }
+                break;
+            case "png" :
+                $fh  = fopen($file["tmp_name"], "rb");
+                $bin = fread($fh, 2);
+                fclose($fh);
+                $strinfo = @unpack("C2chars", $bin);
+                $typecode = "";
+                if($strinfo && !empty($strinfo)){
+                    foreach ($strinfo as $num) {
+                        $typecode .= dechex ($num);
+                    }
+                    if ($typecode == "8950") {
+                        $flag = 1;
+                    }
+                }
+                break;
         }
         return $flag;
     }
