@@ -11,6 +11,7 @@ class AlipayFactory{
     protected $schoolid;
     //公共参数
     public function __construct(){
+        return 222222;exit;
         require_once 'aop/AopClient.php';
         require_once 'aop/request/AlipayTradeAppPayRequest.php';
         //根据学校查询支付信息
