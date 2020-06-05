@@ -2,18 +2,17 @@
 namespace App\Tools;
 
 class WxpayFactory{
-    public function test(){
-        return 12465;
-    }
     //pay_type   1购买2充值
-    public function getPrePayOrder($order_number,$total_fee,$pay_type){
+    public function getPrePayOrder($goodsname,$order_number,$total_fee,$schoolid,$pay_type){
+        //支付信息
+        //回调
         if($pay_type == 1){
             $notifyurl = 'https://'.$_SERVER['HTTP_HOST'].'/Api/notify/wxnotify';
         }else{
             $notifyurl = 'https://'.$_SERVER['HTTP_HOST'].'/Api/notify/wxTopnotify';
         }
         //获取商品名称
-        $shopname = "龙德教育";
+        $shopname = $goodsname;
         $url = "https://api.mch.weixin.qq.com/pay/unifiedorder";
         $notify_url = $notifyurl;
         $out_trade_no = $order_number;

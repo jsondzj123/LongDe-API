@@ -181,18 +181,17 @@ class OrderController extends Controller
             //判断用户网校，根据网校查询课程信息
             if ($user_school_id == 1) {
                 //根据课程id 查询价格
-                $lessons = Lesson::select('id', 'title', 'cover', 'price', 'favorable_price','buy_num','ttl')->where(['id' => $order['class_id'], 'is_del' => 0, 'is_forbid' => 0, 'status' => 2, 'is_public' => 0])->first();
-                if (!$lessons) {
+                $lesson = Lesson::select('id', 'title', 'cover', 'price', 'favorable_price','buy_num','ttl')->where(['id' => $order['class_id'], 'is_del' => 0, 'is_forbid' => 0, 'status' => 2, 'is_public' => 0])->first();
+                if (!$lesson) {
                     return ['code' => 204, 'msg' => '此课程选择无效'];
                 }
             } else {
                 //根据课程id 网校id 查询网校课程详情
-                $lessons = LessonSchool::select('id', 'title', 'cover', 'price', 'favorable_price','buy_num','ttl')->where(['lesson_id' => $order['class_id'], 'school_id' => $user_school_id, 'is_del' => 0, 'is_forbid' => 0, 'status' => 1, 'is_public' => 0])->first();
-                if (!$lessons) {
+                $lesson = LessonSchool::select('id', 'title', 'cover', 'price', 'favorable_price','buy_num','ttl')->where(['lesson_id' => $order['class_id'], 'school_id' => $user_school_id, 'is_del' => 0, 'is_forbid' => 0, 'status' => 1, 'is_public' => 0])->first();
+                if (!$lesson) {
                     return ['code' => 204, 'msg' => '此课程选择无效'];
                 }
             }
-            $lesson = $lessons->toArray();
             if ($data['pay_type'] == 5) {
                 if ($lesson['favorable_price'] > $user_balance) {
                     return ['code' => 202, 'msg' => '余额不足，请充值！！！！！'];
@@ -212,7 +211,8 @@ class OrderController extends Controller
                     }
                 }
             } else {
-                $return = $this->payStatus($order['order_number'], $data['pay_type'], $lesson['favorable_price'],$user_school_id,1);
+                 Order::where(['id' => $data['order_id']])->update(['pay_type' =>$data['pay_type'],'update_at' =>date('Y-m-d H:i:s')]);
+                $return = $this->payStatus($lesson['title'],$order['order_number'], $data['pay_type'], $lesson['favorable_price'],$user_school_id,1);
                 return response()->json(['code' => 200, 'msg' => '生成预订单成功', 'data' => $return]);
             }
         } else {
@@ -231,20 +231,19 @@ class OrderController extends Controller
             }
         }
     }
+    //title  商品名
     //$type  1微信2支付宝3汇聚微信4汇聚支付宝
-    //pay_type   1购买2充值
     //$price 钱
     //$school_id学校id
     //$pay_type 1购买2充值
-    public function payStatus($order_number, $type, $price,$school_id,$pay_type){
+    public function payStatus($title,$order_number, $type, $price,$school_id,$pay_type){
         switch($type) {
             case "1":
-                //根据分校查询对应信息
                 $wxpay = new WxpayFactory();
-                return $return = $wxpay->getPrePayOrder($order_number, $price, $pay_type);
+                return $return = $wxpay->getPrePayOrder($title,$order_number, $price,$school_id, $pay_type);
             case "2":
                 $alipay = new AlipayFactory();
-                $return = $alipay->createAppPay($order_number, '龙德产品', 0.01, $pay_type);
+                $return = $alipay->createAppPay($title,$order_number, 0.01,$school_id, $pay_type);
                 $alipay = [
                     'alipay' => $return
                 ];
@@ -262,7 +261,7 @@ class OrderController extends Controller
                     'p2_OrderNo' => $order_number,
                     'p3_Amount' => $price,
                     'p4_Cur' => 1,
-                    'p5_ProductName' => "龙德产品",
+                    'p5_ProductName' => $title,
                     'p9_NotifyUrl' => $notify,
                     'q1_FrpCode' => 'WEIXIN_APP',
                     'q7_AppId' => '',
@@ -289,7 +288,7 @@ class OrderController extends Controller
                     'p2_OrderNo'=>$order_number,
                     'p3_Amount'=>$price,
                     'p4_Cur'=>1,
-                    'p5_ProductName'=>"龙德产品",
+                    'p5_ProductName'=>$title,
                     'p9_NotifyUrl'=>$notify,
                     'q1_FrpCode'=>'ALIPAY_APP',
                     'qa_TradeMerchantNo'=>'777170100269422'
