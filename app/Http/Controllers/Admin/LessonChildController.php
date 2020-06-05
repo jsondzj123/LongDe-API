@@ -42,7 +42,7 @@ class LessonChildController extends Controller {
             ->get();
         if($pid == 0){
             foreach ($lesson as $k => $value) {
-                $lesson[$k]['childs'] = LessonChild::where('pid', $value->id)->get();
+                $lesson[$k]['childs'] = LessonChild::where(['is_del' => 0, 'is_forbid' => 0, 'lesson_id' => $lesson_id, 'pid' => $value->id])->get();
             }
         }
     

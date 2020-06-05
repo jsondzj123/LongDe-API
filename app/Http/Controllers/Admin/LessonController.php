@@ -18,7 +18,13 @@ use App\Models\School;
 class LessonController extends Controller {
 
 
-
+    /**
+     * @param  课程列表
+     * @param  pagesize   count
+     * @param  author  孙晓丽
+     * @param  ctime   2020/5/1 
+     * return  array
+     */
     public function schoolLesson(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -74,9 +80,9 @@ class LessonController extends Controller {
             'page_data' => $lesson,
             'total' => $total,
         ];
-        return $this->response($data);
-        
+        return $this->response($data);   
     }
+
     /**
      * @param  课程列表
      * @param  pagesize   count
