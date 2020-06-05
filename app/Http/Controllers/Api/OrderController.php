@@ -245,6 +245,7 @@ class OrderController extends Controller
                 $school_id ==1;
             }
         }
+        print_r($type);die;
         switch($type) {
             case "1":
                 $wxpay = new WxpayFactory();
