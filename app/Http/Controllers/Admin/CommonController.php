@@ -210,7 +210,9 @@ class CommonController extends BaseController {
             //上传图片到OSS
             $getOssInfo = $ossClient->uploadFile($image_config['bucket'] , $filename , $_FILES['file']['tmp_name']);
             if($getOssInfo && !empty($getOssInfo)){
-                return ['code' => 200 , 'msg' => '上传成功' , 'data' => $getOssInfo['info']['url']];
+                //生成签名的图片url
+                $signedUrl = $ossClient->signUrl($image_config['bucket'] , $getOssInfo['info']['url'] , 3600);
+                return ['code' => 200 , 'msg' => '上传成功' , 'data' => $signedUrl];
             } else {
                 return ['code' => 203 , 'msg' => '上传失败'];
             }
