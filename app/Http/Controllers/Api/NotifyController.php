@@ -65,6 +65,7 @@ class NotifyController extends Controller {
     //支付宝 购买 回调接口
     public function alinotify(){
         $arr = $_POST;
+        echo $arr['out_trade_no'];die;
         file_put_contents('alipaylog.txt', '时间:'.date('Y-m-d H:i:s').print_r($arr,true),FILE_APPEND);
 //        require_once './App/Tools/Ali/aop/AopClient.php';
 //        require_once('./App/Tools/Ali/aop/request/AlipayTradeAppPayRequest.php');
