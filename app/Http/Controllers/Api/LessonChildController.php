@@ -24,15 +24,18 @@ class LessonChildController extends Controller {
         if ($validator->fails()) {
             return $this->response($validator->errors()->first(), 202);
         }
-        $lesson_id = $request->input('lesson_id') ?: 0;
+        $lesson_id = $request->input('lesson_id');
         $pid = $request->input('pid') ?: 0;
-        $lessons =  LessonChild::select('id', 'name', 'description', 'pid')->where(['is_del'=> 0, 'is_forbid' => 0, 'pid' => 0])
+        $lessons =  LessonChild::select('id', 'name', 'description', 'pid')
+                ->where(['is_del'=> 0, 'is_forbid' => 0, 'pid' => 0, 'lesson_id' => $lesson_id])
                 ->orderBy('created_at', 'desc')->get();
         foreach ($lessons as $key => $value) {
             
-            $childs = LessonChild::with('videos')->with(['lives' => function ($query) {
+            $childs = LessonChild::with('videos')
+                    ->with(['lives' => function ($query) {
                         $query->with('childs');
-                    }])->where(['is_del'=> 0, 'is_forbid' => 0, 'pid' => $value->id])->get();
+                    }])
+                    ->where(['is_del'=> 0, 'is_forbid' => 0, 'pid' => $value->id, 'lesson_id' => $lesson_id])->get();
             $value['childs'] = $childs;
         }
         return $this->response($lessons);
