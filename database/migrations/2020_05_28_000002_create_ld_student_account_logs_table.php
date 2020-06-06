@@ -22,7 +22,11 @@ class CreateLdStudentAccountlogsTable extends Migration
             $table->integer('class_id')->default(0)->comment('课程ID');
             $table->timestamp('create_at')->comment('创建时间')->default(DB::raw('CURRENT_TIMESTAMP'));
             $table->dateTime('update_at')->nullable()->comment('修改时间');
+
+            $table->index('user_id' , 'index_user_id');
         });
+        //设置表注释
+        DB::statement("alter table `ld_student_account_logs` comment '用户账户日志'");
     }
 
     /**
