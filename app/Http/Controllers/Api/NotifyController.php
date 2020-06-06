@@ -64,12 +64,14 @@ class NotifyController extends Controller {
     }
     //支付宝 购买 回调接口
     public function alinotify($arr){
+        file_put_contents('alipaylog.txt', '时间:'.date('Y-m-d H:i:s').print_r($arr,true),FILE_APPEND);
         require_once './App/Tools/Ali/aop/AopClient.php';
         require_once('./App/Tools/Ali/aop/request/AlipayTradeAppPayRequest.php');
         $aop = new AopClient();
         $aop->alipayrsaPublicKey = 'MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAh8I+MABQoa5Lr0hnb9+UeAgHCtZlwJ84+c18Kh/JWO+CAbKqGkmZ6GxrWo2X/vnY2Qf6172drEThHwafNrUqdl/zMMpg16IlwZqDeQuCgSM/4b/0909K+RRtUq48/vRM6denyhvR44fs+d4jZ+4a0v0m0Kk5maMCv2/duWejrEkU7+BG1V+YXKOb0++n8We/ZIrG/OiiXedViwSW3il9/Q5xa21KlcDPjykWyoPolR2MIFqu8PLh2z8uufCPSlFuABMyL+djo8y9RMzTWH+jN2WxcqMSDMIcwGFk3emZKzoy06a5k4Ea8/l3uHq8sbbepvpmC/dZZ0+CZdXgPnVRywIDAQAB';
         $flag = $aop->rsaCheckV1($arr, NULL, "RSA2");
         Storage ::disk('logs')->append('alipaynotify.txt', 'time:'.date('Y-m-d H:i:s')."\nresponse:".$arr);
+
         if($arr['trade_status'] == 'TRADE_SUCCESS'){
             $orders = Order::where(['order_number'=>$arr['out_trade_no']])->first();
             if ($orders['status'] > 0) {
@@ -77,7 +79,7 @@ class NotifyController extends Controller {
             }else {
                 try{
                     DB::beginTransaction();
-                    //修改订单状态   增加课程
+                    //修改订单状态
                     $arr = array(
                         'third_party_number'=>$arr['transaction_id'],
                         'status'=>1,

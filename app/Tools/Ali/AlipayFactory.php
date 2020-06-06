@@ -34,7 +34,7 @@ class AlipayFactory{
 //        }
 //        exit;
     }
-    public function createAppPay($title,$order_number, $total_amount,$schoolid,$pay_type){
+    public function createAppPay($title,$order_number, $total_amount,$pay_type){
         require_once 'aop/request/AlipayTradeAppPayRequest.php';
         //$this->schoolid = $schoolid;
         //实例化具体API对应的request类,类名称和接口名称对应,当前调用接口名称：alipay.trade.app.pay
