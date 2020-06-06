@@ -82,7 +82,7 @@ class NotifyController extends Controller {
                     DB::beginTransaction();
                     //修改订单状态
                     $arr = array(
-                        'third_party_number'=>$arr['transaction_id'],
+                        'third_party_number'=>$arr['trade_no'],
                         'status'=>1,
                         'pay_time'=>date('Y-m-d H:i:s'),
                         'update_at'=>date('Y-m-d H:i:s')
