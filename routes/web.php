@@ -33,7 +33,7 @@ $router->group(['prefix' => 'api', 'namespace' => 'Api'], function () use ($rout
     $router->post('lessonChild', 'LessonChildController@index');
     $router->post('lessonChildShow', 'LessonChildController@show');
     //课程直播目录
-    $router->post('live', 'LiveChildController@index');
+    $router->post('lessonLive', 'LiveChildController@index');
 
     $router->post('doUserRegister','AuthenticateController@doUserRegister');    //APP注册接口
     $router->post('doVisitorLogin','AuthenticateController@doVisitorLogin');    //APP游客登录接口
