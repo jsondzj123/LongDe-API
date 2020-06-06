@@ -49,9 +49,9 @@ class AlipayFactory{
         ];
         //商户外网可以访问的异步地址 (异步回掉地址，根据自己需求写)
         if($pay_type == 1){
-            $request->setNotifyUrl("http://".$_SERVER['HTTP_HOST'].'/Api/notify/alinotify');
+            $request->setNotifyUrl("http://".$_SERVER['HTTP_HOST'].'/api/notify/alinotify');
         }else{
-            $request->setNotifyUrl("http://".$_SERVER['HTTP_HOST'].'/Api/notify/aliTopnotify');
+            $request->setNotifyUrl("http://".$_SERVER['HTTP_HOST'].'/api/notify/aliTopnotify');
         }
         $request->setBizContent(json_encode($bizcontent));
         //这里和普通的接口调用不同，使用的是sdkExecute
