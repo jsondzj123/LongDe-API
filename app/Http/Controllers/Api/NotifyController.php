@@ -92,6 +92,7 @@ class NotifyController extends Controller {
                         throw new Exception('回调失败');
                     }
                     DB::commit();
+                    return 'success';
                 } catch (Exception $ex) {
                     DB::rollback();
                     return 'fail';
