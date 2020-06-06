@@ -63,11 +63,12 @@ class NotifyController extends Controller {
         }
     }
     //支付宝 购买 回调接口
-    public function alinotify($arr){
+    public function alinotify(){
+        $arr = $_POST;
         file_put_contents('alipaylog.txt', '时间:'.date('Y-m-d H:i:s').print_r($arr,true),FILE_APPEND);
-        require_once './App/Tools/Ali/aop/AopClient.php';
-        require_once('./App/Tools/Ali/aop/request/AlipayTradeAppPayRequest.php');
-        $aop = new AopClient();
+//        require_once './App/Tools/Ali/aop/AopClient.php';
+//        require_once('./App/Tools/Ali/aop/request/AlipayTradeAppPayRequest.php');
+//        $aop = new AopClient();
 //        $aop->alipayrsaPublicKey = 'MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAh8I+MABQoa5Lr0hnb9+UeAgHCtZlwJ84+c18Kh/JWO+CAbKqGkmZ6GxrWo2X/vnY2Qf6172drEThHwafNrUqdl/zMMpg16IlwZqDeQuCgSM/4b/0909K+RRtUq48/vRM6denyhvR44fs+d4jZ+4a0v0m0Kk5maMCv2/duWejrEkU7+BG1V+YXKOb0++n8We/ZIrG/OiiXedViwSW3il9/Q5xa21KlcDPjykWyoPolR2MIFqu8PLh2z8uufCPSlFuABMyL+djo8y9RMzTWH+jN2WxcqMSDMIcwGFk3emZKzoy06a5k4Ea8/l3uHq8sbbepvpmC/dZZ0+CZdXgPnVRywIDAQAB';
 //        $flag = $aop->rsaCheckV1($arr, NULL, "RSA2");
         Storage ::disk('logs')->append('alipaynotify.txt', 'time:'.date('Y-m-d H:i:s')."\nresponse:".$arr);
