@@ -17,7 +17,7 @@ $router->post('/', function () use ($router) {
     return $router->app->version();
 });
 
-$router->post('testimg', function () use ($router) {
+$router->get('testimg', function () use ($router) {
     return "<img src='https://longdeapi.oss-cn-beijing.aliyuncs.com/159143690329235edb6667a7699.png' />";
 });
 
