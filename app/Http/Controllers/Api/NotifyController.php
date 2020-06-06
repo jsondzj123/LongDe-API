@@ -71,7 +71,7 @@ class NotifyController extends Controller {
 //        $aop = new AopClient();
 //        $aop->alipayrsaPublicKey = 'MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAh8I+MABQoa5Lr0hnb9+UeAgHCtZlwJ84+c18Kh/JWO+CAbKqGkmZ6GxrWo2X/vnY2Qf6172drEThHwafNrUqdl/zMMpg16IlwZqDeQuCgSM/4b/0909K+RRtUq48/vRM6denyhvR44fs+d4jZ+4a0v0m0Kk5maMCv2/duWejrEkU7+BG1V+YXKOb0++n8We/ZIrG/OiiXedViwSW3il9/Q5xa21KlcDPjykWyoPolR2MIFqu8PLh2z8uufCPSlFuABMyL+djo8y9RMzTWH+jN2WxcqMSDMIcwGFk3emZKzoy06a5k4Ea8/l3uHq8sbbepvpmC/dZZ0+CZdXgPnVRywIDAQAB';
 //        $flag = $aop->rsaCheckV1($arr, NULL, "RSA2");
-        Storage ::disk('logs')->append('alipaynotify.txt', 'time:'.date('Y-m-d H:i:s')."\nresponse:".$arr);
+//        Storage ::disk('logs')->append('alipaynotify.txt', 'time:'.date('Y-m-d H:i:s')."\nresponse:".$arr);
 
         if($arr['trade_status'] == 'TRADE_SUCCESS'){
             $orders = Order::where(['order_number'=>$arr['out_trade_no']])->first();
@@ -81,17 +81,18 @@ class NotifyController extends Controller {
                 try{
                     DB::beginTransaction();
                     //修改订单状态
-                    $arr = array(
-                        'third_party_number'=>$arr['transaction_id'],
+                    $arrs = array(
+                        'third_party_number'=>$arr['trade_no'],
                         'status'=>1,
                         'pay_time'=>date('Y-m-d H:i:s'),
                         'update_at'=>date('Y-m-d H:i:s')
                     );
-                    $res = Order::where(['order_number'=>$arr['out_trade_no']])->update($arr);
+                    $res = Order::where(['order_number'=>$arr['out_trade_no']])->update($arrs);
                     if (!$res) {
                         throw new Exception('回调失败');
                     }
                     DB::commit();
+                    return 'success';
                 } catch (Exception $ex) {
                     DB::rollback();
                     return 'fail';

@@ -173,9 +173,10 @@ class SubjectController extends Controller {
         }
         $subject = Subject::findOrFail($request->input('id'));
         if($subject->is_forbid == 1){
-            return $this->response("已经禁用", 202);
+            $subject->is_forbid = 0;
+        }else{
+            $subject->is_forbid = 1;
         }
-        $subject->is_forbid = 1;
         if (!$subject->save()) {
             return $this->response("禁用失败", 500);
         }
