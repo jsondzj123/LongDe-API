@@ -118,13 +118,17 @@ class Lesson extends Model {
     {
         $token = isset($_REQUEST['user_token']) ? $_REQUEST['user_token'] : '';
         if($token && !empty($token)){
-            $studentIds = Student::where('token', $token)->first()->collectionLessons->pluck('id')->toArray();
-            $flipped_haystack = array_flip($studentIds);
-            if(isset($flipped_haystack[$this->id]))
-            {
-                return 1;
+             
+            $student = Student::where('token', $token)->first();
+            if(!empty($student)){
+                $studentIds = $student->collectionLessons->pluck('id')->toArray();
+                $flipped_haystack = array_flip($studentIds);
+                if(isset($flipped_haystack[$this->id]))
+                {
+                    return 1;
+                }
+                    return 0;
             }
-                return 0;
         }
         return 0;
     }
@@ -159,5 +163,9 @@ class Lesson extends Model {
 
     public function lessonChilds() {
         return $this->hasMany('App\Models\LessonChild', 'lesson_id', 'id')->where('pid', 0);
+    }
+
+    public function lives() {
+        return $this->belongsToMany('App\Models\Live', 'ld_lesson_lives');
     }
 }

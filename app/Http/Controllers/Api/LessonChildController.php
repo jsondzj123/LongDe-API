@@ -20,23 +20,20 @@ class LessonChildController extends Controller {
     public function index(Request $request){
         $validator = Validator::make($request->all(), [
             'lesson_id' => 'required',
-            'pid' => 'required',
         ]);
         if ($validator->fails()) {
             return $this->response($validator->errors()->first(), 202);
         }
         $lesson_id = $request->input('lesson_id') ?: 0;
         $pid = $request->input('pid') ?: 0;
-        $lessons =  LessonChild::select('id', 'name', 'description', 'pid')->where(['is_del'=> 0, 'is_forbid' => 0, 'pid' => $pid])
+        $lessons =  LessonChild::select('id', 'name', 'description', 'pid')->where(['is_del'=> 0, 'is_forbid' => 0, 'pid' => 0])
                 ->orderBy('created_at', 'desc')->get();
-        if($pid == 0){
-            foreach ($lessons as $key => $value) {
-                
-                $childs = LessonChild::with('videos')->with(['lives' => function ($query) {
-                            $query->with('childs');
-                        }])->where(['is_del'=> 0, 'is_forbid' => 0, 'pid' => $value->id])->get();
-                $value['childs'] = $childs;
-            }
+        foreach ($lessons as $key => $value) {
+            
+            $childs = LessonChild::with('videos')->with(['lives' => function ($query) {
+                        $query->with('childs');
+                    }])->where(['is_del'=> 0, 'is_forbid' => 0, 'pid' => $value->id])->get();
+            $value['childs'] = $childs;
         }
         return $this->response($lessons);
     }

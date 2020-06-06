@@ -6,8 +6,32 @@ use Illuminate\Http\Request;
 use Validator;
 use App\Tools\MTCloud;
 use Log;
+use App\Models\Lesson;
+use App\Models\LessonLive;
+use App\Models\LiveChild;
 
 class LiveChildController extends Controller {
+
+
+    public function index(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+           'lesson_id' => 'required',
+        ]);
+        if ($validator->fails()) {
+            return $this->response($validator->errors()->first(), 202);
+        }
+        $lives = Lesson::find($request->input('lesson_id'))->lives->toArray();
+        $childs = [];
+        if(!empty($lives)){
+            foreach ($lives as $key => $value) {
+                $childs = LiveChild::where('live_id', $value['id'])->get();
+            }
+        }
+        return $this->response($childs);
+    }
+
+
 
 
     //进入直播课程
