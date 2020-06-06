@@ -27,6 +27,7 @@ class CreateLdAuthRulesTable extends Migration
 
             $table->index('name');
         });
+        DB::statement("alter table `ld_auth_rules` comment '权限表'");
     }
 
     /**
