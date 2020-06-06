@@ -110,6 +110,7 @@ class LiveChildController extends Controller {
                             'admin_key' => $res['data']['admin_key'],
                             'user_key' => $res['data']['user_key'],
                             'add_time' => $res['data']['add_time'],
+                            'status' => 1,
                         ]);
 
             LiveClassChild::create([
