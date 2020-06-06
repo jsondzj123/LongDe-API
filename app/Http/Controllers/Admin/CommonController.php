@@ -5,6 +5,7 @@ use Laravel\Lumen\Routing\Controller as BaseController;
 use Illuminate\Http\Request;
 use App\Tools\CurrentAdmin;
 use OSS\Core\OssException;
+use OSS\OssClient;
 class CommonController extends BaseController {
     /*
      * @param  description   获取添加账号信息
