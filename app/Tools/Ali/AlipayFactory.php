@@ -61,10 +61,8 @@ class AlipayFactory{
 
     //支付宝扫码支付
     public function createPcPay(){
-
         require_once 'aop/request/AlipayTradePrecreateRequest.php';
         $request = new AlipayTradePrecreateRequest();
-
         //SDK已经封装掉了公共参数，这里只需要传入业务参数
         $bizcontent    =    [
             'out_trade_no'        =>    '20200528180614753620',
