@@ -122,12 +122,6 @@ $router->group(['prefix' => 'web' , 'namespace' => 'Web'], function () use ($rou
 $router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use ($router) {
     $router->post('register', 'AuthenticateController@register');
     $router->post('login', 'AuthenticateController@postLogin');
-    //上传图片OSS公共参数接口
-    $router->post('getImageOssConfig', 'CommonController@getImageOssConfig');
-    //上传到本地图片接口
-    $router->post('doUploadImage', 'CommonController@doUploadImage');
-    //上传到OSS图片接口
-    $router->post('doUploadOssImage', 'CommonController@doUploadOssImage');
 });
 //后端登录权限认证相关接口
 $router->group(['prefix' => 'admin' , 'namespace' => 'Admin' , 'middleware'=> ['jwt.auth']], function () use ($router) {
@@ -231,6 +225,13 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin' , 'middleware'=> ['
     $router->post('liveChild/add', 'LiveChildController@store');
     $router->post('deleteLiveChild', 'LiveChildController@destroy');
     $router->post('editLiveChildStatus', 'LiveChildController@edit');
+    
+    //上传图片OSS公共参数接口
+    $router->post('getImageOssConfig', 'CommonController@getImageOssConfig');
+    //上传到本地图片接口
+    $router->post('doUploadImage', 'CommonController@doUploadImage');
+    //上传到OSS图片接口
+    $router->post('doUploadOssImage', 'CommonController@doUploadOssImage');
 
 
     //用户学员相关模块(dzj)
