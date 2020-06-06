@@ -28,15 +28,15 @@ class LiveChildController extends Controller {
         if(!empty($lives)){
             foreach ($lives as $key => $value) {
                 //直播中
-                $childs['live'] = LiveChild::where([
+                $childs['live'] = LiveChild::select('id', 'course_name', 'start_time', 'end_time', 'course_id', 'status')->where([
                     'is_del' => 0, 'is_forbid' => 0, 'status' => 2, 'live_id' => $value['id']
                 ])->get();
                 //预告
-                $childs['advance'] = LiveChild::where([
+                $childs['advance'] = LiveChild::select('id', 'course_name', 'start_time', 'end_time', 'course_id', 'status')->where([
                     'is_del' => 0, 'is_forbid' => 0, 'status' => 1, 'live_id' => $value['id']
                 ])->get();
                 //回放
-                $childs['playback'] = LiveChild::where([
+                $childs['playback'] = LiveChild::select('id', 'course_name', 'start_time', 'end_time', 'course_id', 'status')->where([
                     'is_del' => 0, 'is_forbid' => 0, 'status' => 3, 'live_id' => $value['id']
                 ])->get();
             }
