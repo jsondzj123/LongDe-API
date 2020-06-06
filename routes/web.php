@@ -17,10 +17,6 @@ $router->post('/', function () use ($router) {
     return $router->app->version();
 });
 
-$router->get('testimg', function () use ($router) {
-    return "<img src='https://longdeapi.oss-cn-beijing.aliyuncs.com/159143690329235edb6667a7699.png' />";
-});
-
 //客户端(ios,安卓)不需要登录路由接口
 $router->group(['prefix' => 'api', 'namespace' => 'Api'], function () use ($router) {
     /*
