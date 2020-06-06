@@ -65,8 +65,6 @@ class NotifyController extends Controller {
     //支付宝 购买 回调接口
     public function alinotify(){
         $arr = $_POST;
-        $res = Order::where(['order_number'=>$arr['out_trade_no']])->first()->toArray();
-        print_r($res);die;
         file_put_contents('alipaylog.txt', '时间:'.date('Y-m-d H:i:s').print_r($arr,true),FILE_APPEND);
 //        require_once './App/Tools/Ali/aop/AopClient.php';
 //        require_once('./App/Tools/Ali/aop/request/AlipayTradeAppPayRequest.php');
@@ -83,13 +81,13 @@ class NotifyController extends Controller {
                 try{
                     DB::beginTransaction();
                     //修改订单状态
-                    $arr = array(
+                    $arrs = array(
                         'third_party_number'=>$arr['trade_no'],
                         'status'=>1,
                         'pay_time'=>date('Y-m-d H:i:s'),
                         'update_at'=>date('Y-m-d H:i:s')
                     );
-                    $res = Order::where(['order_number'=>$arr['out_trade_no']])->update($arr);
+                    $res = Order::where(['order_number'=>$arr['out_trade_no']])->update($arrs);
                     if (!$res) {
                         throw new Exception('回调失败');
                     }
