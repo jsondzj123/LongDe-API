@@ -32,6 +32,8 @@ $router->group(['prefix' => 'api', 'namespace' => 'Api'], function () use ($rout
     $router->post('lessonShow', 'LessonController@show');
     $router->post('lessonChild', 'LessonChildController@index');
     $router->post('lessonChildShow', 'LessonChildController@show');
+    //课程直播目录
+    $router->post('live', 'LiveChildController@index');
 
     $router->post('doUserRegister','AuthenticateController@doUserRegister');    //APP注册接口
     $router->post('doVisitorLogin','AuthenticateController@doVisitorLogin');    //APP游客登录接口
@@ -71,7 +73,7 @@ $router->group(['prefix' => 'api', 'namespace' => 'Api'], function () use ($rout
 $router->group(['prefix' => 'api', 'namespace' => 'Api', 'middleware'=> 'user'], function () use ($router) {
     //直播课程
     $router->post('courseAccess', 'LiveChildController@courseAccess');
-    $router->post('live', 'LiveChildController@index');
+    
 
 
     //收藏模块
@@ -225,7 +227,6 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin' , 'middleware'=> ['
     $router->post('liveChild/add', 'LiveChildController@store');
     $router->post('deleteLiveChild', 'LiveChildController@destroy');
     $router->post('editLiveChildStatus', 'LiveChildController@edit');
-
     
     //上传图片OSS公共参数接口
     $router->post('getImageOssConfig', 'CommonController@getImageOssConfig');
