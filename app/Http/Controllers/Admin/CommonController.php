@@ -208,7 +208,7 @@ class CommonController extends BaseController {
             $ossClient = new \OSS\OssClient($image_config['accessKeyId'] , $image_config['accessKeySecret'] , $image_config['oss_url']);
             
             //上传图片到OSS
-            $getOssInfo = $ossClient->uploadFile($image_config['bucket'] , $filename , $_FILES['file']['tmp_name']);
+            $getOssInfo = $ossClient->uploadFile($image_config['bucket'] , $filename , $_FILES['file']['tmp_name'] , [OssClient::OSS_CONTENT_TYPE => 'image/jpg']);
             if($getOssInfo && !empty($getOssInfo)){
                 return ['code' => 200 , 'msg' => '上传成功' , 'data' => $getOssInfo['info']['url']];
             } else {
