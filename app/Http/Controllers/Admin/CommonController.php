@@ -136,7 +136,7 @@ class CommonController extends BaseController {
             }
 
             //存放文件路径
-            $file_path= app()->basePath() . "/upload/editor/" . date('Y-m-d') . '/';
+            $file_path= app()->basePath() . "/public/upload/editor/" . date('Y-m-d') . '/';
             //判断上传的文件夹是否建立
             if(!file_exists($file_path)){
                 mkdir($file_path , 0777 , true);
