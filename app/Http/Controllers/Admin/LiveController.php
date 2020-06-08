@@ -171,10 +171,7 @@ class LiveController extends Controller {
             $live->name = $request->input('name') ?: $live->name;
             $live->description = $request->input('description') ?: $live->description;
             $live->save();
-            if(!empty($subjectIds)){
-                $live->subjects()->detach(); 
-                $live->subjects()->attach($subjectIds); 
-            }
+            $live->subjects()->sync($subjectIds);
             return $this->response("修改成功");
         } catch (Exception $e) {
             Log::error('修改课程信息失败' . $e->getMessage());
@@ -224,8 +221,8 @@ class LiveController extends Controller {
         $live = Live::findOrFail($request->input('id'));
         $live->is_del = 1;
         if (!$live->save()) {
-            return $this->response("删除失败", 500);
+            return $this->response("操作失败", 500);
         }
-        return $this->response("删除成功");
+        return $this->response("操作成功");
     }
 }

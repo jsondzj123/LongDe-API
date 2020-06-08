@@ -21,8 +21,7 @@ class StatisticsController extends Controller {
         * @param  enrill_status  0未消费1消费
         * @param  real_name  姓名
         * @param  phone  手机号
-        * @param  statr_time  开始时间
-        * @param  end_time  结束时间
+        * @param  time  查询类型1当天2昨天3七天4当月5三个月
         * @param  type  1统计表2趋势图
         * @param  num  每页条数
         * @param  author  苏振文
@@ -43,10 +42,35 @@ class StatisticsController extends Controller {
        $pagesize = (int)isset($data['pageSize']) && $data['pageSize'] > 0 ? $data['pageSize'] : 20;
        $page     = isset($data['page']) && $data['page'] > 0 ? $data['page'] : 1;
        $offset   = ($page - 1) * $pagesize;
-       $stime = (!empty($data['state_time']))?$data['state_time']:date('Y-m-d');
-       $etime = ((!empty($data['end_time']))?$data['end_time']:date('Y-m-d'));
-       $statetime = $stime." 00:00:00";
-       $endtime = $etime." 23:59:59";
+       if(!empty($data['time'])){
+           if($data['time'] == 1){
+               $stime = date('Y-m-d');
+               $etme = date('Y-m-d');
+           }
+           if($data['time'] == 2){
+               $stime = date("Y-m-d",strtotime("-1 day"));
+               $etme = date("Y-m-d",strtotime("-1 day"));
+           }
+           if($data['time'] == 3){
+               $stime = date("Y-m-d",strtotime("-7 day"));
+               $etme = date('Y-m-d');
+           }
+           if($data['time'] == 4){
+               $statetimestamp = mktime(0, 0, 0, date('m'), 1, date('Y'));
+               $stime =date('Y-m-d', $statetimestamp);
+               $endtimestamp = mktime(23, 59, 59, date('m'), date('t'), date('Y'));
+               $etme = date('Y-m-d', $endtimestamp);
+           }
+           if($data['time'] == 5){
+               $stime = date("Y-m-d", strtotime("-3 month"));
+               $etme = date('Y-m-d');
+           }
+           $statetime = $stime . " 00:00:00";
+           $endtime = $etme . " 23:59:59";
+       }else{
+           $statetime = "2020-04-01 00:00:00";
+           $endtime = "2120-04-01 00:00:00";
+       }
        //总条数
        $count = Student::leftJoin('ld_school','ld_school.id','=','ld_student.school_id')
            ->where(['ld_student.is_forbid'=>1,'ld_school.is_del'=>1,'ld_school.is_forbid'=>1])
