@@ -15,7 +15,6 @@ use Log;
 
 class LiveChildController extends Controller {
 
-
      /**
      * @param  课次列表
      * @param  current_count   count
@@ -64,7 +63,7 @@ class LiveChildController extends Controller {
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'class_id' => 'required',
+            'lesson_child_id' => 'required',
             'live_id' => 'required',
             'lesson_name' => 'required',
             'teacher_id' => 'required',
@@ -95,27 +94,26 @@ class LiveChildController extends Controller {
                 return $this->response('直播间创建失败', 500);
             }
             $livechild =  LiveChild::create([
-                            'admin_id' => $user->id,
-                            'live_id' => $request->input('live_id'),
+                            'admin_id'    => $user->id,
+                            'live_id'     => $request->input('live_id'),
                             'course_name' => $request->input('lesson_name'),
-                            'account'=> $request->input('teacher_id'),
-                            'start_time'=> $request->input('start_time'),
-                            'end_time' => $request->input('end_time'),
-                            'nickname' => $request->input('nickname'),
-                            //'accountIntro' => $request->input('accountIntro'),
+                            'account'    => $request->input('teacher_id'),
+                            'start_time' => $request->input('start_time'),
+                            'end_time'   => $request->input('end_time'),
+                            'nickname'   => $request->input('nickname'),
                             'partner_id' => $res['data']['partner_id'],
-                            'bid' => $res['data']['bid'],
-                            'course_id' => $res['data']['course_id'],
-                            'zhubo_key' => $res['data']['zhubo_key'],
-                            'admin_key' => $res['data']['admin_key'],
-                            'user_key' => $res['data']['user_key'],
-                            'add_time' => $res['data']['add_time'],
-                            'status' => 1,
+                            'bid'        => $res['data']['bid'],
+                            'course_id'  => $res['data']['course_id'],
+                            'zhubo_key'  => $res['data']['zhubo_key'],
+                            'admin_key'  => $res['data']['admin_key'],
+                            'user_key'   => $res['data']['user_key'],
+                            'add_time'   => $res['data']['add_time'],
+                            'status'     => 1,
                         ]);
 
             LiveClassChild::create([
                 'live_child_id' => $livechild->id,
-                'lesson_child_id' => $request->input('class_id'),
+                'lesson_child_id' => $request->input('lesson_child_id'),
                 ]);
             LiveTeacher::create([
                 'admin_id' => $user->id,
@@ -134,7 +132,7 @@ class LiveChildController extends Controller {
 
 
     /**
-     * 启用/禁用
+     * 启用/禁用课次
      *
      * @param  int  $id
      * @return \Illuminate\Http\Response
@@ -159,7 +157,7 @@ class LiveChildController extends Controller {
     }
 
     /**
-     * 删除
+     * 删除课次
      *
      * @param  int  $id
      * @return \Illuminate\Http\Response
@@ -172,10 +170,40 @@ class LiveChildController extends Controller {
             return $this->response($validator->errors()->first(), 202);
         }
         $live = LiveChild::findOrFail($id);
-        $live->is_del = 1;
+        if($live->is_del == 1){
+            $live->is_del = 0;
+        }else{
+            $live->is_del = 1;
+        }
         if (!$live->save()) {
             return $this->response("删除失败", 500);
         }
         return $this->response("删除成功");
     }
+
+
+
+    /**
+     * 启动直播
+     * @param 
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function startLive(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'course_id' => 'required',
+        ]);
+        if ($validator->fails()) {
+            return $this->response($validator->errors()->first(), 202);
+        }
+        $MTCloud = new MTCloud();
+        $res = $MTCloud->courseLaunch($request->input('course_id'));
+        Log::error('直播器启动:'.json_encode($res));
+        if(!array_key_exists('code', $res) && !$res["code"] == 0){
+            return $this->response('直播器启动失败', 500);
+        }
+        return $this->response($res);
+    }
+
 }
