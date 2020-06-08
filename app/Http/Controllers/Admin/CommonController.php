@@ -196,6 +196,7 @@ class CommonController extends BaseController {
             
             //重置文件名
             $filename = time() . rand(1,10000) . uniqid() . substr($file['name'], stripos($file['name'], '.'));
+            $path     = "upload/" . date('Y-m-d') . '/'.$filename;
             
             //oss图片公共参数配置部分
             $image_config = [
@@ -209,7 +210,7 @@ class CommonController extends BaseController {
             $ossClient = new \OSS\OssClient($image_config['accessKeyId'] , $image_config['accessKeySecret'] , $image_config['oss_url']);
             
             //上传图片到OSS
-            $getOssInfo = $ossClient->uploadFile($image_config['bucket'] , $filename , $_FILES['file']['tmp_name'] , [OssClient::OSS_CONTENT_TYPE => 'image/jpg']);
+            $getOssInfo = $ossClient->uploadFile($image_config['bucket'] , $path , $_FILES['file']['tmp_name'] , [OssClient::OSS_CONTENT_TYPE => 'image/jpg']);
             if($getOssInfo && !empty($getOssInfo)){
                 return ['code' => 200 , 'msg' => '上传成功' , 'data' => $getOssInfo['info']['url']];
             } else {

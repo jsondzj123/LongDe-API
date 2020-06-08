@@ -476,12 +476,17 @@ class ExamController extends Controller {
 
             //获取上传文件的文件后缀
             $is_correct_extensiton = self::detectUploadFileMIME($file);
-            if($is_correct_extensiton <= 0){
+            $excel_extension       = substr($_FILES['file']['name'], strrpos($_FILES['file']['name'], '.')+1);   //获取excel后缀名
+            if($is_correct_extensiton <= 0 || !in_array($excel_extension , ['xlsx' , 'xls'])){
                 return ['code' => 202 , 'msg' => '上传文件格式非法'];
             }
 
             //存放文件路径
-            $file_path= app()->basePath() . "/upload/";
+            $file_path= app()->basePath() . "/public/upload/excel/";
+            //判断上传的文件夹是否建立
+            if(!file_exists($file_path)){
+                mkdir($file_path , 0777 , true);
+            }
 
             //重置文件名
             $filename = time() . rand(1,10000) . uniqid() . substr($file['name'], stripos($file['name'], '.'));

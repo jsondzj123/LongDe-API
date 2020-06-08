@@ -79,6 +79,9 @@ class AuthenticateController extends Controller {
             
             //生成随机唯一的token
             $token = self::setAppLoginToken($body['phone']);
+            
+            //正常用户昵称
+            $nickname = randstr(8);
 
             //开启事务
             DB::beginTransaction();
@@ -87,6 +90,7 @@ class AuthenticateController extends Controller {
             $user_data = [
                 'phone'     =>    $body['phone'] ,
                 'password'  =>    password_hash($body['password'] , PASSWORD_DEFAULT) ,
+                'nickname'  =>    $nickname ,
                 'token'     =>    $token ,
                 'device'    =>    isset($body['device']) && !empty($body['device']) ? $body['device'] : '' ,
                 'reg_source'=>    1 ,
@@ -97,7 +101,7 @@ class AuthenticateController extends Controller {
             //将数据插入到表中
             $user_id = User::insertGetId($user_data);
             if($user_id && $user_id > 0){
-                $user_info = ['user_id' => $user_id , 'user_token' => $token , 'user_type' => 1  , 'head_icon' => '' , 'real_name' => '' , 'phone' => $body['phone'] , 'nickname' => '' , 'sign' => '' , 'papers_type' => '' , 'papers_name' => '' , 'papers_num' => '' , 'balance' => 0 , 'school_id' => 1];
+                $user_info = ['user_id' => $user_id , 'user_token' => $token , 'user_type' => 1  , 'head_icon' => '' , 'real_name' => '' , 'phone' => $body['phone'] , 'nickname' => $nickname , 'sign' => '' , 'papers_type' => '' , 'papers_name' => '' , 'papers_num' => '' , 'balance' => 0 , 'school_id' => 1];
                 //redis存储信息
                 Redis::hMset("user:regtoken:".$token , $user_info);
                 
