@@ -3,6 +3,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use App\Models\AdminLog;
+use App\Models\LessonTeacher;
 use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\DB;
 
@@ -135,7 +136,13 @@ class Teacher extends Model {
                 if(isset($body['search']) && !empty($body['search'])){
                     $query->where('id','=',$body['search'])->orWhere('real_name','like','%'.$body['search'].'%');
                 }
-            })->select('id as teacher_id','real_name','phone','create_at','number','is_recommend')->orderByDesc('create_at')->offset($offset)->limit($pagesize)->get();
+            })->select('id as teacher_id','real_name','phone','create_at','number','is_recommend')->orderByDesc('create_at')->offset($offset)->limit($pagesize)->get()->toArray();
+            //判断如果是讲师则查询开课数量
+            if($body['type'] == 2){
+                foreach($teacher_list as $k=>$v){
+                    $teacher_list[$k]['number'] = LessonTeacher::where('teacher_id' , $v['teacher_id'])->count();
+                }
+            }
             return ['code' => 200 , 'msg' => '获取老师列表成功' , 'data' => ['teacher_list' => $teacher_list , 'total' => $teacher_count , 'pagesize' => $pagesize , 'page' => $page]];
         } else {
             return ['code' => 200 , 'msg' => '获取老师列表成功' , 'data' => ['teacher_list' => [] , 'total' => 0 , 'pagesize' => $pagesize , 'page' => $page]];
@@ -224,9 +231,9 @@ class Teacher extends Model {
         }
 
         //判断头像是否上传
-        if(!isset($body['head_icon']) || empty($body['head_icon'])){
+        /*if(!isset($body['head_icon']) || empty($body['head_icon'])){
             return ['code' => 201 , 'msg' => '请上传头像'];
-        }
+        }*/
 
         //判断手机号是否为空
         if(!isset($body['phone']) || empty($body['phone'])){
@@ -241,16 +248,16 @@ class Teacher extends Model {
         }
 
         //判断性别是否选择
-        if(!isset($body['sex']) || empty($body['sex'])){
+        /*if(!isset($body['sex']) || empty($body['sex'])){
             return ['code' => 201 , 'msg' => '请选择性别'];
         } else if(!in_array($body['sex'] , [1,2])) {
             return ['code' => 202 , 'msg' => '性别不合法'];
-        }
+        }*/
 
         //判断描述是否为空
-        if(!isset($body['describe']) || empty($body['describe'])){
+        /*if(!isset($body['describe']) || empty($body['describe'])){
             return ['code' => 201 , 'msg' => '请输入描述'];
-        }
+        }*/
 
         //如果是讲师
         $teacher_info = self::find($body['teacher_id']);
@@ -261,9 +268,9 @@ class Teacher extends Model {
             }
 
             //判断详情是否为空
-            if(!isset($body['content']) || empty($body['content'])){
+            /*if(!isset($body['content']) || empty($body['content'])){
                 return ['code' => 201 , 'msg' => '请输入详情'];
-            }
+            }*/
             
             //转化学科类型
             $parent_info = json_decode($body['parent_id'] , true);
@@ -292,16 +299,16 @@ class Teacher extends Model {
         
         //讲师或教务数组信息追加
         $teacher_array = [
-            'head_icon'  =>    $body['head_icon'] ,
-            'phone'      =>    $body['phone'] ,
-            'real_name'  =>    $body['real_name'] ,
+            'head_icon'  =>    isset($body['head_icon']) && !empty($body['head_icon']) ? $body['head_icon'] : '' ,
+            'phone'      =>    isset($body['phone']) && !empty($body['phone']) ? $body['phone'] : '',
+            'real_name'  =>    isset($body['real_name']) && !empty($body['real_name']) ? $body['real_name'] : '' ,
             'qq'         =>    isset($body['qq']) && !empty($body['qq']) ? $body['qq'] : '' ,
             'wechat'     =>    isset($body['wechat']) && !empty($body['wechat']) ? $body['wechat'] : '' ,
-            'sex'        =>    $body['sex'] ,
-            'describe'   =>    $body['describe'] ,
+            'sex'        =>    isset($body['sex']) && !empty($body['sex']) ? $body['sex'] : 0,
+            'describe'   =>    isset($body['describe']) && !empty($body['describe']) ? $body['describe'] : '',
             'parent_id'  =>    $teacher_info['type'] > 1 ? $parent_info && !empty($parent_info) ? $parent_info[0] : 0 : 0 ,
             'child_id'   =>    $teacher_info['type'] > 1 ? $parent_info && !empty($parent_info) ? $parent_info[1] : 0 : 0 ,
-            'content'    =>    $teacher_info['type'] > 1 ? $body['content'] : '' ,
+            'content'    =>    $teacher_info['type'] > 1 ? isset($body['content']) && !empty($body['content']) ? $body['content'] : '' : '' ,
             'update_at'  =>    date('Y-m-d H:i:s')
         ];
         
@@ -364,9 +371,9 @@ class Teacher extends Model {
             return ['code' => 202 , 'msg' => '老师类型不合法'];
         } else {
             //判断头像是否上传
-            if(!isset($body['head_icon']) || empty($body['head_icon'])){
+            /*if(!isset($body['head_icon']) || empty($body['head_icon'])){
                 return ['code' => 201 , 'msg' => '请上传头像'];
-            }
+            }*/
 
             //判断手机号是否为空
             if(!isset($body['phone']) || empty($body['phone'])){
@@ -381,16 +388,16 @@ class Teacher extends Model {
             }
 
             //判断性别是否选择
-            if(!isset($body['sex']) || empty($body['sex'])){
+            /*if(!isset($body['sex']) || empty($body['sex'])){
                 return ['code' => 201 , 'msg' => '请选择性别'];
             } else if(!in_array($body['sex'] , [1,2])) {
                 return ['code' => 202 , 'msg' => '性别不合法'];
-            }
+            }*/
 
             //判断描述是否为空
-            if(!isset($body['describe']) || empty($body['describe'])){
+            /*if(!isset($body['describe']) || empty($body['describe'])){
                 return ['code' => 201 , 'msg' => '请输入描述'];
-            }
+            }*/
 
             //如果是讲师
             if($body['type'] > 1){
@@ -400,9 +407,9 @@ class Teacher extends Model {
                 }
 
                 //判断详情是否为空
-                if(!isset($body['content']) || empty($body['content'])){
+                /*if(!isset($body['content']) || empty($body['content'])){
                     return ['code' => 201 , 'msg' => '请输入详情'];
-                }
+                }*/
                 
                 //转化学科类型
                 $parent_info = json_decode($body['parent_id'] , true);
@@ -418,16 +425,16 @@ class Teacher extends Model {
         //讲师或教务数组信息追加
         $teacher_array = [
             'type'       =>    $body['type'] ,
-            'head_icon'  =>    $body['head_icon'] ,
-            'phone'      =>    $body['phone'] ,
-            'real_name'  =>    $body['real_name'] ,
+            'head_icon'  =>    isset($body['head_icon']) && !empty($body['head_icon']) ? $body['head_icon'] : '' ,
+            'phone'      =>    isset($body['phone']) && !empty($body['phone']) ? $body['phone'] : '',
+            'real_name'  =>    isset($body['real_name']) && !empty($body['real_name']) ? $body['real_name'] : '' ,
             'qq'         =>    isset($body['qq']) && !empty($body['qq']) ? $body['qq'] : '' ,
             'wechat'     =>    isset($body['wechat']) && !empty($body['wechat']) ? $body['wechat'] : '' ,
-            'sex'        =>    $body['sex'] ,
-            'describe'   =>    $body['describe'] ,
+            'sex'        =>    isset($body['sex']) && !empty($body['sex']) ? $body['sex'] : 0,
+            'describe'   =>    isset($body['describe']) && !empty($body['describe']) ? $body['describe'] : '',
             'parent_id'  =>    $body['type'] > 1 ? $parent_info && !empty($parent_info) ? $parent_info[0] : 0 : 0 ,
             'child_id'   =>    $body['type'] > 1 ? $parent_info && !empty($parent_info) ? $parent_info[1] : 0 : 0 ,
-            'content'    =>    $body['type'] > 1 ? $body['content'] : '' ,
+            'content'    =>    $body['type'] > 1 ? isset($body['content']) && !empty($body['content']) ? $body['content'] : '' : '' ,
             'admin_id'   =>    $admin_id ,
             'school_id'  =>    $school_id ,
             'create_at'  =>    date('Y-m-d H:i:s')
