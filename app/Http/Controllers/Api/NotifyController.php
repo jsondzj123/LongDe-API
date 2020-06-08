@@ -89,6 +89,7 @@ class NotifyController extends Controller {
                     );
                     $res = Order::where(['order_number'=>$arr['out_trade_no']])->update($arrs);
                     if (!$res) {
+                        //修改用户类型
                         throw new Exception('回调失败');
                     }
                     DB::commit();
