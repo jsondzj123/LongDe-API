@@ -204,7 +204,7 @@ class LiveChildController extends Controller {
         if(!array_key_exists('code', $res) && !$res["code"] == 0){
             return $this->response('直播器启动失败', 500);
         }
-        return $this->response($res);
+        return $this->response($res['data']);
     }
 
 }
