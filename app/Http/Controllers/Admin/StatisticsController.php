@@ -45,32 +45,32 @@ class StatisticsController extends Controller {
        if(!empty($data['time'])){
            if($data['time'] == 1){
                $stime = date('Y-m-d');
-               $etme = date('Y-m-d');
+               $etime = date('Y-m-d');
            }
            if($data['time'] == 2){
                $stime = date("Y-m-d",strtotime("-1 day"));
-               $etme = date("Y-m-d",strtotime("-1 day"));
+               $etime = date("Y-m-d",strtotime("-1 day"));
            }
            if($data['time'] == 3){
                $stime = date("Y-m-d",strtotime("-7 day"));
-               $etme = date('Y-m-d');
+               $etime = date('Y-m-d');
            }
            if($data['time'] == 4){
                $statetimestamp = mktime(0, 0, 0, date('m'), 1, date('Y'));
                $stime =date('Y-m-d', $statetimestamp);
                $endtimestamp = mktime(23, 59, 59, date('m'), date('t'), date('Y'));
-               $etme = date('Y-m-d', $endtimestamp);
+               $etime = date('Y-m-d', $endtimestamp);
            }
            if($data['time'] == 5){
                $stime = date("Y-m-d", strtotime("-3 month"));
-               $etme = date('Y-m-d');
+               $etime = date('Y-m-d');
            }
-           $statetime = $stime . " 00:00:00";
-           $endtime = $etme . " 23:59:59";
        }else{
-           $statetime = "2020-04-01 00:00:00";
-           $endtime = "2120-04-01 00:00:00";
+           $stime = date('Y-m-d');
+           $etime = date('Y-m-d');
        }
+       $statetime = $stime . " 00:00:00";
+       $endtime = $etime . " 23:59:59";
        //总条数
        $count = Student::leftJoin('ld_school','ld_school.id','=','ld_student.school_id')
            ->where(['ld_student.is_forbid'=>1,'ld_school.is_del'=>1,'ld_school.is_forbid'=>1])
@@ -229,11 +229,66 @@ class StatisticsController extends Controller {
         */
    public function TeacherList(){
        $data = self::$accept_data;
-       $data['num'] = isset($data['num'])?$data['num']:20;
-       $stime = (!empty($data['state_time']))?$data['state_time']:date('Y-m-d');
-       $etime = ((!empty($data['end_time']))?$data['end_time']:date('Y-m-d'));
-       $statetime = $stime." 00:00:00";
-       $endtime = $etime." 23:59:59";
+       //每页显示的条数
+       $pagesize = (int)isset($data['pageSize']) && $data['pageSize'] > 0 ? $data['pageSize'] : 20;
+       $page     = isset($data['page']) && $data['page'] > 0 ? $data['page'] : 1;
+       $offset   = ($page - 1) * $pagesize;
+
+       //获取用户网校id
+       $role_id = isset(AdminLog::getAdminInfo()->admin_user->role_id) ? AdminLog::getAdminInfo()->admin_user->role_id : 0;
+       if($role_id !=1 ){
+           $data['school_id'] = isset(AdminLog::getAdminInfo()->admin_user->school_id) ? AdminLog::getAdminInfo()->admin_user->school_id : 0;
+       }
+       //网校列表
+       $schoolList = Article::schoolANDtype($role_id);
+
+       if(!empty($data['time'])){
+           if($data['time'] == 1){
+               $stime = date('Y-m-d');
+               $etime = date('Y-m-d');
+           }
+           if($data['time'] == 2){
+               $stime = date("Y-m-d",strtotime("-1 day"));
+               $etime = date("Y-m-d",strtotime("-1 day"));
+           }
+           if($data['time'] == 3){
+               $stime = date("Y-m-d",strtotime("-7 day"));
+               $etime = date('Y-m-d');
+           }
+           if($data['time'] == 4){
+               $statetimestamp = mktime(0, 0, 0, date('m'), 1, date('Y'));
+               $stime =date('Y-m-d', $statetimestamp);
+               $endtimestamp = mktime(23, 59, 59, date('m'), date('t'), date('Y'));
+               $etime = date('Y-m-d', $endtimestamp);
+           }
+           if($data['time'] == 5){
+               $stime = date("Y-m-d", strtotime("-3 month"));
+               $etime = date('Y-m-d');
+           }
+       }else{
+           $stime = date('Y-m-d');
+           $etime = date('Y-m-d');
+       }
+       $statetime = $stime . " 00:00:00";
+       $endtime = $etime . " 23:59:59";
+       //总条数
+       $count = Lecturer::leftJoin('ld_school','ld_school.id','=','ld_lecturer_educationa.school_id')
+           ->where(function($query) use ($data) {
+               //分校
+               if(!empty($data['school_id'])&&$data['school_id'] != ''){
+                   $query->where('ld_lecturer_educationa.school_id',$data['school_id']);
+               }
+               //用户姓名
+               if(!empty($data['real_name'])&&$data['real_name'] != ''){
+                   $query->where('ld_lecturer_educationa.real_name','like','%'.$data['real_name'].'%');
+               }
+               //用户手机号
+               if(!empty($data['phone'])&&$data['phone'] != ''){
+                   $query->where('ld_lecturer_educationa.phone','like','%'.$data['phone'].'%');
+               }
+           })->where(['ld_lecturer_educationa.type'=>2,'ld_lecturer_educationa.is_del'=>0,'ld_lecturer_educationa.is_forbid'=>0])
+           ->orderBy('ld_lecturer_educationa.id','desc')
+           ->whereBetween('ld_lecturer_educationa.create_at', [$statetime, $endtime])->count();
        $teacher = Lecturer::select('ld_lecturer_educationa.id','ld_lecturer_educationa.real_name','ld_lecturer_educationa.phone','ld_lecturer_educationa.number','ld_school.name')
             ->leftJoin('ld_school','ld_school.id','=','ld_lecturer_educationa.school_id')
             ->where(function($query) use ($data) {
@@ -251,11 +306,16 @@ class StatisticsController extends Controller {
                 }
             })
             ->where(['ld_lecturer_educationa.type'=>2,'ld_lecturer_educationa.is_del'=>0,'ld_lecturer_educationa.is_forbid'=>0])
-            ->whereBetween('ld_lecturer_educationa.create_at', [$statetime, $endtime])
             ->orderBy('ld_lecturer_educationa.id','desc')
-            ->paginate($data['num']);
+           ->whereBetween('ld_lecturer_educationa.create_at', [$statetime, $endtime])
+           ->offset($offset)->limit($pagesize)->get();
        $num = Lecturer::where(['type'=>2,'is_del'=>0,'is_forbid'=>0])->sum('number');
-       return response()->json(['code'=>200,'msg'=>'获取成功','data'=>$teacher,'count'=>$num]);
+       $pages=[
+           'pageSize'=>$pagesize,
+           'page' =>$page,
+           'total'=>$count
+       ];
+       return response()->json(['code'=>200,'msg'=>'获取成功','data'=>$teacher,'count'=>$num,'page'=>$pages,'schoolList'=>$schoolList[0]]);
    }
 
    /*
