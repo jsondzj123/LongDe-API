@@ -224,7 +224,7 @@ class CommonController extends BaseController {
     
     /*
      * @param  description   删除OSS上面的图片方法
-     * @param $filename      文件的信息(例如:/upload/2020-06-08/159158885017335eddb7f232739.jpg)
+     * @param $filename      文件的信息(例如:upload/2020-06-08/159158885017335eddb7f232739.jpg)
      * @param author    dzj
      * @param ctime     2020-06-08
      * return string
