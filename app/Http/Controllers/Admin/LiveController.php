@@ -186,7 +186,7 @@ class LiveController extends Controller {
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit(Request $request) {
+    public function status(Request $request) {
         $validator = Validator::make($request->all(), [
             'id' => 'required',
         ]);
