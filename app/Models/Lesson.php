@@ -132,14 +132,10 @@ class Lesson extends Model {
         }
         return 0;
     }
+
     public function getUrlAttribute($value) {
         if ($value) {
             $photos = json_decode($value, true);
-            foreach ($photos as $k => $v) {
-                if (!empty($v) && strpos($v, 'http://') === false && strpos($v, 'https://') === false) {
-                    $photos[$k] = $v;
-                }
-            }
             return $photos;
         }
         return $value;
