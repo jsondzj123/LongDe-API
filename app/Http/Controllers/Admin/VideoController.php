@@ -112,10 +112,7 @@ class VideoController extends Controller {
             $video->url = $request->input('url') ?: $video->url;
             $video->size = $request->input('size') ?: $video->size;
             $video->save();
-            if(!empty($subjectIds)){
-                $video->subjects()->detach(); 
-                $video->subjects()->attach($subjectIds); 
-            }
+            $video->subjects()->sync($subjectIds);
         } catch (Exception $e) {
             Log::error('修改失败' . $e->getMessage());
             return $this->response("修改成功");
