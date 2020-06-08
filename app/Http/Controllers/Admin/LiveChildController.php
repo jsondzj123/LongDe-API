@@ -192,13 +192,14 @@ class LiveChildController extends Controller {
     public function startLive(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'course_id' => 'required',
+            'id' => 'required',
         ]);
         if ($validator->fails()) {
             return $this->response($validator->errors()->first(), 202);
         }
+        $live = LiveChild::findOrFail($request->input('id'));
         $MTCloud = new MTCloud();
-        $res = $MTCloud->courseLaunch($request->input('course_id'));
+        $res = $MTCloud->courseLaunch($live->course_id);
         Log::error('直播器启动:'.json_encode($res));
         if(!array_key_exists('code', $res) && !$res["code"] == 0){
             return $this->response('直播器启动失败', 500);
