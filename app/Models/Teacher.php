@@ -137,8 +137,10 @@ class Teacher extends Model {
             //判断学科分类是否选择
             if(isset($body['parent_id']) && !empty($body['parent_id'])){
                 $parent_id = json_decode($body['parent_id'] , true);
-                $query->where('parent_id','=',$parent_id[0]);
-                $query->where('child_id','=',$parent_id[1]);
+                if($parent_id && !empty($parent_id)){
+                    $query->where('parent_id','=',$parent_id[0]);
+                    $query->where('child_id','=',$parent_id[1]);
+                }
             }
             
             //判断姓名是否为空
