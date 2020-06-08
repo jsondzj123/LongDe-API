@@ -262,17 +262,16 @@ class Order extends Model {
         if(!$data || !is_array($data)){
             return ['code' => 201 , 'msg' => '数据不合法'];
         }
-        $find = self::where(['id'=>$data['order_id']])->first();
-        if(!$find){
+        $order = self::where(['id'=>$data['order_id']])->first();
+        if(!$order){
             return ['code' => 201 , 'msg' => '数据无效'];
         }
-        if($find['status'] != 1){
+        if($order['status'] != 1){
             return ['code' => 201 , 'msg' => '订单无法审核'];
         }
-        $order = $find->toArray();
         //获取后端的操作员id
         $admin_id = isset(AdminLog::getAdminInfo()->admin_user->id) ? AdminLog::getAdminInfo()->admin_user->id : 0;
-        if($find['status'] == 1){
+        if($order['status'] == 1){
             if($data['status'] == 2){
                 DB::beginTransaction();
                 if($order['pay_status'] == 3 || $order['pay_status'] == 4){
