@@ -10,7 +10,7 @@ use Validator;
 use App\Tools\MTCloud;
 use App\Models\LiveChild;
 use App\Models\LiveTeacher;
-use App\Models\LiveClasschild;
+use App\Models\LiveClassChild;
 use Log;
 
 class LiveChildController extends Controller {
@@ -110,9 +110,10 @@ class LiveChildController extends Controller {
                             'admin_key' => $res['data']['admin_key'],
                             'user_key' => $res['data']['user_key'],
                             'add_time' => $res['data']['add_time'],
+                            'status' => 1,
                         ]);
 
-            LiveClasschild::create([
+            LiveClassChild::create([
                 'live_child_id' => $livechild->id,
                 'lesson_child_id' => $request->input('class_id'),
                 ]);

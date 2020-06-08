@@ -30,7 +30,13 @@ class CreateLdArticleTable extends Migration
             $table->smallInteger('is_del')->default(1)->comment('0无效1有效');
             $table->timestamp('create_at')->comment('创建时间')->default(DB::raw('CURRENT_TIMESTAMP'));
             $table->dateTime('update_at')->nullable()->comment('修改时间');
+
+            //索引设置部分
+            $table->index('school_id' , 'index_school_id');
+            $table->index('article_type_id' , 'index_article_type_id');
         });
+        //设置表注释
+        DB::statement("alter table `ld_article` comment '文章表'");
     }
 
     /**

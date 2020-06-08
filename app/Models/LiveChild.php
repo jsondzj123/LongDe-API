@@ -29,7 +29,8 @@ class LiveChild extends Model {
         'scenes',
         'add_time',
         'updateTime',
-        'course_id'
+        'course_id',
+        'status'
     ];
 
     protected $hidden = [

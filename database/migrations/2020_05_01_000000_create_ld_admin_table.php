@@ -26,12 +26,14 @@ class CreateLdAdminTable extends Migration
             $table->integer('teacher_id')->nullable()->comment('教师ID');
             $table->smallInteger('school_id')->comment('学校ID');
             $table->smallInteger('school_status')->default(0)->comment('学校状态ID 0 分校 1是总校');
-            $table->smallInteger('is_forbid')->default(1)->comment('禁用0是1否');
-            $table->smallInteger('is_del')->default(1)->comment('删除0是1否');
+            $table->smallInteger('is_forbid')->default(1)->comment('禁用  0禁用 1启用');
+            $table->smallInteger('is_del')->default(1)->comment('删除 0已删除 1未删除');
             $table->timestamps();
-
-
+            $table->index('id');
+            $table->index('school_status');
+            $table->index('role_id');
         });
+         DB::statement("alter table `ld_admin` comment '后台管理员表'");
     }
 
     /**
