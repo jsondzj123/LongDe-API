@@ -44,27 +44,29 @@ class StatisticsController extends Controller {
        $offset   = ($page - 1) * $pagesize;
        if(!empty($data['time'])){
            if($data['time'] == 1){
-               $statetime = date('Y-m-d')." 00:00:00";
-               $endtime = date('Y-m-d')." 23:59:59";
+               $stime = date('Y-m-d');
+               $etme = date('Y-m-d');
            }
            if($data['time'] == 2){
-               $statetime = date("Y-m-d",strtotime("-1 day"))." 00:00:00";
-               $endtime = date("Y-m-d",strtotime("-1 day"))." 23:59:59";
+               $stime = date("Y-m-d",strtotime("-1 day"));
+               $etme = date("Y-m-d",strtotime("-1 day"));
            }
            if($data['time'] == 3){
-               $statetime = date("Y-m-d",strtotime("-7 day"))." 00:00:00";
-               $endtime = date('Y-m-d')." 23:59:59";
+               $stime = date("Y-m-d",strtotime("-7 day"));
+               $etme = date('Y-m-d');
            }
            if($data['time'] == 4){
                $statetimestamp = mktime(0, 0, 0, date('m'), 1, date('Y'));
-               $statetime =date('Y-m-d', $statetimestamp)." 00:00:00";
+               $stime =date('Y-m-d', $statetimestamp);
                $endtimestamp = mktime(23, 59, 59, date('m'), date('t'), date('Y'));
-               $endtime = date('Y-m-d', $endtimestamp)." 23:59:59";
+               $etme = date('Y-m-d', $endtimestamp);
            }
            if($data['time'] == 5){
-               $statetime = date("Y-m-d", strtotime("-3 month"))." 00:00:00";
-               $endtime = date('Y-m-d')." 23:59:59";
+               $stime = date("Y-m-d", strtotime("-3 month"));
+               $etme = date('Y-m-d');
            }
+           $statetime = $stime . " 00:00:00";
+           $endtime = $etme . " 23:59:59";
        }else{
            $statetime = "2020-04-01 00:00:00";
            $endtime = "2120-04-01 00:00:00";
