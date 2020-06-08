@@ -82,7 +82,7 @@ class Teacher extends Model {
         }
 
         //根据id获取讲师或教务详细信息
-        $teacher_info = self::where('id',$body['teacher_id'])->select('head_icon','school_id','phone','real_name','sex','qq','wechat','parent_id','describe','content')->first()->toArray();
+        $teacher_info = self::where('id',$body['teacher_id'])->select('head_icon','school_id','phone','real_name','sex','qq','wechat','parent_id','child_id','describe','content')->first()->toArray();
         return ['code' => 200 , 'msg' => '获取老师信息成功' , 'data' => $teacher_info];
     }
 
@@ -110,9 +110,9 @@ class Teacher extends Model {
         $pagesize = isset($body['pagesize']) && $body['pagesize'] > 0 ? $body['pagesize'] : 15;
         $page     = isset($body['page']) && $body['page'] > 0 ? $body['page'] : 1;
         $offset   = ($page - 1) * $pagesize;
-
-        //获取讲师或教务列表
-        $teacher_list = self::where(function($query) use ($body){
+        
+        //获取讲师或教务是否有数据
+        $teacher_count = self::where(function($query) use ($body){
             $query->where('is_del' , '=' , 0);
             //获取老师类型(讲师还是教务)
             $query->where('type' , '=' , $body['type']);
@@ -121,8 +121,25 @@ class Teacher extends Model {
             if(isset($body['search']) && !empty($body['search'])){
                 $query->where('id','=',$body['search'])->orWhere('real_name','like','%'.$body['search'].'%');
             }
-        })->select('id as teacher_id','real_name','phone','create_at','number','is_recommend')->orderByDesc('create_at')->offset($offset)->limit($pagesize)->get();
-        return ['code' => 200 , 'msg' => '获取老师列表成功' , 'data' => $teacher_list];
+        })->count();
+        
+        //判断讲师或教务是否有数据
+        if($teacher_count && $teacher_count > 0){
+            //获取讲师或教务列表
+            $teacher_list = self::where(function($query) use ($body){
+                $query->where('is_del' , '=' , 0);
+                //获取老师类型(讲师还是教务)
+                $query->where('type' , '=' , $body['type']);
+
+                //判断搜索内容是否为空
+                if(isset($body['search']) && !empty($body['search'])){
+                    $query->where('id','=',$body['search'])->orWhere('real_name','like','%'.$body['search'].'%');
+                }
+            })->select('id as teacher_id','real_name','phone','create_at','number','is_recommend')->orderByDesc('create_at')->offset($offset)->limit($pagesize)->get();
+            return ['code' => 200 , 'msg' => '获取老师列表成功' , 'data' => ['teacher_list' => $teacher_list , 'total' => $teacher_count , 'pagesize' => $pagesize , 'page' => $page]];
+        } else {
+            return ['code' => 200 , 'msg' => '获取老师列表成功' , 'data' => ['teacher_list' => [] , 'total' => 0 , 'pagesize' => $pagesize , 'page' => $page]];
+        }
     }
     
     /*
@@ -239,7 +256,7 @@ class Teacher extends Model {
         $teacher_info = self::find($body['teacher_id']);
         if($teacher_info['type'] > 1){
             //判断学科是否选择
-            if((!isset($body['parent_id']) || empty($body['parent_id'])) || (!isset($body['child_id']) || empty($body['child_id'])) || ($body['child_id'] <= 0 || $body['child_id'] <= 0)){
+            if(!isset($body['parent_id']) || empty($body['parent_id']) || empty(json_decode($body['parent_id'] , true))){
                 return ['code' => 201 , 'msg' => '请选择关联学科'];
             }
 
@@ -247,6 +264,11 @@ class Teacher extends Model {
             if(!isset($body['content']) || empty($body['content'])){
                 return ['code' => 201 , 'msg' => '请输入详情'];
             }
+            
+            //转化学科类型
+            $parent_info = json_decode($body['parent_id'] , true);
+        } else {
+            $parent_info = "";
         }
 
         //获取老师id
@@ -277,8 +299,8 @@ class Teacher extends Model {
             'wechat'     =>    isset($body['wechat']) && !empty($body['wechat']) ? $body['wechat'] : '' ,
             'sex'        =>    $body['sex'] ,
             'describe'   =>    $body['describe'] ,
-            'parent_id'  =>    $teacher_info['type'] > 1 ? $body['parent_id'] : 0 ,
-            'child_id'   =>    $teacher_info['type'] > 1 ? $body['child_id'] : 0 ,
+            'parent_id'  =>    $teacher_info['type'] > 1 ? $parent_info && !empty($parent_info) ? $parent_info[0] : 0 : 0 ,
+            'child_id'   =>    $teacher_info['type'] > 1 ? $parent_info && !empty($parent_info) ? $parent_info[1] : 0 : 0 ,
             'content'    =>    $teacher_info['type'] > 1 ? $body['content'] : '' ,
             'update_at'  =>    date('Y-m-d H:i:s')
         ];
@@ -373,7 +395,7 @@ class Teacher extends Model {
             //如果是讲师
             if($body['type'] > 1){
                 //判断学科是否选择
-                if((!isset($body['parent_id']) || empty($body['parent_id'])) || (!isset($body['child_id']) || empty($body['child_id'])) || ($body['child_id'] <= 0 || $body['child_id'] <= 0)){
+                if(!isset($body['parent_id']) || empty($body['parent_id']) || empty(json_decode($body['parent_id'] , true))){
                     return ['code' => 201 , 'msg' => '请选择关联学科'];
                 }
 
@@ -381,13 +403,17 @@ class Teacher extends Model {
                 if(!isset($body['content']) || empty($body['content'])){
                     return ['code' => 201 , 'msg' => '请输入详情'];
                 }
+                
+                //转化学科类型
+                $parent_info = json_decode($body['parent_id'] , true);
+            } else {
+                $parent_info = "";
             }
         }
         
         //获取后端的操作员id
         $admin_id = isset(AdminLog::getAdminInfo()->admin_user->id) ? AdminLog::getAdminInfo()->admin_user->id : 0;
         $school_id= isset(AdminLog::getAdminInfo()->admin_user->school_id) ? AdminLog::getAdminInfo()->admin_user->school_id : 0;
-
 
         //讲师或教务数组信息追加
         $teacher_array = [
@@ -399,8 +425,8 @@ class Teacher extends Model {
             'wechat'     =>    isset($body['wechat']) && !empty($body['wechat']) ? $body['wechat'] : '' ,
             'sex'        =>    $body['sex'] ,
             'describe'   =>    $body['describe'] ,
-            'parent_id'  =>    $body['type'] > 1 ? $body['parent_id'] : 0 ,
-            'child_id'   =>    $body['type'] > 1 ? $body['child_id'] : 0 ,
+            'parent_id'  =>    $body['type'] > 1 ? $parent_info && !empty($parent_info) ? $parent_info[0] : 0 : 0 ,
+            'child_id'   =>    $body['type'] > 1 ? $parent_info && !empty($parent_info) ? $parent_info[1] : 0 : 0 ,
             'content'    =>    $body['type'] > 1 ? $body['content'] : '' ,
             'admin_id'   =>    $admin_id ,
             'school_id'  =>    $school_id ,
