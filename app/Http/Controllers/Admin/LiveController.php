@@ -28,8 +28,8 @@ class LiveController extends Controller {
         $pagesize = $request->input('pagesize') ?: 15;
         $page     = $request->input('page') ?: 1;
         $offset   = ($page - 1) * $pagesize;
-        $total = Live::where(['is_del'=> 0, 'is_forbid' => 0])->count();
-        $live = Live::where(['is_del'=> 0, 'is_forbid' => 0])
+        $total = Live::where('is_del', 0)->count();
+        $live = Live::where('is_del', 0)
             ->orderBy('created_at', 'desc')
             ->skip($offset)->take($pagesize)
             ->get();
@@ -186,7 +186,7 @@ class LiveController extends Controller {
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit(Request $request) {
+    public function status(Request $request) {
         $validator = Validator::make($request->all(), [
             'id' => 'required',
         ]);
