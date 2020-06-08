@@ -194,12 +194,12 @@ class IndexController extends Controller {
                 foreach($teacher_list as $k=>$v){
                     //根据大分类的id获取大分类的名称
                     if($v['parent_id'] && $v['parent_id'] > 0){
-                        $lession_parent_name = Subject::where("id" , $v['parent_id'])->where("status" , 1)->where("is_del" , 0)->where("is_forbid" , 0)->value("name");
+                        $lession_parent_name = Subject::where("id" , $v['parent_id'])->where("is_del" , 0)->where("is_forbid" , 0)->value("name");
                     }
 
                     //根据小分类的id获取小分类的名称
                     if($v['child_id'] && $v['child_id'] > 0){
-                        $lession_child_name  = Subject::where("id" , $v['child_id'])->where("status" , 1)->where("is_del" , 0)->where("is_forbid" , 0)->value("name");
+                        $lession_child_name  = Subject::where("id" , $v['child_id'])->where("is_del" , 0)->where("is_forbid" , 0)->value("name");
                     }
 
                     //数组赋值
@@ -383,6 +383,16 @@ class IndexController extends Controller {
                 //空数组
                 $teacher_list = [];
                 foreach($famous_teacher_list as $k=>$v){
+                    //根据大分类的id获取大分类的名称
+                    if($v['parent_id'] && $v['parent_id'] > 0){
+                        $lession_parent_name = Subject::where("id" , $v['parent_id'])->where("is_del" , 0)->where("is_forbid" , 0)->value("name");
+                    }
+
+                    //根据小分类的id获取小分类的名称
+                    if($v['child_id'] && $v['child_id'] > 0){
+                        $lession_child_name  = Subject::where("id" , $v['child_id'])->where("is_del" , 0)->where("is_forbid" , 0)->value("name");
+                    }
+                    
                     //获取课程的id列表
                     $lesson_list     = LessonTeacher::where('teacher_id' , $v['id'])->get();
                     if($lesson_list && !empty($lesson_list)){
@@ -402,12 +412,14 @@ class IndexController extends Controller {
                     
                     //数组数值信息赋值
                     $teacher_list[] = [
-                        'teacher_id'    =>  $v['id'] , 
-                        'teacher_icon'  =>  $v['head_icon'] ,
-                        'teacher_name'  =>  $v['real_name'] ,
-                        'star_num'      =>  5 ,
-                        'lesson_number' =>  $v['lesson_number'] ,
-                        'student_number'=>  $student_number
+                        'teacher_id'          =>  $v['id'] , 
+                        'teacher_icon'        =>  $v['head_icon'] ,
+                        'teacher_name'        =>  $v['real_name'] ,
+                        'lession_parent_name' =>  $v['parent_id'] > 0 ? !empty($lession_parent_name) ? $lession_parent_name : '' : '',
+                        'lession_child_name'  =>  $v['child_id']  > 0 ? !empty($lession_child_name)  ? $lession_child_name  : '' : '',
+                        'star_num'            =>  5 ,
+                        'lesson_number'       =>  $v['lesson_number'] ,
+                        'student_number'      =>  $student_number
                     ];
                 }
             } else {
