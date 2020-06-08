@@ -41,7 +41,7 @@ class VideoController extends Controller {
      * @param  ctime   2020/5/1 
      * return  array
      */
-    public function show($id) {
+    public function show(Request $request) {
         $validator = Validator::make($request->all(), [
             'id' => 'required',
         ]);
@@ -127,7 +127,7 @@ class VideoController extends Controller {
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit(Request $request) {
+    public function status(Request $request) {
         $validator = Validator::make($request->all(), [
             'id' => 'required',
         ]);
@@ -135,10 +135,11 @@ class VideoController extends Controller {
             return $this->response($validator->errors()->first(), 202);
         }
         $video = Video::findOrFail($request->input('id'));
-        if($video->status == 1){
-            return $this->response("已经禁用", 404);
+        if($video->is_forbid == 1){
+            $video->is_forbid = 0;
+        }else{
+            $video->is_forbid = 1;
         }
-        $video->status = 1;
         if (!$video->save()) {
             return $this->response("操作失败", 500);
         }
@@ -160,12 +161,13 @@ class VideoController extends Controller {
         }
         $video = Video::findOrFail($request->input('id'));
         if($video->is_del == 1){
-            return $this->response("已经删除", 404);
+           $video->is_del = 0;
+        }else{
+           $video->is_del = 1;
         }
-        $video->is_del = 1;
         if (!$video->save()) {
-            return $this->response("删除失败", 500);
+            return $this->response("操作失败", 500);
         }
-        return $this->response("删除成功");
+        return $this->response("操作成功");
     }
 }

@@ -202,7 +202,7 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin' , 'middleware'=> ['
     $router->post('video/add', 'VideoController@store');
     $router->post('videoShow', 'VideoController@show');
     $router->post('updateVideo', 'VideoController@update');
-    $router->post('updateVideoStatus', 'VideoController@edit');
+    $router->post('updateVideoStatus', 'VideoController@status');
     $router->post('deleteVideo', 'VideoController@destroy');
 
 
