@@ -10,29 +10,6 @@ use Validator;
 class LessonController extends Controller {
 
     /**
-     * @param  公开课列表
-     * @param  pagesize   page
-     * @param  author  孙晓丽
-     * @param  ctime   2020/5/26 
-     * @return  array
-     */
-    public function publicList(Request $request){
-        $pagesize = $request->input('pagesize') ?: 15;
-        $page     = $request->input('page') ?: 1;
-        $offset   = ($page - 1) * $pagesize;
-        $lesson =  Lesson::select('id', 'admin_id', 'title', 'cover', 'price', 'favorable_price', 'buy_num', 'method', 'status', 'is_del', 'is_forbid', 'start_at', 'end_at')
-                ->where(['is_public' => 1, 'is_del'=> 0, 'is_forbid' => 0, 'status' => 2])
-                ->orderBy('start_at', 'desc');
-        $total = $lesson->count();
-        $lessons = $lesson->skip($offset)->take($pagesize)->get();
-        $data = [
-            'page_data' => $lessons,
-            'total' => $total,
-        ];
-        return $this->response($data);
-    }
-
-    /**
      * @param  课程列表
      * @param  current_count   count
      * @param  author  孙晓丽

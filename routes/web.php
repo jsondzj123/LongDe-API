@@ -28,7 +28,6 @@ $router->group(['prefix' => 'api', 'namespace' => 'Api'], function () use ($rout
      * 课程模块(sxl)
     */
     $router->post('lesson', 'LessonController@index');
-    $router->post('publicLesson', 'LessonController@publicList');
     $router->post('lessonShow', 'LessonController@show');
     $router->post('lessonChild', 'LessonChildController@index');
     $router->post('lessonChildShow', 'LessonChildController@show');
