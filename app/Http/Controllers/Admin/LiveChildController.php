@@ -15,14 +15,14 @@ use Log;
 
 class LiveChildController extends Controller {
 
-     /**
-     * @param  课次列表
-     * @param  current_count   count
+    /**
+     * @param  直播课次列表
+     * @param  pagesize   page
      * @param  author  孙晓丽
-     * @param  ctime   2020/5/18 
+     * @param  ctime   2020/6/8 
      * @return  array
      */
-    public function index(Request $request){
+    public function liveList(Request $request){
         $validator = Validator::make($request->all(), [
             'live_id' => 'required',
         ]);
@@ -44,6 +44,44 @@ class LiveChildController extends Controller {
                 'is_forbid' => 0, 
                 'live_id' => $live_id
             ])
+            ->skip($offset)->take($pagesize)
+            ->get();
+    
+        $data = [
+            'page_data' => $lesson,
+            'total' => $total,
+        ];
+        return $this->response($data);
+    }
+
+     /**
+     * @param   所有课次列表
+     * @param  pagesize   page
+     * @param  author  孙晓丽
+     * @param  ctime   2020/6/8
+     * @return  array
+     */
+    public function index(Request $request){
+        $pagesize = $request->input('pagesize') ?: 15;
+        $page     = $request->input('page') ?: 1;
+        $offset   = ($page - 1) * $pagesize;
+        $status   = $request->input('status');
+        $start_time = $request->input('start_time');
+        $end_time = $request->input('end_time');
+        $keyword     = $request->input('keyword');
+        $total = LiveChild::where(['is_del' => 0, 'is_forbid' => 0])->count();
+        $lesson = LiveChild::select('id', 'course_name', 'start_time', 'end_time', 'modetype')
+            ->where(['is_del' => 0, 'is_forbid' => 0])
+            ->where(function($query) use ($status, $keyword){
+                if($status == 0){
+                    $query->whereIn("status", [1, 2, 3]);
+                }else{
+                    $query->where("status", $status);
+                }
+                if(!empty($keyword)){
+                    $query->where('course_name', 'like', '%'.$keyword.'%');
+                }
+            })
             ->skip($offset)->take($pagesize)
             ->get();
     
