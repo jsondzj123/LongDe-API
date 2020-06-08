@@ -30,6 +30,10 @@ class Teacher extends Model {
         return true;
     }
     
+    public function lessons() {
+        return $this->belongsToMany('App\Models\Teacher', 'ld_lesson_teachers');
+    }
+    
     /*
      * @param  description   添加教师/教务方法
      * @param  data          数组数据
