@@ -288,18 +288,9 @@ class LessonController extends Controller {
             $lesson->end_at = $request->input('end_at') ?: $lesson->end_at;
             $lesson->status = $request->input('status') ?: $lesson->status;
             $lesson->save();
-            if(!empty($subjectIds)){
-                $lesson->subjects()->detach(); 
-                $lesson->subjects()->attach($subjectIds);
-            }
-            if(!empty($teacherIds)){
-                $lesson->teachers()->detach(); 
-                $lesson->teachers()->attach($teacherIds); 
-            }
-            if(!empty($methodIds)){
-                $lesson->methods()->detach(); 
-                $lesson->methods()->attach($methodIds);  
-            }
+            $lesson->subjects()->sync($subjectIds);
+            $lesson->teachers()->sync($teacherIds);
+            $lesson->methods()->sync($methodIds);
             return $this->response("修改成功");
         } catch (Exception $e) {
             Log::error('修改课程信息失败' . $e->getMessage());
