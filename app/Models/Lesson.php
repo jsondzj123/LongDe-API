@@ -37,6 +37,7 @@ class Lesson extends Model {
     ];
 
     protected $appends = [
+        'is_buy',
         'is_auth',
         'is_collection',
         'method_id',
@@ -45,6 +46,19 @@ class Lesson extends Model {
         'sold_num',
         'stock_num'
     ];
+
+    public function getIsBuyAttribute($value)
+    {
+        $token = isset($_REQUEST['user_token']) ? $_REQUEST['user_token'] : 0;
+        $student = Student::where('token', $token)->first();
+        if(!empty($student)){
+            $num = $this->hasMany('App\Models\Order', 'class_id')->where(['status' =>1, 'student_id' => $student->id])->count();
+            if($num > 0){
+                return 1;
+            }
+        }
+        return 0;   
+    }
 
     public function getStockNumAttribute($value)
     {
