@@ -120,6 +120,7 @@ class NotifyController extends Controller {
     //iphone 内部支付 回调
     public function iphonePaynotify(){
         $data = self::$accept_data;
+        file_put_contents('iosnotifyrucan.txt', '时间:'.date('Y-m-d H:i:s').print_r($data,true),FILE_APPEND);
         $receiptData = $data['receiptData'];
         $order_number = $data['order_number'];
         if(!isset($data['receiptData']) ||empty($receiptData)){
@@ -166,7 +167,7 @@ class NotifyController extends Controller {
                 'tc009'=>3998,
                 'tc0010'=>6498,
             ];
-            if($studentprice['price'] != $codearr[$arr['receipt']['in_app'][0]['product_id']]){
+            if($studentprice['price'] != $codearr[$arr['receipt']['in_app'][1]['product_id']]){
                 return response()->json(['code' => 203 , 'msg' => '充值金额不一致，你充不上，气不气']);
             }
             //修改订单状态  更改用户余额 加入日志
