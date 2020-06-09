@@ -170,7 +170,7 @@ class NotifyController extends Controller {
                 return response()->json(['code' => 203 , 'msg' => '充值金额不一致，你充不上，气不气']);
             }
             //修改订单状态  更改用户余额 加入日志
-            $student = Student::where(['id'=>$studentprice['user_id']])->first()->toArray();
+            $student = Student::where(['id'=>$studentprice['user_id']])->first();
             $endbalance = $student['balance'] + $studentprice['price'];
             Student::where(['id'=>$studentprice['user_id']])->update(['balance'=>$endbalance]);
             StudentAccounts::where(['order_number'=>$order_number])->update(['content'=>$html,'status'=>1,'update_at'=>date('Y-m-d H:i:s')]);
