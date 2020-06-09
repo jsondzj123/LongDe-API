@@ -146,7 +146,8 @@ class NotifyController extends Controller {
         if($count>0){
             return response()->json(['code' => 201 , 'msg' => '此参数已处理']);
         }
-        Storage::disk('local')->append('iosnotify.txt', 'time:'.date('Y-m-d H:i:s')."\nresponse:".$html);
+        file_put_contents('iosnotify.txt', '时间:'.date('Y-m-d H:i:s').print_r($arr,true),FILE_APPEND);
+//        Storage::disk('local')->append('iosnotify.txt', 'time:'.date('Y-m-d H:i:s')."\nresponse:".$html);
         // 判断是否购买成功  【状态码,0为成功（无论是沙箱环境还是正式环境只要数据正确status都会是：0）】
         if (intval($arr['status']) === 0) {
             DB::beginTransaction();
