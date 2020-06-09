@@ -123,7 +123,6 @@ $router->group(['prefix' => 'web' , 'namespace' => 'Web'], function () use ($rou
 $router->group(['prefix' => 'admin' , 'namespace' => 'Admin', 'middleware'=> 'cors'], function () use ($router) {
     $router->post('register', 'AuthenticateController@register');
     $router->post('login', 'AuthenticateController@postLogin');
-    $router->options('login', 'AuthenticateController@postLogin');
     
 });
 //后端登录权限认证相关接口
