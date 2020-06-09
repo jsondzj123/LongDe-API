@@ -327,8 +327,13 @@ class OrderController extends Controller
             'order_type' => 1,
             'status' => 0
         ];
-        StudentAccounts::insert($sutdent_price);
-        return response()->json(['code' => 200, 'msg' => '生成预订单成功', 'data' => $sutdent_price]);
+        $add = StudentAccounts::insert($sutdent_price);
+        if($add){
+            return response()->json(['code' => 200, 'msg' => '生成预订单成功', 'data' => $sutdent_price]);
+        }else{
+            return response()->json(['code' => 201, 'msg' => '系统错误']);
+        }
+
     }
     // ios轮询查看订单是否成功
     public function iosPolling(){
