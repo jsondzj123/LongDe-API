@@ -138,7 +138,7 @@ class Lesson extends Model {
             $photos = json_decode($value, true);
             return $photos;
         }
-        return $value;
+        return [];
     }
 
     public function teachers() {
