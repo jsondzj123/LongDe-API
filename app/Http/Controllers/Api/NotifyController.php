@@ -152,10 +152,6 @@ class NotifyController extends Controller {
         // 判断是否购买成功  【状态码,0为成功（无论是沙箱环境还是正式环境只要数据正确status都会是：0）】
         if (intval($arr['status']) === 0) {
             DB::beginTransaction();
-            $studentprice = StudentAccounts::where(['order_number'=>$order_number])->first()->toArray();
-            if($studentprice['status'] == 1){
-                return response()->json(['code' => 200 , 'msg' => '支付成功']);
-            }
             $codearr=[
                 'tc001'=>6,
                 'tc003'=>18,
@@ -167,15 +163,32 @@ class NotifyController extends Controller {
                 'tc009'=>3998,
                 'tc0010'=>6498,
             ];
-            if($studentprice['price'] != $codearr[$arr['receipt']['in_app'][1]['product_id']]){
-                return response()->json(['code' => 203 , 'msg' => '充值金额不一致，你充不上，气不气']);
+            $studentprice = StudentAccounts::where(['order_number'=>$order_number])->first();
+            foreach ($arr['receipt']['in_app'] as $k=>$v){
+                //充值的钱
+                $czprice = $codearr[$v]['product_id'];
+                //根据用户的钱 查询订单
+                $czorderfind = StudentAccounts::where(['user_id'=>$studentprice['user_id'],'price'=>$czprice,'pay_type'=>5,'order_type'=>1])->first();
+                if($czorderfind['status'] != 1){
+                    //修改订单状态  更改用户余额 加入日志
+                    $student = Student::where(['id'=>$studentprice['user_id']])->first();
+                    $endbalance = $student['balance'] + $czorderfind['price'];
+                    Student::where(['id'=>$studentprice['user_id']])->update(['balance'=>$endbalance]);
+                    StudentAccounts::where(['user_id'=>$studentprice['user_id'],'price'=>$czprice,'pay_type'=>5,'order_type'=>1])->update(['third_party_number'=>$v['transaction_id'],'content'=>$html,'status'=>1,'update_at'=>date('Y-m-d H:i:s')]);
+                    StudentAccountlog::insert(['user_id'=>$studentprice['user_id'],'price'=>$studentprice['price'],'end_price'=>$endbalance,'status'=>1]);
+                }
+                //修改订单状态  更改用户余额 加入日志
+//                $student = Student::where(['id'=>$studentprice['user_id']])->first();
+//                $endbalance = $student['balance'] + $studentprice['price'];
+//                Student::where(['id'=>$studentprice['user_id']])->update(['balance'=>$endbalance]);
+//                StudentAccounts::where(['order_number'=>$order_number])->update(['content'=>$html,'status'=>1,'update_at'=>date('Y-m-d H:i:s')]);
+//                StudentAccountlog::insert(['user_id'=>$studentprice['user_id'],'price'=>$studentprice['price'],'end_price'=>$endbalance,'status'=>1]);
+
             }
-            //修改订单状态  更改用户余额 加入日志
-            $student = Student::where(['id'=>$studentprice['user_id']])->first();
-            $endbalance = $student['balance'] + $studentprice['price'];
-            Student::where(['id'=>$studentprice['user_id']])->update(['balance'=>$endbalance]);
-            StudentAccounts::where(['order_number'=>$order_number])->update(['content'=>$html,'status'=>1,'update_at'=>date('Y-m-d H:i:s')]);
-            StudentAccountlog::insert(['user_id'=>$studentprice['user_id'],'price'=>$studentprice['price'],'end_price'=>$endbalance,'status'=>1]);
+//            $studentprice = StudentAccounts::where(['order_number'=>$order_number])->first()->toArray();
+//            if($studentprice['status'] == 1){
+                return response()->json(['code' => 200 , 'msg' => '支付成功']);
+//            }
             DB::commit();
             return response()->json(['code' => 200 , 'msg' => '支付成功']);
         }else{
