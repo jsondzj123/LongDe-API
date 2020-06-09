@@ -27,7 +27,6 @@ class CreateLdLessonsTable extends Migration
             $table->integer('end_at')->nullable()->comment('公开课结束时间');
             $table->decimal('price', 10, 2)->nullable()->comment('定价');
             $table->decimal('favorable_price', 10, 2)->nullable()->comment('优惠价格');
-            $table->smallInteger('method')->nullable()->default(0)->comment('授课方式1录播2直播3其他');
             $table->integer('ttl')->nullable()->default(0)->comment('有效期');
             $table->integer('buy_num')->nullable()->default(0)->comment('购买基数');
             $table->smallInteger('is_recommend')->nullable()->default(0)->comment('推荐0否1是');

@@ -43,22 +43,22 @@ class LiveChildController extends Controller {
         }
         $childs = [];
         if(!empty($live->toArray())){
-            $childs['live'] = [
+            array_push($childs, [
                     'title' => '正在播放',
                     'data'  => $live,
-                ];
+                ]);
         }
         if(!empty($advance->toArray())){
-            $childs['advance'] = [
+            array_push($childs, [
                     'title' => '播放预告',
                     'data'  => $advance,
-                ];
+                ]);
         }
         if(!empty($playback->toArray())){
-            $childs['playback'] = [
+            array_push($childs, [
                     'title' => '历史课程',
                     'data'  => $playback,
-                ];
+                ]);
         }
         return $this->response($childs);
     }
@@ -92,6 +92,6 @@ class LiveChildController extends Controller {
             Log::error('进入直播间失败:'.json_encode($res));
             return $this->response('进入直播间失败', 500);
         }
-        return $this->response($res);
+        return $this->response($res['data']);
     }
 }
