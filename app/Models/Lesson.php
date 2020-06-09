@@ -37,15 +37,21 @@ class Lesson extends Model {
     ];
 
     protected $appends = [
-        'is_buy',
         'is_auth',
         'is_collection',
         'method_id',
         'teacher_id',
         'subject_id',
         'sold_num',
-        'stock_num'
+        'stock_num',
+        'is_buy',
+        'class_num',
     ];
+
+    public function getClassNumAttribute($value)
+    {
+        return 0;
+    }
 
     public function getIsBuyAttribute($value)
     {
