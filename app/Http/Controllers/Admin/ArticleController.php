@@ -39,7 +39,6 @@ class ArticleController extends Controller {
          */
     public function getArticleList(){
         try{
-            print_r(self::$accept_data);die;
             $list = Article::getArticleList(self::$accept_data);
             return response()->json($list);
         } catch (Exception $ex) {
