@@ -137,7 +137,7 @@ class IndexController extends Controller {
                 $teacher_array = [];
 
                 //获取讲师列表
-                $teacher_list  = Teacher::where("is_del" , 0)->where("is_forbid" , 0)->where("is_recommend" , 1)->where("type" , 2)->offset(0)->limit(6)->get()->toArray();
+                $teacher_list  = Teacher::withCount('lessons as lesson_number')->where("is_del" , 0)->where("is_forbid" , 0)->where("is_recommend" , 1)->where("type" , 2)->offset(0)->limit(6)->get()->toArray();
                 foreach($teacher_list as $k=>$v){
                     //根据大分类的id获取大分类的名称
                     if($v['parent_id'] && $v['parent_id'] > 0){
@@ -152,10 +152,13 @@ class IndexController extends Controller {
                     //数组赋值
                     $teacher_array[] = [
                         'teacher_id'   =>   $v['id'] ,
-                        'real_name'    =>   $v['real_name'] ,
-                        'head_icon'    =>   $v['head_icon'] ,
+                        'teacher_name' =>   $v['real_name'] ,
+                        'teacher_icon' =>   $v['head_icon'] ,
                         'lession_parent_name' => $v['parent_id'] > 0 ? !empty($lession_parent_name) ? $lession_parent_name : '' : '',
-                        'lession_child_name'  => $v['child_id']  > 0 ? !empty($lession_child_name)  ? $lession_child_name  : '' : ''
+                        'lession_child_name'  => $v['child_id']  > 0 ? !empty($lession_child_name)  ? $lession_child_name  : '' : '',
+                        'star_num'     => 5,
+                        'lesson_number'=> $v['lesson_number'] ,
+                        'student_number'=>$v['student_number']
                     ];
                 }
                 return response()->json(['code' => 200 , 'msg' => '获取讲师列表成功' , 'data' => $teacher_array]);
@@ -308,8 +311,17 @@ class IndexController extends Controller {
             //类型(0表示综合,1表示人气,2表示好评)
             $type     = isset(self::$accept_data['type']) && self::$accept_data['type'] > 0 ? self::$accept_data['type'] : 0;
             
+            //根据人气、好评、综合进行排序
+            if($type == 1){
+                $orderBy = "lesson_number";
+            } elseif($type == 2){
+                $orderBy = "is_recommend";
+            } else {
+                $orderBy = "is_recommend";
+            }
+            
             //获取名师列表
-            $famous_teacher_list = Teacher::withCount('lessons as lesson_number')->where('type' , 2)->where('is_del' , 0)->where('is_forbid' , 0)->offset($offset)->limit($pagesize)->get();
+            $famous_teacher_list = Teacher::withCount('lessons as lesson_number')->where('type' , 2)->where('is_del' , 0)->where('is_forbid' , 0)->orderBy($orderBy , 'DESC')->offset($offset)->limit($pagesize)->get();
             if($famous_teacher_list && !empty($famous_teacher_list)){
                 //将对象转化为数组信息
                 $famous_teacher_list = $famous_teacher_list->toArray();
@@ -326,23 +338,6 @@ class IndexController extends Controller {
                         $lession_child_name  = Subject::where("id" , $v['child_id'])->where("is_del" , 0)->where("is_forbid" , 0)->value("name");
                     }
                     
-                    //获取课程的id列表
-                    $lesson_list     = LessonTeacher::where('teacher_id' , $v['id'])->get();
-                    if($lesson_list && !empty($lesson_list)){
-                        //获取课程id列表
-                        $lesson_ids = array_column($lesson_list->toArray() , 'lesson_id');
-                        //通过课程id获取对应的购买基数
-                        $buy_num    = Lesson::whereIn('id' , $lesson_ids)->where('is_public' , 0)->sum('buy_num');
-                        
-                        //查询订单所属的学员购买记录数量
-                        $order_count= Order::whereIn('class_id' , $lesson_ids)->where('status' , 2)->count();
-                        
-                        //获取学员总数量
-                        $student_number  = (int)bcadd($buy_num , $order_count);
-                    } else {
-                        $student_number  = 0;
-                    }
-                    
                     //数组数值信息赋值
                     $teacher_list[] = [
                         'teacher_id'          =>  $v['id'] , 
@@ -352,18 +347,11 @@ class IndexController extends Controller {
                         'lession_child_name'  =>  $v['child_id']  > 0 ? !empty($lession_child_name)  ? $lession_child_name  : '' : '',
                         'star_num'            =>  5 ,
                         'lesson_number'       =>  $v['lesson_number'] ,
-                        'student_number'      =>  $student_number
+                        'student_number'      =>  $v['student_number']
                     ];
                 }
             } else {
                 $teacher_list = "";
-            }
-            
-            //根据人气、好评、综合进行排序
-            if(!empty($teacher_list) && $type == 1){
-                array_multisort(array_column($teacher_list, 'student_number') , SORT_DESC , $teacher_list);
-            } elseif(!empty($teacher_list) && $type == 2){
-                array_multisort(array_column($teacher_list, 'star_num') , SORT_DESC , $teacher_list);
             }
             return response()->json(['code' => 200 , 'msg' => '获取名师列表成功' , 'data' => $teacher_list]);
         } catch (Exception $ex) {

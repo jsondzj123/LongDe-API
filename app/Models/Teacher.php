@@ -4,6 +4,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\AdminLog;
 use App\Models\LessonTeacher;
+use App\Models\Lesson;
+use App\Models\Order;
 use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\DB;
 
@@ -24,7 +26,7 @@ class Teacher extends Model {
         'pivot'
     ];
     
-    protected $appends = ['checked'];
+    protected $appends = ['checked' , 'student_number'];
 
     public function getCheckedAttribute($value)
     {
@@ -33,6 +35,27 @@ class Teacher extends Model {
     
     public function lessons() {
         return $this->belongsToMany('App\Models\Teacher', 'ld_lesson_teachers');
+    }
+    
+    //获取学员数量
+    public function getStudentNumberAttribute($value) {
+        //获取课程的id列表
+        $lesson_list     = LessonTeacher::where('teacher_id' , $this->id)->get();
+        if($lesson_list && !empty($lesson_list)){
+            //获取课程id列表
+            $lesson_ids = array_column($lesson_list->toArray() , 'lesson_id');
+            //通过课程id获取对应的购买基数
+            $buy_num    = Lesson::whereIn('id' , $lesson_ids)->where('is_public' , 0)->sum('buy_num');
+
+            //查询订单所属的学员购买记录数量
+            $order_count= Order::whereIn('class_id' , $lesson_ids)->where('status' , 2)->count();
+
+            //获取学员总数量
+            $student_number  = (int)bcadd($buy_num , $order_count);
+        } else {
+            $student_number  = 0;
+        }
+        return $student_number;
     }
     
     /*
