@@ -24,24 +24,42 @@ class LiveChildController extends Controller {
             return $this->response($validator->errors()->first(), 202);
         }
         $lives = Lesson::find($request->input('lesson_id'))->lives->toArray();
-        $childs = [];
+        
         if(!empty($lives)){
             foreach ($lives as $key => $value) {
                 //直播中
-                $childs['live'] = LiveChild::select('id', 'course_name', 'start_time', 'end_time', 'course_id', 'status')->where([
+                $live = LiveChild::select('id', 'course_name', 'start_time', 'end_time', 'course_id', 'status')->where([
                     'is_del' => 0, 'is_forbid' => 0, 'status' => 2, 'live_id' => $value['id']
                 ])->get();
                 //预告
-                $childs['advance'] = LiveChild::select('id', 'course_name', 'start_time', 'end_time', 'course_id', 'status')->where([
+                $advance = LiveChild::select('id', 'course_name', 'start_time', 'end_time', 'course_id', 'status')->where([
                     'is_del' => 0, 'is_forbid' => 0, 'status' => 1, 'live_id' => $value['id']
                 ])->get();
                 //回放
-                $childs['playback'] = LiveChild::select('id', 'course_name', 'start_time', 'end_time', 'course_id', 'status')->where([
+                $playback = LiveChild::select('id', 'course_name', 'start_time', 'end_time', 'course_id', 'status')->where([
                     'is_del' => 0, 'is_forbid' => 0, 'status' => 3, 'live_id' => $value['id']
                 ])->get();
             }
         }
-        
+        $childs = [];
+        if(!empty($live->toArray())){
+            $childs['live'] = [
+                    'title' => '正在播放',
+                    'data'  => $live,
+                ];
+        }
+        if(!empty($advance->toArray())){
+            $childs['advance'] = [
+                    'title' => '播放预告',
+                    'data'  => $advance,
+                ];
+        }
+        if(!empty($playback->toArray())){
+            $childs['playback'] = [
+                    'title' => '历史课程',
+                    'data'  => $playback,
+                ];
+        }
         return $this->response($childs);
     }
 
