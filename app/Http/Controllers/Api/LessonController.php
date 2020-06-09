@@ -95,13 +95,7 @@ class LessonController extends Controller {
         if ($validator->fails()) {
             return $this->response($validator->errors()->first(), 202);
         }
-        $lesson = Lesson::with(['teachers' => function ($query) {
-                $query->select('id', 'real_name');
-            }])
-        ->with(['subjects' => function ($query) {
-                $query->select('id', 'name');
-            }])
-        ->find($request->input('id'));
+        $lesson = Lesson::find($request->input('id'));
         if(empty($lesson)){
             return $this->response('课程不存在', 404);
         }
