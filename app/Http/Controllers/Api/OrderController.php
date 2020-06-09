@@ -50,9 +50,9 @@ class OrderController extends Controller
                 ->get()->toArray();
             foreach ($orderlist as $k=>&$v){
                 if($v['status'] == 2){
-                    $v['status'] = 1;
+                    $orderlist[$k]['status'] = 1;
                 }else if($v['status'] == 3 || $v['status'] == 4){
-                    $v['status'] = 2;
+                    $orderlist[$k]['status'] = 2;
                 }
             }
         }
