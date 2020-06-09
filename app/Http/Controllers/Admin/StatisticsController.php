@@ -370,6 +370,7 @@ class StatisticsController extends Controller {
            'end_time'=>isset($_POST['end_time'])?$_POST['end_time']:'',
            'num'=>isset($_POST['num'])?$_POST['num']:20
        ];
+
    }
    /*
         * @param  直播详情
