@@ -84,7 +84,7 @@ class Teacher extends Model {
 
         //根据id获取讲师或教务详细信息
         $teacher_info = self::where('id',$body['teacher_id'])->select('head_icon','school_id','phone','real_name','sex','qq','wechat','parent_id','child_id','describe','content')->first()->toArray();
-        $teacher_info['subject_id'] = [$teacher_info['parent_id'] , $teacher_info['child_id']];
+        $teacher_info['parent_id'] = [$teacher_info['parent_id'] , $teacher_info['child_id']];
         return ['code' => 200 , 'msg' => '获取老师信息成功' , 'data' => $teacher_info];
     }
 
