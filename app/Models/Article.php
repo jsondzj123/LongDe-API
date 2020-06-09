@@ -48,31 +48,35 @@ class Article extends Model {
             })
             ->where(['ld_article.is_del'=>1,'ld_article_type.is_del'=>1,'ld_article_type.status'=>1,'ld_admin.is_del'=>1,'ld_admin.is_forbid'=>1,'ld_school.is_del'=>1,'ld_school.is_forbid'=>1])
             ->count();
-        $list = self::select('ld_article.id','ld_article.title','ld_article.create_at','ld_article.status','ld_school.name','ld_article_type.typename','ld_admin.username')
-            ->leftJoin('ld_school','ld_school.id','=','ld_article.school_id')
-            ->leftJoin('ld_article_type','ld_article_type.id','=','ld_article.article_type_id')
-            ->leftJoin('ld_admin','ld_admin.id','=','ld_article.user_id')
-            ->where(function($query) use ($data) {
-                //判断总校 查询所有或一个分校
-                if($data['role_id'] == 1){
-                    if(!empty($data['school_id']) && $data['school_id'] != ''){
+        if($total > 0){
+            $list = self::select('ld_article.id','ld_article.title','ld_article.create_at','ld_article.status','ld_school.name','ld_article_type.typename','ld_admin.username')
+                ->leftJoin('ld_school','ld_school.id','=','ld_article.school_id')
+                ->leftJoin('ld_article_type','ld_article_type.id','=','ld_article.article_type_id')
+                ->leftJoin('ld_admin','ld_admin.id','=','ld_article.user_id')
+                ->where(function($query) use ($data) {
+                    //判断总校 查询所有或一个分校
+                    if($data['role_id'] == 1){
+                        if(!empty($data['school_id']) && $data['school_id'] != ''){
+                            $query->where('ld_article.school_id',$data['school_id']);
+                        }
+                    }else{
+                        //分校查询当前学校
                         $query->where('ld_article.school_id',$data['school_id']);
                     }
-                }else{
-                    //分校查询当前学校
-                    $query->where('ld_article.school_id',$data['school_id']);
-                }
-                 if(!empty($data['type_id']) && $data['type_id'] != '' ){
-                     $query->where('ld_article.article_type_id',$data['type_id']);
-                 }
-                 if(!empty($data['title']) && $data['title'] != ''){
-                     $query->where('ld_article.title','like','%'.$data['title'].'%')
-                         ->orwhere('ld_article.id',$data['title']);
-                 }
-            })
-            ->where(['ld_article.is_del'=>1,'ld_article_type.is_del'=>1,'ld_article_type.status'=>1,'ld_admin.is_del'=>1,'ld_admin.is_forbid'=>1,'ld_school.is_del'=>1,'ld_school.is_forbid'=>1])
-            ->orderBy('ld_article.id','desc')
-            ->offset($offset)->limit($pagesize)->get();
+                    if(!empty($data['type_id']) && $data['type_id'] != '' ){
+                        $query->where('ld_article.article_type_id',$data['type_id']);
+                    }
+                    if(!empty($data['title']) && $data['title'] != ''){
+                        $query->where('ld_article.title','like','%'.$data['title'].'%')
+                            ->orwhere('ld_article.id',$data['title']);
+                    }
+                })
+                ->where(['ld_article.is_del'=>1,'ld_article_type.is_del'=>1,'ld_article_type.status'=>1,'ld_admin.is_del'=>1,'ld_admin.is_forbid'=>1,'ld_school.is_del'=>1,'ld_school.is_forbid'=>1])
+                ->orderBy('ld_article.id','desc')
+                ->offset($offset)->limit($pagesize)->get();
+        }else{
+            $list=[];
+        }
         //分校列表
         $schooltype = self::schoolANDtype($data['role_id']);
         $page=[
