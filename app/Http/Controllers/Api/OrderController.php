@@ -49,7 +49,6 @@ class OrderController extends Controller
                 ->offset($offset)->limit($pagesize)
                 ->get()->toArray();
         }
-        print_r($orderlist);die;
         $page=[
             'pageSize'=>$pagesize,
             'page' =>$page,
