@@ -120,7 +120,7 @@ $router->group(['prefix' => 'web' , 'namespace' => 'Web'], function () use ($rou
 //后台端路由接口
 /*****************start**********************/
 //后端登录注册接口
-$router->group(['prefix' => 'admin' , 'namespace' => 'Admin'], function () use ($router) {
+$router->group(['prefix' => 'admin' , 'namespace' => 'Admin', 'middleware'=> 'cors'], function () use ($router) {
     $router->post('register', 'AuthenticateController@register');
     $router->post('login', 'AuthenticateController@postLogin');
 });
