@@ -21,8 +21,6 @@ class Article extends Model {
          */
     public static function getArticleList($data){
         //获取用户网校id
-        $userid = isset(AdminLog::getAdminInfo()->admin_user->id) ? AdminLog::getAdminInfo()->admin_user->id : 0;
-        echo $userid;die;
         $data['role_id'] = isset(AdminLog::getAdminInfo()->admin_user->role_id) ? AdminLog::getAdminInfo()->admin_user->role_id : 0;
         $school_id = isset(AdminLog::getAdminInfo()->admin_user->school_id) ? AdminLog::getAdminInfo()->admin_user->school_id : 0;
         //每页显示的条数
@@ -50,6 +48,7 @@ class Article extends Model {
             })
             ->where(['ld_article.is_del'=>1,'ld_article_type.is_del'=>1,'ld_article_type.status'=>1,'ld_admin.is_del'=>1,'ld_admin.is_forbid'=>1,'ld_school.is_del'=>1,'ld_school.is_forbid'=>1])
             ->count();
+        echo $total;die;
         if($total > 0){
             $list = self::select('ld_article.id','ld_article.title','ld_article.create_at','ld_article.status','ld_school.name','ld_article_type.typename','ld_admin.username')
                 ->leftJoin('ld_school','ld_school.id','=','ld_article.school_id')
