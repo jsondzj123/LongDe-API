@@ -183,7 +183,7 @@ class AuthenticateController extends Controller {
 
             //判断此手机号是否被禁用了
             if($user_login->is_forbid == 2){
-                return response()->json(['code' => 207 , 'msg' => '您已被禁用,请联系管理员']);
+                return response()->json(['code' => 207 , 'msg' => '账户已禁用']);
             }
 
             //判断redis中值是否存在
@@ -263,7 +263,7 @@ class AuthenticateController extends Controller {
             if($student_info && !empty($student_info)){
                 //判断此手机号是否被禁用了
                 if($student_info->is_forbid == 2){
-                    return response()->json(['code' => 207 , 'msg' => '您已被禁用,请联系管理员']);
+                    return response()->json(['code' => 207 , 'msg' => '账户已禁用']);
                 }
                 
                 //清除老的redis的key值
@@ -416,7 +416,7 @@ class AuthenticateController extends Controller {
             
             //判断此手机号是否被禁用了
             if($student_info->is_forbid == 2){
-                return response()->json(['code' => 207 , 'msg' => '您已被禁用,请联系管理员']);
+                return response()->json(['code' => 207 , 'msg' => '账户已禁用']);
             }
             
             //开启事务
@@ -496,7 +496,7 @@ class AuthenticateController extends Controller {
             
             //判断此手机号是否被禁用了
             if($student_info->is_forbid == 2){
-                return response()->json(['code' => 207 , 'msg' => '您已被禁用,请联系管理员']);
+                return response()->json(['code' => 207 , 'msg' => '账户已禁用']);
             }
         }
         
