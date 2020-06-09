@@ -24,7 +24,7 @@ class LiveChildController extends Controller {
             return $this->response($validator->errors()->first(), 202);
         }
         $lives = Lesson::find($request->input('lesson_id'))->lives->toArray();
-        
+        $childs = [];
         if(!empty($lives)){
             foreach ($lives as $key => $value) {
                 //直播中
@@ -40,25 +40,26 @@ class LiveChildController extends Controller {
                     'is_del' => 0, 'is_forbid' => 0, 'status' => 3, 'live_id' => $value['id']
                 ])->get();
             }
-        }
-        $childs = [];
-        if(!empty($live->toArray())){
+
+            if(!empty($live->toArray())){
             array_push($childs, [
                     'title' => '正在播放',
                     'data'  => $live,
                 ]);
-        }
-        if(!empty($advance->toArray())){
-            array_push($childs, [
-                    'title' => '播放预告',
-                    'data'  => $advance,
-                ]);
-        }
-        if(!empty($playback->toArray())){
-            array_push($childs, [
-                    'title' => '历史课程',
-                    'data'  => $playback,
-                ]);
+            }
+            if(!empty($advance->toArray())){
+                array_push($childs, [
+                        'title' => '播放预告',
+                        'data'  => $advance,
+                    ]);
+            }
+            if(!empty($playback->toArray())){
+                array_push($childs, [
+                        'title' => '历史课程',
+                        'data'  => $playback,
+                    ]);
+            }
+
         }
         return $this->response($childs);
     }
