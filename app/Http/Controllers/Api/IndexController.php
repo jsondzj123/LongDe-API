@@ -312,19 +312,24 @@ class IndexController extends Controller {
             $type     = isset(self::$accept_data['type']) && self::$accept_data['type'] > 0 ? self::$accept_data['type'] : 0;
             
             //根据人气、好评、综合进行排序
-            if($type == 1){
-                $orderBy = "lesson_number";
-            } elseif($type == 2){
-                $orderBy = "is_recommend";
-            } else {
-                $orderBy = "is_recommend";
+            if($type == 1 || $type == 2){ //人气排序|好评排序
+                //获取名师列表
+                $famous_teacher_list = Teacher::withCount('lessons as lesson_number')->where('type' , 2)->where('is_del' , 0)->where('is_forbid' , 0)->get();
+            } else {  //综合排序
+                //获取名师列表
+                $famous_teacher_list = Teacher::withCount('lessons as lesson_number')->where('type' , 2)->where('is_del' , 0)->where('is_forbid' , 0)->orderBy('is_recommend' , 'DESC')->offset($offset)->limit($pagesize)->get();
             }
-            
-            //获取名师列表
-            $famous_teacher_list = Teacher::withCount('lessons as lesson_number')->where('type' , 2)->where('is_del' , 0)->where('is_forbid' , 0)->orderBy($orderBy , 'DESC')->offset($offset)->limit($pagesize)->get();
+
+            //判断讲师是否为空
             if($famous_teacher_list && !empty($famous_teacher_list)){
                 //将对象转化为数组信息
                 $famous_teacher_list = $famous_teacher_list->toArray();
+                if($type == 1 || $type == 2){
+                    $sort_field = $type == 1 ? 'student_number' : 'star_num';
+                    array_multisort(array_column($famous_teacher_list, $sort_field) , SORT_DESC , $famous_teacher_list);                 
+                    $famous_teacher_list = array_slice($famous_teacher_list,$offset,$pagesize);
+                }
+                
                 //空数组
                 $teacher_list = [];
                 foreach($famous_teacher_list as $k=>$v){
@@ -345,7 +350,7 @@ class IndexController extends Controller {
                         'teacher_name'        =>  $v['real_name'] ,
                         'lession_parent_name' =>  $v['parent_id'] > 0 ? !empty($lession_parent_name) ? $lession_parent_name : '' : '',
                         'lession_child_name'  =>  $v['child_id']  > 0 ? !empty($lession_child_name)  ? $lession_child_name  : '' : '',
-                        'star_num'            =>  5 ,
+                        'star_num'            =>  $v['star_num'] ,
                         'lesson_number'       =>  $v['lesson_number'] ,
                         'student_number'      =>  $v['student_number']
                     ];

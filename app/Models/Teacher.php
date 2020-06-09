@@ -26,7 +26,7 @@ class Teacher extends Model {
         'pivot'
     ];
     
-    protected $appends = ['checked' , 'student_number'];
+    protected $appends = ['checked' , 'student_number' , 'star_num'];
 
     public function getCheckedAttribute($value)
     {
@@ -56,6 +56,11 @@ class Teacher extends Model {
             $student_number  = 0;
         }
         return $student_number;
+    }
+    
+    //好评数量
+    public function getStarNumAttribute($value) {
+        return 5;
     }
     
     /*
