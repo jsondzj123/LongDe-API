@@ -72,35 +72,6 @@ class IndexController extends Controller {
     public function getOpenClassList() {
         //获取提交的参数
         try{
-            /*$open_class_list = [
-                [
-                    'open_class_id'     =>   1 ,
-                    'cover'             =>   "https://dss0.bdstatic.com/70cFvHSh_Q1YnxGkpoWK1HF6hhy/it/u=3256100974,305075936&fm=26&gp=0.jpg" ,
-                    'teacher_name'      =>   '刘老师' ,
-                    'start_date'        =>   '2020-05-25' ,
-                    'start_time'        =>   '09:00' ,
-                    'end_time'          =>   '12:00' ,
-                ] ,
-                [
-                    'open_class_id'     =>   2 ,
-                    'cover'             =>   "https://dss0.bdstatic.com/70cFvHSh_Q1YnxGkpoWK1HF6hhy/it/u=3256100974,305075936&fm=26&gp=0.jpg" ,
-                    'teacher_name'      =>   '张老师' ,
-                    'start_date'        =>   '2020-05-26' ,
-                    'start_time'        =>   '09:30' ,
-                    'end_time'          =>   '12:00' ,
-                ] ,
-                [
-                    'open_class_id'     =>   3 ,
-                    'cover'             =>   "https://dss0.bdstatic.com/70cFvHSh_Q1YnxGkpoWK1HF6hhy/it/u=3256100974,305075936&fm=26&gp=0.jpg" ,
-                    'teacher_name'      =>   '杜老师' ,
-                    'start_date'        =>   '2020-05-27' ,
-                    'start_time'        =>   '10:00' ,
-                    'end_time'          =>   '12:00' ,
-                ]
-            ];
-            return response()->json(['code' => 200 , 'msg' => '获取公开课列表成功' , 'data' => $open_class_list]);*/
-            //echo strtotime('2020-05-28 11:00:00').'-'.strtotime('2020-05-28 12:00:00');
-
             //判断公开课列表是否为空
             $open_class_count = Lesson::where('is_public' , 1)->where('status' , 2)->where('is_del' , 0)->where('is_forbid' , 0)->where('is_recommend', 1)->count();
             if($open_class_count && $open_class_count > 0){
@@ -159,30 +130,6 @@ class IndexController extends Controller {
     public function getTeacherList() {
         //获取提交的参数
         try{
-            /*$teacher_list = [
-                [
-                    'teacher_id'            =>   1 ,
-                    'real_name'             =>   "张老师" ,
-                    'head_icon'             =>   'https://dss0.bdstatic.com/70cFvHSh_Q1YnxGkpoWK1HF6hhy/it/u=3256100974,305075936&fm=26&gp=0.jpg' ,
-                    'lession_parent_name'   =>   '大分类名称1' ,
-                    'lession_child_name'    =>   '小分类名称1'
-                ] ,
-                [
-                    'teacher_id'            =>   2 ,
-                    'real_name'             =>   "刘老师" ,
-                    'head_icon'             =>   'https://dss0.bdstatic.com/70cFvHSh_Q1YnxGkpoWK1HF6hhy/it/u=3256100974,305075936&fm=26&gp=0.jpg' ,
-                    'lession_parent_name'   =>   '大分类名称2' ,
-                    'lession_child_name'    =>   '小分类名称2'
-                ] ,
-                [
-                    'teacher_id'            =>   3 ,
-                    'real_name'             =>   "杜老师" ,
-                    'head_icon'             =>   'https://dss0.bdstatic.com/70cFvHSh_Q1YnxGkpoWK1HF6hhy/it/u=3256100974,305075936&fm=26&gp=0.jpg' ,
-                    'lession_parent_name'   =>   '大分类名称3' ,
-                    'lession_child_name'    =>   '小分类名称3'
-                ]
-            ];*/
-
             //判断讲师列表是否为空
             $teacher_count = Teacher::where("is_del" , 0)->where("is_forbid" , 0)->where("is_recommend" , 1)->where("type" , 2)->count();
             if($teacher_count && $teacher_count > 0){
@@ -229,20 +176,6 @@ class IndexController extends Controller {
      */
     public function checkVersion() {
         try {
-            /*$version_info = [
-                'is_online'         =>   1 ,
-                'is_mustup'         =>   1 ,
-                'version'           =>   'v1.0' ,
-                'content'           =>   [
-                    '1.导师主页咨询入口增加「微咨询」选项。' ,
-                    '2.导师服务评价规则更新。' ,
-                    '3.专家圈列表增加搜索功能。' ,
-                    '4.小课部分增加讨论人数。' ,
-                    '5.「微咨询」页面优化。'
-                ],
-                'download_url'      => "http://www.baidu.com"
-            ];*/
-
             //获取版本的最新更新信息
             $version_info = DB::table('ld_version')->select('is_online','is_mustup','version','content','download_url')->orderBy('create_at' , 'DESC')->first();
             $version_info->content = json_decode($version_info->content , true);
