@@ -12,7 +12,7 @@ class UserAuthToken {
         
         //判断用户token是否为空
         if(!$token || empty($token)){
-            return ['code' => 201 , 'msg' => 'token值为空'];
+            return ['code' => 401 , 'msg' => '未授权'];
         }
         
         //判断token值是否合法
@@ -36,7 +36,7 @@ class UserAuthToken {
                 
                 //判断用户是否被禁用
                 if($user_info['is_forbid'] == 2){
-                    return response()->json(['code' => 207 , 'msg' => '您已被禁用,请联系管理员']);
+                    return response()->json(['code' => 207 , 'msg' => '账户已禁用']);
                 }
             } else {
                 //通过token获取用户信息
@@ -47,7 +47,7 @@ class UserAuthToken {
                 
                 //判断用户是否被禁用
                 if($user_info['is_forbid'] == 2){
-                    return response()->json(['code' => 207 , 'msg' => '您已被禁用,请联系管理员']);
+                    return response()->json(['code' => 207 , 'msg' => '账户已禁用']);
                 }
             }
         } else {
@@ -59,7 +59,7 @@ class UserAuthToken {
             
             //判断用户是否被禁用
             if($user_info['is_forbid'] == 2){
-                return response()->json(['code' => 207 , 'msg' => '您已被禁用,请联系管理员']);
+                return response()->json(['code' => 207 , 'msg' => '账户已禁用']);
             }
             $json_info = $user_info->toArray();
         }
