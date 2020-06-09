@@ -48,7 +48,7 @@ class OrderController extends Controller
                 ->orderByDesc('ld_order.id')
                 ->offset($offset)->limit($pagesize)
                 ->get()->toArray();
-            foreach ($orderlist as $k=>$v){
+            foreach ($orderlist as $k=>&$v){
                 if($v['status'] == 2){
                     $v['status'] = 1;
                 }else if($v['status'] == 3 || $v['status'] == 4){
