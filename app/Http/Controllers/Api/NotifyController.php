@@ -154,7 +154,6 @@ class NotifyController extends Controller {
             return response()->json(['code' => 201 , 'msg' => '此参数已处理']);
         }
         file_put_contents('iosnotify.txt', '时间:'.date('Y-m-d H:i:s').print_r($arr,true),FILE_APPEND);
-//        Storage::disk('local')->append('iosnotify.txt', 'time:'.date('Y-m-d H:i:s')."\nresponse:".$html);
         // 判断是否购买成功  【状态码,0为成功（无论是沙箱环境还是正式环境只要数据正确status都会是：0）】
         if (intval($arr['status']) === 0) {
             DB::beginTransaction();
@@ -172,7 +171,7 @@ class NotifyController extends Controller {
             $studentprice = StudentAccounts::where(['order_number'=>$order_number])->first();
             foreach ($arr['receipt']['in_app'] as $k=>$v){
                 //充值的钱
-                $czprice = $codearr[$v]['product_id'];
+                $czprice = $codearr[$v['product_id']];
                 //根据用户的钱 查询订单
                 $czorderfind = StudentAccounts::where(['user_id'=>$studentprice['user_id'],'price'=>$czprice,'pay_type'=>5,'order_type'=>1])->first();
                 if($czorderfind['status'] != 1){
@@ -182,8 +181,9 @@ class NotifyController extends Controller {
                     Student::where(['id'=>$studentprice['user_id']])->update(['balance'=>$endbalance]);
                     StudentAccounts::where(['user_id'=>$studentprice['user_id'],'price'=>$czprice,'pay_type'=>5,'order_type'=>1])->update(['third_party_number'=>$v['transaction_id'],'content'=>$html,'status'=>1,'update_at'=>date('Y-m-d H:i:s')]);
                     StudentAccountlog::insert(['user_id'=>$studentprice['user_id'],'price'=>$studentprice['price'],'end_price'=>$endbalance,'status'=>1]);
+                }else{
+                    continue;
                 }
-
             }
             DB::commit();
             return response()->json(['code' => 200 , 'msg' => '支付成功']);

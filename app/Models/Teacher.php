@@ -149,7 +149,7 @@ class Teacher extends Model {
             
             //判断搜索内容是否为空
             if(isset($body['search']) && !empty($body['search'])){
-                $query->where('id','=',$body['search'])->orWhere('real_name','like','%'.$body['search'].'%');
+                $query->where('real_name','like','%'.$body['search'].'%');
             }
         })->count();
         
@@ -163,7 +163,7 @@ class Teacher extends Model {
 
                 //判断搜索内容是否为空
                 if(isset($body['search']) && !empty($body['search'])){
-                    $query->where('id','=',$body['search'])->orWhere('real_name','like','%'.$body['search'].'%');
+                    $query->where('real_name','like','%'.$body['search'].'%');
                 }
             })->select('id as teacher_id','real_name','phone','create_at','number','is_recommend')->orderByDesc('create_at')->offset($offset)->limit($pagesize)->get()->toArray();
             //判断如果是讲师则查询开课数量
@@ -267,7 +267,7 @@ class Teacher extends Model {
         //判断手机号是否为空
         if(!isset($body['phone']) || empty($body['phone'])){
             return ['code' => 201 , 'msg' => '请输入手机号'];
-        } else if(!preg_match('#^13[\d]{9}$|^14[5,7]{1}\d{8}$|^15[^4]{1}\d{8}$|^17[0,6,7,8]{1}\d{8}$|^18[\d]{9}|^16[\d]{9}$#', $body['phone'])) {
+        } else if(!preg_match('#^13[\d]{9}$|^14[\d]{9}$|^15[\d]{9}$|^17[\d]{9}$|^18[\d]{9}|^16[\d]{9}$#', $body['phone'])) {
             return ['code' => 202 , 'msg' => '手机号不合法'];
         }
 
@@ -407,7 +407,7 @@ class Teacher extends Model {
             //判断手机号是否为空
             if(!isset($body['phone']) || empty($body['phone'])){
                 return ['code' => 201 , 'msg' => '请输入手机号'];
-            } else if(!preg_match('#^13[\d]{9}$|^14[5,7]{1}\d{8}$|^15[^4]{1}\d{8}$|^17[0,6,7,8]{1}\d{8}$|^18[\d]{9}|^16[\d]{9}$#', $body['phone'])) {
+            } else if(!preg_match('#^13[\d]{9}$|^14[\d]{9}$|^15[\d]{9}$|^17[\d]{9}$|^18[\d]{9}|^16[\d]{9}$#', $body['phone'])) {
                 return ['code' => 202 , 'msg' => '手机号不合法'];
             }
 
