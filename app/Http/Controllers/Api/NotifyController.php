@@ -175,7 +175,6 @@ class NotifyController extends Controller {
             //用户余额信息
             $student = Student::where(['id'=>$studentprice['user_id']])->first();
             foreach ($arr['receipt']['in_app'] as $k=>$v){
-
                 $czprice = $codearr[$v['product_id']];//充值的钱
                 $endbalance = $student['balance'] + $czprice; //用户充值后的余额
                 if($k == ($len-1)){
