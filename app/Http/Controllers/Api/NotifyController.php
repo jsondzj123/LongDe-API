@@ -150,7 +150,7 @@ class NotifyController extends Controller {
         //查库 如果有 就提示已经处理此订单
         $count = StudentAccounts::where(['content'=>$html])->count();
         if($count>0){
-            return response()->json(['code' => 201 , 'msg' => '此参数已处理']);
+            return response()->json(['code' => 200 , 'msg' => '此订单已处理完成']);
         }
         file_put_contents('iosnotify.txt', '时间:'.date('Y-m-d H:i:s').print_r($arr,true),FILE_APPEND);
         // 判断是否购买成功  【状态码,0为成功（无论是沙箱环境还是正式环境只要数据正确status都会是：0）】
