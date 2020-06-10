@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Lesson;
 use App\Models\Order;
 use App\Models\Student;
 use App\Models\StudentAccountlog;
@@ -80,14 +81,19 @@ class NotifyController extends Controller {
             }else {
                 try{
                     DB::beginTransaction();
-                    //修改订单状态
+                    //修改订单状态  增加课程  修改用户收费状态
+                    $lesson = Lesson::where(['id'=>$orders['class_id']])->first();
+                    $validity = date('Y-m-d H:i:s',strtotime('+'.$lesson['ttl'].' day'));
                     $arrs = array(
                         'third_party_number'=>$arr['trade_no'],
-                        'status'=>1,
+                        'validity_time'=>$validity,
+                        'status'=>2,
+                        'oa_status'=>1,
                         'pay_time'=>date('Y-m-d H:i:s'),
                         'update_at'=>date('Y-m-d H:i:s')
                     );
                     $res = Order::where(['order_number'=>$arr['out_trade_no']])->update($arrs);
+                    Student::where(['id'=>$orders['student_id']])->update(['enroll_status'=>1]);
                     if (!$res) {
                         //修改用户类型
                         throw new Exception('回调失败');
