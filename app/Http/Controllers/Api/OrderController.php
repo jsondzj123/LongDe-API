@@ -39,15 +39,22 @@ class OrderController extends Controller
                 ->where(['ld_order.student_id'=>$data['user_info']['user_id']])
                 ->where(function($query) use ($type) {
                     if($type == 1){
-                        $query->where('ld_order.status','=',$type);
+                        $query->where('ld_order.status','=',1);
                     }
                     if($type == 2){
-                        $query->where('ld_order.status','<',$type);
+                        $query->where('ld_order.status','=',0);
                     }
                 })
                 ->orderByDesc('ld_order.id')
                 ->offset($offset)->limit($pagesize)
                 ->get()->toArray();
+            foreach ($orderlist as $k=>&$v){
+                if($v['status'] == 2){
+                    $orderlist[$k]['status'] = 1;
+                }else if($v['status'] == 3 || $v['status'] == 4){
+                    $orderlist[$k]['status'] = 2;
+                }
+            }
         }
         $page=[
             'pageSize'=>$pagesize,

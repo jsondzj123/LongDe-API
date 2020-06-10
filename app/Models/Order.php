@@ -273,33 +273,20 @@ class Order extends Model {
         $admin_id = isset(AdminLog::getAdminInfo()->admin_user->id) ? AdminLog::getAdminInfo()->admin_user->id : 0;
         if($order['status'] == 1){
             if($data['status'] == 2){
-                DB::beginTransaction();
-                if($order['pay_status'] == 3 || $order['pay_status'] == 4){
-                    $lessons = Lesson::where(['id'=>$order['class_id']])->first()->toArray();
-                    //计算用户购买课程到期时间
-                    $validity = date('Y-m-d H:i:s',strtotime('+'.$lessons['ttl'].' day'));
-                    //修改订单状态 课程有效期 oa状态
-                    $update = self::where(['id'=>$data['order_id']])->update(['status'=>2,'validity_time'=>$validity,'oa_status'=>1,'update_at'=>date('Y-m-d H:i:s')]);
-                    //修改用户报名状态
-                    Student::where(['id'=>$order['student_id']])->update(['enroll_status'=>1]);
-                }else{
-                    $update = self::where(['id'=>$data['order_id']])->update(['status'=>2,'oa_status'=>1,'update_at'=>date('Y-m-d H:i:s')]);
-                }
+                $update = self::where(['id'=>$data['order_id']])->update(['status'=>2]);
                 if($update){
-                    DB::commit();
                     //添加日志操作
                     AdminLog::insertAdminLog([
                         'admin_id'       =>   $admin_id  ,
                         'module_name'    =>  'Order' ,
                         'route_url'      =>  'admin/Order/exitForIdStatus' ,
                         'operate_method' =>  'update' ,
-                        'content'        =>  '审核通过，修改id为'.$data['order_id'].json_encode($data) ,
+                        'content'        =>  '审核成功，修改id为'.$data['order_id'].json_encode($data) ,
                         'ip'             =>  $_SERVER["REMOTE_ADDR"] ,
                         'create_at'      =>  date('Y-m-d H:i:s')
                     ]);
-                    return ['code' => 200 , 'msg' => '审核通过'];
+                    return ['code' => 200 , 'msg' => '回审通过'];
                 }else{
-                    DB::rollback();
                     return ['code' => 202 , 'msg' => '操作失败'];
                 }
            }else if($data['status'] == 4){

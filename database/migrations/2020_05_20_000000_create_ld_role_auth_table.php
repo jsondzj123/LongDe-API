@@ -25,7 +25,6 @@ class CreateLdRoleAuthTable extends Migration
             $table->smallInteger('is_del')->default(1)->comment('删除0是1否');
             $table->integer('school_id')->comment('学校ID');
             $table->index('auth_id');
-        
         });
         DB::statement("alter table `ld_role_auth` comment '角色表'");
     }
