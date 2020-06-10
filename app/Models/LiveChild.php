@@ -40,7 +40,7 @@ class LiveChild extends Model {
         'is_forbid'
     ];
 
-    protected $appends = ['date', 'week', 'solt', 'time', 'class_hours'];
+    protected $appends = ['date', 'week', 'am_or_pm', 'time', 'class_hours'];
 
     public function getClassHoursAttribute($value)
     {
@@ -62,12 +62,12 @@ class LiveChild extends Model {
         return "星期".$weekarray[date("w", strtotime($this->start_time))];
     }
 
-    public function getSoltAttribute($value) {
+    public function getTimeAttribute($value) {
         return date('H:i', strtotime($this->start_time)).'-'.date('H:i', strtotime($this->end_time));
     }
 
 
-    public function getTimeAttribute($value) {
+    public function getAmOrPmAttribute($value) {
         $no = date('a', strtotime($this->start_time));
         if ($no == 'pm'){
             return "下午";
