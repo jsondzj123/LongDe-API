@@ -185,6 +185,7 @@ class VideoController extends Controller {
         if ($validator->fails()) {
             return $this->response($validator->errors()->first(), 202);
         }
+        $MTCloud = new MTCloud();
         $res = $MTCloud->videoGetUploadUrl(1, 2, $request->input('title'), $request->input('video_md5'));
         if(!array_key_exists('code', $res) || $res['code'] != 0){
             Log::error('上传失败:'.json_encode($res));
