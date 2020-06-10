@@ -149,7 +149,7 @@ class Teacher extends Model {
             
             //判断搜索内容是否为空
             if(isset($body['search']) && !empty($body['search'])){
-                $query->where('id','=',$body['search'])->orWhere('real_name','like','%'.$body['search'].'%');
+                $query->where('real_name','like','%'.$body['search'].'%');
             }
         })->count();
         
@@ -163,7 +163,7 @@ class Teacher extends Model {
 
                 //判断搜索内容是否为空
                 if(isset($body['search']) && !empty($body['search'])){
-                    $query->where('id','=',$body['search'])->orWhere('real_name','like','%'.$body['search'].'%');
+                    $query->where('real_name','like','%'.$body['search'].'%');
                 }
             })->select('id as teacher_id','real_name','phone','create_at','number','is_recommend')->orderByDesc('create_at')->offset($offset)->limit($pagesize)->get()->toArray();
             //判断如果是讲师则查询开课数量
