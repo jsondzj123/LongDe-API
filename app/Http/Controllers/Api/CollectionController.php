@@ -22,12 +22,15 @@ class CollectionController extends Controller {
                         ->select('id', 'title', 'cover');
                     }])
                     ->orderBy('created_at', 'desc')
-                    ->get();
-            
+                    ->get(); 
         $student = $data->skip($offset)->take($pagesize);
+        $lessons = [];
+        foreach ($student as $key => $value) {
+            $lessons[$key] = $value->lessons;
+        }
         $total = $data->count();
         $data = [
-            'page_data' => $student,
+            'page_data' => $lessons,
             'total' => $total,
         ];
         return $this->response($data);
