@@ -168,6 +168,9 @@ class NotifyController extends Controller {
                 'tc0010'=>6498,
             ];
             $studentprice = StudentAccounts::where(['order_number'=>$order_number])->orderByDesc('id')->first();
+            if(!isset($arr['receipt']['in_app']) || empty($arr['receipt']['in_app'])){
+                return response()->json(['code' => 200 , 'msg' => '无充值记录']);
+            }
             foreach ($arr['receipt']['in_app'] as $k=>$v){
                 //充值的钱
                 $czprice = $codearr[$v['product_id']];
