@@ -122,7 +122,6 @@ class NotifyController extends Controller {
     //支付宝 充值 回调接口
     public function aliTopnotify(){
     }
-
     //iphone 内部支付 回调
     public function iphonePaynotify(){
         $data = self::$accept_data;
@@ -168,7 +167,7 @@ class NotifyController extends Controller {
                 'tc009'=>3998,
                 'tc0010'=>6498,
             ];
-            $studentprice = StudentAccounts::where(['order_number'=>$order_number])->first();
+            $studentprice = StudentAccounts::where(['order_number'=>$order_number])->orderByDesc('id')->first();
             foreach ($arr['receipt']['in_app'] as $k=>$v){
                 //充值的钱
                 $czprice = $codearr[$v['product_id']];
@@ -180,7 +179,7 @@ class NotifyController extends Controller {
                     $endbalance = $student['balance'] + $czorderfind['price'];
                     Student::where(['id'=>$studentprice['user_id']])->update(['balance'=>$endbalance]);
                     StudentAccounts::where(['user_id'=>$studentprice['user_id'],'price'=>$czprice,'pay_type'=>5,'order_type'=>1])->update(['third_party_number'=>$v['transaction_id'],'content'=>$html,'status'=>1,'update_at'=>date('Y-m-d H:i:s')]);
-                    StudentAccountlog::insert(['user_id'=>$studentprice['user_id'],'price'=>$studentprice['price'],'end_price'=>$endbalance,'status'=>1]);
+                    StudentAccountlog::insert(['user_id'=>$studentprice['user_id'],'price'=>$czprice,'end_price'=>$endbalance,'status'=>1]);
                 }else{
                     continue;
                 }
