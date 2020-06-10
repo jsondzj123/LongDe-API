@@ -167,24 +167,31 @@ class NotifyController extends Controller {
                 'tc009'=>3998,
                 'tc0010'=>6498,
             ];
-            $studentprice = StudentAccounts::where(['order_number'=>$order_number])->orderByDesc('id')->first();
+            $studentprice = StudentAccounts::where(['order_number'=>$order_number])->first();
             if(!isset($arr['receipt']['in_app']) || empty($arr['receipt']['in_app'])){
                 return response()->json(['code' => 200 , 'msg' => '无充值记录']);
             }
+            $len = count($arr['receipt']['in_app']);
+            //用户余额信息
+            $student = Student::where(['id'=>$studentprice['user_id']])->first();
             foreach ($arr['receipt']['in_app'] as $k=>$v){
-                //充值的钱
-                $czprice = $codearr[$v['product_id']];
-                //根据用户的钱 查询订单
-                $czorderfind = StudentAccounts::where(['user_id'=>$studentprice['user_id'],'price'=>$czprice,'pay_type'=>5,'order_type'=>1])->first();
-                if($czorderfind['status'] != 1){
-                    //修改订单状态  更改用户余额 加入日志
-                    $student = Student::where(['id'=>$studentprice['user_id']])->first();
-                    $endbalance = $student['balance'] + $czorderfind['price'];
+                $czprice = $codearr[$v['product_id']];//充值的钱
+                $endbalance = $student['balance'] + $czprice; //用户充值后的余额
+                if($k == ($len-1)){
+                    //根据订单号处理
                     Student::where(['id'=>$studentprice['user_id']])->update(['balance'=>$endbalance]);
-                    StudentAccounts::where(['user_id'=>$studentprice['user_id'],'price'=>$czprice,'pay_type'=>5,'order_type'=>1])->update(['third_party_number'=>$v['transaction_id'],'content'=>$html,'status'=>1,'update_at'=>date('Y-m-d H:i:s')]);
+                    StudentAccounts::where(['order_number'=>$order_number,'price'=>$czprice,'pay_type'=>5,'order_type'=>1])->update(['third_party_number'=>$v['transaction_id'],'content'=>$html,'status'=>1,'update_at'=>date('Y-m-d H:i:s')]);
                     StudentAccountlog::insert(['user_id'=>$studentprice['user_id'],'price'=>$czprice,'end_price'=>$endbalance,'status'=>1]);
                 }else{
-                    continue;
+                    //根据用户的钱 查询订单
+                    $czorderfind = StudentAccounts::where(['user_id'=>$studentprice['user_id'],'price'=>$czprice,'pay_type'=>5,'order_type'=>1])->orderByDesc('id')->first();
+                    if($czorderfind['status'] != 1){
+                        Student::where(['id'=>$studentprice['user_id']])->update(['balance'=>$endbalance]);
+                        StudentAccounts::where(['user_id'=>$studentprice['user_id'],'price'=>$czprice,'pay_type'=>5,'order_type'=>1])->update(['third_party_number'=>$v['transaction_id'],'content'=>$html,'status'=>1,'update_at'=>date('Y-m-d H:i:s')]);
+                        StudentAccountlog::insert(['user_id'=>$studentprice['user_id'],'price'=>$czprice,'end_price'=>$endbalance,'status'=>1]);
+                    }else{
+                        continue;
+                    }
                 }
             }
             DB::commit();
