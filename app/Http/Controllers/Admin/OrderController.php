@@ -6,7 +6,9 @@ use App\Models\AdminLog;
 use App\Models\Lesson;
 use App\Models\Order;
 use App\Models\Student;
+use App\Models\StudentAccountlog;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
 class OrderController extends Controller {
     /*
@@ -54,6 +56,46 @@ class OrderController extends Controller {
             return response()->json($data);
         } catch (Exception $ex) {
             return response()->json(['code' => 500 , 'msg' => $ex->getMessage()]);
+        }
+    }
+    /*
+         * @param  订单退回
+         * @param  $order_id
+         * @param  author  苏振文
+         * @param  ctime   2020/6/10 10:37
+         * return  array
+         */
+    public function orderBack(){
+        $data = self::$accept_data;
+        if(empty($data['order_id']) || $data['order_id'] == ''){
+            return ['code' => 201 , 'msg' => '订单参数不能为空'];
+        }
+        $orderinfo = Order::where(['id'=>$data['order_id']])->first();
+        if(!$orderinfo){
+            return ['code' => 201 , 'msg' => '订单参数不对'];
+        }
+        if($orderinfo['order_type'] == 2 && in_array($orderinfo['status'],['1','2','3'])){
+            //苹果内购 退回到余额
+            if($orderinfo['pay_type'] == 5){
+                DB::beginTransaction();
+                $user = Student::where(['id'=>$orderinfo['student_id']])->first();
+                $endprice = $user['balance'] + $orderinfo['price'];
+                Student::where(['id'=>$orderinfo['student_id']])->update(['balance'=>$endprice]);
+                StudentAccountlog::insert(['user_id'=>$orderinfo['student_id'],'price'=>$orderinfo['price'],'end_price'=>$endprice,'status'=>1]);
+                $up = Order::where(['id'=>$data['order_id']])->update(['status'=>4]);
+            }else{
+                //其他修改状态
+                $up = Order::where(['id'=>$data['order_id']])->update(['status'=>4]);
+            }
+            if($up){
+                DB::commit();
+                return ['code' => 200 , 'msg' => '退回成功'];
+            }else{
+                DB::rollback();
+                return ['code' => 202 , 'msg' => '退回失败'];
+            }
+        }else{
+            return ['code' => 202 , 'msg' => '此订单无法进行此操作'];
         }
     }
     /*

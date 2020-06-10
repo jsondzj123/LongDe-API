@@ -53,7 +53,7 @@ $router->group(['prefix' => 'api', 'namespace' => 'Api'], function () use ($rout
         $router->post('getFamousTeacherInfo','IndexController@getFamousTeacherInfo');             //APP名师详情接口
         $router->post('getTeacherLessonList','IndexController@getTeacherLessonList');             //APP名师课程列表接口
     });
-    
+
     //回调
     $router->group(['prefix' => 'notify'], function () use ($router) {
         $router->post('iphonePaynotify','NotifyController@iphonePaynotify');   //苹果内部支付
@@ -72,7 +72,7 @@ $router->group(['prefix' => 'api', 'namespace' => 'Api'], function () use ($rout
 $router->group(['prefix' => 'api', 'namespace' => 'Api', 'middleware'=> 'user'], function () use ($router) {
     //直播课程
     $router->post('courseAccess', 'LiveChildController@courseAccess');
-    
+
 
 
     //收藏模块
@@ -123,7 +123,7 @@ $router->group(['prefix' => 'web' , 'namespace' => 'Web'], function () use ($rou
 $router->group(['prefix' => 'admin' , 'namespace' => 'Admin', 'middleware'=> 'cors'], function () use ($router) {
     $router->post('register', 'AuthenticateController@register');
     $router->post('login', 'AuthenticateController@postLogin');
-    
+
 });
 //后端登录权限认证相关接口
 $router->group(['prefix' => 'admin' , 'namespace' => 'Admin' , 'middleware'=> ['jwt.auth']], function () use ($router) {
@@ -147,7 +147,7 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin' , 'middleware'=> ['
     /*
      * 课程模块(sxl)
     */
-    
+
     $router->post('lesson', 'LessonController@index');
     $router->post('schoolLesson', 'LessonController@schoolLesson');
     $router->post('lesson/add', 'LessonController@store');
@@ -206,7 +206,7 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin' , 'middleware'=> ['
     $router->post('updateVideoStatus', 'VideoController@status');
     $router->post('deleteVideo', 'VideoController@destroy');
     $router->post('videoUploadUrl', 'VideoController@uploadUrl');
-    
+
 
 
     /*
@@ -231,8 +231,8 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin' , 'middleware'=> ['
     $router->post('deleteLiveChild', 'LiveChildController@destroy');
     $router->post('editLiveChildStatus', 'LiveChildController@edit');
     $router->post('startLiveChild', 'LiveChildController@startLive');
-    
-    
+
+
     //上传图片OSS公共参数接口
     $router->post('getImageOssConfig', 'CommonController@getImageOssConfig');
     //上传到本地图片接口
@@ -355,6 +355,7 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin' , 'middleware'=> ['
         $router->post('orderUpOaForId', 'OrderController@orderUpOaForId');//订单修改oa状态
         $router->post('ExcelExport', 'OrderController@ExcelExport');//订单导出
         $router->post('buttOa', 'OrderController@buttOa');//对接oa
+        $router->post('orderBack', 'OrderController@orderBack');//退回
     });
     //数据模块（szw）
     $router->group(['prefix' => 'statistics'], function () use ($router) {
