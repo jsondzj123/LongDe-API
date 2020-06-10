@@ -154,7 +154,6 @@ class NotifyController extends Controller {
             return response()->json(['code' => 201 , 'msg' => '此参数已处理']);
         }
         file_put_contents('iosnotify.txt', '时间:'.date('Y-m-d H:i:s').print_r($arr,true),FILE_APPEND);
-//        Storage::disk('local')->append('iosnotify.txt', 'time:'.date('Y-m-d H:i:s')."\nresponse:".$html);
         // 判断是否购买成功  【状态码,0为成功（无论是沙箱环境还是正式环境只要数据正确status都会是：0）】
         if (intval($arr['status']) === 0) {
             DB::beginTransaction();
@@ -170,6 +169,7 @@ class NotifyController extends Controller {
                 'tc0010'=>6498,
             ];
             $studentprice = StudentAccounts::where(['order_number'=>$order_number])->first();
+            file_put_contents('in_app.txt', '时间:'.date('Y-m-d H:i:s').print_r($arr['receipt']['in_app'],true),FILE_APPEND);
             foreach ($arr['receipt']['in_app'] as $k=>$v){
                 //充值的钱
                 $czprice = $codearr[$v]['product_id'];
