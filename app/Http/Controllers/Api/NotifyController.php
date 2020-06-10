@@ -177,18 +177,8 @@ class NotifyController extends Controller {
                     StudentAccounts::where(['user_id'=>$studentprice['user_id'],'price'=>$czprice,'pay_type'=>5,'order_type'=>1])->update(['third_party_number'=>$v['transaction_id'],'content'=>$html,'status'=>1,'update_at'=>date('Y-m-d H:i:s')]);
                     StudentAccountlog::insert(['user_id'=>$studentprice['user_id'],'price'=>$studentprice['price'],'end_price'=>$endbalance,'status'=>1]);
                 }
-                //修改订单状态  更改用户余额 加入日志
-//                $student = Student::where(['id'=>$studentprice['user_id']])->first();
-//                $endbalance = $student['balance'] + $studentprice['price'];
-//                Student::where(['id'=>$studentprice['user_id']])->update(['balance'=>$endbalance]);
-//                StudentAccounts::where(['order_number'=>$order_number])->update(['content'=>$html,'status'=>1,'update_at'=>date('Y-m-d H:i:s')]);
-//                StudentAccountlog::insert(['user_id'=>$studentprice['user_id'],'price'=>$studentprice['price'],'end_price'=>$endbalance,'status'=>1]);
 
             }
-//            $studentprice = StudentAccounts::where(['order_number'=>$order_number])->first()->toArray();
-//            if($studentprice['status'] == 1){
-                return response()->json(['code' => 200 , 'msg' => '支付成功']);
-//            }
             DB::commit();
             return response()->json(['code' => 200 , 'msg' => '支付成功']);
         }else{
