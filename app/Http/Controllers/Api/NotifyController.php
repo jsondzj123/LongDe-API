@@ -122,7 +122,6 @@ class NotifyController extends Controller {
     //支付宝 充值 回调接口
     public function aliTopnotify(){
     }
-
     //iphone 内部支付 回调
     public function iphonePaynotify(){
         $data = self::$accept_data;
