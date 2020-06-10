@@ -125,7 +125,6 @@ class NotifyController extends Controller {
 
     //iphone 内部支付 回调
     public function iphonePaynotify(){
-        echo 123456777777777777;die;
         $data = self::$accept_data;
         file_put_contents('iosnotifyrucan.txt', '时间:'.date('Y-m-d H:i:s').print_r($data,true),FILE_APPEND);
         $receiptData = $data['receiptData'];
