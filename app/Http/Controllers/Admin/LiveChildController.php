@@ -65,25 +65,24 @@ class LiveChildController extends Controller {
         $pagesize = $request->input('pagesize') ?: 15;
         $page     = $request->input('page') ?: 1;
         $offset   = ($page - 1) * $pagesize;
-        $status   = $request->input('status');
+        $status   = $request->input('status') ?: 0;
         $start_time = $request->input('start_time');
         $end_time = $request->input('end_time');
         $keyword     = $request->input('keyword');
-        $total = LiveChild::where(['is_del' => 0, 'is_forbid' => 0])->count();
-        $lesson = LiveChild::select('id', 'course_name', 'start_time', 'end_time', 'modetype')
+        $data = LiveChild::select('id', 'course_name', 'start_time', 'end_time', 'is_free', 'barrage', 'modetype', 'status')
             ->where(['is_del' => 0, 'is_forbid' => 0])
             ->where(function($query) use ($status, $keyword){
                 if($status == 0){
-                    $query->whereIn("status", [1, 2, 3]);
+                    $query->whereIn("status", [0, 1, 2, 3]);
                 }else{
                     $query->where("status", $status);
                 }
                 if(!empty($keyword)){
                     $query->where('course_name', 'like', '%'.$keyword.'%');
                 }
-            })
-            ->skip($offset)->take($pagesize)
-            ->get();
+            });
+        $total = $data->count();
+        $lesson = $data->skip($offset)->take($pagesize)->get();
     
         $data = [
             'page_data' => $lesson,
