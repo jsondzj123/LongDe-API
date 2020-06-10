@@ -72,7 +72,6 @@ class LiveChildController extends Controller {
     {
         $validator = Validator::make($request->all(), [
            'course_id' => 'required',
-           'type' => 'required',
         ]);
         if ($validator->fails()) {
             return $this->response($validator->errors()->first(), 202);
@@ -82,12 +81,19 @@ class LiveChildController extends Controller {
         $nickname = self::$accept_data['user_info']['nickname'];
         
         $MTCloud = new MTCloud();
-        // 参数：课程ID
-        // 进入直播课程
-        if($request->input('type') == 1){
+        $liveChild = LiveChild::where('course_id', $course_id)->first();
+        if(empty($liveChild)){
+            return $this->response('course_id不存在', 202);
+        }
+
+        if($liveChild->status != 2){
+            return $this->response('不是进行中的直播', 202);
+        }
+
+        if($liveChild->status == 2){
              $res = $MTCloud->courseAccess($course_id, $student_id, $nickname, 'user');
-        }else{
-             $res = $MTCloud->courseAccessPlayback($course_id, $student_id, $nickname, 'user');
+        }
+        $res = $MTCloud->courseAccessPlayback($course_id, $student_id, $nickname, 'user');
         }
         if(!array_key_exists('code', $res) && !$res['code'] == 0){
             Log::error('进入直播间失败:'.json_encode($res));
