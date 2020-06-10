@@ -180,7 +180,7 @@ class NotifyController extends Controller {
                     $endbalance = $student['balance'] + $czorderfind['price'];
                     Student::where(['id'=>$studentprice['user_id']])->update(['balance'=>$endbalance]);
                     StudentAccounts::where(['user_id'=>$studentprice['user_id'],'price'=>$czprice,'pay_type'=>5,'order_type'=>1])->update(['third_party_number'=>$v['transaction_id'],'content'=>$html,'status'=>1,'update_at'=>date('Y-m-d H:i:s')]);
-                    StudentAccountlog::insert(['user_id'=>$studentprice['user_id'],'price'=>$studentprice['price'],'end_price'=>$endbalance,'status'=>1]);
+                    StudentAccountlog::insert(['user_id'=>$studentprice['user_id'],'price'=>$czprice,'end_price'=>$endbalance,'status'=>1]);
                 }else{
                     continue;
                 }
