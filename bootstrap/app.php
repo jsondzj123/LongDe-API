@@ -116,6 +116,8 @@ $app->register(\Illuminate\Redis\RedisServiceProvider::class);
 $app->register(\Maatwebsite\Excel\ExcelServiceProvider::class);
 //阿里云短信
 $app->register(\Lysice\Sms\SmsServiceProvider::class);
+//CORS
+$app->register(Barryvdh\Cors\ServiceProvider::class);
 /*
 |--------------------------------------------------------------------------
 | Load The Application Routes
