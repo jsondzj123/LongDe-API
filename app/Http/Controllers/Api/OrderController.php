@@ -116,7 +116,7 @@ class OrderController extends Controller
             //根据订单 查询我购买的课程
             $orderlist = Order::select('ld_lessons.id','ld_lessons.title','ld_lessons.cover','ld_lessons.method','ld_lessons.buy_num')
                 ->leftJoin('ld_lessons','ld_lessons.id','=','ld_order.class_id')
-                ->where(['ld_order.student_id'=>$data['user_info']['user_id'],'ld_order.status'=>1,'ld_lessons.status'=>2,'ld_lessons.is_del'=>0,'ld_lessons.is_forbid'=>0])
+                ->where(['ld_order.student_id'=>$data['user_info']['user_id'],'ld_order.status'=>2,'ld_lessons.status'=>2,'ld_lessons.is_del'=>0,'ld_lessons.is_forbid'=>0])
                 ->orderByDesc('ld_order.id')
                 ->offset($offset)->limit($pagesize)
                 ->get()->toArray();
