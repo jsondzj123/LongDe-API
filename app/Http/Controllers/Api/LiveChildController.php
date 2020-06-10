@@ -93,8 +93,8 @@ class LiveChildController extends Controller {
         if($liveChild->status == 2){
              $res = $MTCloud->courseAccess($course_id, $student_id, $nickname, 'user');
         }
-        $res = $MTCloud->courseAccessPlayback($course_id, $student_id, $nickname, 'user');
-        }
+        //$res = $MTCloud->courseAccessPlayback($course_id, $student_id, $nickname, 'user');
+
         if(!array_key_exists('code', $res) && !$res['code'] == 0){
             Log::error('进入直播间失败:'.json_encode($res));
             return $this->response('进入直播间失败', 500);
