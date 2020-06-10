@@ -290,7 +290,7 @@ class Order extends Model {
                     return ['code' => 202 , 'msg' => '操作失败'];
                 }
            }else if($data['status'] == 4){
-                $update = self::where(['id'=>$data['order_id']])->update(['status'=>4]);
+                $update = self::where(['id'=>$data['order_id']])->update(['status'=>3]);
                 if($update){
                     //添加日志操作
                     AdminLog::insertAdminLog([
