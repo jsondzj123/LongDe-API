@@ -169,10 +169,9 @@ class NotifyController extends Controller {
                 'tc0010'=>6498,
             ];
             $studentprice = StudentAccounts::where(['order_number'=>$order_number])->first();
-            file_put_contents('in_app.txt', '时间:'.date('Y-m-d H:i:s').print_r($arr['receipt']['in_app'],true),FILE_APPEND);
             foreach ($arr['receipt']['in_app'] as $k=>$v){
                 //充值的钱
-                $czprice = $codearr[$v]['product_id'];
+                $czprice = $codearr[$v['product_id']];
                 //根据用户的钱 查询订单
                 $czorderfind = StudentAccounts::where(['user_id'=>$studentprice['user_id'],'price'=>$czprice,'pay_type'=>5,'order_type'=>1])->first();
                 if($czorderfind['status'] != 1){
