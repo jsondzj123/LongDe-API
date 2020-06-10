@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use  App\Tools\CurrentAdmin;
 use Validator;
 use App\Tools\MTCloud;
+use Log;
 
 class VideoController extends Controller {
 
@@ -177,11 +178,17 @@ class VideoController extends Controller {
     //获取欢拓录播资源上传地址
     public function uploadUrl(Request $request)
     {
-        $MTCloud = new MTCloud();
-        $res = $MTCloud->videoGetUploadUrl(1, 2, '测试上传录播', 'videoUpload');
-        if(!array_key_exists('code', $res) && !$res['code'] == 0){
-            Log::error('进入直播间失败:'.json_encode($res));
-            return $this->response('进入直播间失败', 500);
+        $validator = Validator::make($request->all(), [
+            'title' => 'required',
+            'video_md5'   =>  'required',
+        ]);
+        if ($validator->fails()) {
+            return $this->response($validator->errors()->first(), 202);
+        }
+        $res = $MTCloud->videoGetUploadUrl(1, 2, $request->input('title'), $request->input('video_md5'));
+        if(!array_key_exists('code', $res) || $res['code'] != 0){
+            Log::error('上传失败:'.json_encode($res));
+            return $this->response('上传失败', 500);
         }
         return $this->response($res['data']);
     }
