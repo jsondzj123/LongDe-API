@@ -148,7 +148,7 @@ class NotifyController extends Controller {
             $arr = json_decode($html, true);
         }
         //查库 如果有 就提示已经处理此订单
-        $count = StudentAccounts::where(['content'=>$html])->first();
+        $count = StudentAccounts::where(['content'=>$html])->count();
         if($count>0){
             return response()->json(['code' => 201 , 'msg' => '此参数已处理']);
         }
