@@ -40,7 +40,18 @@ class LiveChild extends Model {
         'is_forbid'
     ];
 
-    protected $appends = ['date', 'week', 'solt', 'time'];
+    protected $appends = ['date', 'week', 'solt', 'time', 'class_hours'];
+
+    public function getClassHoursAttribute($value)
+    {
+        // 指定两个日期，转换为 Unix 时间戳
+        $date1 = strtotime($this->start_time);
+        $date2 = strtotime($this->end_time);
+        //计算两个日期之间的时间差
+        $diff= $date1 - $date2 ;
+        $hours = abs(round($diff / 3600));
+        return $hours;
+    }
 
     public function getDateAttribute($value) {
         return date('Y-m-d', strtotime($this->start_time));
