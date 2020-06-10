@@ -168,7 +168,7 @@ class NotifyController extends Controller {
                 'tc009'=>3998,
                 'tc0010'=>6498,
             ];
-            $studentprice = StudentAccounts::where(['order_number'=>$order_number])->first();
+            $studentprice = StudentAccounts::where(['order_number'=>$order_number])->orderByDesc('id')->first();
             foreach ($arr['receipt']['in_app'] as $k=>$v){
                 //充值的钱
                 $czprice = $codearr[$v['product_id']];
