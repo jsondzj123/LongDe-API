@@ -16,8 +16,16 @@ class Collection extends Model {
     ];
 
     protected $hidden = [
-        'created_at',
         'updated_at',
         'is_del'
     ];
+
+    protected $casts = [
+        'created_at' => 'datetime:Y-m-d H:i:s',
+        'updated_at' => 'datetime:Y-m-d H:i:s',
+    ];
+
+    public function lessons() {
+        return $this->belongsTo('App\Models\Lesson', 'lesson_id');
+    }
 }
