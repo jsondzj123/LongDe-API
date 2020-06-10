@@ -39,7 +39,8 @@ class OrderController extends Controller
                 ->where(['ld_order.student_id'=>$data['user_info']['user_id']])
                 ->where(function($query) use ($type) {
                     if($type == 1){
-                        $query->where('ld_order.status','=',1);
+                        $query->where('ld_order.status','=',1)
+                            ->orwhere('ld_order.status','=',2);
                     }
                     if($type == 2){
                         $query->where('ld_order.status','=',0);
