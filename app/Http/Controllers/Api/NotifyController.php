@@ -174,29 +174,13 @@ class NotifyController extends Controller {
             $len = count($arr['receipt']['in_app']);
             //用户余额信息
             $student = Student::where(['id'=>$studentprice['user_id']])->first();
-            foreach ($arr['receipt']['in_app'] as $k=>$v){
-                $czprice = $codearr[$v['product_id']];//充值的钱
-                $endbalance = $student['balance'] + $czprice; //用户充值后的余额
-                if($k == ($len-1)){
-                    //根据订单号处理
-                    Student::where(['id'=>$studentprice['user_id']])->update(['balance'=>$endbalance]);
-                    $userorder = StudentAccounts::where(['order_number'=>$order_number,'price'=>$czprice,'pay_type'=>5,'order_type'=>1])->update(['third_party_number'=>$v['transaction_id'],'content'=>$html,'status'=>1,'update_at'=>date('Y-m-d H:i:s')]);
-                    if($userorder){
-                        StudentAccountlog::insert(['user_id'=>$studentprice['user_id'],'price'=>$czprice,'end_price'=>$endbalance,'status'=>1]);
-                    }
-                }else{
-                    //根据用户的钱 查询订单
-                    $czorderfind = StudentAccounts::where(['user_id'=>$studentprice['user_id'],'price'=>$czprice,'pay_type'=>5,'order_type'=>1])->orderByDesc('id')->first();
-                    if($czorderfind['status'] != 1){
-                        Student::where(['id'=>$studentprice['user_id']])->update(['balance'=>$endbalance]);
-                        $userorder = StudentAccounts::where(['user_id'=>$studentprice['user_id'],'price'=>$czprice,'pay_type'=>5,'order_type'=>1])->update(['third_party_number'=>$v['transaction_id'],'content'=>$html,'status'=>1,'update_at'=>date('Y-m-d H:i:s')]);
-                        if($userorder){
-                            StudentAccountlog::insert(['user_id'=>$studentprice['user_id'],'price'=>$czprice,'end_price'=>$endbalance,'status'=>1]);
-                        }
-                    }else{
-                        continue;
-                    }
-                }
+            $inapp = $arr['receipt']['in_app'][$len-1]; //获取最后一个充值记录
+            $czprice = $codearr[$inapp['product_id']];  //充值的钱
+            $endbalance = $student['balance'] + $czprice; //用户充值后的余额
+            Student::where(['id'=>$studentprice['user_id']])->update(['balance'=>$endbalance]);  //修改用户余额
+            $userorder = StudentAccounts::where(['order_number'=>$order_number,'price'=>$czprice,'pay_type'=>5,'order_type'=>1])->update(['third_party_number'=>$inapp['transaction_id'],'content'=>$html,'status'=>1,'update_at'=>date('Y-m-d H:i:s')]);
+            if($userorder){
+                StudentAccountlog::insert(['user_id'=>$studentprice['user_id'],'price'=>$czprice,'end_price'=>$endbalance,'status'=>1]);
             }
             DB::commit();
             return response()->json(['code' => 200 , 'msg' => '支付成功']);
