@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
+use App\Models\Collection;
 use App\Models\Lesson;
 use App\Models\LessonSchool;
 use App\Models\Order;
@@ -39,7 +40,8 @@ class OrderController extends Controller
                 ->where(['ld_order.student_id'=>$data['user_info']['user_id']])
                 ->where(function($query) use ($type) {
                     if($type == 1){
-                        $query->where('ld_order.status','=',1);
+                        $query->where('ld_order.status','=',1)
+                            ->orwhere('ld_order.status','=',2);
                     }
                     if($type == 2){
                         $query->where('ld_order.status','=',0);
@@ -115,7 +117,7 @@ class OrderController extends Controller
             //根据订单 查询我购买的课程
             $orderlist = Order::select('ld_lessons.id','ld_lessons.title','ld_lessons.cover','ld_lessons.method','ld_lessons.buy_num')
                 ->leftJoin('ld_lessons','ld_lessons.id','=','ld_order.class_id')
-                ->where(['ld_order.student_id'=>$data['user_info']['user_id'],'ld_order.status'=>1,'ld_lessons.status'=>2,'ld_lessons.is_del'=>0,'ld_lessons.is_forbid'=>0])
+                ->where(['ld_order.student_id'=>$data['user_info']['user_id'],'ld_order.status'=>2,'ld_lessons.status'=>2,'ld_lessons.is_del'=>0,'ld_lessons.is_forbid'=>0])
                 ->orderByDesc('ld_order.id')
                 ->offset($offset)->limit($pagesize)
                 ->get()->toArray();
@@ -126,6 +128,38 @@ class OrderController extends Controller
             'total'=>$count
         ];
         return ['code' => 200 , 'msg' => '获取成功','data'=>$orderlist,'page'=>$page];
+    }
+    /*
+         * @param  ceshi
+         * @param  author  苏振文
+         * @param  ctime   2020/6/10 18:10
+         * return  array
+         */
+    public function myPutclassList(){
+        $data = self::$accept_data;
+
+        //每页显示的条数
+        $pagesize = (int)isset($data['pageSize']) && $data['pageSize'] > 0 ? $data['pageSize'] : 10;
+        $page     = isset($data['page']) && $data['page'] > 0 ? $data['page'] : 1;
+        $offset   = ($page - 1) * $pagesize;
+
+        $count = Collection::where(['student_id'=>$data['user_info']['user_id'],'is_del'=>0])->count();
+        if($count > 0){
+            $list = Collection::select('ld_lessons.id','ld_lessons.title','ld_lessons.cover','ld_lessons.method','ld_lessons.buy_num')
+                ->leftJoin('ld_lessons','ld_lessons.id','=','ld_collections.lesson_id')
+                ->where(['ld_collections.is_del'=>0,'ld_lessons.is_del'=>0,'status'=>2,'is_forbid'=>0])
+                ->orderByDesc('ld_collections.created_at')
+                ->offset($offset)->limit($pagesize)
+                ->get()->toArray();
+        }else{
+            $list = [];
+        }
+        $page=[
+            'pageSize'=>$pagesize,
+            'page' =>$page,
+            'total'=>$count
+        ];
+        return ['code' => 200 , 'msg' => '获取成功','data'=>$list,'page'=>$page];
     }
     /*
          * @param  客户端生成预订单
@@ -180,7 +214,7 @@ class OrderController extends Controller
             //获取订单信息
             $order = Order::where(['id' => $data['order_id'], 'student_id' => $user_id])->first();
             if(!$order){
-                return ['code' => 201, 'msg' => '订单数据有误'];
+                return ['code' => 202, 'msg' => '订单数据有误'];
             }
             if ($order['status'] > 0) {
                 return ['code' => 202, 'msg' => '此订单已支付'];
@@ -190,18 +224,18 @@ class OrderController extends Controller
                 //根据课程id 查询价格
                 $lesson = Lesson::select('id', 'title', 'cover', 'price', 'favorable_price','buy_num','ttl')->where(['id' => $order['class_id'], 'is_del' => 0, 'is_forbid' => 0, 'status' => 2, 'is_public' => 0])->first();
                 if (!$lesson) {
-                    return ['code' => 204, 'msg' => '此课程选择无效'];
+                    return ['code' => 202, 'msg' => '此课程选择无效'];
                 }
             } else {
                 //根据课程id 网校id 查询网校课程详情
                 $lesson = LessonSchool::select('id', 'title', 'cover', 'price', 'favorable_price','buy_num','ttl')->where(['lesson_id' => $order['class_id'], 'school_id' => $user_school_id, 'is_del' => 0, 'is_forbid' => 0, 'status' => 1, 'is_public' => 0])->first();
                 if (!$lesson) {
-                    return ['code' => 204, 'msg' => '此课程选择无效'];
+                    return ['code' => 202, 'msg' => '此课程选择无效'];
                 }
             }
             if ($data['pay_type'] == 5) {
                 if ($lesson['favorable_price'] > $user_balance) {
-                    return ['code' => 202, 'msg' => '余额不足，请充值！！！！！'];
+                    return ['code' => 210, 'msg' => '余额不足，请充值！！！！！'];
                 } else {
                     DB::beginTransaction();
                     //2020.06.09  订单支付为2，算出课程有效期

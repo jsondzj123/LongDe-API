@@ -14,10 +14,23 @@ class CollectionController extends Controller {
         $pagesize = $request->input('pagesize') ?: 15;
         $page     = $request->input('page') ?: 1;
         $offset   = ($page - 1) * $pagesize;
-        $student = Student::find(self::$accept_data['user_info']['user_id'])->collectionLessons->skip($offset)->take($pagesize);
-        $total = $student->count();
+        $data = Collection::where('student_id', self::$accept_data['user_info']['user_id'])
+                    ->with(['lessons' => function ($query) {
+                        $query->with(['methods' => function($query){
+                            $query->select('id', 'name');
+                        }])
+                        ->select('id', 'title', 'cover');
+                    }])
+                    ->orderBy('created_at', 'desc')
+                    ->get(); 
+        $student = $data->skip($offset)->take($pagesize);
+        $lessons = [];
+        foreach ($student as $key => $value) {
+            $lessons[$key] = $value->lessons;
+        }
+        $total = $data->count();
         $data = [
-            'page_data' => $student,
+            'page_data' => $lessons,
             'total' => $total,
         ];
         return $this->response($data);
