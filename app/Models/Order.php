@@ -218,13 +218,13 @@ class Order extends Model {
                 array_push($newpay,4);
             }
             //查询用户有此类订单没有，有的话直接返回
-            $orderfind = self::where(['student_id'=>$arr['student_id'],'class_id'=>$arr['class_id'],'status'=>0])->first();
-            if($orderfind){
-                $lesson['order_id'] = $orderfind['id'];
-                $lesson['order_number'] = $orderfind['order_number'];
-                $lesson['user_balance'] = $student['balance'];
-                return ['code' => 200 , 'msg' => '生成预订单成功1','data'=>$lesson,'paylist'=>$newpay];
-            }
+//            $orderfind = self::where(['student_id'=>$arr['student_id'],'class_id'=>$arr['class_id'],'status'=>0])->first();
+//            if($orderfind){
+//                $lesson['order_id'] = $orderfind['id'];
+//                $lesson['order_number'] = $orderfind['order_number'];
+//                $lesson['user_balance'] = $student['balance'];
+//                return ['code' => 200 , 'msg' => '生成预订单成功1','data'=>$lesson,'paylist'=>$newpay];
+//            }
             //数据入库，生成订单
             $data['order_number'] = date('YmdHis', time()) . rand(1111, 9999);
             $data['admin_id'] = 0;  //操作员id
