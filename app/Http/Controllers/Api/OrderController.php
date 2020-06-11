@@ -146,7 +146,7 @@ class OrderController extends Controller
         $count = Collection::where(['student_id'=>$data['user_info']['user_id'],'is_del'=>0])->count();
         if($count > 0){
             $list = Collection::select('ld_lessons.id','ld_lessons.title','ld_lessons.cover','ld_lessons.method','ld_lessons.buy_num')
-                ->leftJoin('ld_lessons','ld_lessons.id','=','ld_collections.lession_id')
+                ->leftJoin('ld_lessons','ld_lessons.id','=','ld_collections.lesson_id')
                 ->where(['ld_collections.is_del'=>0,'ld_lessons.is_del'=>0,'status'=>2,'is_forbid'=>0])
                 ->orderByDesc('ld_collections.created_at')
                 ->offset($offset)->limit($pagesize)
