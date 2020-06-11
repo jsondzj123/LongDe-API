@@ -10,7 +10,7 @@ class Cors
     private $headers;
     private $allow_origin;
 
-    public function handle(Request $request)
+    public function handle(Request $request , \Closure $next)
     {
         $this->headers = [
             'Access-Control-Allow-Methods' => 'GET, POST, PUT, DELETE',
