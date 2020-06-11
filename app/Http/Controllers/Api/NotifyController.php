@@ -125,9 +125,9 @@ class NotifyController extends Controller {
     //iphone 内部支付 回调
     public function iphonePaynotify(){
         $data = self::$accept_data;
-        file_put_contents('iosnotifyrucan.txt', '时间:'.date('Y-m-d H:i:s').print_r($data,true),FILE_APPEND);
         $receiptData = $data['receiptData'];
         $order_number = $data['order_number'];
+        file_put_contents('./orderpaylog/'.$order_number.'.txt', '时间:'.date('Y-m-d H:i:s').print_r($data,true),FILE_APPEND);
         if(!isset($data['receiptData']) ||empty($receiptData)){
             return response()->json(['code' => 201 , 'msg' => 'receiptData没有']);
         }
@@ -138,6 +138,10 @@ class NotifyController extends Controller {
         if (strlen($receiptData) < 20) {
             return response()->json(['code' => 201 , 'msg' => '不能读取你提供的JSON对象']);
         }
+        $studentprice = StudentAccounts::where(['order_number'=>$order_number])->first();
+        if($studentprice['status'] > 0){
+            return response()->json(['code' => 200 , 'msg' => '此订单已处理']);
+        }
         // 请求验证【默认向真实环境发请求】
         $html = $this->acurl($receiptData);
         $arr = json_decode($html, true);//接收苹果系统返回数据并转换为数组，以便后续处理
@@ -147,12 +151,7 @@ class NotifyController extends Controller {
             $html = $this->acurl($receiptData, 1);
             $arr = json_decode($html, true);
         }
-        //查库 如果有 就提示已经处理此订单
-        $count = StudentAccounts::where(['content'=>$html])->count();
-        if($count>0){
-            return response()->json(['code' => 200 , 'msg' => '此订单已处理完成']);
-        }
-        file_put_contents('iosnotify.txt', '时间:'.date('Y-m-d H:i:s').print_r($arr,true),FILE_APPEND);
+        file_put_contents('./orderpaylog/'.$order_number.'.txt', '时间:'.date('Y-m-d H:i:s').print_r($arr,true),FILE_APPEND);
         // 判断是否购买成功  【状态码,0为成功（无论是沙箱环境还是正式环境只要数据正确status都会是：0）】
         if (intval($arr['status']) === 0) {
             DB::beginTransaction();
@@ -167,20 +166,20 @@ class NotifyController extends Controller {
                 'tc009'=>3998,
                 'tc0010'=>6498,
             ];
-            $studentprice = StudentAccounts::where(['order_number'=>$order_number])->first();
             if(!isset($arr['receipt']['in_app']) || empty($arr['receipt']['in_app'])){
                 return response()->json(['code' => 200 , 'msg' => '无充值记录']);
             }
-            $len = count($arr['receipt']['in_app']);
             //用户余额信息
             $student = Student::where(['id'=>$studentprice['user_id']])->first();
-            $inapp = $arr['receipt']['in_app'][$len-1]; //获取最后一个充值记录
-            $czprice = $codearr[$inapp['product_id']];  //充值的钱
-            $endbalance = $student['balance'] + $czprice; //用户充值后的余额
-            Student::where(['id'=>$studentprice['user_id']])->update(['balance'=>$endbalance]);  //修改用户余额
-            $userorder = StudentAccounts::where(['order_number'=>$order_number,'price'=>$czprice,'pay_type'=>5,'order_type'=>1])->update(['third_party_number'=>$inapp['transaction_id'],'content'=>$html,'status'=>1,'update_at'=>date('Y-m-d H:i:s')]);
-            if($userorder){
-                StudentAccountlog::insert(['user_id'=>$studentprice['user_id'],'price'=>$czprice,'end_price'=>$endbalance,'status'=>1]);
+            foreach ($arr['receipt']['in_app']  as $k=>$v){
+                if($codearr[$v['product_id']] = $studentprice['price']){
+                    $endbalance = $student['balance'] + $studentprice['price']; //用户充值后的余额
+                    Student::where(['id'=>$studentprice['user_id']])->update(['balance'=>$endbalance]);  //修改用户余额
+                    $userorder = StudentAccounts::where(['order_number'=>$order_number,'price'=>$studentprice['price'],'pay_type'=>5,'order_type'=>1])->update(['third_party_number'=>$v['transaction_id'],'content'=>$arr['receipt']['in_app'][$k],'status'=>1,'update_at'=>date('Y-m-d H:i:s')]);
+                    if($userorder){
+                        StudentAccountlog::insert(['user_id'=>$studentprice['user_id'],'price'=>$studentprice['price'],'end_price'=>$endbalance,'status'=>1]);
+                    }
+                }
             }
             DB::commit();
             return response()->json(['code' => 200 , 'msg' => '支付成功']);
