@@ -95,6 +95,7 @@ $router->group(['prefix' => 'api', 'namespace' => 'Api', 'middleware'=> 'user'],
         $router->post('myOrderlist','OrderController@myOrderlist');   //我的订单
         $router->post('myPricelist','OrderController@myPricelist');   //我的余额记录
         $router->post('myLessionlist','OrderController@myLessionlist');   //我的课程
+        $router->post('myPutclassList','OrderController@myPutclassList');   //我的课程
     });
 });
 

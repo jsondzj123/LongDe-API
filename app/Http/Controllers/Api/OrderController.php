@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
+use App\Models\Collection;
 use App\Models\Lesson;
 use App\Models\LessonSchool;
 use App\Models\Order;
@@ -127,6 +128,38 @@ class OrderController extends Controller
             'total'=>$count
         ];
         return ['code' => 200 , 'msg' => '获取成功','data'=>$orderlist,'page'=>$page];
+    }
+    /*
+         * @param  ceshi
+         * @param  author  苏振文
+         * @param  ctime   2020/6/10 18:10
+         * return  array
+         */
+    public function myPutclassList(){
+        $data = self::$accept_data;
+
+        //每页显示的条数
+        $pagesize = (int)isset($data['pageSize']) && $data['pageSize'] > 0 ? $data['pageSize'] : 10;
+        $page     = isset($data['page']) && $data['page'] > 0 ? $data['page'] : 1;
+        $offset   = ($page - 1) * $pagesize;
+
+        $count = Collection::where(['student_id'=>$data['user_info']['user_id'],'is_del'=>0])->count();
+        if($count > 0){
+            $list = Collection::select('ld_lessons.id','ld_lessons.title','ld_lessons.cover','ld_lessons.method','ld_lessons.buy_num')
+                ->leftJoin('ld_lessons','ld_lessons.id','=','ld_collections.lession_id')
+                ->where(['ld_collections.is_del'=>0,'ld_lessons.is_del'=>0,'status'=>2,'is_forbid'=>0])
+                ->orderByDesc('ld_collections.created_at')
+                ->offset($offset)->limit($pagesize)
+                ->get()->toArray();
+        }else{
+            $list = [];
+        }
+        $page=[
+            'pageSize'=>$pagesize,
+            'page' =>$page,
+            'total'=>$count
+        ];
+        return ['code' => 200 , 'msg' => '获取成功','data'=>$list,'page'=>$page];
     }
     /*
          * @param  客户端生成预订单
