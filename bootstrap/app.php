@@ -87,7 +87,7 @@ $app->routeMiddleware([
      'api' => App\Http\Middleware\ApiAuthToken::class,
      'user'=> App\Http\Middleware\UserAuthToken::class,
     // 'jwt.role' => App\Http\Middleware\JWTRoleAuth::class,
-     'cors' => \Fruitcake\Cors\HandleCors::class,
+     'cors' => App\Http\Middleware\Cors::class,
 
 ]);
 
@@ -116,7 +116,7 @@ $app->register(\Illuminate\Redis\RedisServiceProvider::class);
 $app->register(\Maatwebsite\Excel\ExcelServiceProvider::class);
 //阿里云短信
 $app->register(\Lysice\Sms\SmsServiceProvider::class);
-$app->register(Fruitcake\Cors\CorsServiceProvider::class);
+
 /*
 |--------------------------------------------------------------------------
 | Load The Application Routes
