@@ -58,7 +58,7 @@ class Lesson extends Model {
         $token = isset($_REQUEST['user_token']) ? $_REQUEST['user_token'] : 0;
         $student = Student::where('token', $token)->first();
         if(!empty($student)){
-            $num = $this->hasMany('App\Models\Order', 'class_id')->where(['status' =>1, 'student_id' => $student->id])->count();
+            $num = $this->hasMany('App\Models\Order', 'class_id')->where(['status' => 2, 'student_id' => $student->id])->count();
             if($num > 0){
                 return 1;
             }
