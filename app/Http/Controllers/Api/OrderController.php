@@ -119,7 +119,7 @@ class OrderController extends Controller
             ->where(['is_del'=> 0, 'is_forbid' => 0, 'status' => 2])
             ->whereHas('order', function ($query) use ($student_id)
             {
-                $query->where('student_id', $student_id)->where('status' , 2)->where('oa_status' , 1);
+                $query->where('student_id', $student_id);
             })
             ->offset($offset)->limit($pagesize)->get()->toArray();
         print_r($teacher_lesson_list);die;
