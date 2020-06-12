@@ -113,9 +113,14 @@ class OrderController extends Controller
         $pagesize = (int)isset($data['pageSize']) && $data['pageSize'] > 0 ? $data['pageSize'] : 10;
         $page     = isset($data['page']) && $data['page'] > 0 ? $data['page'] : 1;
         $offset   = ($page - 1) * $pagesize;
+        $student_id = 12;
 
-        $teacher_lesson_list = Lesson::with('methods','order')->select('id', 'admin_id', 'title', 'cover', 'price', 'favorable_price', 'buy_num', 'status', 'is_del', 'is_forbid')
+        $teacher_lesson_list = Lesson::with('methods')->select('id', 'admin_id', 'title', 'cover', 'price', 'favorable_price', 'buy_num', 'status', 'is_del', 'is_forbid')
             ->where(['is_del'=> 0, 'is_forbid' => 0, 'status' => 2])
+            ->whereHas('order', function ($query) use ($student_id)
+            {
+                $query->where('student_id', $student_id)->where('status' , 2)->where('oa_status' , 1);
+            })
             ->offset($offset)->limit($pagesize)->get()->toArray();
         print_r($teacher_lesson_list);die;
 
