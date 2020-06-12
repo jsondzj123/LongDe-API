@@ -106,59 +106,22 @@ class OrderController extends Controller
          * return  array
          */
     public function myLessionlist(){
-
-
         $data = self::$accept_data;
         //每页显示的条数
         $pagesize = (int)isset($data['pageSize']) && $data['pageSize'] > 0 ? $data['pageSize'] : 10;
         $page     = isset($data['page']) && $data['page'] > 0 ? $data['page'] : 1;
         $offset   = ($page - 1) * $pagesize;
-        $student_id = 12;
-
-        $teacher_lesson_list = Lesson::with('methods')->select('id', 'admin_id', 'title', 'cover', 'price', 'favorable_price', 'buy_num', 'status', 'is_del', 'is_forbid')
-            ->where(['is_del'=> 0, 'is_forbid' => 0, 'status' => 2])
-            ->whereHas('order', function ($query) use ($student_id)
-            {
-                $query->where('student_id', $student_id)->where('status' , 2)->where('oa_status' , 1);
-            })
-            ->offset($offset)->limit($pagesize)->get()->toArray();
-        print_r($teacher_lesson_list);die;
-
+        $student_id = $data['user_info']['user_id'];
         $count = Order::where(['student_id'=>$data['user_info']['user_id'],'status'=>2,'oa_status'=>1])->count();
         $orderlist = [];
         if($count > 0){
-            //根据订单 查询我购买的课程
-//            $orderlist = Order::select('ld_lessons.id','ld_lessons.title','ld_lessons.cover','ld_lessons.method','ld_lessons.buy_num')
-//                ->leftJoin('ld_lessons','ld_lessons.id','=','ld_order.class_id')
-//                ->where(['ld_order.student_id'=>$data['user_info']['user_id'],'ld_order.status'=>2,'ld_lessons.status'=>2,'ld_lessons.is_del'=>0,'ld_lessons.is_forbid'=>0])
-//                ->orderByDesc('ld_order.id')
-//                ->offset($offset)->limit($pagesize)
-//                ->get()->toArray();
-
-            //获取名师课程列表
-            $teacher_lesson_list = Lesson::with('methods')->select('id', 'admin_id', 'title', 'cover', 'price', 'favorable_price', 'buy_num', 'status', 'is_del', 'is_forbid')
+            $orderlist = Lesson::with('methods')->select('id', 'admin_id', 'title', 'cover', 'price', 'favorable_price', 'buy_num', 'status', 'is_del', 'is_forbid')
                 ->where(['is_del'=> 0, 'is_forbid' => 0, 'status' => 2])
+                ->whereHas('order', function ($query) use ($student_id)
+                {
+                    $query->where('student_id', $student_id)->where('status' , 2)->where('oa_status' , 1);
+                })
                 ->offset($offset)->limit($pagesize)->get()->toArray();
-
-//            $subject = Order::select('ld_lessons.id', 'ld_lessons.title')
-//                ->leftJoin('ld_lessons','ld_lessons.id','=','ld_order.class_id')
-//                ->where(['is_del' => 0, 'is_forbid' => 0, 'pid' => 0])
-//                ->limit(4)
-//                ->get();
-//            $lessons = [];
-//            foreach ($subject as $key => $value) {
-//                $lessons[$key]['subject'] = $value;
-//                $lessons[$key]['lesson'] = Lesson::select('id', 'title', 'cover', 'buy_num', 'price as old_price', 'favorable_price')
-//                    ->where(['is_del' => 0, 'is_forbid' => 0, 'is_public' => 0])
-//                    ->with(['subjects' => function ($query) {
-//                        $query->select('id', 'name');
-//                    }])
-//                    ->whereHas('subjects', function ($query) use ($value) {
-//                        $query->where('id', $value->id);
-//                    })
-//                    ->get();
-//            }
-//            return $this->response($lessons);
         }
         $page=[
             'pageSize'=>$pagesize,
