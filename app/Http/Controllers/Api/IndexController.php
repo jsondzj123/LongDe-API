@@ -419,9 +419,13 @@ class IndexController extends Controller {
             $offset   = ($page - 1) * $pagesize;
 
             //获取名师课程列表
-            $teacher_lesson_list = DB::table('ld_lessons as l')->select("l.id as lesson_id","l.title","l.cover","l.price","l.favorable_price","l.method")->leftJoin('ld_lesson_teachers as t' , function($join){
-                        $join->on('l.id', '=', 't.lesson_id');
-                    })->where("t.teacher_id",$teacher_id)->where("l.is_public" , 0)->where("l.is_del" , 0)->where("l.is_forbid" , 0)->offset($offset)->limit($pagesize)->get()->toArray();
+            $teacher_lesson_list = Lesson::with('methods')->select('id', 'admin_id', 'title', 'cover', 'price', 'favorable_price', 'buy_num', 'status', 'is_del', 'is_forbid')
+                    ->where(['is_del'=> 0, 'is_forbid' => 0, 'status' => 2])
+                    ->whereHas('teachers', function ($query) use ($teacher_id)
+                    {
+                        $query->where('id', $teacher_id);
+                    })
+                    ->offset($offset)->limit($pagesize)->get();
             if($teacher_lesson_list && !empty($teacher_lesson_list)){
                 return response()->json(['code' => 200 , 'msg' => '获取名师课程列表成功' , 'data' => $teacher_lesson_list]);
             } else {
