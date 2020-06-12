@@ -14,7 +14,7 @@ class AddVideoIdToLdVideosTable extends Migration
     public function up()
     {
         Schema::table('ld_videos', function (Blueprint $table) {
-            $table->tinyInteger('mt_video_id')->default(0)->comment('欢拓视频ID');
+            $table->integer('mt_video_id')->default(0)->comment('欢拓视频ID');
             $table->string('mt_video_name')->nullable()->comment('欢拓视频标题');
             $table->string('mt_url')->nullable()->comment('欢拓视频临时观看地址'); 
             $table->integer('mt_duration')->default(0)->comment('时长(秒)');
