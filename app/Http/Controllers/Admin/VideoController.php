@@ -70,7 +70,6 @@ class VideoController extends Controller {
             'url' => 'required',
             'mt_video_id' => 'required',
             'mt_video_name' => 'required',
-            'mt_url' => 'required',
         ]);
         if ($validator->fails()) {
             return $this->response($validator->errors()->first(), 202);
