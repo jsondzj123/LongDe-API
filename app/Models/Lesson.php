@@ -18,7 +18,7 @@ class Lesson extends Model {
         'cover',
         'price',
         'favorable_price',
-        'method', 
+        'method',
         'teacher_id',
         'description',
         'introduction',
@@ -63,7 +63,7 @@ class Lesson extends Model {
                 return 1;
             }
         }
-        return 0;   
+        return 0;
     }
 
     public function getStockNumAttribute($value)
@@ -109,7 +109,7 @@ class Lesson extends Model {
                 {
                     //自增
                     return  1;
-                }  
+                }
             }
         }
         if(!empty($user)){
@@ -138,7 +138,7 @@ class Lesson extends Model {
     {
         $token = isset($_REQUEST['user_token']) ? $_REQUEST['user_token'] : '';
         if($token && !empty($token)){
-             
+
             $student = Student::where('token', $token)->first();
             if(!empty($student)){
                 $studentIds = $student->collectionLessons->pluck('id')->toArray();
@@ -183,5 +183,9 @@ class Lesson extends Model {
 
     public function lives() {
         return $this->belongsToMany('App\Models\Live', 'ld_lesson_lives');
+    }
+
+    public function order() {
+        return $this->hasMany('App\Models\Order' , 'class_id' , 'id');
     }
 }
