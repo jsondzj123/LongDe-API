@@ -425,7 +425,7 @@ class IndexController extends Controller {
                     {
                         $query->where('id', $teacher_id);
                     })
-                    ->offset($offset)->limit($pagesize)->get();
+                    ->offset($offset)->limit($pagesize)->get()->toArray();
             if($teacher_lesson_list && !empty($teacher_lesson_list)){
                 return response()->json(['code' => 200 , 'msg' => '获取名师课程列表成功' , 'data' => $teacher_lesson_list]);
             } else {
