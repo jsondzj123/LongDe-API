@@ -114,7 +114,7 @@ class IndexController extends Controller {
                 }
                 return response()->json(['code' => 200 , 'msg' => '获取公开课列表成功' , 'data' => $lession_array]);
             } else {
-                return response()->json(['code' => 200 , 'msg' => '获取公开课列表成功' , 'data' => ""]);
+                return response()->json(['code' => 200 , 'msg' => '获取公开课列表成功' , 'data' => []]);
             }
         } catch (Exception $ex) {
             return response()->json(['code' => 500 , 'msg' => $ex->getMessage()]);
@@ -163,7 +163,7 @@ class IndexController extends Controller {
                 }
                 return response()->json(['code' => 200 , 'msg' => '获取讲师列表成功' , 'data' => $teacher_array]);
             } else {
-                return response()->json(['code' => 200 , 'msg' => '获取讲师列表成功' , 'data' => ""]);
+                return response()->json(['code' => 200 , 'msg' => '获取讲师列表成功' , 'data' => []]);
             }
         } catch (Exception $ex) {
             return response()->json(['code' => 500 , 'msg' => $ex->getMessage()]);
@@ -425,11 +425,11 @@ class IndexController extends Controller {
                     {
                         $query->where('id', $teacher_id);
                     })
-                    ->offset($offset)->limit($pagesize)->get();
+                    ->offset($offset)->limit($pagesize)->get()->toArray();
             if($teacher_lesson_list && !empty($teacher_lesson_list)){
                 return response()->json(['code' => 200 , 'msg' => '获取名师课程列表成功' , 'data' => $teacher_lesson_list]);
             } else {
-                return response()->json(['code' => 200 , 'msg' => '获取名师课程列表成功' , 'data' => ""]);
+                return response()->json(['code' => 200 , 'msg' => '获取名师课程列表成功' , 'data' => []]);
             }
         } catch (Exception $ex) {
             return response()->json(['code' => 500 , 'msg' => $ex->getMessage()]);
