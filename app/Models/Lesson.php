@@ -186,6 +186,6 @@ class Lesson extends Model {
     }
 
     public function order() {
-        return $this->hasMany('App\Models\Order' , 'class_id' , 'id')->where('status' , 2)->where('oa_status' , 1);
+        return $this->hasMany('App\Models\Order' , 'class_id' , 'id');
     }
 }
