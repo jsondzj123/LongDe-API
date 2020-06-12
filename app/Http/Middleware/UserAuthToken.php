@@ -42,7 +42,7 @@ class UserAuthToken {
                 //通过token获取用户信息
                 $user_info = User::select("id as user_id" , "is_forbid")->where("token" , $token)->first();
                 if(!$user_info || empty($user_info)){
-                    return ['code' => 202 , 'msg' => 'token值非法'];
+                    return ['code' => 401 , 'msg' => '未授权'];
                 }
                 
                 //判断用户是否被禁用
@@ -54,7 +54,7 @@ class UserAuthToken {
             //通过token获取用户信息
             $user_info = User::select("id as user_id" , "is_forbid")->where("token" , $token)->first();
             if(!$user_info || empty($user_info)){
-                return ['code' => 202 , 'msg' => 'token值非法'];
+                return ['code' => 401 , 'msg' => '未授权'];
             }
             
             //判断用户是否被禁用
