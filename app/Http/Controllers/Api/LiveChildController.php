@@ -9,6 +9,7 @@ use Log;
 use App\Models\Lesson;
 use App\Models\LessonLive;
 use App\Models\LiveChild;
+use App\Models\Video;
 
 class LiveChildController extends Controller {
 
@@ -82,18 +83,23 @@ class LiveChildController extends Controller {
         
         $MTCloud = new MTCloud();
         $liveChild = LiveChild::where('course_id', $course_id)->first();
-        if(empty($liveChild)){
+        $video = Video::where('course_id', $course_id)->first();
+        if(empty($liveChild) || empty($video)){
             return $this->response('course_id不存在', 202);
         }
-
-        if($liveChild->status != 2){
-            return $this->response('不是进行中的直播', 202);
+        if(!empty($liveChild))){
+            if($liveChild->status != 2){
+                return $this->response('不是进行中的直播', 202);
+            }
+            if($liveChild->status == 2){
+                 $res = $MTCloud->courseAccess($course_id, $student_id, $nickname, 'user');
+            }elseif($liveChild->status == 3 && $liveChild->playback == 1){
+                $res = $MTCloud->courseAccessPlayback($course_id, $student_id, $nickname, 'user');
+            }
         }
-
-        if($liveChild->status == 2){
-             $res = $MTCloud->courseAccess($course_id, $student_id, $nickname, 'user');
+        if(!empty($video))){
+            $res = $MTCloud->courseAccessPlayback($course_id, $student_id, $nickname, 'user');
         }
-        //$res = $MTCloud->courseAccessPlayback($course_id, $student_id, $nickname, 'user');
 
         if(!array_key_exists('code', $res) && !$res['code'] == 0){
             Log::error('进入直播间失败:'.json_encode($res));
