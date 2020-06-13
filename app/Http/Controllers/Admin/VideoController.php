@@ -13,21 +13,32 @@ use Log;
 class VideoController extends Controller {
 
     /*
-     * @param  录播列表
-     * @param  current_count   count
+     * @param  全部录播列表
+     * @param  pagesize   page
      * @param  author  孙晓丽
-     * @param  ctime   2020/5/1 
+     * @param  ctime   2020/6/13 
      * return  array
      */
     public function index(Request $request){
         $pagesize = $request->input('pagesize') ?: 15;
         $page     = $request->input('page') ?: 1;
         $offset   = ($page - 1) * $pagesize;
-        $total = Video::where('is_del', 0)->count();
-        $video = Video::where('is_del', 0)
-            ->orderBy('created_at', 'desc')
-            ->skip($offset)->take($pagesize)
-            ->get();
+        $subject_id = $request->input('subject_id') ?: 0;
+        $keyWord = $request->input('keyword') ?: 0;
+        $data = Video::with('subjects')->orderBy('created_at', 'desc')
+                ->whereHas('subjects', function ($query) use ($subject_id)
+                    {
+                       if($subject_id != 0){
+                            $query->where('id', $subject_id);
+                        }
+                    })
+                ->where(function($query) use ($keyWord){
+                    if(!empty($keyWord)){
+                        $query->where('name', 'like', '%'.$keyWord.'%');
+                    }
+                });
+        $total = $data->count();
+        $video = $data->skip($offset)->take($pagesize)->get();
         $data = [
             'page_data' => $video,
             'total' => $total,
@@ -35,6 +46,42 @@ class VideoController extends Controller {
         return $this->response($data);
     }
 
+
+    /*
+     * @param  未删除和未禁用的录播列表
+     * @param  pagesize   page
+     * @param  author  孙晓丽
+     * @param  ctime   2020/6/13 
+     * return  array
+     */
+    public function list(Request $request){
+        $pagesize = $request->input('pagesize') ?: 15;
+        $page     = $request->input('page') ?: 1;
+        $offset   = ($page - 1) * $pagesize;
+        $subject_id = $request->input('subject_id') ?: 0;
+        $keyWord = $request->input('keyword') ?: 0;
+        $data = Video::select('id', 'admin_id', 'name', 'size', 'created_at')->with('subjects')
+                ->where(['is_del' => 0, 'is_forbid' => 0])
+                ->orderBy('created_at', 'desc')
+                ->whereHas('subjects', function ($query) use ($subject_id)
+                    {
+                       if($subject_id != 0){
+                            $query->where('id', $subject_id);
+                        }
+                    })
+                ->where(function($query) use ($keyWord){
+                    if(!empty($keyWord)){
+                        $query->where('name', 'like', '%'.$keyWord.'%');
+                    }
+                });
+        $total = $data->count();
+        $video = $data->skip($offset)->take($pagesize)->get();
+        $data = [
+            'page_data' => $video,
+            'total' => $total,
+        ];
+        return $this->response($data);
+    }
 
     /*
      * @param  录播详情

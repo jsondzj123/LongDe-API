@@ -200,6 +200,7 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin' , 'middleware'=> ['
     /*
      * 录播模块(sxl)
     */
+    $router->post('videoList', 'VideoController@list');
     $router->post('video', 'VideoController@index');
     $router->post('video/add', 'VideoController@store');
     $router->post('videoShow', 'VideoController@show');
@@ -232,8 +233,7 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin' , 'middleware'=> ['
     $router->post('deleteLiveChild', 'LiveChildController@destroy');
     $router->post('editLiveChildStatus', 'LiveChildController@edit');
     $router->post('startLiveChild', 'LiveChildController@startLive');
-
-
+    
     //上传图片OSS公共参数接口
     $router->post('getImageOssConfig', 'CommonController@getImageOssConfig');
     //上传到本地图片接口
