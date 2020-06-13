@@ -121,7 +121,7 @@ class OrderController extends Controller
                 {
                     $query->where('student_id', $student_id)->where('status' , 2)->where('oa_status' , 1);
                 })
-                ->orderByDesc('ld_order.id')
+//                ->orderByDesc('ld_order.id')
                 ->offset($offset)->limit($pagesize)->get()->toArray();
         }
         $page=[
