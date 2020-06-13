@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Subject;
 use Illuminate\Http\Request;
-
+use App\Models\Method;
 
 class SubjectController extends Controller {
 
@@ -32,13 +32,9 @@ class SubjectController extends Controller {
             ['sort_id' => 2, 'name' => '按价格升', 'type' => ['asc']],
             ['sort_id' => 3, 'name' => '按价格降', 'type' => ['desc']],
         ];
-        $data['method'] = [
-            ['method_id' => 0, 'name' => '综合'],
-            ['method_id' => 1, 'name' => '直播'],
-            ['method_id' => 2, 'name' => '录播'],
-            ['method_id' => 3, 'name' => '直播+录播'],
-            ['method_id' => 4, 'name' => '其他'],
-        ]; 
+        $method = [['method_id' => 0, 'name' => '全部']];
+        $methods = Method::select('id as method_id', 'name')->where(['is_del' => 0, 'is_forbid' => 0])->get();
+        $data['method'] = array_merge($method, json_decode($methods));
         return $this->response($data);
     }
 }
