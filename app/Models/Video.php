@@ -28,13 +28,16 @@ class Video extends Model {
     ];
 
 
-    protected $appends = ['subject_id', 'subject_first_name', 'subject_second_name'];
+    protected $appends = ['admin', 'subject_id', 'subject_first_name', 'subject_second_name'];
 
     protected $casts = [
         'created_at' => 'datetime:Y-m-d H:i:s',
         'updated_at' => 'datetime:Y-m-d H:i:s',
     ];
 
+    public function getAdminAttribute($value) {
+        return Admin::find($this->admin_id)->username;
+    }
 
     public function getSubjectFirstNameAttribute($value) {
         $subjects = $this->belongsToMany('App\Models\Subject', 'ld_subject_videos')->where('pid', 0)->first();
