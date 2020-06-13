@@ -28,11 +28,26 @@ class LiveController extends Controller {
         $pagesize = $request->input('pagesize') ?: 15;
         $page     = $request->input('page') ?: 1;
         $offset   = ($page - 1) * $pagesize;
-        $total = Live::where('is_del', 0)->count();
-        $live = Live::where('is_del', 0)
-            ->orderBy('created_at', 'desc')
-            ->skip($offset)->take($pagesize)
-            ->get();
+        $subject_id = $request->input('subject_id') ?: 0;
+        $keyWord = $request->input('keyword') ?: 0;
+        $data = Live::select('id', 'admin_id', 'name', 'created_at')->with('subjects')
+                ->where('is_del', 0)
+                ->orderBy('created_at', 'desc')
+                ->whereHas('subjects', function ($query) use ($subject_id)
+                    {
+                       if($subject_id != 0){
+                            $query->where('id', $subject_id);
+                        }
+                    })
+                ->where(function($query) use ($keyWord){
+                    if(!empty($keyWord)){
+                        $query->where('name', 'like', '%'.$keyWord.'%');
+                    }
+                });
+        $total = $data->count();
+        $live = $data->orderBy('created_at', 'desc')
+                ->skip($offset)->take($pagesize)
+                ->get();
         $data = [
             'page_data' => $live,
             'total' => $total,
@@ -51,7 +66,7 @@ class LiveController extends Controller {
     public function list(Request $request){
         $subject_id = $request->input('subject_id') ?: 0;
         $keyWord = $request->input('keyword') ?: 0;
-        $data = Live::select('id', 'admin_id', 'name')->with('subjects')
+        $data = Live::select('id', 'admin_id', 'name', 'created_at')->with('subjects')
                 ->where(['is_del' => 0, 'is_forbid' => 0])
                 ->orderBy('created_at', 'desc')
                 ->whereHas('subjects', function ($query) use ($subject_id)
@@ -66,9 +81,16 @@ class LiveController extends Controller {
                     }
                 });
         $total = $data->count();
-        $live = $data->get();
+        $lives = [];
+        foreach ($data->get()->toArray() as $key => $value) {
+            $lives[$key]['id'] =  $value['id'];
+            $lives[$key]['name'] =  $value['name'];
+            $lives[$key]['subject_id'] =  $value['subject_id'];
+            $lives[$key]['subject_first_name'] =  $value['subject_first_name'];
+            $lives[$key]['subject_second_name'] =  $value['subject_second_name'];
+        }
         $data = [
-            'page_data' => $live,
+            'page_data' => $lives,
             'total' => $total,
         ];
         return $this->response($data);
