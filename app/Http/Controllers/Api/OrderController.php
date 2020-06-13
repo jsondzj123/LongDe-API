@@ -4,7 +4,9 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Collection;
 use App\Models\Lesson;
+use App\Models\LessonMethod;
 use App\Models\LessonSchool;
+use App\Models\Method;
 use App\Models\Order;
 use App\Models\PaySet;
 use App\Models\Student;
@@ -113,16 +115,29 @@ class OrderController extends Controller
         $offset   = ($page - 1) * $pagesize;
         $student_id = $data['user_info']['user_id'];
         $count = Order::where(['student_id'=>$data['user_info']['user_id'],'status'=>2,'oa_status'=>1])->count();
-        $orderlist = [];
-        if($count > 0){
-            $orderlist = Lesson::with('methods')->select('id', 'admin_id', 'title', 'cover', 'price', 'favorable_price', 'buy_num', 'status', 'is_del', 'is_forbid')
-                ->where(['is_del'=> 0, 'is_forbid' => 0, 'status' => 2])
-                ->whereHas('order', function ($query) use ($student_id)
-                {
-                    $query->select('id as orderid')->where('student_id', $student_id)->where('status' , 2)->where('oa_status' , 1);
-                })
-                ->offset($offset)->limit($pagesize)->get()->toArray();
+
+        $orderlist = Order::select('ld_lessons.id','ld_lessons.admin_id','ld_lessons.title','ld_lessons.cover','ld_lessons.price','ld_lessons.favorable_price','ld_lessons.buy_num','ld_lessons.status','ld_lessons.is_del','ld_lessons.is_forbid','ld_order.id as orderid')
+            ->leftJoin('ld_lessons','ld_lessons.id','=','ld_order.class_id')
+            ->where(['ld_order.student_id'=>$student_id,'ld_order.status'=>2,'ld_order.oa_status'=>1,'ld_lessons.is_del'=>0,'ld_lessons.is_forbid'=>0,'ld_lessons.status'=>2])
+            ->orderByDesc('ld_order.id')
+            ->offset($offset)->limit($pagesize)->get()->toArray();
+        foreach ($orderlist as $k=>&$v){
+                $method = LessonMethod::select('ld_methods.id','ld_methods.name')
+                    ->leftJoin('ld_methods','ld_methods.id','=','ld_lesson_methods.method_id')
+                    ->where(['ld_lesson_methods.lesson_id'=>$v['id'],'ld_methods.is_del'=>0,'ld_methods.is_forbid'=>0])
+                    ->get();
+                $v['methods'] = $method;
         }
+//        $orderlist = [];
+//        if($count > 0){
+//            $orderlist = Lesson::with('methods')->select('id', 'admin_id', 'title', 'cover', 'price', 'favorable_price', 'buy_num', 'status', 'is_del', 'is_forbid')
+//                ->where(['is_del'=> 0, 'is_forbid' => 0, 'status' => 2])
+//                ->whereHas('order', function ($query) use ($student_id)
+//                {
+//                    $query->select('id as orderid')->where('student_id', $student_id)->where('status' , 2)->where('oa_status' , 1);
+//                })
+//                ->offset($offset)->limit($pagesize)->get()->toArray();
+//        }
         $page=[
             'pageSize'=>$pagesize,
             'page' =>$page,
