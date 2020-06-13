@@ -36,7 +36,11 @@ class Video extends Model {
     ];
 
     public function getAdminAttribute($value) {
-        return Admin::find($this->admin_id)->username;
+        $admin = Admin::find($this->admin_id);
+        if(!empty($admin)){
+            return $admin['username'];
+        }
+        return '';
     }
 
     public function getSubjectFirstNameAttribute($value) {
