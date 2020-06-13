@@ -214,6 +214,7 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin' , 'middleware'=> ['
     /*
      * 直播模块(sxl)
     */
+    $router->post('liveList', 'LiveController@list');
     $router->post('live', 'LiveController@index');
     $router->post('live/add', 'LiveController@store');
     $router->post('liveClassList', 'LiveController@classList');

@@ -42,6 +42,39 @@ class LiveController extends Controller {
 
 
     /*
+     * @param  未删除和未禁用的直播列表
+     * @param  pagesize   page
+     * @param  author  孙晓丽
+     * @param  ctime   2020/6/13 
+     * return  array
+     */
+    public function list(Request $request){
+        $subject_id = $request->input('subject_id') ?: 0;
+        $keyWord = $request->input('keyword') ?: 0;
+        $data = Live::select('id', 'admin_id', 'name')->with('subjects')
+                ->where(['is_del' => 0, 'is_forbid' => 0])
+                ->orderBy('created_at', 'desc')
+                ->whereHas('subjects', function ($query) use ($subject_id)
+                    {
+                       if($subject_id != 0){
+                            $query->where('id', $subject_id);
+                        }
+                    })
+                ->where(function($query) use ($keyWord){
+                    if(!empty($keyWord)){
+                        $query->where('name', 'like', '%'.$keyWord.'%');
+                    }
+                });
+        $total = $data->count();
+        $live = $data->get();
+        $data = [
+            'page_data' => $live,
+            'total' => $total,
+        ];
+        return $this->response($data);
+    }
+
+    /*
      * @param  直播详情
      * @param  直播id
      * @param  author  孙晓丽
