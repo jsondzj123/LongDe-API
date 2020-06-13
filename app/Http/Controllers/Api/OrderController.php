@@ -116,9 +116,9 @@ class OrderController extends Controller
         $student_id = $data['user_info']['user_id'];
         $count = Order::where(['student_id'=>$data['user_info']['user_id'],'status'=>2,'oa_status'=>1])->count();
 
-        $orderlist = Order::select('ld_lesson.id','ld_lesson.admin_id','ld_lesson.title','ld_lesson.cover','ld_lesson.price','ld_lesson.favorable_price','ld_lesson.buy_num','ld_lesson.status','ld_lesson.is_del','ld_lesson.is_forbid','ld_order.id as orderid')
-            ->leftJoin('ld_lesson','ld_lesson.id','=','ld_order.class_id')
-            ->where(['ld_order.student_id'=>$student_id,'ld_order.status'=>2,'ld_order.oa_status'=>1,'ld_lesson.is_del'=>0,'ld_lesson.is_forbid'=>0,'ld_lesson.status'=>2])
+        $orderlist = Order::select('ld_lessons.id','ld_lessons.admin_id','ld_lessons.title','ld_lessons.cover','ld_lessons.price','ld_lessons.favorable_price','ld_lessons.buy_num','ld_lessons.status','ld_lessons.is_del','ld_lessons.is_forbid','ld_order.id as orderid')
+            ->leftJoin('ld_lessons','ld_lessons.id','=','ld_order.class_id')
+            ->where(['ld_order.student_id'=>$student_id,'ld_order.status'=>2,'ld_order.oa_status'=>1,'ld_lessons.is_del'=>0,'ld_lessons.is_forbid'=>0,'ld_lessons.status'=>2])
             ->orderByDesc('ld_order.id')
             ->offset($offset)->limit($pagesize)->get()->toArray();
         foreach ($orderlist as $k=>&$v){
