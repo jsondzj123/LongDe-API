@@ -226,6 +226,17 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin' , 'middleware'=> ['
     $router->post('liveRelationLesson', 'LiveController@lesson');
 
     /*
+     * 直播班号(sxl)
+    */
+    $router->post('liveClass', 'LiveClassController@index');
+    $router->post('allLiveClass', 'LiveClassController@allList');
+    $router->post('liveClass/add', 'LiveClassController@store');
+    $router->post('updateLiveClass', 'LiveClassController@update');
+    $router->post('deleteLiveClass', 'LiveClassController@destroy');
+    $router->post('updateLiveClassStatus', 'LiveClassController@status');
+
+
+    /*
      * 直播课次模块(sxl)
     */
     $router->post('liveChildList', 'LiveChildController@liveList');
