@@ -76,6 +76,11 @@ class Live extends Model {
         return Admin::find($this->admin_id)->username;
     }
 
+    public function class()
+    {
+        return $this->hasMany('App\Models\LiveClass');
+    }
+
     public function lessons() {
         return $this->belongsToMany('App\Models\Lesson', 'ld_lesson_lives')->withTimestamps();
     }
