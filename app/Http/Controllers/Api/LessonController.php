@@ -72,7 +72,7 @@ class LessonController extends Controller {
             }
         }
         $total = collect($lessons)->count();
-        $lessons = collect($lessons)->offset($offset)->limit($pagesize);
+        $lessons = collect($lessons)->skip($offset)->take($pagesize);
         $data = [
             'page_data' => $lessons,
             'total' => $total,
