@@ -468,9 +468,8 @@ class IndexController extends Controller {
                         ->get();
             $lessons = [];
             foreach ($subject as $key => $value) {
-                $lessons[$key]['subject'] = $value;
-                $lessons[$key]['lesson'] = Lesson::select('id', 'title', 'cover', 'buy_num', 'price as old_price', 'favorable_price')
-                                            ->where(['is_del' => 0, 'is_forbid' => 0, 'is_public' => 0, 'status' =>2])
+                $lesson = Lesson::select('id', 'title', 'cover', 'buy_num', 'price as old_price', 'favorable_price')
+                                            ->where(['is_del' => 0, 'is_recommend' => 0, 'is_forbid' => 0, 'is_public' => 0, 'status' => 2])
                                             ->with(['subjects' => function ($query) {
                                                 $query->select('id', 'name');
                                             }])
@@ -479,6 +478,13 @@ class IndexController extends Controller {
                                                     $query->where('id', $value->id);
                                                 })
                                             ->get();
+                if(!empty($lesson->toArray())){
+                    $arr = [
+                        'subject' => $value,
+                        'lesson' => $lesson,
+                    ];
+                    $lessons[] = $arr;
+                }
             }
             return $this->response($lessons);
         } catch (Exception $ex) {
