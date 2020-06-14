@@ -165,7 +165,7 @@ class Teacher extends Model {
                 if(isset($body['search']) && !empty($body['search'])){
                     $query->where('real_name','like','%'.$body['search'].'%');
                 }
-            })->select('id as teacher_id','real_name','phone','create_at','number','is_recommend')->orderByDesc('create_at')->offset($offset)->limit($pagesize)->get()->toArray();
+            })->select('id as teacher_id','real_name','phone','create_at','number','is_recommend')->orderByDesc('id')->offset($offset)->limit($pagesize)->get()->toArray();
             //判断如果是讲师则查询开课数量
             if($body['type'] == 2){
                 foreach($teacher_list as $k=>$v){
@@ -173,7 +173,7 @@ class Teacher extends Model {
                 }
             }
             return ['code' => 200 , 'msg' => '获取老师列表成功' , 'data' => ['teacher_list' => $teacher_list , 'total' => $teacher_count , 'pagesize' => $pagesize , 'page' => $page]];
-        } else {
+        } else {  
             return ['code' => 200 , 'msg' => '获取老师列表成功' , 'data' => ['teacher_list' => [] , 'total' => 0 , 'pagesize' => $pagesize , 'page' => $page]];
         }
     }
