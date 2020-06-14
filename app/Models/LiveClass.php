@@ -23,5 +23,22 @@ class LiveClass extends Model {
         'created_at',
         'updated_at',
     ];
+
+    protected $appends = [
+        'live_class_unit_num',
+        'live_class_unit_hours'
+    ];
+
+    public function getLiveClassUnitNumAttribute($value)
+    {
+        return 0;
+        //return $this->belongsToMany('App\Models\LiveClassUnit')->count();
+    }
+
+    public function getLiveClassUnitHoursAttribute($value)
+    {
+        return 0;
+        //return $this->belongsToMany('App\Models\LiveClassUnit')->count();
+    }
 }
 
