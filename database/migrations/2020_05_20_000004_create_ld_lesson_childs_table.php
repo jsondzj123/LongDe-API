@@ -22,7 +22,6 @@ class CreateLdLessonChildsTable extends Migration
             $table->text('description')->nullable()->comment('描述');
             $table->tinyInteger('category')->default(0)->comment('类型:1视频2音频3课件4文档');
             $table->string('url')->nullable()->comment('资源地址');
-            $table->integer('size')->default(0)->comment('大小');
             $table->timestamp('start_at')->nullable()->comment('开始时间');
             $table->timestamp('end_at')->nullable()->comment('结束时间');
             $table->tinyInteger('is_free')->default(0)->comment('是否免费：0免费1收费');
