@@ -173,7 +173,7 @@ class Teacher extends Model {
                 }
             }
             return ['code' => 200 , 'msg' => '获取老师列表成功' , 'data' => ['teacher_list' => $teacher_list , 'total' => $teacher_count , 'pagesize' => $pagesize , 'page' => $page]];
-        } else {
+        } else {  
             return ['code' => 200 , 'msg' => '获取老师列表成功' , 'data' => ['teacher_list' => [] , 'total' => 0 , 'pagesize' => $pagesize , 'page' => $page]];
         }
     }
