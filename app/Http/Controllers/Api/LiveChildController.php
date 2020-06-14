@@ -87,7 +87,7 @@ class LiveChildController extends Controller {
         if(empty($liveChild) || empty($video)){
             return $this->response('course_id不存在', 202);
         }
-        if(!empty($liveChild))){
+        if(!empty($liveChild)){
             if($liveChild->status != 2){
                 return $this->response('不是进行中的直播', 202);
             }
