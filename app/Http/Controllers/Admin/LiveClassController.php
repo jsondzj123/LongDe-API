@@ -91,7 +91,7 @@ class LiveClassController extends Controller {
         $user = CurrentAdmin::user();
         try{
            
-             LiveClass::create([
+            LiveClass::create([
                 'admin_id'    => $user->id,
                 'live_id'     => $request->input('live_id'),
                 'name' => $request->input('name'),
