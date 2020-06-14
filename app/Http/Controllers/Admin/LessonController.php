@@ -19,7 +19,7 @@ class LessonController extends Controller {
 
 
     /**
-     * @param  课程列表
+     * @param  分校课程列表
      * @param  pagesize   count
      * @param  author  孙晓丽
      * @param  ctime   2020/5/1 
@@ -157,9 +157,7 @@ class LessonController extends Controller {
      * @param  课程id
      * @param  author  孙晓丽
      * @param  ctime   2020/5/1 
-     * return  array->with(['subjects' => function ($query) {
-                $query->select('id', 'name');
-            }])
+     * return  array
      */
     public function show(Request $request) {
         $validator = Validator::make($request->all(), [
@@ -254,6 +252,48 @@ class LessonController extends Controller {
         return $this->response('创建成功');
     }
 
+
+    /**
+     * 批量关联直播.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function relatedLive(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'lesson_id' => 'required',
+            'live_id' => 'required|json',
+        ]);
+        if ($validator->fails()) {
+            return $this->response($validator->errors()->first(), 202);
+        }
+        $liveIds = json_decode($request->input('live_id'), true);
+        if(empty($liveIds)){
+            return $this->response('直播资源ID不能为空', 202);
+        }
+        $lesson = Lesson::find($request->input('lesson_id'));
+        if(empty($lesson)){
+            return $this->response('课程不存在', 202);
+        }
+        $relatedLiveIds = $lesson->lives()->pluck('live_id');
+        if(!empty($relatedLiveIds)){
+            foreach ($relatedLiveIds as $key => $value) {
+                $flipped_haystack = array_flip($liveIds);
+                if(isset($flipped_haystack[$value]))
+                {
+                    return $this->response('不能重复关联直播', 202);
+                }
+            }
+        }
+        try {
+            $lesson->lives()->attach($liveIds);
+        } catch (Exception $e) {
+            Log::error('创建失败:'.$e->getMessage());
+            return $this->response($e->getMessage(), 500);
+        }
+        return $this->response('创建成功');
+    }
 
     /**
      * 修改课程
