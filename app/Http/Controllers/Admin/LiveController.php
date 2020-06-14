@@ -18,6 +18,45 @@ use App\Models\Teacher;
 class LiveController extends Controller {
 
     /*
+     * @param  课程关联的直播列表
+     * @param  current_count   count
+     * @param  author  孙晓丽
+     * @param  ctime   2020/6/14
+     * return  array
+     */
+    public function lessonRelatedLive(Request $request){
+        $validator = Validator::make($request->all(), [
+            'lesson_id' => 'required',
+        ]);
+        if ($validator->fails()) {
+            return $this->response($validator->errors()->first(), 202);
+        }
+        $lesson_id = $request->input('lesson_id');
+        $data = Live::with('lessons')->select('id', 'admin_id', 'name', 'created_at')
+                ->with(['class' => function ($query) {
+                    $query->where(['is_del' => 0, 'is_forbid' => 0])->select('id', 'name', 'live_id');
+                }])
+                ->where('is_del', 0)
+                ->orderBy('created_at', 'desc')
+                ->whereHas('lessons', function ($query) use ($lesson_id)
+                    {
+                        $query->where('id', $lesson_id);
+                    });
+        $total = $data->count();
+        $live = $data->orderBy('created_at', 'desc')->get();
+        $lives = [];
+        foreach ($live as $key => $value) {
+            $lives[$key]['name'] = $value['name'];
+            $lives[$key]['class'] = $value['class'];
+        }
+        $data = [
+            'page_data' => $lives,
+            'total' => $total,
+        ];
+        return $this->response($data);
+    }
+
+    /*
      * @param  直播列表
      * @param  current_count   count
      * @param  author  孙晓丽
@@ -178,6 +217,7 @@ class LiveController extends Controller {
 
     /**
      * 获取直播关联课程ID.
+     *
      * @param  live_id
      * @return array
      */
