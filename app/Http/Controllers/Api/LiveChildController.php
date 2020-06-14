@@ -97,7 +97,7 @@ class LiveChildController extends Controller {
                 $res = $MTCloud->courseAccessPlayback($course_id, $student_id, $nickname, 'user');
             }
         }
-        if(!empty($video))){
+        if(!empty($video)){
             $res = $MTCloud->courseAccessPlayback($course_id, $student_id, $nickname, 'user');
         }
 
