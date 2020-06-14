@@ -152,6 +152,7 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin' , 'middleware'=> ['
     $router->post('lesson', 'LessonController@index');
     $router->post('schoolLesson', 'LessonController@schoolLesson');
     $router->post('lesson/add', 'LessonController@store');
+    $router->post('lesson/relatedLive', 'LessonController@relatedLive');
     $router->post('UpdateLessonStatus', 'LessonController@status');
     $router->post('lessonShow', 'LessonController@show');
     $router->post('updateLesson', 'LessonController@update');
@@ -224,6 +225,8 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin' , 'middleware'=> ['
     $router->post('deleteLive', 'LiveController@destroy');
     $router->post('updateLiveStatus', 'LiveController@status');
     $router->post('liveRelationLesson', 'LiveController@lesson');
+    $router->post('lesson/liveList', 'LiveController@lessonRelatedLive');
+    
 
     /*
      * 直播班号(sxl)
