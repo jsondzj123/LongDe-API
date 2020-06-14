@@ -73,8 +73,6 @@ $router->group(['prefix' => 'api', 'namespace' => 'Api', 'middleware'=> 'user'],
     //直播课程
     $router->post('courseAccess', 'LiveChildController@courseAccess');
 
-
-
     //收藏模块
     $router->post('collection','CollectionController@index');          //课程收藏列表
     $router->post('addCollection','CollectionController@store');       //添加收藏课程
@@ -125,6 +123,8 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin', 'middleware'=> 'co
     $router->post('register', 'AuthenticateController@register');
     $router->post('login', 'AuthenticateController@postLogin');
     $router->get('test', 'TestController@index');
+    $router->get('liveCallBack', 'LiveChildController@listenLive');
+    $router->post('liveCallBack', 'LiveChildController@listenLive');
 });
 //后端登录权限认证相关接口
 $router->group(['prefix' => 'admin' , 'namespace' => 'Admin' , 'middleware'=> ['jwt.auth', 'cors']], function () use ($router) {
@@ -214,6 +214,7 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin' , 'middleware'=> ['
     /*
      * 直播模块(sxl)
     */
+    $router->post('liveLessonId', 'LiveController@lessonId');
     $router->post('liveList', 'LiveController@list');
     $router->post('live', 'LiveController@index');
     $router->post('live/add', 'LiveController@store');
@@ -224,7 +225,6 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin' , 'middleware'=> ['
     $router->post('updateLiveStatus', 'LiveController@status');
     $router->post('liveRelationLesson', 'LiveController@lesson');
 
-
     /*
      * 直播课次模块(sxl)
     */
@@ -234,7 +234,7 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin' , 'middleware'=> ['
     $router->post('deleteLiveChild', 'LiveChildController@destroy');
     $router->post('editLiveChildStatus', 'LiveChildController@edit');
     $router->post('startLiveChild', 'LiveChildController@startLive');
-    
+
     //上传图片OSS公共参数接口
     $router->post('getImageOssConfig', 'CommonController@getImageOssConfig');
     //上传到本地图片接口

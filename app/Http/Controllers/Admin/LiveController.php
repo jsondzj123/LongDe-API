@@ -176,6 +176,31 @@ class LiveController extends Controller {
         return $this->response('创建成功');
     }
 
+    /**
+     * 获取直播关联课程ID.
+     * @param  live_id
+     * @return array
+     */
+    public function lessonId(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'live_id' => 'required|json',
+        ]);
+        if ($validator->fails()) {
+            return $this->response($validator->errors()->first(), 202);
+        }
+        $live = Live::find($request->input('live_id'));
+        if(empty($live)){
+            return $this->response('直播资源不存在', 202);
+        }
+        try {
+            $lessonIds = $live->lessons()->pluck('lesson_id');
+        } catch (Exception $e) {
+            Log::error('创建失败:'.$e->getMessage());
+            return $this->response($e->getMessage(), 500);
+        }
+        return $this->response($lessonIds);
+    }
 
     /**
      * 直播批量关联课程.

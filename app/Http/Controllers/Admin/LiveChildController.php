@@ -12,6 +12,7 @@ use App\Models\LiveChild;
 use App\Models\LiveTeacher;
 use App\Models\LiveClassChild;
 use Log;
+use App\Listeners\LiveListener;
 
 class LiveChildController extends Controller {
 
@@ -242,6 +243,16 @@ class LiveChildController extends Controller {
             return $this->response('直播器启动失败', 500);
         }
         return $this->response($res['data']);
+    }
+
+
+    public function listenLive(Request $request)
+    {
+        $handler = new LiveListener();
+        $handlerMethod = 'handler';
+        $MTCloud = new MTCloud();
+        $MTCloud->registerCallbackHandler(array($handler,$handlerMethod));
+        $MTCloud->callbackService();
     }
 
 }
