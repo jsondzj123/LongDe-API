@@ -40,7 +40,9 @@ class LessonChildController extends Controller {
                             $val['course_id'] = $course['course_id'];
                         }
                     }
+                    $val['course_id'] = 0;
                 }
+
             }
             $value['childs'] = $childs;
         }
