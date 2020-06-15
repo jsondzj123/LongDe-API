@@ -36,26 +36,12 @@ class LessonChild extends Model {
         'category' => 'string'
     ];
 
-    protected $appends = ['course_id'];
-
-
     public function getUrlAttribute($value) {
         if ($value) {
             $photos = json_decode($value, true);
             return $photos;
         }
         return [];
-    }
-    
-    public function getCourseIdAttribute($value) {
-        $video = LessonVideo::where('child_id', $this->id)->first();
-        if(!empty($video)){
-            $course = Video::find($video['video_id']);
-            if(!empty($course)){
-                return $course['course_id'];
-            }
-        }
-        return 0;
     }
 
 
