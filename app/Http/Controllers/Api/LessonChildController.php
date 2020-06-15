@@ -31,11 +31,7 @@ class LessonChildController extends Controller {
                 ->orderBy('created_at', 'desc')->get();
         foreach ($lessons as $key => $value) {
             
-            $childs = LessonChild::with('videos')
-                    ->with(['lives' => function ($query) {
-                        $query->with('childs');
-                    }])
-                    ->where(['is_del'=> 0, 'is_forbid' => 0, 'pid' => $value->id, 'lesson_id' => $lesson_id])->get();
+            $childs = LessonChild::where(['is_del'=> 0, 'is_forbid' => 0, 'pid' => $value->id, 'lesson_id' => $lesson_id])->get();
             $value['childs'] = $childs;
         }
         return $this->response($lessons);
