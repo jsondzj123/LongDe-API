@@ -31,6 +31,17 @@ class LessonChildController extends Controller {
                 ->orderBy('created_at', 'desc')->get();
         foreach ($lessons as $key => $value) {
             $childs = LessonChild::where(['is_del'=> 0, 'is_forbid' => 0, 'pid' => $value->id, 'lesson_id' => $lesson_id])->get();
+            if(!empty($childs)){
+                foreach ($childs as $k => $val) {
+                    $video = LessonVideo::where('child_id', $val['id'])->first();
+                    if(!empty($video)){
+                        $course = Video::find($video['video_id']);
+                        if(!empty($course)){
+                            $val['course_id'] = $course['course_id'];
+                        }
+                    }
+                }
+            }
             $value['childs'] = $childs;
         }
         return $this->response($lessons);
