@@ -13,7 +13,7 @@ class UserAuthToken {
         //判断用户token是否为空
         if(!$token || empty($token)){
             return ['code' => 401 , 'msg' => '请登录账号'];
-        }
+        } 
         
         //判断token值是否合法
         $redis_token = Redis::hLen("user:regtoken:".$token);
