@@ -43,10 +43,7 @@ class LessonChild extends Model {
         }
         return [];
     }
-        
-    public function videos() {
-        return $this->belongsToMany('App\Models\Video', 'ld_lesson_videos', 'child_id');
-    }
+
 
     public function lives() {
 

@@ -245,8 +245,6 @@ class Controller extends BaseController {
     public static function getPapersNameByType($val){
         //证件类型数组
         $arr = [1=>'身份证' , 2=>'护照' , 3=>'港澳通行证' , 4=>'台胞证' , 5=>'军官证' , 6=>'士官证' , 7=>'其他'];
-
-        //$papers_id = array_search($name, $arr);
         return $arr[$val];
     }
 
