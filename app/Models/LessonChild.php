@@ -31,6 +31,10 @@ class LessonChild extends Model {
         'end_at'
     ];
 
+    protected $appends = [
+        'course_id',
+    ];
+
     protected $casts = [
         'is_free' => 'string',
         'category' => 'string'
@@ -43,6 +47,19 @@ class LessonChild extends Model {
         }
         return [];
     }
+
+    public function getCourseIdAttribute($value)
+    {
+        $video = LessonVideo::where('child_id', $this->id)->first();
+        if(!empty($video)){
+            $course = Video::find($video['video_id']);
+            if(!empty($course)){
+                return $course['course_id'];
+            }
+        }
+        return 0;
+    }
+
 
 
     public function lives() {
