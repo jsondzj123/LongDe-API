@@ -122,7 +122,10 @@ $router->group(['prefix' => 'web' , 'namespace' => 'Web'], function () use ($rou
 $router->group(['prefix' => 'admin' , 'namespace' => 'Admin', 'middleware'=> 'cors'], function () use ($router) {
     $router->post('register', 'AuthenticateController@register');
     $router->post('login', 'AuthenticateController@postLogin');
-    $router->get('test', 'TestController@index');
+    $router->post('test', 'TestController@index');
+    $router->post('ArticleLead', 'ArticleController@ArticleLead');//文章导入
+    $router->post('ArticleTypeLead', 'ArticletypeController@ArticleTypeLead');//文章分类导入
+    $router->post('ArticleToType', 'ArticleController@ArticleToType');//文章关联分类
     $router->get('liveCallBack', 'LiveChildController@listenLive');
     $router->post('liveCallBack', 'LiveChildController@listenLive');
 });
@@ -226,7 +229,7 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin' , 'middleware'=> ['
     $router->post('updateLiveStatus', 'LiveController@status');
     $router->post('liveRelationLesson', 'LiveController@lesson');
     $router->post('lesson/liveList', 'LiveController@lessonRelatedLive');
-    
+
 
     /*
      * 直播班号(sxl)
@@ -255,7 +258,6 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin' , 'middleware'=> ['
     $router->post('doUploadImage', 'CommonController@doUploadImage');
     //上传到OSS图片接口
     $router->post('doUploadOssImage', 'CommonController@doUploadOssImage');
-
 
     //用户学员相关模块(dzj)
     $router->group(['prefix' => 'student'], function () use ($router) {
@@ -361,6 +363,8 @@ $router->group(['prefix' => 'admin' , 'namespace' => 'Admin' , 'middleware'=> ['
         $router->post('exitDelForId', 'ArticletypeController@exitDelForId');//文章分类删除
         $router->post('exitTypeForId', 'ArticletypeController@exitTypeForId');//文章分类修改
         $router->post('OnelistType', 'ArticletypeController@OnelistType');//单条查询
+
+
 
     });
     //订单&支付模块(szw)

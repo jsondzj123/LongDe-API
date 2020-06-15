@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\AdminLog;
 use App\Models\Article;
+use App\Models\Articletype;
 
 class ArticleController extends Controller {
     //获取分类和学校
@@ -105,5 +106,90 @@ class ArticleController extends Controller {
         } catch (Exception $ex) {
             return response()->json(['code' => 500 , 'msg' => $ex->getMessage()]);
         }
+    }
+
+    /*
+        * @param  导入
+        * @param  $user_id     参数
+        * @param  author  苏振文
+        * @param  ctime   2020/6/15 15:33
+        * return  array
+        */
+    public function ArticleLead(){
+        $file = $_FILES['file'];
+        $is_correct_extensiton = self::detectUploadFileMIME($file);
+        $excel_extension       = substr($_FILES['file']['name'], strrpos($_FILES['file']['name'], '.')+1);   //获取excel后缀名
+        if($is_correct_extensiton <= 0 || !in_array($excel_extension , ['xlsx' , 'xls'])){
+            return ['code' => 202 , 'msg' => '上传文件格式非法'];
+        }
+        //存放文件路径
+        $file_path= app()->basePath() . "/public/upload/excel/";
+        //判断上传的文件夹是否建立
+        if(!file_exists($file_path)){
+            mkdir($file_path , 0777 , true);
+        }
+        //重置文件名
+        $filename = time() . rand(1,10000) . uniqid() . substr($file['name'], stripos($file['name'], '.'));
+        $path     = $file_path.$filename;
+        //判断文件是否是通过 HTTP POST 上传的
+        if(is_uploaded_file($_FILES['file']['tmp_name'])){
+            //上传文件方法
+            move_uploaded_file($_FILES['file']['tmp_name'], $path);
+        }
+        //获取excel表格中试题列表
+        $exam_list = self::doImportExcel(new \App\Imports\UsersImport , $path);
+        foreach ($exam_list['data'] as $k=>$v){
+            if($v[0] && $v[0] > 0){
+                Article::insertGetId([
+                    'id' => $v[0],
+                    'school_id' => 1,
+                    'title' => $v[17] && !empty($v[17]) ? $v[17] : '' ,
+                    'key_word' => $v[18] && !empty($v[18]) ? $v[18] : '' ,
+                    'sources' =>  $v[20] && !empty($v[20]) ? $v[20] : '' ,
+                    'description' => $v[19] && !empty($v[19]) ? $v[19] : '' ,
+                    'text' => $v[22] && !empty($v[22]) ? $v[22] : '' ,
+                    'user_id' => 1,
+                ]);
+            }
+        }
+        return response()->json(['code' => 200 , 'msg' => '导入成功']);
+    }
+    /*
+         * @param  文章关联分类
+         * @param  $user_id     参数
+         * @param  author  苏振文
+         * @param  ctime   2020/6/15 20:00
+         * return  array
+         */
+    public function ArticleToType(){
+        $file = $_FILES['file'];
+        $is_correct_extensiton = self::detectUploadFileMIME($file);
+        $excel_extension       = substr($_FILES['file']['name'], strrpos($_FILES['file']['name'], '.')+1);   //获取excel后缀名
+        if($is_correct_extensiton <= 0 || !in_array($excel_extension , ['xlsx' , 'xls'])){
+            return ['code' => 202 , 'msg' => '上传文件格式非法'];
+        }
+        //存放文件路径
+        $file_path= app()->basePath() . "/public/upload/excel/";
+        //判断上传的文件夹是否建立
+        if(!file_exists($file_path)){
+            mkdir($file_path , 0777 , true);
+        }
+        //重置文件名
+        $filename = time() . rand(1,10000) . uniqid() . substr($file['name'], stripos($file['name'], '.'));
+        $path     = $file_path.$filename;
+        //判断文件是否是通过 HTTP POST 上传的
+        if(is_uploaded_file($_FILES['file']['tmp_name'])){
+            //上传文件方法
+            move_uploaded_file($_FILES['file']['tmp_name'], $path);
+        }
+        //获取excel表格中试题列表
+        $exam_list = self::doImportExcel(new \App\Imports\UsersImport , $path);
+        foreach ($exam_list['data'] as $k=>$v){
+           $first = Article::where(['id'=>$v[1]])->first();
+           if($first){
+               Article::where(['id'=>$first['id']])->update(['article_type_id'=>$v[2]]);
+           }
+        }
+        return response()->json(['code' => 200 , 'msg' => '导入成功']);
     }
 }
