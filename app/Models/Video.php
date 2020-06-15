@@ -4,7 +4,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 
 class Video extends Model {
-      
+
 
     public $table = 'ld_videos';
 	/**
@@ -15,7 +15,7 @@ class Video extends Model {
     protected $fillable = [
         'admin_id', 'name', 'category', 'url', 'size', 'status', 'mt_video_id', 'mt_video_name', 'mt_url', 'course_id'
     ];
- 
+
     /**
      * The attributes excluded from the model's JSON form.
      *

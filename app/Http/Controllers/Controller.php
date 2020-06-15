@@ -208,11 +208,11 @@ class Controller extends BaseController {
             return false;
         }
     }
-    
+
    /* @param  decerption     省市县三级联动
     * @param  $body[
     *     region_id   地区id(默认为0)
-    * ]     
+    * ]
     * @return array
     */
     public static function getRegionDataList($body){
@@ -223,18 +223,18 @@ class Controller extends BaseController {
             if($region_count <= 0){
                 return ['code' => 204 , 'msg' => '该地区不存在'];
             }
-            
+
             //获取地区列表数据
             $region_list  = \App\Models\Region::where("parent_id" , $body['region_id'])->get()->toArray();
         } else {
             //获取省级列表数据
             $region_list  = \App\Models\Region::where("parent_id" , 0)->get()->toArray();
         }
-        
+
         //返回数据信息
         return ['code' => 200 , 'msg' => '获取地区列表数据成功' , 'data' => $region_list];
    }
-   
+
     /*
      * @param  description   通过证件名称获取对应的id值
      * @param $name     证件名称
@@ -247,7 +247,7 @@ class Controller extends BaseController {
         $arr = [1=>'身份证' , 2=>'护照' , 3=>'港澳通行证' , 4=>'台胞证' , 5=>'军官证' , 6=>'士官证' , 7=>'其他'];
         return $arr[$val];
     }
-    
+
     /*
      * @param  description   生成唯一性token得方法
      * @param $login_logo    唯一标识符
