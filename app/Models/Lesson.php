@@ -48,6 +48,11 @@ class Lesson extends Model {
         'class_num',
     ];
 
+    protected $casts = [
+        'price' => 'string',
+        'favorable_price' => 'string'
+    ];
+
     public function getClassNumAttribute($value)
     {
         return 0;
