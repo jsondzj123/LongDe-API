@@ -12,7 +12,7 @@ class UserAuthToken {
         
         //判断用户token是否为空
         if(!$token || empty($token)){
-            return ['code' => 401 , 'msg' => '未授权'];
+            return ['code' => 401 , 'msg' => '请登录账号'];
         }
         
         //判断token值是否合法
@@ -42,7 +42,7 @@ class UserAuthToken {
                 //通过token获取用户信息
                 $user_info = User::select("id as user_id" , "is_forbid")->where("token" , $token)->first();
                 if(!$user_info || empty($user_info)){
-                    return ['code' => 401 , 'msg' => '未授权'];
+                    return ['code' => 401 , 'msg' => '请登录账号'];
                 }
                 
                 //判断用户是否被禁用
@@ -54,7 +54,7 @@ class UserAuthToken {
             //通过token获取用户信息
             $user_info = User::select("id as user_id" , "is_forbid")->where("token" , $token)->first();
             if(!$user_info || empty($user_info)){
-                return ['code' => 401 , 'msg' => '未授权'];
+                return ['code' => 401 , 'msg' => '请登录账号'];
             }
             
             //判断用户是否被禁用
