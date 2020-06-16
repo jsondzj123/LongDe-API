@@ -112,7 +112,12 @@ class Teacher extends Model {
 
         //根据id获取讲师或教务详细信息
         $teacher_info = self::where('id',$body['teacher_id'])->select('head_icon','school_id','phone','real_name','sex','qq','wechat','parent_id','child_id','describe','content')->first()->toArray();
-        $teacher_info['parent_id'] = [$teacher_info['parent_id'] , $teacher_info['child_id']];
+        //判断学科是否存在二级
+        if($teacher_info['child_id'] && $teacher_info['child_id'] > 0){
+            $teacher_info['parent_id'] = [$teacher_info['parent_id'] , $teacher_info['child_id']];
+        } else {
+            $teacher_info['parent_id'] = [$teacher_info['parent_id']];
+        }
         return ['code' => 200 , 'msg' => '获取老师信息成功' , 'data' => $teacher_info];
     }
 
@@ -326,6 +331,15 @@ class Teacher extends Model {
             }
         }
         
+        //判断学科类型
+        if($teacher_info['type'] > 1){
+            $parent_id = $parent_info && !empty($parent_info) && isset($parent_info[0]) ? $parent_info[0] : 0;
+            $child_id  = $parent_info && !empty($parent_info) && isset($parent_info[1]) ? $parent_info[1] : 0;
+        } else {
+            $parent_id = 0;
+            $child_id  = 0;
+        }
+        
         //讲师或教务数组信息追加
         $teacher_array = [
             'head_icon'  =>    isset($body['head_icon']) && !empty($body['head_icon']) ? $body['head_icon'] : '' ,
@@ -335,8 +349,8 @@ class Teacher extends Model {
             'wechat'     =>    isset($body['wechat']) && !empty($body['wechat']) ? $body['wechat'] : '' ,
             'sex'        =>    isset($body['sex']) && !empty($body['sex']) ? $body['sex'] : 0,
             'describe'   =>    isset($body['describe']) && !empty($body['describe']) ? $body['describe'] : '',
-            'parent_id'  =>    $teacher_info['type'] > 1 ? $parent_info && !empty($parent_info) ? $parent_info[0] : 0 : 0 ,
-            'child_id'   =>    $teacher_info['type'] > 1 ? $parent_info && !empty($parent_info) ? $parent_info[1] : 0 : 0 ,
+            'parent_id'  =>    $parent_id ,
+            'child_id'   =>    $child_id ,
             'content'    =>    $teacher_info['type'] > 1 ? isset($body['content']) && !empty($body['content']) ? $body['content'] : '' : '' ,
             'update_at'  =>    date('Y-m-d H:i:s')
         ];
@@ -450,6 +464,15 @@ class Teacher extends Model {
         //获取后端的操作员id
         $admin_id = isset(AdminLog::getAdminInfo()->admin_user->id) ? AdminLog::getAdminInfo()->admin_user->id : 0;
         $school_id= isset(AdminLog::getAdminInfo()->admin_user->school_id) ? AdminLog::getAdminInfo()->admin_user->school_id : 0;
+        
+        //判断学科类型
+        if($body['type'] > 1){
+            $parent_id = $parent_info && !empty($parent_info) && isset($parent_info[0]) ? $parent_info[0] : 0;
+            $child_id  = $parent_info && !empty($parent_info) && isset($parent_info[1]) ? $parent_info[1] : 0;
+        } else {
+            $parent_id = 0;
+            $child_id  = 0;
+        }
 
         //讲师或教务数组信息追加
         $teacher_array = [
@@ -461,8 +484,8 @@ class Teacher extends Model {
             'wechat'     =>    isset($body['wechat']) && !empty($body['wechat']) ? $body['wechat'] : '' ,
             'sex'        =>    isset($body['sex']) && !empty($body['sex']) ? $body['sex'] : 0,
             'describe'   =>    isset($body['describe']) && !empty($body['describe']) ? $body['describe'] : '',
-            'parent_id'  =>    $body['type'] > 1 ? $parent_info && !empty($parent_info) ? $parent_info[0] : 0 : 0 ,
-            'child_id'   =>    $body['type'] > 1 ? $parent_info && !empty($parent_info) ? $parent_info[1] : 0 : 0 ,
+            'parent_id'  =>    $parent_id ,
+            'child_id'   =>    $child_id ,
             'content'    =>    $body['type'] > 1 ? isset($body['content']) && !empty($body['content']) ? $body['content'] : '' : '' ,
             'admin_id'   =>    $admin_id ,
             'school_id'  =>    $school_id ,
