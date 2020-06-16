@@ -23,7 +23,7 @@ $router->group(['prefix' => 'api', 'namespace' => 'Api'], function () use ($rout
      * 科目模块(sxl)
     */
     $router->post('subject', 'SubjectController@index');
-
+    
     /*
      * 课程模块(sxl)
     */
@@ -70,6 +70,8 @@ $router->group(['prefix' => 'api', 'namespace' => 'Api'], function () use ($rout
 });
 //客户端(ios,安卓)需要登录路由接口
 $router->group(['prefix' => 'api', 'namespace' => 'Api', 'middleware'=> 'user'], function () use ($router) {
+    //zzk  公开课直播token
+    $router->post('lessonOpenCourse', 'LessonController@OpenCourse');
     //直播课程
     $router->post('courseAccess', 'LiveChildController@courseAccess');
 

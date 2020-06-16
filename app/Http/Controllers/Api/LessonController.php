@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Lesson;
 use Illuminate\Http\Request;
+use App\Tools\MTCloud;
 use DB;
 use Validator;
 
@@ -103,5 +104,32 @@ class LessonController extends Controller {
         }
         Lesson::where('id', $request->input('id'))->update(['watch_num' => DB::raw('watch_num + 1')]);
         return $this->response($lesson);
+    }
+
+    
+    /**
+     * @param  author  zzk
+     * @param  ctime   2020/6/16
+     * return  array
+     */
+    public function OpenCourse(Request $request) {
+        
+        $student_id = self::$accept_data['user_info']['user_id'];
+        $nickname = self::$accept_data['user_info']['nickname'];
+        if(empty($student_id)){
+            return $this->response('student_id不存在', 202);
+        }
+        if(empty($nickname)){
+            return $this->response('nickname不存在', 202);
+        }
+        $MTCloud = new MTCloud();
+        
+        $res = $MTCloud->courseAccessPlayback($course_id = "737835", $student_id, $nickname, 'user');
+
+        if(!array_key_exists('code', $res) && !$res['code'] == 0){
+            Log::error('进入直播间失败:'.json_encode($res));
+            return $this->response('进入直播间失败', 500);
+        }
+        return $this->response($res['data']);
     }
 }
