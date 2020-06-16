@@ -34,6 +34,16 @@ class LessonChildController extends Controller {
                     $query->select('id', 'course_id', 'mt_duration');
                 }])
                 ->where(['is_del'=> 0, 'is_forbid' => 0, 'pid' => $value->id, 'lesson_id' => $lesson_id])->get();
+            
+            foreach ($lesson as $k => $v) {
+                $arr_v = $v->toArray();
+                if(!empty($arr_v) && !empty($arr_v['videos'])){
+                    $videos = $arr_v['videos'];
+                    $v['course_id'] = $videos[0]['course_id'];
+                }else{
+                    $v['course_id'] = 0;
+                } 
+            }
             $value['childs'] = $lesson;
         }
         return $this->response($lessons);
