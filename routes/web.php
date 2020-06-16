@@ -23,6 +23,8 @@ $router->group(['prefix' => 'api', 'namespace' => 'Api'], function () use ($rout
      * 科目模块(sxl)
     */
     $router->post('subject', 'SubjectController@index');
+    //zzk  公开课直播token
+    $router->post('lessonOpenCourse', 'LessonController@OpenCourse');
 
     /*
      * 课程模块(sxl)
