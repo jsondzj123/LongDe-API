@@ -113,9 +113,14 @@ class LessonController extends Controller {
      */
     public function OpenCourse(Request $request) {
         
-        $student_id = self::$accept_data['user_id'];
-        $nickname = self::$accept_data['nickname'];
-        
+        $student_id = self::$accept_data['user_info']['user_id'];
+        $nickname = self::$accept_data['user_info']['nickname'];
+        if(empty($student_id)){
+            return $this->response('student_id不存在', 202);
+        }
+        if(empty($nickname)){
+            return $this->response('nickname不存在', 202);
+        }
         $MTCloud = new MTCloud();
         
         $res = $MTCloud->courseAccessPlayback($course_id = "737835", $student_id, $nickname, 'user');
