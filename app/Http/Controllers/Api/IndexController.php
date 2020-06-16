@@ -469,7 +469,7 @@ class IndexController extends Controller {
             $lessons = [];
             foreach ($subject as $key => $value) {
                 $lesson = Lesson::select('id', 'title', 'cover', 'buy_num', 'price as old_price', 'favorable_price')
-                                            ->where(['is_del' => 0, 'is_recommend' => 0, 'is_forbid' => 0, 'is_public' => 0, 'status' => 2])
+                                            ->where(['is_del' => 0, 'is_recommend' => 1, 'is_forbid' => 0, 'is_public' => 0, 'status' => 2])
                                             ->with(['subjects' => function ($query) {
                                                 $query->select('id', 'name');
                                             }])
