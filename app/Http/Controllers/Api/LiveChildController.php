@@ -84,7 +84,7 @@ class LiveChildController extends Controller {
         $MTCloud = new MTCloud();
         $liveChild = LiveChild::where('course_id', $course_id)->first();
         $video = Video::where('course_id', $course_id)->first();
-        if(empty($liveChild) || empty($video)){
+        if(empty($liveChild) && empty($video)){
             return $this->response('course_id不存在', 202);
         }
         if(!empty($liveChild)){
