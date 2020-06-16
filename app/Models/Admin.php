@@ -208,9 +208,8 @@ class Admin extends Model implements AuthenticatableContract, AuthorizableContra
         $adminUserData = [];
         if($admin_count >0){
             $adminUserData =  self::leftjoin('ld_role_auth','ld_role_auth.id', '=', 'ld_admin.role_id')
+                ->where(['ld_admin.is_del'=>1,'ld_admin.school_id'=>$school_id])
                 ->where(function($query) use ($body,$school_id){
-                    $query->where('ld_admin.is_del',1);
-                    $query->where('ld_admin.school_id',$school_id);
                     if(!empty($body['search'])){
                         $query->where('ld_admin.realname','like','%'.$body['search'].'%')
                         ->orWhere('ld_admin.username','like','%'.$body['search'].'%')
