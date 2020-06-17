@@ -116,6 +116,28 @@ class TeacherController extends Controller {
     }
     
     /*
+     * @param  descriptsion    讲师/教务启用/禁用方法
+     * @param  参数说明         body包含以下参数[
+     *      teacher_id   讲师或教务id
+     * ]
+     * @param  author          dzj
+     * @param  ctime           2020-06-17
+     */
+    public function doForbidTeacher(){
+        //获取提交的参数
+        try{
+            $data = Teacher::doForbidTeacher(self::$accept_data);
+            if($data['code'] == 200){
+                return response()->json(['code' => 200 , 'msg' => '操作成功']);
+            } else {
+                return response()->json(['code' => $data['code'] , 'msg' => $data['msg']]);
+            }
+        } catch (Exception $ex) {
+            return response()->json(['code' => 500 , 'msg' => $ex->getMessage()]);
+        }
+    }
+    
+    /*
      * @param  description   根据讲师或教务id获取详细信息
      * @param  参数说明       body包含以下参数[
      *     teacher_id   讲师或教务id
