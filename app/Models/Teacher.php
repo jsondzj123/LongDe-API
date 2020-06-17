@@ -170,7 +170,7 @@ class Teacher extends Model {
                 if(isset($body['search']) && !empty($body['search'])){
                     $query->where('real_name','like','%'.$body['search'].'%');
                 }
-            })->select('id as teacher_id','real_name','phone','create_at','number','is_recommend')->orderByDesc('id')->offset($offset)->limit($pagesize)->get()->toArray();
+            })->select('id as teacher_id','real_name','phone','create_at','number','is_recommend','is_forbid')->orderByDesc('id')->offset($offset)->limit($pagesize)->get()->toArray();
             //判断如果是讲师则查询开课数量
             if($body['type'] == 2){
                 foreach($teacher_list as $k=>$v){
