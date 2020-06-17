@@ -113,9 +113,12 @@ class LessonController extends Controller {
      * return  array
      */
     public function OpenCourse(Request $request) {
-        
+        $course_id = $request->input('course_id');
         $student_id = self::$accept_data['user_info']['user_id'];
         $nickname = self::$accept_data['user_info']['nickname'];
+        if(empty($course_id)){
+            return $this->response('course_id错误', 202);
+        }
         if(empty($student_id)){
             return $this->response('student_id不存在', 202);
         }
@@ -130,6 +133,7 @@ class LessonController extends Controller {
             Log::error('进入直播间失败:'.json_encode($res));
             return $this->response('进入直播间失败', 500);
         }
+        $res['data']['course_id'] = $course_id;
         return $this->response($res['data']);
     }
 }
