@@ -117,6 +117,7 @@ class VideoController extends Controller {
             'url' => 'required',
             'mt_video_id' => 'required',
             'mt_video_name' => 'required',
+            'duration' => 'required',
         ]);
         if ($validator->fails()) {
             return $this->response($validator->errors()->first(), 202);
@@ -133,6 +134,7 @@ class VideoController extends Controller {
                         'mt_video_id' => $request->input('mt_video_id') ?: 0,
                         'mt_video_name' => $request->input('mt_video_name') ?: NULL,
                         'mt_url' => $request->input('mt_url') ?: NULL,
+                        'mt_duration' => $request->input('duration') ?: 0,
                     ]);
             if(!empty($subjectIds)){
                 $video->subjects()->attach($subjectIds);
@@ -168,6 +170,7 @@ class VideoController extends Controller {
             $video->mt_video_id = $request->input('mt_video_id') ?: $video->mt_video_id;
             $video->mt_video_name = $request->input('mt_video_name') ?: $video->mt_video_name;
             $video->mt_url = $request->input('mt_url') ?: $video->mt_url;
+            $video->mt_duration = $request->input('duration') ?: $video->mt_duration;
             $video->save();
             $video->subjects()->sync($subjectIds);
         } catch (Exception $e) {
