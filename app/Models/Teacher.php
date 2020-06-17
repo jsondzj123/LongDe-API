@@ -170,7 +170,7 @@ class Teacher extends Model {
                 if(isset($body['search']) && !empty($body['search'])){
                     $query->where('real_name','like','%'.$body['search'].'%');
                 }
-            })->select('id as teacher_id','real_name','phone','create_at','number','is_recommend')->orderByDesc('id')->offset($offset)->limit($pagesize)->get()->toArray();
+            })->select('id as teacher_id','real_name','phone','create_at','number','is_recommend','is_forbid')->orderByDesc('id')->offset($offset)->limit($pagesize)->get()->toArray();
             //判断如果是讲师则查询开课数量
             if($body['type'] == 2){
                 foreach($teacher_list as $k=>$v){
@@ -649,6 +649,79 @@ class Teacher extends Model {
                 'module_name'    =>  'Teacher' ,
                 'route_url'      =>  'admin/teacher/doRecommendTeacher' , 
                 'operate_method' =>  'recommend' ,
+                'content'        =>  json_encode($body) ,
+                'ip'             =>  $_SERVER["REMOTE_ADDR"] ,
+                'create_at'      =>  date('Y-m-d H:i:s')
+            ]);
+            //事务提交
+            DB::commit();
+            return ['code' => 200 , 'msg' => '操作成功'];
+        } else {
+            //事务回滚
+            DB::rollBack();
+            return ['code' => 203 , 'msg' => '操作失败'];
+        }
+    }
+    
+    /*
+     * @param  descriptsion    启用/禁用的方法
+     * @param  参数说明         body包含以下参数[
+     *     teacher_id     讲师或教务id
+     * ]
+     * @param  author          dzj
+     * @param  ctime           2020-06-17
+     * return  array
+     */
+    public static function doForbidTeacher($body=[]) {
+        //判断传过来的数组数据是否为空
+        if(!$body || !is_array($body)){
+            return ['code' => 202 , 'msg' => '传递数据不合法'];
+        }
+
+        //判断讲师或教务id是否合法
+        if(!isset($body['teacher_id']) || empty($body['teacher_id']) || $body['teacher_id'] <= 0){
+            return ['code' => 202 , 'msg' => '讲师或教务id不合法'];
+        }
+
+        //key赋值
+        $key = 'teacher:forbid:'.$body['teacher_id'];
+
+        //判断此学员是否被请求过一次(防止重复请求,且数据信息不存在)
+        if(Redis::get($key)){
+            return ['code' => 204 , 'msg' => '此讲师或教务不存在'];
+        } else {
+            //判断此讲师或教务在老师表中是否存在
+            $teacher_count = self::where('id',$body['teacher_id'])->count();
+            if($teacher_count <= 0){
+                //存储讲师或教务的id值并且保存60s
+                Redis::setex($key , 60 , $body['teacher_id']);
+                return ['code' => 204 , 'msg' => '此讲师或教务不存在'];
+            }
+        }
+        
+        //根据讲师或教务的id获取讲师或教务的状态
+        $is_forbid = self::where('id',$body['teacher_id'])->pluck('is_forbid');
+
+        //追加更新时间
+        $data = [
+            'is_forbid'    => $is_forbid[0] >= 1 ? 0 : 1 ,
+            'update_at'    => date('Y-m-d H:i:s')
+        ];
+        
+        //获取后端的操作员id
+        $admin_id = isset(AdminLog::getAdminInfo()->admin_user->id) ? AdminLog::getAdminInfo()->admin_user->id : 0;
+        
+        //开启事务
+        DB::beginTransaction();
+
+        //根据讲师或教务id更新老师状态
+        if(false !== self::where('id',$body['teacher_id'])->update($data)){
+            //添加日志操作
+            AdminLog::insertAdminLog([
+                'admin_id'       =>   $admin_id  ,
+                'module_name'    =>  'Teacher' ,
+                'route_url'      =>  'admin/teacher/doForbidTeacher' , 
+                'operate_method' =>  'update' ,
                 'content'        =>  json_encode($body) ,
                 'ip'             =>  $_SERVER["REMOTE_ADDR"] ,
                 'create_at'      =>  date('Y-m-d H:i:s')
