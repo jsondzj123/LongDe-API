@@ -4,7 +4,13 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Video;
+use App\Models\Lesson;
+use App\Models\LessonChild;
+use App\Models\LessonVideo;
+use App\Models\SubjectLesson;
 use App\Tools\MTCloud;
+use Maatwebsite\Excel\Facades\Excel;
+
 
 class TestController extends Controller
 {
@@ -40,20 +46,87 @@ class TestController extends Controller
             //上传文件方法
             move_uploaded_file($_FILES['file']['tmp_name'], $path);
         }
-
+        // $exam_array = Excel::toArray(new \App\Imports\VideoImport , $path);
+        // dd(count($exam_array));
         $exam_list = self::doImportExcel(new \App\Imports\UsersImport , $path);
-//        dd($exam_list['data']);
-        foreach($exam_list['data'] as $key=>$value){
-            $video = Video::where(['course_id' => $value[0]])->first();
-            if(empty($video)){
+       //导入资源数据
+        /*foreach($exam_list['data'] as $key=>$value){
+            $video = Video::where(['course_id' => trim($value[4]), 'name' => trim($value[3])])->get();
+            if(empty($video->toArray())){
                 Video::create([
                     'admin_id' => 1,
-                    'name' => $value[0],
+                    'name' => trim($value[3]),
                     'category' => 1,
                     'url' => 'test.mp4',
-                    'course_id' => $value[1]
+                    'course_id' => trim($value[4])
                 ]);
-            }
+            } 
         }
+        return $this->response('success');
+        */
+        //资源学科
+        
+        /*foreach($exam_list['data'] as $key=>$value){
+            $lesson = Lesson::where('title', $value[0])->first();
+            if(!empty($lesson)){
+                $subject = SubjectLesson::where('lesson_id', $lesson['id'])->get();
+                $video = Video::where('course_id' , $value[4])->get();
+                dd($video->toArray());
+                // $child1 = LessonChild::where(['lesson_id' => $lesson['id'], 'name' => $value[1], 'pid' => 0])->first();
+                // if(!empty($child1)){
+                //     $child2 = LessonChild::where(['lesson_id' => $lesson['id'], 'pid' => $child1['id'], 'name' => $value[2]])->first();
+                //     if (!empty($child2)) {
+                //         $video = Video::where('name' , $value[3])->first();
+                //         if(!empty($video)){
+                //             LessonVideo::create([
+                //                 'video_id' => $video['id'],
+                //                 'child_id' => $child2['id'],
+                //             ]);
+                //         }
+                //     }
+                // }
+            } 
+        }
+        return $this->response('success');*/
+
+        //课程关联资源
+        /*foreach ($exam_list['data'] as $key=>$value) {
+            $lesson = Lesson::where('title', trim($value[0]))->first();
+            if(!empty($lesson)){
+                //dd(1);
+                $child1 = LessonChild::where(['lesson_id' => $lesson['id'], 'name' => trim($value[1]), 'pid' => 0])->first();
+                if(!empty($child1)){
+                    $child2 = LessonChild::where(['lesson_id' => $lesson['id'], 'pid' => $child1['id'], 'name' => trim($value[2])])->first();
+                    if (!empty($child2)) {
+                        $video = Video::where('name' , trim($value[3]))->first();
+                        if(!empty($video)){
+                            LessonVideo::create([
+                                'video_id' => $video['id'],
+                                'child_id' => $child2['id'],
+                            ]);
+                        }
+                    }
+                }
+            }    
+        }*/
+        //资源关联学科
+        // foreach ($exam_list['data'] as $key=>$value) {
+        //     $lesson = Lesson::where('title', trim($value[0]))->first();
+        //     if(!empty($lesson)){
+                
+        //         $subject = SubjectLesson::where('lesson_id', $lesson['id'])->get();
+        //         if (!empty($subject)) {
+        //                 $subject_id = $subject->pluck('subject_id');
+        //                 $video = Video::where('name' , trim($value[3]))->first();
+        //                 if(!empty($video)){
+        //                     //dd($subject_id);
+        //                     $video->subjects()->attach($subject_id);
+                            
+        //                 }
+        //         }
+        //     }    
+        // }
+        // return $this->response('success');      
+        
     }
 }
