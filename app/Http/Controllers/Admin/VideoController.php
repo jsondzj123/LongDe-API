@@ -16,7 +16,7 @@ class VideoController extends Controller {
      * @param  全部录播列表
      * @param  pagesize   page
      * @param  author  孙晓丽
-     * @param  ctime   2020/6/13 
+     * @param  ctime   2020/6/13
      * return  array
      */
     public function index(Request $request){
@@ -51,7 +51,7 @@ class VideoController extends Controller {
      * @param  未删除和未禁用的录播列表
      * @param  pagesize   page
      * @param  author  孙晓丽
-     * @param  ctime   2020/6/13 
+     * @param  ctime   2020/6/13
      * return  array
      */
     public function list(Request $request){
@@ -87,7 +87,7 @@ class VideoController extends Controller {
      * @param  录播详情
      * @param  录播id
      * @param  author  孙晓丽
-     * @param  ctime   2020/5/1 
+     * @param  ctime   2020/5/1
      * return  array
      */
     public function show(Request $request) {
@@ -243,14 +243,14 @@ class VideoController extends Controller {
         $MTCloud = new MTCloud();
         $options = [
             'course' => [
-                'start_time' => '2018-10-10 16:28',
-                'end_time' => '2018-10-10 16:28',
+                'start_time' => date("Y-m-d H:i",strtotime("-2 day")),
+                'end_time' => date("Y-m-d H:i",strtotime("-1 day")),
             ] ,
         ];
         $res = $MTCloud->videoGetUploadUrl(1, 2, $request->input('title'), $request->input('video_md5'), $options);
         if(!array_key_exists('code', $res) || $res['code'] != 0){
             Log::error('上传失败code:'.$res['code'].'msg:'.json_encode($res));
-            
+
             if($res['code'] == 1281){
                 return $this->response($res['data']);
             }
