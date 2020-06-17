@@ -243,8 +243,8 @@ class VideoController extends Controller {
         $MTCloud = new MTCloud();
         $options = [
             'course' => [
-                'start_time' => date("Y-m-d H:i",strtotime("-2 day")),
-                'end_time' => date("Y-m-d H:i",strtotime("-1 day")),
+                'start_time' => date("Y-m-d H:i",strtotime("-1 day")),
+                //'end_time' => date("Y-m-d H:i",strtotime("-1 day")),
             ] ,
         ];
         $res = $MTCloud->videoGetUploadUrl(1, 2, $request->input('title'), $request->input('video_md5'), $options);
