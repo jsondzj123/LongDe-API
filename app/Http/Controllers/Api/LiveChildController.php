@@ -41,7 +41,6 @@ class LiveChildController extends Controller {
                     'is_del' => 0, 'is_forbid' => 0, 'status' => 3, 'live_id' => $value['id']
                 ])->get();
             }
-
             if(!empty($live->toArray())){
             array_push($childs, [
                     'title' => '正在播放',
@@ -80,7 +79,7 @@ class LiveChildController extends Controller {
         $course_id = $request->input('course_id');
         $student_id = self::$accept_data['user_info']['user_id'];
         $nickname = self::$accept_data['user_info']['nickname'];
-        
+
         $MTCloud = new MTCloud();
         $liveChild = LiveChild::where('course_id', $course_id)->first();
         $video = Video::where('course_id', $course_id)->first();
@@ -88,9 +87,9 @@ class LiveChildController extends Controller {
             return $this->response('course_id不存在', 202);
         }
         if(!empty($liveChild)){
-            if($liveChild->status != 2){
-                return $this->response('不是进行中的直播', 202);
-            }
+            // if($liveChild->status != 2){
+            //     return $this->response('不是进行中的直播', 202);
+            // }
             if($liveChild->status == 2){
                  $res = $MTCloud->courseAccess($course_id, $student_id, $nickname, 'user');
             }elseif($liveChild->status == 3 && $liveChild->playback == 1){
