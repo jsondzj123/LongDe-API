@@ -14,7 +14,7 @@ class LessonController extends Controller {
      * @param  课程列表
      * @param  current_count   count
      * @param  author  孙晓丽
-     * @param  ctime   2020/5/1 
+     * @param  ctime   2020/5/1
      * return  array
      */
     public function index(Request $request){
@@ -36,13 +36,13 @@ class LessonController extends Controller {
         $method = $request->input('method_id') ?: 0;
         $sort = $request->input('sort_id') ?: 0;
         if($sort == 0){
-            $sort_name = 'created_at'; 
+            $sort_name = 'created_at';
         }elseif($sort == 1){
-            $sort_name = 'watch_num'; 
+            $sort_name = 'watch_num';
         }elseif($sort == 2){
-            $sort_name = 'price'; 
+            $sort_name = 'price';
         }elseif($sort == 3){
-            $sort_name = 'price'; 
+            $sort_name = 'price';
         }
         $where = ['is_del'=> 0, 'is_forbid' => 0, 'status' => 2];
         $sort_type = $request->input('sort_type') ?: 'asc';
@@ -71,7 +71,7 @@ class LessonController extends Controller {
         $lessons = [];
         foreach ($data as $value) {
             if($value['is_auth'] == 1 || $value['is_auth'] == 2){
-                $lessons[] = $value;   
+                $lessons[] = $value;
             }
         }
         $total = count($lessons);
@@ -88,7 +88,7 @@ class LessonController extends Controller {
      * @param  课程详情
      * @param  课程id
      * @param  author  孙晓丽
-     * @param  ctime   2020/5/1 
+     * @param  ctime   2020/5/1
      * return  array
      */
     public function show(Request $request) {
@@ -106,8 +106,9 @@ class LessonController extends Controller {
         return $this->response($lesson);
     }
 
-    
+
     /**
+     * @param  公开课
      * @param  author  zzk
      * @param  ctime   2020/6/16
      * return  array
@@ -126,7 +127,7 @@ class LessonController extends Controller {
             return $this->response('nickname不存在', 202);
         }
         $MTCloud = new MTCloud();
-        
+
         $res = $MTCloud->courseAccessPlayback($course_id = "737835", $student_id, $nickname, 'user');
 
         if(!array_key_exists('code', $res) && !$res['code'] == 0){
