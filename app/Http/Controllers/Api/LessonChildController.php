@@ -82,7 +82,7 @@ class LessonChildController extends Controller {
                 }
                 $seconds = $vv['mt_duration'];
                 $hours = intval($seconds/3600);
-                $vv['mt_duration'] = $hours."小时".gmdate('i分钟s秒', $seconds);
+                $vv['mt_duration'] = $hours.":".gmdate('i:s', $seconds);
             }
 
         }
