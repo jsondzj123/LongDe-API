@@ -135,6 +135,7 @@ class LessonController extends Controller {
             return $this->response('进入直播间失败', 500);
         }
         $res['data']['course_id'] = $course_id;
+        $res['data']['is_live'] = 1;
         return $this->response($res['data']);
     }
 }
