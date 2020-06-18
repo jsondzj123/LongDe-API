@@ -220,7 +220,62 @@ class CommonController extends BaseController {
             return response()->json(['code' => 500 , 'msg' => $ex->getMessage()]);
         }
     }
-    
+     /*
+     * @param  description   上传文件到OSS阿里云方法
+     * @param author    lys
+     * @param ctime     2020-06-18
+     * return string
+     */
+    public function doUploadOssFile() {
+      
+        //获取提交的参数
+        try{
+            //获取上传文件
+            $file = isset($_FILES['file']) && !empty($_FILES['file']) ? $_FILES['file'] : '';
+         
+            //判断是否有文件上传
+            if(!isset($_FILES['file']) || empty($_FILES['file']['tmp_name'])){
+                return response()->json(['code' => 201 , 'msg' => '请上传文件']);
+            }
+            
+            // //获取上传文件的文件后缀
+            // $is_correct_ext = \App\Http\Controllers\Controller::detectUploadFileMIME($file);
+            // $image_extension= substr($_FILES['file']['name'], strrpos($_FILES['file']['name'], '.')+1);   //获取图片后缀名
+            // if($is_correct_ext <= 0 || !in_array($image_extension , ['jpg' , 'jpeg' , 'gif' , 'png'])){
+            //     return response()->json(['code' => 202 , 'msg' => '上传图片格式非法']);
+            // }
+            //判断图片上传大小是否大于200M
+            $image_size = filesize($_FILES['file']['tmp_name']);
+            if($image_size > 209715200){
+                             
+                return response()->json(['code' => 202 , 'msg' => '上传文件不能大于200M']);
+            }
+              
+            //重置文件名
+            $filename = time() . rand(1,10000) . uniqid() . substr($file['name'], stripos($file['name'], '.'));
+            $path     = "upload/" . date('Y-m-d') . '/'.$filename;
+            
+            //oss图片公共参数配置部分
+            $image_config = [
+                'accessKeyId'     =>   env('OSS_IMAGE_ACCESSKEYID') ,
+                'accessKeySecret' =>   env('OSS_IMAGE_ACCESSKEYSECRET') ,
+                'bucket'          =>   env('OSS_IMAGE_BUCKET') ,
+                'oss_url'         =>   env('OSS_IMAGE_URL')
+            ];
+          
+            //上传图片到阿里云OSS服务器上面
+            $ossClient = new \OSS\OssClient($image_config['accessKeyId'] , $image_config['accessKeySecret'] , $image_config['oss_url']);
+            //上传图片到OSS
+            $getOssInfo = $ossClient->uploadFile($image_config['bucket'] , $path , $_FILES['file']['tmp_name']);
+            if($getOssInfo && !empty($getOssInfo)){
+                return response()->json(['code' => 200 , 'msg' => '上传成功' , 'data' =>['name'=>$file['name'],'url'=>$getOssInfo['info']['url'],'size'=>$image_size]]);
+            } else {
+                return response()->json(['code' => 203 , 'msg' => '上传失败']);
+            }
+        } catch (Exception $ex) {
+            return response()->json(['code' => 500 , 'msg' => $ex->getMessage()]);
+        }
+    }
     
     /*
      * @param  description   删除OSS上面的图片方法

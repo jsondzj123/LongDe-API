@@ -13,7 +13,7 @@ class Video extends Model {
      * @var array
      */
     protected $fillable = [
-        'admin_id', 'name', 'category', 'url', 'size', 'status', 'mt_video_id', 'mt_video_name', 'mt_url', 'course_id'
+        'admin_id', 'name', 'category', 'url', 'size', 'status', 'mt_video_id', 'mt_video_name', 'mt_url', 'course_id','mt_duration','course_id'
     ];
 
     /**
