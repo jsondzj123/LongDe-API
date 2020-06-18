@@ -27,7 +27,7 @@ class IndexController extends Controller {
                     'chart_id'     =>   1 ,
                     'title'        =>   '轮播图1' ,
                     'jump_url'     =>   'http://www.baidu.com' ,
-                    'pic_image'    =>   "https://dss0.bdstatic.com/70cFvHSh_Q1YnxGkpoWK1HF6hhy/it/u=3256100974,305075936&fm=26&gp=0.jpg" ,
+                    'pic_image'    =>   "https://longdeapi.oss-cn-beijing.aliyuncs.com/upload/2020-06-17/159238101090725ee9ce52b4dbc.jpg" ,
                     'type'         =>   1 ,
                     'lession_info' => [
                         'lession_id'  => 1 ,
@@ -38,7 +38,7 @@ class IndexController extends Controller {
                     'chart_id'     =>   2 ,
                     'title'        =>   '轮播图2' ,
                     'jump_url'     =>   'http://www.sina.com' ,
-                    'pic_image'    =>   "https://dss0.bdstatic.com/70cFvHSh_Q1YnxGkpoWK1HF6hhy/it/u=3256100974,305075936&fm=26&gp=0.jpg" ,
+                    'pic_image'    =>   "https://longdeapi.oss-cn-beijing.aliyuncs.com/upload/2020-06-17/159238104323565ee9ce73db673.jpg" ,
                     'type'         =>   0 ,
                     'lession_info' =>   [
                         'lession_id'  => 0 ,
@@ -49,7 +49,7 @@ class IndexController extends Controller {
                     'chart_id'     =>   3 ,
                     'title'        =>   '轮播图3' ,
                     'jump_url'     =>   'http://www.163.com' ,
-                    'pic_image'    =>   "https://dss0.bdstatic.com/70cFvHSh_Q1YnxGkpoWK1HF6hhy/it/u=3256100974,305075936&fm=26&gp=0.jpg" ,
+                    'pic_image'    =>   "https://longdeapi.oss-cn-beijing.aliyuncs.com/upload/2020-06-17/159238106166285ee9ce85ea7e0.jpg" ,
                     'type'         =>   1 ,
                     'lession_info' => [
                         'lession_id'  => 2 ,

@@ -330,17 +330,17 @@ class Order extends Model {
                 $order_info['phone'] = $student['phone'];
                 if ($student['school_id'] != '') {
                     $school = School::select('name')->where(['id' => $student['school_id']])->first();
-                    $order_info['name'] = $school['name'];
+                    $order_info['schoolname'] = $school['name'];
                 }
             }
             if ($order_info['class_id'] != '') {
                 $lesson = Lesson::select('id', 'title')->where(['id' => $order_info['class_id']])->first();
                 if (!empty($lesson)) {
-                    $order_info['name'] = $lesson['title'];
+                    $order_info['title'] = $lesson['title'];
                     $teacher = LessonTeacher::where(['lesson_id' => $lesson['id']])->first();
                     if (!empty($teacher)) {
                         $lecturer_educationa = Lecturer::select('real_name')->where(['id' => $teacher['teacher_id']])->first();
-                        $order_info['name'] = $lecturer_educationa['real_name'];
+                        $order_info['real_name'] = $lecturer_educationa['real_name'];
                     }
                 }
             }

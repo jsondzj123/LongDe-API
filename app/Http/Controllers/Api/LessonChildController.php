@@ -6,6 +6,7 @@ use App\Models\LessonChild;
 use App\Models\LessonVideo;
 use App\Models\Video;
 use Illuminate\Http\Request;
+use App\Tools\MTCloud;
 use Validator;
 
 class LessonChildController extends Controller {
@@ -14,7 +15,7 @@ class LessonChildController extends Controller {
      * @param  小节列表
      * @param  pagesize   page
      * @param  author  孙晓丽
-     * @param  ctime   2020/5/26 
+     * @param  ctime   2020/5/26
      * @return  array
      */
     public function index(Request $request){
@@ -25,6 +26,7 @@ class LessonChildController extends Controller {
             return $this->response($validator->errors()->first(), 202);
         }
         $lesson_id = $request->input('lesson_id');
+        $uid = self::$accept_data['user_info']['user_id'];
         $pid = $request->input('pid') ?: 0;
         $lessons =  LessonChild::select('id', 'name', 'description', 'pid')
                 ->where(['is_del'=> 0, 'is_forbid' => 0, 'pid' => 0, 'lesson_id' => $lesson_id])
@@ -34,7 +36,7 @@ class LessonChildController extends Controller {
                     $query->select('id', 'course_id', 'mt_duration');
                 }])
                 ->where(['is_del'=> 0, 'is_forbid' => 0, 'pid' => $value->id, 'lesson_id' => $lesson_id])->get();
-            
+
             foreach ($lesson as $k => $v) {
                 $arr_v = $v->toArray();
                 if(!empty($arr_v) && !empty($arr_v['videos'])){
@@ -42,7 +44,20 @@ class LessonChildController extends Controller {
                     $v['course_id'] = $videos[0]['course_id'];
                 }else{
                     $v['course_id'] = 0;
-                } 
+                }
+                unset($v['videos']);
+                //获取视频id
+
+                //获取视频时长
+                // $video_id = $v['videos'][0]['id'];
+                //$MTCloud = new MTCloud();
+                //$res = $MTCloud->videoGet($video_id = 118462);
+                //$v['duration'] = $res;
+                // //获取用户使用课程时长
+                // $course_id = $v['course_id'];
+                // $v['use']  = $MTCloud->coursePlaybackVisitorList($course_id);
+
+
             }
             $value['childs'] = $lesson;
         }
@@ -54,7 +69,7 @@ class LessonChildController extends Controller {
      * @param  小节详情
      * @param  课程id
      * @param  author  孙晓丽
-     * @param  ctime   2020/5/1 
+     * @param  ctime   2020/5/1
      * return  array
      */
     public function show(Request $request) {
