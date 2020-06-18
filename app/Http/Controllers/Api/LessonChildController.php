@@ -42,24 +42,49 @@ class LessonChildController extends Controller {
                 if(!empty($arr_v) && !empty($arr_v['videos'])){
                     $videos = $arr_v['videos'];
                     $v['course_id'] = $videos[0]['course_id'];
+                    $v['mt_duration'] = $videos[0]['mt_duration'];
                 }else{
                     $v['course_id'] = 0;
+                    $v['mt_duration'] = 0;
                 }
                 unset($v['videos']);
-                //获取视频id
-
-                //获取视频时长
-                // $video_id = $v['videos'][0]['id'];
-                //$MTCloud = new MTCloud();
-                //$res = $MTCloud->videoGet($video_id = 118462);
-                //$v['duration'] = $res;
-                // //获取用户使用课程时长
-                // $course_id = $v['course_id'];
-                // $v['use']  = $MTCloud->coursePlaybackVisitorList($course_id);
+                //获取用户使用课程时长
+                $course_id = $v['course_id'];
+                $MTCloud = new MTCloud();
+                $v['use_duration']  =  $MTCloud->coursePlaybackVisitorList($course_id,1,100)['data'];
 
 
             }
             $value['childs'] = $lesson;
+            foreach($value['childs'] as $k => $v){
+                if(count($v['use_duration']) > 0){
+                    foreach($v['use_duration'] as $k => $vv){
+                        if($vv['uid'] == $uid){
+                            $v['use_duration'] = $vv['duration'];
+                        }else{
+                            if(is_array($v['use_duration'])){
+                                $v['use_duration'] = 0;
+                            }
+                        }
+                    }
+                }else{
+                    $value['childs'][$k]['use_duration'] = 0;
+                }
+
+            }
+        }
+        foreach($lessons as $k => $v){
+            foreach($v['childs'] as $k1 =>$vv){
+                if($vv['use_duration'] == 0){
+                    $vv['use_duration'] = "未学习";
+                }else{
+                    $vv['use_duration'] =  "已学习".  sprintf("%01.2f", $vv['use_duration']/$vv['mt_duration']*100).'%';;
+                }
+                $seconds = $vv['mt_duration'];
+                $hours = intval($seconds/3600);
+                $vv['mt_duration'] = $hours."小时".gmdate('i分钟s秒', $seconds);
+            }
+
         }
         return $this->response($lessons);
     }
