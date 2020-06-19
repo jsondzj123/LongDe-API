@@ -24,7 +24,8 @@ class CorsMiddleware
             'http://localhost:8080',
             'http://192.168.1.12:8080',
             'http://test.admin.longde999.cn',
-            'http://admin.longde999.cn'
+            'http://admin.longde999.cn',
+            'http://testwo.admin.longde999.cn'
         ];
         $origin = isset($_SERVER['HTTP_ORIGIN']) ? $_SERVER['HTTP_ORIGIN'] : '';
 
@@ -43,7 +44,7 @@ class CorsMiddleware
         }
         return $response;
     }
-    
+
     /**
      * @param $response
      * @return mixed
