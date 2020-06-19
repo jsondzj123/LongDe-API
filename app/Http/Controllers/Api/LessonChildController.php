@@ -70,9 +70,7 @@ class LessonChildController extends Controller {
                 if(isset(self::$accept_data['user_token']) && !empty(self::$accept_data['user_token'])){
                     $course_id = $v['course_id'];
                     $MTCloud = new MTCloud();
-                    dd($course_id);
                     $v['use_duration']  =  $MTCloud->coursePlaybackVisitorList($course_id,1,50)['data'];
-                    //$v['use_duration'] = $course_id;
                 }
             }
             $value['childs'] = $lesson;
