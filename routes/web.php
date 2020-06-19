@@ -23,7 +23,8 @@ $router->group(['prefix' => 'api', 'namespace' => 'Api'], function () use ($rout
      * 科目模块(sxl)
     */
     $router->post('subject', 'SubjectController@index');
-
+    //录播章节列表
+    $router->post('lesson', 'LessonController@index');
     //课程直播目录
     $router->post('lessonLive', 'LiveChildController@index');
 
@@ -66,7 +67,6 @@ $router->group(['prefix' => 'api', 'namespace' => 'Api', 'middleware'=> 'user'],
     //zzk  公开课直播token
     $router->post('lessonOpenCourse', 'LessonController@OpenCourse');
     //录播章节列表
-    $router->post('lesson', 'LessonController@index');
     $router->post('lessonShow', 'LessonController@show');
     $router->post('lessonChild', 'LessonChildController@index');
     $router->post('lessonChildShow', 'LessonChildController@show');

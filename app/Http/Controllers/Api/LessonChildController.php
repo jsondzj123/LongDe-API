@@ -26,6 +26,9 @@ class LessonChildController extends Controller {
             return $this->response($validator->errors()->first(), 202);
         }
         $lesson_id = $request->input('lesson_id');
+        if(in_array($lesson_id,[2,3,21,29])){
+            return $this->response('该课程为直播', 204);
+        }
         $uid = self::$accept_data['user_info']['user_id'];
         $pid = $request->input('pid') ?: 0;
         $lessons =  LessonChild::select('id', 'name', 'description', 'pid')
@@ -52,8 +55,6 @@ class LessonChildController extends Controller {
                 $course_id = $v['course_id'];
                 $MTCloud = new MTCloud();
                 $v['use_duration']  =  $MTCloud->coursePlaybackVisitorList($course_id,1,100)['data'];
-
-
             }
             $value['childs'] = $lesson;
             foreach($value['childs'] as $k => $v){
