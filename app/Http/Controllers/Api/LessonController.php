@@ -129,13 +129,12 @@ class LessonController extends Controller {
         $MTCloud = new MTCloud();
 
         $res = $MTCloud->courseAccessPlayback($course_id = "737835", $student_id, $nickname, 'user');
-
         if(!array_key_exists('code', $res) && !$res['code'] == 0){
             Log::error('进入直播间失败:'.json_encode($res));
             return $this->response('进入直播间失败', 500);
         }
         $res['data']['course_id'] = $course_id;
-        $res['data']['is_live'] = 1;
+        $res['data']['is_live'] = 0;
         return $this->response($res['data']);
     }
 }
