@@ -8,6 +8,7 @@ use App\Models\Video;
 use Illuminate\Http\Request;
 use App\Tools\MTCloud;
 use Validator;
+use Illuminate\Support\Facades\Redis;
 
 class LessonChildController extends Controller {
 
@@ -29,7 +30,22 @@ class LessonChildController extends Controller {
         if(in_array($lesson_id,[2,3,21,29])){
             return $this->response(array());
         }
-        $uid = self::$accept_data['user_info']['user_id'];
+
+        if(isset(self::$accept_data['user_token']) && !empty(self::$accept_data['user_token'])){
+            //判断token值是否合法
+        $redis_token = Redis::hLen("user:regtoken:".self::$accept_data['user_token']);
+        if($redis_token && $redis_token > 0) {
+            //通过token获取用户信息
+            $json_info = Redis::hGetAll("user:regtoken:".self::$accept_data['user_token']);
+            $uid       = $json_info['user_id'];
+        } else {
+            return $this->response('请登录账号', 401);
+        }
+
+
+            //$uid = self::$accept_data['user_id'];
+        }
+
         $pid = $request->input('pid') ?: 0;
         $lessons =  LessonChild::select('id', 'name', 'description', 'pid')
                 ->where(['is_del'=> 0, 'is_forbid' => 0, 'pid' => 0, 'lesson_id' => $lesson_id])
@@ -52,28 +68,37 @@ class LessonChildController extends Controller {
                 }
                 unset($v['videos']);
                 //获取用户使用课程时长
-                $course_id = $v['course_id'];
-                $MTCloud = new MTCloud();
-                $v['use_duration']  =  $MTCloud->coursePlaybackVisitorList($course_id,1,100)['data'];
+                if(isset(self::$accept_data['user_token']) && !empty(self::$accept_data['user_token'])){
+                    $course_id = $v['course_id'];
+                    $MTCloud = new MTCloud();
+                    $v['use_duration']  =  $MTCloud->coursePlaybackVisitorList($course_id,1,100)['data'];
+                }
             }
             $value['childs'] = $lesson;
-            foreach($value['childs'] as $k => $v){
-                if(count($v['use_duration']) > 0){
-                    foreach($v['use_duration'] as $k => $vv){
-                        if($vv['uid'] == $uid){
-                            $v['use_duration'] = $vv['duration'];
-                        }else{
-                            if(is_array($v['use_duration'])){
-                                $v['use_duration'] = 0;
+
+            if(isset(self::$accept_data['user_token']) && !empty(self::$accept_data['user_token'])){
+                foreach($value['childs'] as $k => $v){
+                    if(count($v['use_duration']) > 0){
+                        foreach($v['use_duration'] as $k => $vv){
+                            if($vv['uid'] == $uid){
+                                $v['use_duration'] = $vv['duration'];
+                            }else{
+                                if(is_array($v['use_duration'])){
+                                    $v['use_duration'] = 0;
+                                }
                             }
                         }
+                    }else{
+                        $value['childs'][$k]['use_duration'] = 0;
                     }
-                }else{
-                    $value['childs'][$k]['use_duration'] = 0;
-                }
 
+                }
             }
+
+
         }
+
+        if(isset(self::$accept_data['user_token']) && !empty(self::$accept_data['user_token'])){
         foreach($lessons as $k => $v){
             foreach($v['childs'] as $k1 =>$vv){
                 if($vv['use_duration'] == 0){
@@ -87,6 +112,8 @@ class LessonChildController extends Controller {
             }
 
         }
+    }
+
         return $this->response($lessons);
     }
 
