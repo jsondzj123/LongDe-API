@@ -27,7 +27,7 @@ class LessonChildController extends Controller {
         }
         $lesson_id = $request->input('lesson_id');
         if(in_array($lesson_id,[2,3,21,29])){
-            return $this->response('该课程为直播', 204);
+            return $this->response(array());
         }
         $uid = self::$accept_data['user_info']['user_id'];
         $pid = $request->input('pid') ?: 0;
