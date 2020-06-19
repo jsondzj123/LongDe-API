@@ -29,9 +29,10 @@ class CreateLdAdminTable extends Migration
             $table->smallInteger('is_forbid')->default(1)->comment('禁用  0禁用 1启用');
             $table->smallInteger('is_del')->default(1)->comment('删除 0已删除 1未删除');
             $table->timestamps();
-            $table->index('id');
-            $table->index('school_status');
-            $table->index('role_id');
+    
+            $table->index('id' , 'index_id');
+            $table->index('school_status' , 'index_school_status');
+            $table->index('role_id' , 'index_role_id');
         });
          DB::statement("alter table `ld_admin` comment '后台管理员表'");
     }

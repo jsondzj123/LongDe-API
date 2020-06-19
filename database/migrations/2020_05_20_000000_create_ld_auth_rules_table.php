@@ -25,7 +25,7 @@ class CreateLdAuthRulesTable extends Migration
             $table->smallInteger('is_del')->default(1)->comment('删除1否0是');
             $table->smallInteger('is_forbid')->default(1)->comment('启用1否0是');
 
-            $table->index('name');
+            $table->index('name' , 'index_name');
         });
         DB::statement("alter table `ld_auth_rules` comment '权限表'");
     }

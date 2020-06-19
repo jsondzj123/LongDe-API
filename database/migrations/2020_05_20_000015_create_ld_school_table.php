@@ -24,7 +24,7 @@ class CreateLdSchoolTable extends Migration
             $table->smallInteger('is_forbid')->default(1)->comment('是否禁用：0是1否');
             $table->dateTime('create_time')->comment('创建时间');
             $table->dateTime('update_time')->nullable()->comment('更新时间');
-            $table->index('id');
+            $table->index('id','index_id');
         });
         DB::statement("alter table `ld_school` comment '学校表'");
     }
