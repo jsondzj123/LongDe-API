@@ -71,7 +71,6 @@ class LessonChildController extends Controller {
                     $course_id = $v['course_id'];
                     $MTCloud = new MTCloud();
                     $v['use_duration']  =  $MTCloud->coursePlaybackVisitorList($course_id,1,50)['data'];
-                    //$v['use_duration'] = $course_id;
                 }
             }
             $value['childs'] = $lesson;
