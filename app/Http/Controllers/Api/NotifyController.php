@@ -128,6 +128,7 @@ class NotifyController extends Controller {
         $receiptData = $data['receiptData'];
         $order_number = $data['order_number'];
         file_put_contents('./orderpaylog/'.$order_number.'.txt', '时间:'.date('Y-m-d H:i:s').print_r($data,true),FILE_APPEND);
+        die;
         if(!isset($data['receiptData']) ||empty($receiptData)){
             return response()->json(['code' => 201 , 'msg' => 'receiptData没有']);
         }
