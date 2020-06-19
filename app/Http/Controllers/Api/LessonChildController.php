@@ -33,17 +33,15 @@ class LessonChildController extends Controller {
 
         if(isset(self::$accept_data['user_token']) && !empty(self::$accept_data['user_token'])){
             //判断token值是否合法
-        $redis_token = Redis::hLen("user:regtoken:".self::$accept_data['user_token']);
-        if($redis_token && $redis_token > 0) {
-            //通过token获取用户信息
-            $json_info = Redis::hGetAll("user:regtoken:".self::$accept_data['user_token']);
-            $uid       = $json_info['user_id'];
-        } else {
-            return $this->response('请登录账号', 401);
-        }
+            $redis_token = Redis::hLen("user:regtoken:".self::$accept_data['user_token']);
+                if($redis_token && $redis_token > 0) {
+                    //通过token获取用户信息
+                    $json_info = Redis::hGetAll("user:regtoken:".self::$accept_data['user_token']);
+                    $uid       = $json_info['user_id'];
+                } else {
+                    return $this->response('请登录账号', 401);
+                }
 
-
-            //$uid = self::$accept_data['user_id'];
         }
 
         $pid = $request->input('pid') ?: 0;
@@ -67,6 +65,7 @@ class LessonChildController extends Controller {
                     $v['mt_duration'] = 0;
                 }
                 unset($v['videos']);
+                $v['use_duration']  =  "未学习";
                 //获取用户使用课程时长
                 if(isset(self::$accept_data['user_token']) && !empty(self::$accept_data['user_token'])){
                     $course_id = $v['course_id'];
