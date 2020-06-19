@@ -97,7 +97,6 @@ class LessonChildController extends Controller {
 
         }
 
-        if(isset(self::$accept_data['user_token']) && !empty(self::$accept_data['user_token'])){
         foreach($lessons as $k => $v){
                 foreach($v['childs'] as $k1 =>$vv){
                     if($vv['use_duration'] == 0){
@@ -111,7 +110,6 @@ class LessonChildController extends Controller {
                 }
 
             }
-        }
 
         return $this->response($lessons);
     }
