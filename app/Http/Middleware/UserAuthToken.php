@@ -26,13 +26,13 @@ class UserAuthToken {
                 //根据手机号获取用户详情
                 $user_info = User::where("phone" , $json_info['phone'])->first();
                 if(!$user_info || empty($user_info)){
-                    return ['code' => 204 , 'msg' => '此用户不存在'];
+                    return ['code' => 401 , 'msg' => '请登录账号'];
                 }
                 
                 //判断用户是否在其他设备登录
-                if($user_info['token'] != $token){
+                /*if($user_info['token'] != $token){
                     return ['code' => 206 , 'msg' => '您已在其他设备上登录'];
-                }
+                }*/
                 
                 //判断用户是否被禁用
                 if($user_info['is_forbid'] == 2){
