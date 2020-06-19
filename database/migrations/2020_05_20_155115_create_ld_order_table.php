@@ -36,7 +36,6 @@ class CreateLdOrderTable extends Migration
 
             //索引设置部分
             $table->index('school_id' , 'index_school_id');
-            $table->index('article_type_id' , 'index_article_type_id');
             $table->index('create_at' , 'index_create_at');
             $table->index('order_number' , 'index_order_number');
         });
