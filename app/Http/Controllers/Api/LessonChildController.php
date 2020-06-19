@@ -70,7 +70,8 @@ class LessonChildController extends Controller {
                 if(isset(self::$accept_data['user_token']) && !empty(self::$accept_data['user_token'])){
                     $course_id = $v['course_id'];
                     $MTCloud = new MTCloud();
-                    $v['use_duration']  =  $MTCloud->coursePlaybackVisitorList($course_id,1,100)['data'];
+                    $v['use_duration']  =  $MTCloud->coursePlaybackVisitorList($course_id,1,50)['data'];
+                    //$v['use_duration'] = $course_id;
                 }
             }
             $value['childs'] = $lesson;
@@ -99,19 +100,19 @@ class LessonChildController extends Controller {
 
         if(isset(self::$accept_data['user_token']) && !empty(self::$accept_data['user_token'])){
         foreach($lessons as $k => $v){
-            foreach($v['childs'] as $k1 =>$vv){
-                if($vv['use_duration'] == 0){
-                    $vv['use_duration'] = "未学习";
-                }else{
-                    $vv['use_duration'] =  "已学习".  sprintf("%01.2f", $vv['use_duration']/$vv['mt_duration']*100).'%';;
+                foreach($v['childs'] as $k1 =>$vv){
+                    if($vv['use_duration'] == 0){
+                        $vv['use_duration'] = "未学习";
+                    }else{
+                        $vv['use_duration'] =  "已学习".  sprintf("%01.2f", $vv['use_duration']/$vv['mt_duration']*100).'%';;
+                    }
+                    $seconds = $vv['mt_duration'];
+                    $hours = intval($seconds/3600);
+                    $vv['mt_duration'] = $hours.":".gmdate('i:s', $seconds);
                 }
-                $seconds = $vv['mt_duration'];
-                $hours = intval($seconds/3600);
-                $vv['mt_duration'] = $hours.":".gmdate('i:s', $seconds);
-            }
 
+            }
         }
-    }
 
         return $this->response($lessons);
     }
