@@ -30,7 +30,7 @@ class CreateLdCourseLivecastResourceTable extends Migration
             $table->dateTime('update_at')->nullable()->comment('更新时间');
 
             //索引设置部分
-            $table->index(['parent_id', 'child_id' , 'nature' , 'status'], 'index_resource_status');
+            $table->index(['parent_id', 'child_id' , 'nature' , 'is_forbid'], 'index_resource');
             
             //引擎设置部分
             $table->engine  = 'InnoDB';
