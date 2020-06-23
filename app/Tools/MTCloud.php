@@ -19,12 +19,14 @@ class MTCloud{
     /*
     *  合作方ID：欢拓平台的唯一ID
     */
-    private $openID = "";
+    private $openID = '12572';
+    private $openIDs;
 
     /*
     *  合作方秘钥：欢拓平台唯一ID对应的加密秘钥
     */
-    private $openToken = "";
+    private $openToken = '1def63e45f2ad6684589ce57483ed530';
+    private $openTokens;
 
     /*
     *   欢拓API接口地址
@@ -121,10 +123,11 @@ class MTCloud{
         if($openID){
             $this->openID = trim($openID);
         }
-
         if($openToken){
             $this->openToken = trim($openToken);
         }
+        $this->openIDs = trim(env('MT_OPEN_ID'));
+        $this->openTokens = trim(env('MT_OPEN_TOKEN'));
     }
 
     /**
