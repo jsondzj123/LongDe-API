@@ -26,7 +26,7 @@ class IndexController extends Controller {
                 [
                     'chart_id'     =>   1 ,
                     'title'        =>   '轮播图1' ,
-                    'jump_url'     =>   'http://www.baidu.com' ,
+                    'jump_url'     =>   '#' ,
                     'pic_image'    =>   "https://longdeapi.oss-cn-beijing.aliyuncs.com/upload/2020-06-17/159238101090725ee9ce52b4dbc.jpg" ,
                     'type'         =>   1 ,
                     'lession_info' => [
@@ -37,7 +37,7 @@ class IndexController extends Controller {
                 [
                     'chart_id'     =>   2 ,
                     'title'        =>   '轮播图2' ,
-                    'jump_url'     =>   'http://www.sina.com' ,
+                    'jump_url'     =>   '#' ,
                     'pic_image'    =>   "https://longdeapi.oss-cn-beijing.aliyuncs.com/upload/2020-06-17/159238104323565ee9ce73db673.jpg" ,
                     'type'         =>   0 ,
                     'lession_info' =>   [
@@ -48,7 +48,7 @@ class IndexController extends Controller {
                 [
                     'chart_id'     =>   3 ,
                     'title'        =>   '轮播图3' ,
-                    'jump_url'     =>   'http://www.163.com' ,
+                    'jump_url'     =>   '#' ,
                     'pic_image'    =>   "https://longdeapi.oss-cn-beijing.aliyuncs.com/upload/2020-06-17/159238106166285ee9ce85ea7e0.jpg" ,
                     'type'         =>   1 ,
                     'lession_info' => [
@@ -310,7 +310,7 @@ class IndexController extends Controller {
             $offset   = ($page - 1) * $pagesize;
             //类型(0表示综合,1表示人气,2表示好评)
             $type     = isset(self::$accept_data['type']) && self::$accept_data['type'] > 0 ? self::$accept_data['type'] : 0;
-            
+
             //根据人气、好评、综合进行排序
             if($type == 1){ //人气排序|好评排序
                 //获取名师列表
@@ -326,10 +326,10 @@ class IndexController extends Controller {
                 $famous_teacher_list = $famous_teacher_list->toArray();
                 if($type == 1){
                     $sort_field = $type == 1 ? 'student_number' : 'star_num';
-                    array_multisort(array_column($famous_teacher_list, $sort_field) , SORT_DESC , $famous_teacher_list);                 
+                    array_multisort(array_column($famous_teacher_list, $sort_field) , SORT_DESC , $famous_teacher_list);
                     $famous_teacher_list = array_slice($famous_teacher_list,$offset,$pagesize);
                 }
-                
+
                 //空数组
                 $teacher_list = [];
                 foreach($famous_teacher_list as $k=>$v){
@@ -342,10 +342,10 @@ class IndexController extends Controller {
                     if($v['child_id'] && $v['child_id'] > 0){
                         $lession_child_name  = Subject::where("id" , $v['child_id'])->where("is_del" , 0)->where("is_forbid" , 0)->value("name");
                     }
-                    
+
                     //数组数值信息赋值
                     $teacher_list[] = [
-                        'teacher_id'          =>  $v['id'] , 
+                        'teacher_id'          =>  $v['id'] ,
                         'teacher_icon'        =>  $v['head_icon'] ,
                         'teacher_name'        =>  $v['real_name'] ,
                         'lession_parent_name' =>  $v['parent_id'] > 0 ? !empty($lession_parent_name) ? $lession_parent_name : '' : '',
@@ -485,6 +485,7 @@ class IndexController extends Controller {
                     ];
                     $lessons[] = $arr;
                 }
+
             }
             return $this->response($lessons);
         } catch (Exception $ex) {

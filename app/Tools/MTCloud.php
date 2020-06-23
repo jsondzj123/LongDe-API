@@ -19,12 +19,14 @@ class MTCloud{
     /*
     *  合作方ID：欢拓平台的唯一ID
     */
-    private $openID = Config::get('mt_cloud.open_id');
+    private $openID = '12572';
+    private $openIDs;
 
     /*
     *  合作方秘钥：欢拓平台唯一ID对应的加密秘钥
     */
-    private $openToken = Config::get('mt_cloud.open_token');
+    private $openToken = '1def63e45f2ad6684589ce57483ed530';
+    private $openTokens;
 
     /*
     *   欢拓API接口地址
@@ -121,10 +123,11 @@ class MTCloud{
         if($openID){
             $this->openID = trim($openID);
         }
-
         if($openToken){
             $this->openToken = trim($openToken);
         }
+        $this->openIDs = trim(env('MT_OPEN_ID'));
+        $this->openTokens = trim(env('MT_OPEN_TOKEN'));
     }
 
     /**
@@ -144,7 +147,7 @@ class MTCloud{
     *   @param string $roomid 进入的房间ID
     *   @param int  $expire 有效期
     *   @param array $options 可选项，包括： gender:用户性别 , avatar:用户头像, gid:分组
-    *   @return array 
+    *   @return array
     */
     public function userAccess($uid,$nickname,$role,$roomid,$expire = 3600,$options = array()){
         $params = array(
@@ -405,9 +408,9 @@ class MTCloud{
         );
         return $this->call('user.online.list',$params);
     }
-    
 
-    
+
+
     /**
     *   查询某个房间的状态信息
     *   @param int  $roomid         房间id
@@ -428,7 +431,7 @@ class MTCloud{
         return $this->call('room.getUrl',$params);
     }
 
-    
+
     /**
     *   创建一个房间
     *   @param      string      $roomName       房间名称
@@ -437,13 +440,13 @@ class MTCloud{
     *   @param      string      $modetype       房间模式
     *   @param      array       $options        可选项，包括： barrage:弹幕开关
     *   @return array
-    */ 
+    */
     public function roomCreate($roomName,$voiceFlow = self::VOICE_FLOW_LISTEN_ONLY,$authKey = '', $modetype = self::ROOM_MODE_BIG, $options = array()){
         $params['roomName'] = $roomName;
         $params['voiceFlow'] = $voiceFlow;
         $params['authKey'] = $authKey;
         $params['modetype'] = $modetype;
-        $params['options'] = $options;        
+        $params['options'] = $options;
 
         return $this->call('room.create',$params);
     }
@@ -472,7 +475,7 @@ class MTCloud{
         return $this->call('room.update',$params);
     }
 
-    
+
     /**
     *   删除一个房间
     *   @param  string    $roomid       房间ID
@@ -488,7 +491,7 @@ class MTCloud{
     *   获取房间列表
     *   按页码和每页数量，分页获取房间列表
     *   注意size不能太大，以免影响效率
-    *   @param      int     $page              页码 
+    *   @param      int     $page              页码
     *   @param      int     $size              获取房间数量
     */
     public function roomList($page = 1,$size = 10){
@@ -496,7 +499,7 @@ class MTCloud{
             'page'=>$page,
             'size'=>$size
         );
-        return $this->call('room.list',$params);    
+        return $this->call('room.list',$params);
     }
 
 
@@ -518,7 +521,7 @@ class MTCloud{
 
     /**
     *   取消房间绑定
-    *   
+    *
     *   @param  int     $roomid         房间ID
     *   @param  string  $account        欢拓主播ID或合作方账号ID
     *   @param  string  $accountType    主播账户类型
@@ -658,7 +661,7 @@ class MTCloud{
     *   @param  string  $account        主播账号
     *   @param  int     $accountType    账户类型
     *   @param  string  $nickname       昵称
-    *   @param  string  $intro          简介 
+    *   @param  string  $intro          简介
     *   @param  int     $departmentID   部门ID
     *   @return array
     */
@@ -684,7 +687,7 @@ class MTCloud{
         $params['account'] = $account;
         $params['accountType'] = $accountType;
         $params['password'] = $password;
-        return $this->call('zhubo.update.password',$params);    
+        return $this->call('zhubo.update.password',$params);
     }
 
     /**
@@ -719,7 +722,7 @@ class MTCloud{
      *  修改主播头像
      *   @param  string $account   主播账号
      *   @param  int    $accountType  主播账号类型
-     *   @param  file $filename   图片路径(支持图片格式:jpg、jpeg) 
+     *   @param  file $filename   图片路径(支持图片格式:jpg、jpeg)
      *   @return array
      */
     public function zhuboUpdatePortrait($account,$accountType, $filename) {
@@ -822,7 +825,7 @@ class MTCloud{
 
     /**
     *   获取某场直播的记录信息及回放地址
-    *   @param          int         $liveid             直播记录ID     
+    *   @param          int         $liveid             直播记录ID
     *   @param          int         $expire             回放地址有效时间
     *   @return         array
     */
@@ -861,12 +864,12 @@ class MTCloud{
         );
         return $this->call('live.getlast',$params);
     }
-    
+
 
     /**
     *   根据日期获取直播记录列表
-    *   @param  string  $startDate    起始日期，格式为:yyyy-mm-dd 
-    *   @param  string  $endDate      结束日期，格式为:yyyy-mm-dd 
+    *   @param  string  $startDate    起始日期，格式为:yyyy-mm-dd
+    *   @param  string  $endDate      结束日期，格式为:yyyy-mm-dd
     *   @param  int     $page         页码
     *   @param  int     $size         每页条数
     *   @param  int     $playback     是否上传了直播记录
@@ -879,7 +882,7 @@ class MTCloud{
             'size' => $size,
             'playback' => $playback
         );
-        return $this->call('live.list',$params);        
+        return $this->call('live.list',$params);
     }
 
 
@@ -907,7 +910,7 @@ class MTCloud{
      *  获取直播聊天列表
      *  @param  string      $liveid         直播ID
      *  @param  int         $page           页码
-     *  @return array 
+     *  @return array
      */
     public function liveMessageList($liveid,$page = 1){
         $params = array(
@@ -1160,7 +1163,7 @@ class MTCloud{
     /**
     *   获取一个直播专辑
     *   @param  string $album_id        专辑ID
-    *   @param  int $expire          地址有效时间     
+    *   @param  int $expire          地址有效时间
     *   @return array
     */
     public function albumGet($album_id,$expire = 3600){
@@ -1174,7 +1177,7 @@ class MTCloud{
     /**
     *   删除一个专辑
     *   @param  string $album_id   专辑ID
-    *   @return array  
+    *   @return array
     */
     public function albumDelete($album_id){
         $params = array(
@@ -1267,7 +1270,7 @@ class MTCloud{
         );
         return $this->call("live.room.get",$params);
     }
-    
+
     /**
      * 根据房间及时间区间获取回放记录
      * @param String $roomid 房间ID
@@ -1291,7 +1294,7 @@ class MTCloud{
      *  根据直播ID获取访客列表
      *  @param  String $liveid      直播ID
      *  @param  int $page           页码
-     *  @param  int $size           每页个数 
+     *  @param  int $size           每页个数
      *  @return
      */
     public function liveVisitorList($liveid,$page = 1,$size = 10){
@@ -1307,7 +1310,7 @@ class MTCloud{
      *  根据直播ID，用户ID获取访客列表
      *  @param  String $liveid      直播ID
      *  @param  String $uid         用户ID
-     *  @return  
+     *  @return
      */
     public function liveVisitorGet($liveid, $uid) {
         $params = array(
@@ -1506,15 +1509,15 @@ class MTCloud{
 
     /**
      *  进入一个课程直播
-     *  @param  String  $course_id      课程ID 
+     *  @param  String  $course_id      课程ID
      *  @param  String  $uid            用户唯一ID
-     *  @param  String  $nickname       用户昵称 
+     *  @param  String  $nickname       用户昵称
      *  @param  String  $role           用户角色，枚举见:ROLE 定义
      *  @param  Int     $expire         有效期,默认:3600(单位:秒)
      *  @param  Array   $options        可选项，包括:gender:枚举见上面GENDER定义,avatar:头像地址,gid:用户分组
-     */ 
+     */
     public function courseAccess($course_id,$uid,$nickname,$role,$expire = 3600,$options = array()){
-        $params = array( 
+        $params = array(
             'course_id'=>$course_id,
             'uid' => $uid,
             'nickname' => $nickname,
@@ -1528,15 +1531,15 @@ class MTCloud{
 
      /**
      *  进入一个课程回放
-     *  @param  String  $course_id      课程ID 
+     *  @param  String  $course_id      课程ID
      *  @param  String  $uid            用户唯一ID
-     *  @param  String  $nickname       用户昵称 
+     *  @param  String  $nickname       用户昵称
      *  @param  String  $role           用户角色，枚举见:ROLE 定义
      *  @param  Int     $expire         有效期,默认:3600(单位:秒)
      *  @param  Array   $options        可选项，包括:gender:枚举见上面GENDER定义,avatar:头像地址
-     */ 
+     */
     public function courseAccessPlayback($course_id,$uid,$nickname,$role,$expire = 3600,$options = array()){
-        $params = array( 
+        $params = array(
             'course_id'=>$course_id,
             'uid' => $uid,
             'nickname' => $nickname,
@@ -1647,7 +1650,7 @@ class MTCloud{
     *   @param int    $page     页码
     *   @param int    $size     每页数量
     *   @param array  $options  可选参数
-    *   @return 
+    *   @return
     */
     public function courseList($start_time,$end_time, $page = 1, $size = 10, $options = array()){
         $params = array('start_time'=>$start_time,'end_time'=>$end_time,'page'=>$page,'size'=>$size,'options'=>$options);
@@ -1795,7 +1798,7 @@ class MTCloud{
      *  根据课程ID获取访客列表
      *  @param  String $course_id      课程ID
      *  @param  int $page           页码
-     *  @param  int $size           每页个数 
+     *  @param  int $size           每页个数
      *  @param  array $options      可选参数
      *  @return
      */
@@ -1813,7 +1816,7 @@ class MTCloud{
      *  根据课程ID获取回放访客列表
      *  @param  String $course_id      课程ID
      *  @param  int $page           页码
-     *  @param  int $size           每页个数 
+     *  @param  int $size           每页个数
      *  @param  array $options      可选参数
      *  @return
      */
@@ -1832,7 +1835,7 @@ class MTCloud{
      *  @param  string start_time   查询起始时间,格式:2015-01-01 12:00:00
      *  @param  string end_time     查询结束时间,格式:2015-01-01 12:00:00
      *  @param  int $page           页码
-     *  @param  int $size           每页个数 
+     *  @param  int $size           每页个数
      *  @param  array $options      可选参数
      */
     public function courseVisitorListAll($start_time, $end_time, $page = 1, $size = 10, $options = array()) {
@@ -1907,7 +1910,7 @@ class MTCloud{
      *  @param  string      $course_id         课程id
      *  @param  int         $page              页码
      *  @param  int         $size              每页个数
-     *  @return array 
+     *  @return array
      */
     public function courseMessageList($course_id,$page = 1,$size = 20){
         $params = array(
@@ -1945,7 +1948,7 @@ class MTCloud{
      *  获取课程课件列表
      *  @param  string      $course_id         课程id
      *  @param  int         $page           页码
-     *  @return array 
+     *  @return array
      */
     public function courseDocumentList($course_id,$page = 1){
         $params = array(
@@ -1970,7 +1973,7 @@ class MTCloud{
     /**
      * 获取直播器启动协议参数
      * @param String $course_id 课程id
-     * @return array 
+     * @return array
      */
     public function courseLaunch($course_id){
         $params = array(
@@ -2014,17 +2017,6 @@ class MTCloud{
         $params['course_id'] = $course_id;
         $params['options'] = $options;
         return $this->call('course.updateConfig',$params);
-    }
-
-    /**
-     * 根据课程ID更新生活直播配置
-     * @param int   $course_id      课程id
-     * @param array $options        可选参数
-     */
-    public function courseUpdateLifeConfig($course_id, $options = array()) {
-        $params['course_id'] = $course_id;
-        $params['options'] = $options;
-        return $this->call('course.updateLifeConfig',$params);
     }
 
     /**
@@ -2091,7 +2083,7 @@ class MTCloud{
     /**
      *  修改主播头像
      *   @param  string $account   接入方自己的主播唯一ID
-     *   @param  file $filename  图片路径(支持图片格式:jpg、jpeg) 
+     *   @param  file $filename  图片路径(支持图片格式:jpg、jpeg)
      *   @return array
      */
     public function courseZhuboPortrait($account, $filename) {
@@ -2148,7 +2140,7 @@ class MTCloud{
             'page'        => $page,
             'size'        => $size,
         ];
-        
+
         return $this->call('course.zhubo.classRecord', $params);
     }
 
@@ -2289,7 +2281,6 @@ class MTCloud{
      * @return array
      */
     public function courseQaAdd($course_id, $content, $uid, $role, $nickname, $options = array()) {
-
         $params = array(
             'course_id' => $course_id,
             'content' => $content,
@@ -2298,7 +2289,6 @@ class MTCloud{
             'nickname' => $nickname,
             'options' => $options
         );
-
         return $this->call('course.qa.add', $params);
     }
 
@@ -2519,7 +2509,7 @@ class MTCloud{
      * @param  intval $roomid  房间ID
      * @param  file $file 文件信息["file"=>"文件路径","name"=>"file.doc"], 支持的课件格式为：ppt, pptx, doc, docx, pdf, jpg, jpeg, png, gif
      */
-    public function documentUpload($roomid, array $file) { 
+    public function documentUpload($roomid, array $file) {
 
         $params = array(
             'roomid'=>$roomid,
@@ -2626,10 +2616,11 @@ class MTCloud{
 
     /**
      * 获取视频上传地址
-     * $account          主播账号
-     * $accountType      账号类型
-     * $title            视频标题
-     * $md5              视频文件md5
+     * @param string $account          主播账号
+     * @param string $accountType      账号类型
+     * @param string $title            视频标题
+     * @param string $md5              视频文件md5
+     * @param array  $options  可选项，包括： gender:用户性别 , avatar:用户头像
      */
     public function videoGetUploadUrl($account, $accountType, $title, $md5, $options = []) {
         $params = array('account' => $account, 'accountType' => $accountType, 'title' => $title, 'md5' => $md5, 'options' => $options);
@@ -2790,7 +2781,7 @@ class MTCloud{
                     }
                     $tryTime ++;
                 }
-                
+
             }
         } else if (isset($retval['code']) && self::CODE_VIDEO_UPLOADED === $retval['code']) {
             $retval['code'] = self::CODE_SUCCESS;
@@ -3021,6 +3012,58 @@ class MTCloud{
     }
 
     /**
+    *   获取流量明细
+    *   @param    string    $date_time   开始日期，格式 Y-m-d
+    *   @param    string    $end_time   结束日期，格式 Y-m-d，如果不传，则默认为开始日期
+    *   @param    int       $vtype      直播或者点播（回放），1直播，2回放，其它值为获取全部
+    *   @param    int       $ctype      当$vtype==2时，点播的类型,11 云点播，其它值为回放，不传则获取所有
+    *   @param    int       $departmentID    部门ID，获取具体部门的统计。0为无部门；传null为流量数据合计；-1为列出所有部门，以及合计
+    *   @param    int       $small      当$vtype==2时，获取小班的回放流量，传1
+    *   @return
+    */
+    public function statsFlowList($date_time, $end_time=null, $vtype=1, $ctype=0, $departmentID=null, $small = 0){
+        $params = ['date_time' => $date_time,'vtype'=>$vtype];
+        if($end_time){
+            $params['end_time'] = $end_time;
+        }
+        if($ctype !== null){
+            $params['ctype'] = $ctype;
+        }
+        if($departmentID !== null){
+            $params['departmentID'] = $departmentID;
+        }
+
+        $params['small'] = $small;
+
+        return $this->call('stats.flow.list', $params);
+    }
+
+    /**
+    *   获取流量总计
+    *   @param    int       $departmentID    部门ID，获取具体部门的统计，0为无部门，不传为全部
+    *   @return
+    */
+    public function statsFlowExpend($departmentID=null){
+        $params = [];
+        if($departmentID !== null){
+            $params['departmentID'] = $departmentID;
+        }
+        return $this->call('stats.flow', $params);
+    }
+
+    /**
+    *   获取音视频互动时长统计
+    *   @param    string  start_time 开始日期，格式 Y-m-d，默认为7天前
+    *   @param    string  end_time 开始日期，格式 Y-m-d，默认昨天，开时结束时间跨度不能超过31天
+    *   @param    int  departmentID 部门ID，获取具体部门的统计，不传或传空值，则默认返回总计
+    *   @return 成功时返回格式：{"code":0,"data":{"1v1":[{"date":"05-08","duration":31},{"date":"05-09","duration":89},...],"1v6":[{"date":"05-08","duration":96},...],"1v16":[{"date":"05-08","duration":96},...],"desktop":[{"date":"05-08","duration":175},...]}}，duration时长单位为分钟
+    */
+    public function statsRtc($start_time, $end_time = '', $departmentID = 0){
+        $params = ['departmentID' => $departmentID,'start_time'=>$start_time,'end_time' => $end_time];
+        return $this->call('stats.rtc', $params);
+    }
+
+    /**
      * 自动登录到欢拓console后台
      * @param int $uid 欢拓后台管理员id
      * @param int $expire 自动登录地址的过期时间
@@ -3058,10 +3101,10 @@ class MTCloud{
     *   $MTCloud = new MTCloud();
     *   $MTCloud->registerCallbackHandler(array(new ExampleHandler,'handler'));
     *   $MTCloud->callbackService();
-    *   
+    *
     */
     public function registerCallbackHandler($callbackHandler = array()){
-        $this->callbackHandler = $callbackHandler;    
+        $this->callbackHandler = $callbackHandler;
     }
 
     /**
@@ -3086,11 +3129,11 @@ class MTCloud{
 
         self::response($retval);
     }
-    
+
     public function response($retval){
         exit(json_encode($retval));
     }
-    
+
 
     //==================================================
     //              以下为系统逻辑
@@ -3119,11 +3162,11 @@ class MTCloud{
     /**
     *   调用欢拓API
     *   @param  string  $cmd    调用的API名称
-    *   @param  array   $params API参数    
+    *   @param  array   $params API参数
     *   @return array
     */
     public function call($cmd,$params = array(), $httpMethod = 'GET', $files = array()){
-        $sysParams = array(); 
+        $sysParams = array();
         $sysParams['openID'] = trim($this->openID);
         $sysParams['timestamp'] = $_SERVER['REQUEST_TIME'];
         $sysParams['cmd'] = $cmd;
@@ -3231,9 +3274,9 @@ class MTCloud{
         $base64url = strtr($base64, '+/', '-_');
         return $base64url;
     }
-    
 
-        
+
+
 }
 
 // class MTCloudException extends Exception{
