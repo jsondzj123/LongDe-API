@@ -34,7 +34,7 @@ class CreateLdCourseLiveChildsTable extends Migration
             $table->string('zhubo_key' , 255)->default('')->comment('主播登录秘钥');
             $table->string('admin_key' , 255)->default('')->comment('助教登录秘钥');
             $table->string('user_key' , 255)->default('')->comment('学生登录秘钥');
-            $table->integer('add_time' , 255)->default('')->comment('课程创建时间');
+            $table->integer('add_time')->default(0)->comment('课程创建时间');
             
             $table->integer('watch_num')->default(0)->comment('观看人数');
             $table->integer('like_num')->default(0)->comment('点赞人数');
