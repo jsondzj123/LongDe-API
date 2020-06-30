@@ -19,7 +19,7 @@ class Exam extends Model {
     /*
      * @param  description   增加试题的方法
      * @param  参数说明       body包含以下参数[
-     *     type            试题类型(1代表单选题2代表多选题3代表不定项4代表判断题5填空题6简答题7材料题)
+     *     type            试题类型(1代表单选题2代表多选题3代表判断题4代表不定项5填空题6简答题7材料题)
      *     subject_id      科目id
      *     bank_id         题库id
      *     exam_id         试题id
@@ -79,8 +79,8 @@ class Exam extends Model {
 
         //判断添加的是否为材料题
         if($body['type'] < 7){
-            //判断是否为(1单选题2多选题3不定项)
-            if(in_array($body['type'] , [1,2,3,5]) && (!isset($body['option_list']) || empty($body['option_list']))){
+            //判断是否为(1单选题2多选题4不定项)
+            if(in_array($body['type'] , [1,2,4,5]) && (!isset($body['option_list']) || empty($body['option_list']))){
                 return ['code' => 201 , 'msg' => '试题选项为空'];
             }
             
@@ -163,8 +163,8 @@ class Exam extends Model {
         //将数据插入到表中
         $exam_id = self::insertGetId($exam_arr);
         if($exam_id && $exam_id > 0){
-            //判断是否为(1单选题2多选题3不定项)
-            if(in_array($body['type'] , [1,2,3]) && !empty($body['option_list'])){
+            //判断是否为(1单选题2多选题4不定项)
+            if(in_array($body['type'] , [1,2,4]) && !empty($body['option_list'])){
                 //添加试题选项
                 ExamOption::insertGetId([
                     'admin_id'       =>   $admin_id ,
@@ -250,10 +250,10 @@ class Exam extends Model {
             return ['code' => 201 , 'msg' => '试题内容为空'];
         }
         
-        //判断此试题是哪种类型的[试题类型(1代表单选题2代表多选题3代表不定项4代表判断题5填空题6简答题7材料题)]
+        //判断此试题是哪种类型的[试题类型(1代表单选题2代表多选题4代表不定项3代表判断题5填空题6简答题7材料题)]
         if(in_array($exam_info['type'] , [1,2,3,4,5,6])){
-            //判断是否为(1单选题2多选题3不定项)
-            if(in_array($exam_info['type'] , [1,2,3,5]) && (!isset($body['option_list']) || empty($body['option_list']))){
+            //判断是否为(1单选题2多选题4不定项)
+            if(in_array($exam_info['type'] , [1,2,4,5]) && (!isset($body['option_list']) || empty($body['option_list']))){
                 return ['code' => 201 , 'msg' => '试题选项为空'];
             }
             
@@ -312,8 +312,8 @@ class Exam extends Model {
         //根据试题的id更新试题内容
         $update_exam_info = self::where("id" , $body['exam_id'])->update($exam_arr);
         if($update_exam_info && !empty($update_exam_info)){
-            //判断是否为(1单选题2多选题3不定项5填空题)
-            if(in_array($exam_info['type'] , [1,2,3,5]) && !empty($body['option_list'])){
+            //判断是否为(1单选题2多选题4不定项5填空题)
+            if(in_array($exam_info['type'] , [1,2,4,5]) && !empty($body['option_list'])){
                 //更新试题的id更新试题选项
                 ExamOption::where("exam_id" , $body['exam_id'])->update(['option_content' => $body['option_list'] , 'update_at' => date('Y-m-d H:i:s')]);
             }
@@ -495,7 +495,7 @@ class Exam extends Model {
      * @param  参数说明         body包含以下参数[
      *     bank_id         题库id(必传)
      *     subject_id      科目id(非必传)
-     *     type            试题类型(1代表单选题2代表多选题3代表不定项4代表判断题5填空题6简答题7材料题)(非必传)
+     *     type            试题类型(1代表单选题2代表多选题4代表不定项3代表判断题5填空题6简答题7材料题)(非必传)
      *     is_publish      审核状态(非必传)
      *     chapter_id      章id(非必传)
      *     joint_id        节id(非必传)
@@ -683,7 +683,7 @@ class Exam extends Model {
         $exam_info['option_list'] = [];
         
         //根据试题的id获取选项的列表(只有单选题,多选题,不定项有选项,其他没有)
-        if(in_array($exam_info['type'] , [1,2,3])){
+        if(in_array($exam_info['type'] , [1,2,4])){
             //根据试题的id获取选项列表
             $option_list = ExamOption::select("option_content")->where("exam_id",$body['exam_id'])->first()->toArray();
             $exam_info['option_list']   =   json_decode($option_list['option_content'] , true);
@@ -855,7 +855,7 @@ class Exam extends Model {
             $option_list = [];
 
             //判断试题类型是单选题或多选题或不定项或填空题
-            if(in_array($exam_type , [1,2,3,5])){
+            if(in_array($exam_type , [1,2,4,5])){
                 //选项对应索引值
                 $option_index = [3=>'A',4=>'B',5=>'C',6=>'D',7=>'E',8=>'F',9=>'G',10=>'H'];
 
@@ -881,9 +881,9 @@ class Exam extends Model {
                 if(!$chapter_info || empty($chapter_info)){
                     $chapter_id = Chapters::insertGetId([
                         'parent_id'      =>   0 ,
-                        'subject_id'     =>   0 ,
-                        'admin_id'       =>   1 ,
-                        'bank_id'        =>   1 ,
+                        'subject_id'     =>   $body['subject_id'] ,
+                        'admin_id'       =>   $admin_id ,
+                        'bank_id'        =>   $body['bank_id'] ,
                         'name'           =>   trim($v[13]) ,
                         'type'           =>   0 ,
                         'create_at'      =>   date('Y-m-d H:i:s', time()+10)
@@ -902,9 +902,9 @@ class Exam extends Model {
                 if(!$joint_info || empty($joint_info)){
                     $joint_id = Chapters::insertGetId([
                         'parent_id'      =>   $chapter_id ,
-                        'subject_id'     =>   0 ,
-                        'admin_id'       =>   1 ,
-                        'bank_id'        =>   1 ,
+                        'subject_id'     =>   $body['subject_id'] ,
+                        'admin_id'       =>   $admin_id ,
+                        'bank_id'        =>   $body['bank_id'] ,
                         'name'           =>   trim($v[14]) ,
                         'type'           =>   1 ,
                         'create_at'      =>   date('Y-m-d H:i:s', time()+10)
@@ -923,9 +923,9 @@ class Exam extends Model {
                 if(!$point_info || empty($point_info)){
                     $point_id = Chapters::insertGetId([
                         'parent_id'      =>   $joint_id ,
-                        'subject_id'     =>   0 ,
-                        'admin_id'       =>   1 ,
-                        'bank_id'        =>   1 ,
+                        'subject_id'     =>   $body['subject_id'] ,
+                        'admin_id'       =>   $admin_id ,
+                        'bank_id'        =>   $body['bank_id'] ,
                         'name'           =>   trim($v[15]) ,
                         'type'           =>   2 ,
                         'create_at'      =>   date('Y-m-d H:i:s', time()+10)
@@ -943,7 +943,7 @@ class Exam extends Model {
                     'subject_id'     =>  $body['subject_id'] ,                                     //科目的id
                     'admin_id'       =>  $admin_id ,                                               //后端的操作员id
                     'exam_content'   =>  $v[1] ,                                                   //试题内容
-                    'answer'         =>  $exam_type == 4 ? $v[2] == '正确' ?  1  : 0  : $v[2]  ,   //试题答案
+                    'answer'         =>  $exam_type == 3 ? $v[2] == '正确' ?  1  : 0  : $v[2]  ,   //试题答案
                     'text_analysis'  =>  !empty($v[11]) ? $v[11] : '' ,                            //文字解析
                     'item_diffculty' =>  !empty($v[12]) ? $diffculty_array[trim($v[12])] : 0 ,     //试题难度
                     'chapter_id'     =>  $v[13] && !empty($v[13]) ? $chapter_id > 0 ? $chapter_id : 0 : 0,         //章id
@@ -954,7 +954,7 @@ class Exam extends Model {
                 ]);
 
                 //判断是否插入成功试题
-                if($exam_id > 0 && in_array($exam_type , [1,2,3,5])){
+                if($exam_id > 0 && in_array($exam_type , [1,2,4,5])){
                     //试题选项插入
                     ExamOption::insertGetId([
                         'admin_id'       =>  $admin_id ,                                           //后端的操作员id
@@ -967,7 +967,7 @@ class Exam extends Model {
                 //数组信息赋值
                 $arr[$exam_type][] = [
                     'exam_content'  =>  $v[1]  ,                                                  //试题内容
-                    'answer'        =>  $exam_type == 4 ? $v[2] == '正确' ?  1  : 0  : $v[2]  ,   //试题答案
+                    'answer'        =>  $exam_type == 3 ? $v[2] == '正确' ?  1  : 0  : $v[2]  ,   //试题答案
                     'text_analysis' =>  !empty($v[11]) ? $v[11] : '' ,                            //文字解析
                     'item_diffculty'=>  !empty($v[12]) ? $diffculty_array[trim($v[12])] : 0 ,     //试题难度
                     'chapter_id'     =>  $v[13] && !empty($v[13]) ? $chapter_id > 0 ? $chapter_id : 0 : 0,         //章id
