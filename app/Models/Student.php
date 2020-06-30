@@ -96,8 +96,9 @@ class Student extends Model {
             }
 
             //判断开课状态是否选择
-            if(isset($body['state_status']) && !empty($body['state_status'])){
-                $query->where('state_status' , '=' , $body['state_status']);
+            if(isset($body['state_status']) && strlen($body['state_status']) > 0){
+                $state_status = $body['state_status'] > 0 ? $body['state_status'] : 0;
+                $query->where('state_status' , '=' , $state_status);
             }
 
             //判断账号状态是否选择
@@ -126,8 +127,9 @@ class Student extends Model {
                 }
                 
                 //判断开课状态是否选择
-                if(isset($body['state_status']) && !empty($body['state_status'])){
-                    $query->where('state_status' , '=' , $body['state_status']);
+                if(isset($body['state_status']) && strlen($body['state_status']) > 0){
+                    $state_status = $body['state_status'] > 0 ? $body['state_status'] : 0;
+                    $query->where('state_status' , '=' , $state_status);
                 }
 
                 //判断账号状态是否选择
