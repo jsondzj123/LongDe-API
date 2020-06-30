@@ -74,9 +74,10 @@ class AuthenticateController extends Controller {
             return $this->response('创建token失败', 500);
         }
         $user = JWTAuth::user();
+        $user['school_name'] = School::where('id',$user['school_id'])->select('name')->first()['name'];
         $user['token'] = $token;
         $this->setTokenToRedis($user->id, $token);
-      
+        
         $AdminUser = new AdminUser();
         $user['auth'] = [];     //5.14 该账户没有权限返回空  begin
         if($user['role_id']>0){
