@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Redis;
 use Illuminate\Http\Request;
 use App\Models\Admin;
+use App\Models\School;
 use Log;
 use JWTAuth;
 use Validator;
@@ -53,7 +54,17 @@ class AuthenticateController extends Controller {
      * @return User
      */
     protected function login(array $data)
-    {
+    {   //begin 识别网校（用户）
+        // $school = School::where(['dns'=>$_SERVER["SERVER_NAME"],'is_del'=>1])->first();
+        // if(!$school){
+        //      return $this->response('学校不存在', 401);
+        // }else{
+        //     if($school['is_forbid'] != 1){
+        //         return $this->response('学校已禁用，请联系网校负责人', 401);
+        //     }
+        // }
+        // $data['school_ld'] = $school['id'];
+        //end 
         try {
             if (!$token = JWTAuth::attempt($data)) {
                 return $this->response('用户名或密码不正确', 401);
@@ -62,10 +73,10 @@ class AuthenticateController extends Controller {
             Log::error('创建token失败' . $e->getMessage());
             return $this->response('创建token失败', 500);
         }
-
         $user = JWTAuth::user();
         $user['token'] = $token;
         $this->setTokenToRedis($user->id, $token);
+      
         $AdminUser = new AdminUser();
         $user['auth'] = [];     //5.14 该账户没有权限返回空  begin
         if($user['role_id']>0){
