@@ -124,7 +124,7 @@ class Exam extends Model {
             $exam_arr = [
                 'parent_id'     =>  $body['exam_id'] ,
                 'exam_content'  =>  $body['exam_content'] ,
-                'answer'        =>  $body['type'] < 7 ? $body['answer'] : '' ,
+                'answer'        =>  $body['type'] < 7 ? isset($body['answer']) && !empty($body['answer']) ? $body['answer'] : '' : '' ,
                 'text_analysis' =>  isset($body['text_analysis'])  && !empty($body['text_analysis']) ? $body['text_analysis']   : '' ,
                 'audio_analysis'=>  isset($body['audio_analysis']) && !empty($body['audio_analysis']) ? $body['audio_analysis'] : '' ,
                 'video_analysis'=>  isset($body['video_analysis']) && !empty($body['video_analysis']) ? $body['video_analysis'] : '' ,
@@ -143,7 +143,7 @@ class Exam extends Model {
                 'subject_id'    =>  $body['subject_id'] ,
                 'bank_id'       =>  $body['bank_id'] ,
                 'exam_content'  =>  $body['exam_content'] ,
-                'answer'        =>  $body['type'] < 7 ? $body['answer'] : '' ,
+                'answer'        =>  $body['type'] < 7 ? isset($body['answer']) && !empty($body['answer']) ? $body['answer'] : '' : '' ,
                 'text_analysis' =>  isset($body['text_analysis'])  && !empty($body['text_analysis']) ? $body['text_analysis']   : '' ,
                 'audio_analysis'=>  isset($body['audio_analysis']) && !empty($body['audio_analysis']) ? $body['audio_analysis'] : '' ,
                 'video_analysis'=>  isset($body['video_analysis']) && !empty($body['video_analysis']) ? $body['video_analysis'] : '' ,
@@ -163,8 +163,8 @@ class Exam extends Model {
         //将数据插入到表中
         $exam_id = self::insertGetId($exam_arr);
         if($exam_id && $exam_id > 0){
-            //判断是否为(1单选题2多选题4不定项)
-            if(in_array($body['type'] , [1,2,4]) && !empty($body['option_list'])){
+            //判断是否为(1单选题2多选题4不定项5填空题)
+            if(in_array($body['type'] , [1,2,4,5]) && !empty($body['option_list'])){
                 //添加试题选项
                 ExamOption::insertGetId([
                     'admin_id'       =>   $admin_id ,
@@ -294,7 +294,7 @@ class Exam extends Model {
         //试题数据组合
         $exam_arr = [
             'exam_content'  =>  $body['exam_content'] ,
-            'answer'        =>  $exam_info['type'] < 7 ? $body['answer'] : '' ,
+            'answer'        =>  $exam_info['type'] < 7 ? isset($body['answer']) && !empty($body['answer']) ? $body['answer'] : '' : '' ,
             'text_analysis' =>  isset($body['text_analysis'])  && !empty($body['text_analysis']) ?  $body['text_analysis']   : '' ,
             'audio_analysis'=>  isset($body['audio_analysis']) && !empty($body['audio_analysis']) ? $body['audio_analysis']  : '' ,
             'video_analysis'=>  isset($body['video_analysis']) && !empty($body['video_analysis']) ? $body['video_analysis'] : '' ,
