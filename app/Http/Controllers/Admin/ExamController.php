@@ -385,7 +385,23 @@ class ExamController extends Controller {
                 'name'=> '困难'
             ]
         ];
-        return response()->json(['code' => 200 , 'msg' => '返回数据成功' , 'data' => ['diffculty_array' => $diffculty_array , 'exam_array' => $exam_array]]);
+        
+        //试题类型
+        $examtype_array = [
+            [
+                'id'  =>  1 ,
+                'name'=> '真题'
+            ] ,
+            [
+                'id'  =>  2 ,
+                'name'=> '模拟题'
+            ] ,
+            [
+                'id'  =>  3 ,
+                'name'=> '其他'
+            ]
+        ];
+        return response()->json(['code' => 200 , 'msg' => '返回数据成功' , 'data' => ['diffculty_array' => $diffculty_array , 'exam_array' => $exam_array , 'examtype_array' => $examtype_array]]);
     }
 
     /*
