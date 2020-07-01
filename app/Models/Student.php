@@ -141,7 +141,7 @@ class Student extends Model {
                 if(isset($body['search']) && !empty($body['search'])){
                     $query->where('real_name','like','%'.$body['search'].'%')->orWhere('phone','like','%'.$body['search'].'%');
                 }
-            })->select('id as student_id','real_name','phone','create_at','enroll_status','state_status','is_forbid')->orderByDesc('create_at')->offset($offset)->limit($pagesize)->get();
+            })->select('id as student_id','real_name','phone','create_at','enroll_status','state_status','is_forbid','papers_type','papers_num')->orderByDesc('create_at')->offset($offset)->limit($pagesize)->get();
             return ['code' => 200 , 'msg' => '获取学员列表成功' , 'data' => ['student_list' => $student_list , 'total' => $student_count , 'pagesize' => $pagesize , 'page' => $page]];
         }
         return ['code' => 200 , 'msg' => '获取学员列表成功' , 'data' => ['student_list' => [] , 'total' => 0 , 'pagesize' => $pagesize , 'page' => $page]];
