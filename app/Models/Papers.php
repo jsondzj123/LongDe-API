@@ -506,8 +506,9 @@ class Papers extends Model {
                 }
                 
                 //获取试卷状态
-                if(!empty($body['is_publish']) && $body['is_publish'] >= 0){
-                    $query->where('is_publish' , '=' , $body['is_publish']);
+                if(strlen($body['is_publish']) > 0 && $body['is_publish'] >= 0){
+                    $is_publish = $body['is_publish'] > 0 ? 1 : 0;
+                    $query->where('is_publish' , '=' , $is_publish);
                 }
                 
                 //获取试卷名称
