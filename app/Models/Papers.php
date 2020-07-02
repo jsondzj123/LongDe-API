@@ -174,8 +174,8 @@ class Papers extends Model {
             'area.min'              =>  json_encode(['code'=>202,'msg'=>'所属区域不合法']) ,
             'cover_img.required'    =>  json_encode(['code'=>201,'msg'=>'请上传封面图片']) ,
             'content.required'      =>  json_encode(['code'=>201,'msg'=>'请输入试卷描述']) ,
-            'type.required'         =>  json_encode(['code'=>201,'msg'=>'请选择题型']) ,
-            'type.between'          =>  json_encode(['code'=>202,'msg'=>'选择题型不合法'])
+            'type.required'         =>  json_encode(['code'=>201,'msg'=>'请选择题型']) 
+            //'type.between'          =>  json_encode(['code'=>202,'msg'=>'选择题型不合法'])
         ];
         
         $validator = Validator::make($body , $rule , $message);
