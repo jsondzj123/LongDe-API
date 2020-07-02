@@ -482,7 +482,43 @@ class Papers extends Model {
         }
 
         //获取试卷的总数量
-        $papers_count = self::where('is_del' , '=' , 0)->where('admin_id' , '=' , $admin_id)->where("subject_id" , "=" , $body['subject_id'])->count();
+        //$papers_count = self::where('is_del' , '=' , 0)->where('admin_id' , '=' , $admin_id)->where("subject_id" , "=" , $body['subject_id'])->count();
+        $papers_count = self::where('is_del' , '=' , 0)->where(function($query) use ($body){
+            //题库的id
+            $query->where('bank_id' , '=' , $body['bank_id']);
+
+            //删除状态
+            $query->where('is_del' , '=' , 0);
+
+            //获取后端的操作员id
+            $admin_id = isset(AdminLog::getAdminInfo()->admin_user->id) ? AdminLog::getAdminInfo()->admin_user->id : 0;
+
+            //获取科目的id
+            if(!empty($body['subject_id']) && $body['subject_id'] > 0){
+                $query->where('subject_id' , '=' , $body['subject_id']);
+            }
+
+            //获取试卷类型
+            if(!empty($body['diffculty']) && $body['diffculty'] > 0 && in_array($body['diffculty'] , [1,2,3])){
+                $query->where('diffculty' , '=' , $body['diffculty']);
+            }
+
+            //获取试卷状态
+            if(strlen($body['is_publish']) > 0 && $body['is_publish'] >= 0){
+                $is_publish = $body['is_publish'] > 0 ? 1 : 0;
+                $query->where('is_publish' , '=' , $is_publish);
+            }
+
+            //获取试卷名称
+            if(!empty($body['papers_name'])){
+                $query->where('papers_name','like',$body['papers_name'].'%');
+            }
+
+            //操作员id
+            $query->where('admin_id' , '=' , $admin_id);
+        })->count();
+        
+        //判断试卷数量是否为空
         if($papers_count > 0){
             //获取试卷列表
             $papers_list = self::select('id as papers_id','papers_name','papers_time','is_publish','signle_score','more_score','judge_score','options_score','pack_score','short_score','material_score','type')->where(function($query) use ($body){
