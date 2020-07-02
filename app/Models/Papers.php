@@ -45,7 +45,7 @@ class Papers extends Model {
             'area'           =>   'bail|required|numeric|min:1' ,
             'cover_img'      =>   'bail|required' ,
             'content'        =>   'bail|required' ,
-            'type'           =>   'bail|required|between:1,7'
+            'type'           =>   'bail|required'
         ];
         
         //信息提示
@@ -159,7 +159,7 @@ class Papers extends Model {
             'area'           =>   'bail|required|numeric|min:1' ,
             'cover_img'      =>   'bail|required' ,
             'content'        =>   'bail|required' ,
-            'type'           =>   'bail|required|between:1,7'
+            'type'           =>   'bail|required'
         ];
         
         //信息提示
