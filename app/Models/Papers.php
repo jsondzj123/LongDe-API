@@ -45,7 +45,7 @@ class Papers extends Model {
             'area'           =>   'bail|required|numeric|min:1' ,
             'cover_img'      =>   'bail|required' ,
             'content'        =>   'bail|required' ,
-            'type'           =>   'bail|required|between:1,7'
+            'type'           =>   'bail|required'
         ];
         
         //信息提示
@@ -58,6 +58,7 @@ class Papers extends Model {
             'diffculty.required'    =>  json_encode(['code'=>201,'msg'=>'请选择试题类型']) ,
             'diffculty.between'     =>  json_encode(['code'=>202,'msg'=>'试题类型不合法']) ,
             'papers_time.required'  =>  json_encode(['code'=>201,'msg'=>'请输入答题时间']) ,
+            'papers_time.numeric'   =>  json_encode(['code'=>202,'msg'=>'答题时间不合法']) ,
             'area.required'         =>  json_encode(['code'=>201,'msg'=>'请选择所属区域']) ,
             'area.min'              =>  json_encode(['code'=>202,'msg'=>'所属区域不合法']) ,
             'cover_img.required'    =>  json_encode(['code'=>201,'msg'=>'请上传封面图片']) ,
@@ -159,7 +160,7 @@ class Papers extends Model {
             'area'           =>   'bail|required|numeric|min:1' ,
             'cover_img'      =>   'bail|required' ,
             'content'        =>   'bail|required' ,
-            'type'           =>   'bail|required|between:1,7'
+            'type'           =>   'bail|required'
         ];
         
         //信息提示
@@ -170,6 +171,7 @@ class Papers extends Model {
             'diffculty.required'    =>  json_encode(['code'=>201,'msg'=>'请选择试题类型']) ,
             'diffculty.between'     =>  json_encode(['code'=>202,'msg'=>'试题类型不合法']) ,
             'papers_time.required'  =>  json_encode(['code'=>201,'msg'=>'请输入答题时间']) ,
+            'papers_time.numeric'   =>  json_encode(['code'=>202,'msg'=>'答题时间不合法']) ,
             'area.required'         =>  json_encode(['code'=>201,'msg'=>'请选择所属区域']) ,
             'area.min'              =>  json_encode(['code'=>202,'msg'=>'所属区域不合法']) ,
             'cover_img.required'    =>  json_encode(['code'=>201,'msg'=>'请上传封面图片']) ,
