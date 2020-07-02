@@ -87,6 +87,8 @@ class Student extends Model {
         } else {
             $student_info['school_name']  = '';
         }
+        //余额
+        $student_info['balance']  = $student_info['balance'] > 0 ? $student_info['balance'] : 0;
         //最后登录时间
         $student_info['login_at']  = $student_info['login_at'] && !empty($student_info['login_at']) ? $student_info['login_at'] : '';
         return ['code' => 200 , 'msg' => '获取学员信息成功' , 'data' => $student_info];
