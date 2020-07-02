@@ -77,8 +77,8 @@ class Student extends Model {
         $reg_source_array  = [0=>'官网注册',1=>'手机端',2=>'线下录入'];
         //备注
         $student_info['remark']  = $student_info['remark'] && !empty($student_info['remark']) ? $student_info['remark'] : '';
-        $student_info['educational']  = $student_info['educational'] && $student_info['educational'] > 0 ? $educational_array[$student_info['educational']] : '';
-        $student_info['papers_type']  = $student_info['papers_type'] && $student_info['papers_type'] > 0 ? $papers_type_array[$student_info['papers_type']] : '';
+        $student_info['educational_name']  = $student_info['educational'] && $student_info['educational'] > 0 ? $educational_array[$student_info['educational']] : '';
+        $student_info['papers_type_name']  = $student_info['papers_type'] && $student_info['papers_type'] > 0 ? $papers_type_array[$student_info['papers_type']] : '';
         $student_info['reg_source']   = isset($reg_source_array[$student_info['reg_source']]) && !empty($reg_source_array[$student_info['reg_source']]) ? $reg_source_array[$student_info['reg_source']] : '';
         
         //通过分校的id获取分校的名称
