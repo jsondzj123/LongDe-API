@@ -100,7 +100,7 @@ class PapersExam extends Model {
                 $papersexam_id = self::insertGetId($data);
             } else {
                 //将数据更新到表中
-                $papersexam_id = self::where("exam_id",$v['exam_id'])->update(['is_del'=>$v['is_del']]);
+                $papersexam_id = self::where("exam_id",$v['exam_id'])->update(['is_del'=>$v['is_del'] , 'update_at' => date('Y-m-d H:i:s')]);
             }
         }
 
