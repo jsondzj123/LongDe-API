@@ -468,6 +468,11 @@ class Papers extends Model {
         //获取后端的操作员id
         $admin_id = isset(AdminLog::getAdminInfo()->admin_user->id) ? AdminLog::getAdminInfo()->admin_user->id : 0;
         
+        //判断题库的id是否为空
+        if(!isset($body['bank_id']) || $body['bank_id'] <= 0){
+            return ['code' => 201 , 'msg' => '题库id为空'];
+        }
+        
         //获取当前的科目
         if(!isset($body['subject_id']) || empty($body['subject_id'])){
             //获取当前的科目
@@ -494,23 +499,23 @@ class Papers extends Model {
             $admin_id = isset(AdminLog::getAdminInfo()->admin_user->id) ? AdminLog::getAdminInfo()->admin_user->id : 0;
 
             //获取科目的id
-            if(!empty($body['subject_id']) && $body['subject_id'] > 0){
+            if(isset($body['subject_id']) && !empty($body['subject_id']) && $body['subject_id'] > 0){
                 $query->where('subject_id' , '=' , $body['subject_id']);
             }
 
             //获取试卷类型
-            if(!empty($body['diffculty']) && $body['diffculty'] > 0 && in_array($body['diffculty'] , [1,2,3])){
+            if(isset($body['diffculty']) && !empty($body['diffculty']) && $body['diffculty'] > 0 && in_array($body['diffculty'] , [1,2,3])){
                 $query->where('diffculty' , '=' , $body['diffculty']);
             }
 
             //获取试卷状态
-            if(strlen($body['is_publish']) > 0 && $body['is_publish'] >= 0){
+            if(isset($body['is_publish']) && strlen($body['is_publish']) > 0 && $body['is_publish'] >= 0){
                 $is_publish = $body['is_publish'] > 0 ? 1 : 0;
                 $query->where('is_publish' , '=' , $is_publish);
             }
 
             //获取试卷名称
-            if(!empty($body['papers_name'])){
+            if(isset($body['papers_name']) && !empty($body['papers_name'])){
                 $query->where('papers_name','like',$body['papers_name'].'%');
             }
 
@@ -532,23 +537,23 @@ class Papers extends Model {
                 $admin_id = isset(AdminLog::getAdminInfo()->admin_user->id) ? AdminLog::getAdminInfo()->admin_user->id : 0;
                 
                 //获取科目的id
-                if(!empty($body['subject_id']) && $body['subject_id'] > 0){
+                if(isset($body['subject_id']) && !empty($body['subject_id']) && $body['subject_id'] > 0){
                     $query->where('subject_id' , '=' , $body['subject_id']);
                 }
                 
                 //获取试卷类型
-                if(!empty($body['diffculty']) && $body['diffculty'] > 0 && in_array($body['diffculty'] , [1,2,3])){
+                if(isset($body['diffculty']) && !empty($body['diffculty']) && $body['diffculty'] > 0 && in_array($body['diffculty'] , [1,2,3])){
                     $query->where('diffculty' , '=' , $body['diffculty']);
                 }
                 
                 //获取试卷状态
-                if(strlen($body['is_publish']) > 0 && $body['is_publish'] >= 0){
+                if(isset($body['is_publish']) && strlen($body['is_publish']) > 0 && $body['is_publish'] >= 0){
                     $is_publish = $body['is_publish'] > 0 ? 1 : 0;
                     $query->where('is_publish' , '=' , $is_publish);
                 }
                 
                 //获取试卷名称
-                if(!empty($body['papers_name'])){
+                if(isset($body['papers_name']) && !empty($body['papers_name'])){
                     $query->where('papers_name','like',$body['papers_name'].'%');
                 }
 
