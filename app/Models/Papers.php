@@ -573,7 +573,7 @@ class Papers extends Model {
                     if($signle_count > 0){
                         $consult[] = ['type'=>'单选题' , 'count' => $signle_count , 'score' => $v['signle_score'] , 'sum_score' => $v['signle_score'] * $signle_count];
                     } else {
-                        $consult[] = ['type'=>'单选题' , 'count' => 0 , 'score' => 0 , 'sum_score' => 0];
+                        $consult[] = ['type'=>'单选题' , 'count' => 0 , 'score' => $v['signle_score'] , 'sum_score' => 0];
                     }
                 }
                 
@@ -583,7 +583,7 @@ class Papers extends Model {
                     if($more_count > 0){
                         $consult[] = ['type'=>'多选题' , 'count' => $more_count , 'score' => $v['more_score'] , 'sum_score' => $v['more_score'] * $more_count];
                     } else {
-                        $consult[] = ['type'=>'多选题' , 'count' => 0 , 'score' => 0 , 'sum_score' => 0];
+                        $consult[] = ['type'=>'多选题' , 'count' => 0 , 'score' => $v['more_score'] , 'sum_score' => 0];
                     }
                 }
                 
@@ -593,7 +593,7 @@ class Papers extends Model {
                     if($options_count > 0){
                         $consult[]     = ['type'=>'不定项' , 'count' => $options_count , 'score' => $v['options_score'] , 'sum_score' => $v['options_score'] * $options_count];
                     } else {
-                        $consult[]     = ['type'=>'不定项' , 'count' => 0 , 'score' => 0 , 'sum_score' => 0];
+                        $consult[]     = ['type'=>'不定项' , 'count' => 0 , 'score' => $v['options_score'] , 'sum_score' => 0];
                     }
                 }
                 
@@ -603,7 +603,7 @@ class Papers extends Model {
                     if($judge_count > 0){
                         $consult[]     = ['type'=>'判断题' , 'count' => $judge_count , 'score' => $v['judge_score'] , 'sum_score' => $v['judge_score'] * $judge_count];
                     } else {
-                        $consult[]     = ['type'=>'判断题' , 'count' => 0 , 'score' => 0 , 'sum_score' => 0];
+                        $consult[]     = ['type'=>'判断题' , 'count' => 0 , 'score' => $v['judge_score'] , 'sum_score' => 0];
                     }
                 }
                 
@@ -613,7 +613,7 @@ class Papers extends Model {
                     if($pack_count > 0){
                         $consult[]     = ['type'=>'填空题' , 'count' => $pack_count , 'score' => $v['pack_score'] , 'sum_score' => $v['pack_score'] * $pack_count];
                     } else {
-                        $consult[]     = ['type'=>'填空题' , 'count' => 0 , 'score' => 0 , 'sum_score' => 0];
+                        $consult[]     = ['type'=>'填空题' , 'count' => 0 , 'score' => $v['pack_score'] , 'sum_score' => 0];
                     }
                 }
                 
@@ -623,7 +623,7 @@ class Papers extends Model {
                     if($short_count > 0){
                         $consult[]     = ['type'=>'简答题' , 'count' => $short_count , 'score' => $v['short_score'] , 'sum_score' => $v['short_score'] * $short_count];
                     } else {
-                        $consult[]     = ['type'=>'简答题' , 'count' => 0 , 'score' => 0 , 'sum_score' => 0];
+                        $consult[]     = ['type'=>'简答题' , 'count' => 0 , 'score' => $v['short_score'] , 'sum_score' => 0];
                     }
                 }
                 
@@ -633,7 +633,7 @@ class Papers extends Model {
                     if($material_count > 0){
                         $consult[]     = ['type'=>'材料题' , 'count' => $material_count , 'score' => $v['material_score'] , 'sum_score' => $v['material_score'] * $material_count];
                     } else {
-                        $consult[]     = ['type'=>'材料题' , 'count' => 0 , 'score' => 0 , 'sum_score' => 0];
+                        $consult[]     = ['type'=>'材料题' , 'count' => 0 , 'score' => $v['material_score'] , 'sum_score' => 0];
                     }
                 }
                 
