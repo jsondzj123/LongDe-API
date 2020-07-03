@@ -516,7 +516,7 @@ class Papers extends Model {
 
             //获取试卷名称
             if(isset($body['papers_name']) && !empty($body['papers_name'])){
-                $query->where('papers_name','like',$body['papers_name'].'%');
+                $query->where('papers_name','like','%'.$body['papers_name'].'%');
             }
 
             //操作员id
